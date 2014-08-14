@@ -1,0 +1,9 @@
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.dll
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.pdb
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\log4net.dll
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\Newtonsoft.Json.dll
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\log4net.xml
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\Newtonsoft.Json.xml
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Debug\DoshiiDotNetIntegration.dll
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Debug\DoshiiDotNetIntegration.pdb
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Debug\DoshiiDotNetIntegration.csprojResolveAssemblyReference.cache
