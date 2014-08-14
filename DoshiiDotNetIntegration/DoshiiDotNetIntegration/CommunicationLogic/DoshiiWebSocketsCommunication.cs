@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
-    class DoshiiWebSocketsCommunication
+    internal class DoshiiWebSocketsCommunication
     {
     }
 }

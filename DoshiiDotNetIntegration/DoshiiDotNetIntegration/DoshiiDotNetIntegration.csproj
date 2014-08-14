@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommunicationLogic\DoshiiHttpCommunication.cs" />
+    <Compile Include="CommunicationLogic\DoshiiWebSocketsCommunication.cs" />
     <Compile Include="Doshii.cs" />
     <Compile Include="LoggingBase.cs" />
     <Compile Include="Modles\JsonSerializationBase.cs" />
