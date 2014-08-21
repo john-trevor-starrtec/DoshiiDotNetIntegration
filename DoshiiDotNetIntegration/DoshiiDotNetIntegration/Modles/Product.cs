@@ -5,12 +5,18 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.Modles
 {
-    public class Product : JsonSerializationBase<Product>
+    public class product : JsonSerializationBase<product>
     {
         /// <summary>
         /// The Doshii Id of the prduct this will be provided by Doshii
         /// </summary>
         public int id { get; set; }
+
+        /// <summary>
+        /// the time the product was updated
+        /// REVIEW: (liam): check what this updated at time is used for. 
+        /// </summary>
+        public DateTime updatedAt { get; set; }
 
         /// <summary>
         /// The internal Id of the product
@@ -39,11 +45,73 @@ namespace DoshiiDotNetIntegration.Modles
         public string description { get; set; }
 
         /// <summary>
-        /// A list of product options available for the product. 
+        /// a list of varient lists the customer can choose from to modify their product.
         /// </summary>
         public List<product_options> product_options { get; set; }
 
+        /// <summary>
+        /// additional instructions added by the customer
+        /// </summary>
+        public string additional_instructions { get; set; }
 
+        /// <summary>
+        /// the reason the product was rejected by the pos
+        /// </summary>
+        public string rejection_reason { get; set; }
 
+        #region conditional json serialization
+
+        /// <summary>
+        /// determians if the 
+        /// </summary>
+        /// <returns></returns>
+        public bool ShouldSerializeadditional_instructions()
+        {
+            return false;
+        }
+
+        private bool serializeRejectionReason = false;
+
+        public bool ShouldSerializerejection_reason()
+        {
+            if (serializeRejectionReason)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public string ToJsonStringForOrderConfirmation()
+        {
+            serializeRejectionReason = true;
+            SetSerializeForOrderForProductOptions(true);
+            return base.ToJsonString();
+        }
+
+        public string ToJsonSTringForOrder()
+        {
+            serializeRejectionReason = false;
+            SetSerializeForOrderForProductOptions(true);
+            return base.ToJsonString();
+        }
+
+        private void SetSerializeForOrderForProductOptions(bool isForOrder)
+        {
+            foreach (product_options po in product_options)
+            {
+                po.SetSerializeForOrder(isForOrder);
+            }
+        }
+
+        public string ToJsonStringForProductSync()
+        {
+            serializeRejectionReason = false;
+            SetSerializeForOrderForProductOptions(false);
+            return base.ToJsonString();
+        }
+        #endregion
     }
 }

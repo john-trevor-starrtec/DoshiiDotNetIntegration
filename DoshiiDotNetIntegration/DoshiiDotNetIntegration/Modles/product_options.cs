@@ -8,11 +8,6 @@ namespace DoshiiDotNetIntegration.Modles
     public class product_options : JsonSerializationBase<product_options>
     {
         /// <summary>
-        /// a list of variants available in this product options set. 
-        /// </summary>
-        public List<variants> variants { get; set; }
-
-        /// <summary>
         /// the name of this product options - or list of vairents
         /// </summary>
         public string name { get; set; }
@@ -32,5 +27,37 @@ namespace DoshiiDotNetIntegration.Modles
         /// </summary>
         public string pos_id { get; set; }
 
+        public List<variants> variants = new List<variants>();
+
+        public List<variants> selected = new List<variants>();
+
+        #region serialization methods 
+
+        private bool serializeselected = false;
+
+        public bool ShouldSerializeselected()
+        {
+            if (serializeselected)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public string ToJsonStringForOrder()
+        {
+            serializeselected = true;
+            return base.ToJsonString();
+        }
+
+        public void SetSerializeForOrder(bool value)
+        {
+            serializeselected = value;
+        }
+
+        #endregion
     }
 }
