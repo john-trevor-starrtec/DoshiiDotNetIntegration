@@ -61,7 +61,6 @@
     <Compile Include="Enums\OrderModes.cs" />
     <Compile Include="Enums\OrderStates.cs" />
     <Compile Include="Enums\SeatingModes.cs" />
-    <Compile Include="LoggingBase.cs" />
     <Compile Include="Modles\Consumer.cs" />
     <Compile Include="Modles\JsonSerializationBase.cs" />
     <Compile Include="Modles\order.cs" />

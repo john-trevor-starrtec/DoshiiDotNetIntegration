@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     /// <summary>
     /// faciliates the web sockets communication with the doshii application
     /// </summary>
-    internal class DoshiiWebSocketsCommunication : LoggingBase
+    internal class DoshiiWebSocketsCommunication 
     {
 
         #region properties
@@ -19,7 +19,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         WebSocket ws = null;
 
-        CommunicationLogic.DoshiiHttpCommunication HttpComs = null;
+        private Doshii DoshiiLogic;
+
+        private CommunicationLogic.DoshiiHttpCommunication HttpComs = null;
 
         #endregion
 
@@ -35,11 +37,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         internal event EventHandler<CommunicationEventArgs.TableAllocationEventArgs> TableAllocationEvent;
 
+
+
         #endregion
 
         #region methods
 
-        internal DoshiiWebSocketsCommunication(string webSocketURL, DoshiiHttpCommunication httpComs)
+        internal DoshiiWebSocketsCommunication(string webSocketURL, DoshiiHttpCommunication httpComs, Doshii doshii)
         {
             HttpComs = httpComs;
             
@@ -48,6 +52,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             ws.OnClose += new EventHandler<CloseEventArgs>(ws_OnClose);
             ws.OnMessage += new EventHandler<MessageEventArgs>(ws_OnMessage);
             ws.OnError += new EventHandler<ErrorEventArgs>(ws_OnError);
+
+            DoshiiLogic = doshii;
+
+            initialize(DoshiiLogic.GetCheckedInCustomers());
             
         }
 
@@ -104,7 +112,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             else
             {
-                log.Error(string.Format("Attempted to open a web socket connection before initializing the ws object"));
+                Doshii.log.Error(string.Format("Attempted to open a web socket connection before initializing the ws object"));
             }
         }
 
@@ -114,7 +122,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="message"></param>
         internal void SendMessage(string message)
         {
-            log.Debug(string.Format("sending websockets message {0} to {1}", message, ws.Url.ToString()));
+            Doshii.log.Debug(string.Format("sending websockets message {0} to {1}", message, ws.Url.ToString()));
             ws.Send(message);
         }
 
@@ -126,7 +134,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private void ws_OnError(object sender, ErrorEventArgs e)
         {
-            log.Error(string.Format("there was an error with the websockets connection to {0} the error was", ws.Url.ToString(), e.Message));
+            Doshii.log.Error(string.Format("there was an error with the websockets connection to {0} the error was", ws.Url.ToString(), e.Message));
         }
 
         private void ws_OnMessage(object sender, MessageEventArgs e)
@@ -243,12 +251,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private void ws_OnClose(object sender, CloseEventArgs e)
         {
-            log.Debug(string.Format("webScokets connection to {0} closed", ws.Url.ToString()));
+            Doshii.log.Debug(string.Format("webScokets connection to {0} closed", ws.Url.ToString()));
+            initialize(DoshiiLogic.GetCheckedInCustomers());
         }
 
         private void ws_OnOpen(object sender, EventArgs e)
         {
-            log.Debug(string.Format("webScokets connection open to {0}", ws.Url.ToString()));
+            Doshii.log.Debug(string.Format("webScokets connection open to {0}", ws.Url.ToString()));
         }
 
         #endregion

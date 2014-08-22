@@ -26,5 +26,10 @@ namespace DoshiiDotNetIntegration.Modles
         /// the allocaiton state of the table. 
         /// </summary>
         public Enums.AllocationStates status { get; set; }
+
+        /// <summary>
+        /// the reason the allocation was rejected if the allocation was rejected. 
+        /// </summary>
+        public string ReasonCode { get; set; }
     }
 }

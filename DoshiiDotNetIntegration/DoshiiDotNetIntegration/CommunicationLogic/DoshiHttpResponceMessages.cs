@@ -6,17 +6,17 @@ using System.Net;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
-    public class DoshiHttpResponceMessages
+    internal class DoshiHttpResponceMessages
     {
-        public HttpStatusCode Status { get; set; }
+        internal HttpStatusCode Status { get; set; }
 
-        public string statusDescription { get; set; } 
+        internal string statusDescription { get; set; }
 
-        public string data { get; set; }
+        internal string data { get; set; }
 
-        public string errorMessage { get; set; }
+        internal string errorMessage { get; set; }
 
-        public string Message { get; set; }
+        internal string Message { get; set; }
 
     }
 }

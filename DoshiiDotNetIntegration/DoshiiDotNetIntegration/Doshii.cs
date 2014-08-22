@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
+[assembly: log4net.Config.XmlConfigurator(ConfigFile = "DoshiiLog4Net.config", Watch = true)]
+
 namespace DoshiiDotNetIntegration
 {
-    public class Doshii : LoggingBase
+    public abstract class Doshii 
     {
 
+        internal static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        
         #region properties, constructors, Initialize, versionCheck
 
         private CommunicationLogic.DoshiiWebSocketsCommunication SocketComs;
@@ -17,8 +21,7 @@ namespace DoshiiDotNetIntegration
         private Enums.OrderModes OrderMode;
         private Enums.SeatingModes SeatingMode;
 
-
-        public static string CurrnetVersion()
+        protected static string CurrnetVersion()
         {
 
             var versionStringBuilder = new StringBuilder();
@@ -32,9 +35,14 @@ namespace DoshiiDotNetIntegration
             return versionStringBuilder.ToString();
         }
 
-        public bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, List<Modles.Consumer> currentlyCheckInConsumers)
+        protected Doshii(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
         {
-            bool result = false;
+            initialize(socketUrl, orderMode, seatingMode, UrlBase);
+        }
+
+        private bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
+        {
+            bool result = true;
 
             OrderMode = orderMode;
             SeatingMode = seatingMode;
@@ -43,11 +51,10 @@ namespace DoshiiDotNetIntegration
             HttpComs = new CommunicationLogic.DoshiiHttpCommunication(UrlBase);
 
             // initialize socket connection
-            SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, HttpComs);
+            SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, HttpComs, this);
             // subscribe to scoket events
             SubscribeToSocketEvents();
-            SocketComs.initialize(currentlyCheckInConsumers);
-            
+                        
             return result;
         }
 
@@ -68,70 +75,157 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
-        #region events and eventHandlers
-
-        public event EventHandler<CommunicationLogic.CommunicationEventArgs.OrderEventArgs> CheckFullyPaidEvent;
-
-        public event EventHandler<CommunicationLogic.CommunicationEventArgs.OrderEventArgs> CheckPartiallyPaidEvent;
-
-        public event EventHandler<CommunicationLogic.CommunicationEventArgs.OrderEventArgs> OrderCancledByClientEvent;
+        #region abstract methods
 
         /// <summary>
-        /// this event should be used in bistro mode when an order is received from doshii, 
-        /// the order should not be formally created on the pos untill a successfull payment event is received for this order
+        /// This method should return a list of all the current doshii checked in customers registered in the pos. 
         /// </summary>
-        public event EventHandler<CommunicationLogic.CommunicationEventArgs.OrderEventArgs> OrderAvailabilityConfirmationEvent;
+        /// <returns></returns>
+        internal abstract List<Modles.Consumer> GetCheckedInCustomers();
 
         /// <summary>
-        /// this event will only be fired in restaurant mode and can be formally created by the pos when it confirms the availability of the items ordered,
-        /// as the payment will not be completed untill the customer is finished at the venue. 
+        /// This method will receive the table allocation object, and should either accept or reject the allocation. 
+        /// if the allocation fails the reasoncode property should be populated. 
         /// </summary>
-        public event EventHandler<CommunicationLogic.CommunicationEventArgs.OrderEventArgs> RestaurantOrderConfirmationEvent;
+        /// <param name="tableAllocation"></param>
+        /// <returns>
+        /// true - if the allocation was successful
+        /// false - if the allocation failed,
+        /// </returns>
+        protected abstract bool ConfirmTableAllocation(Modles.table_allocation tableAllocation);
 
-        public event EventHandler<CommunicationLogic.CommunicationEventArgs.OrderEventArgs> ConfirmCheckAmountForPaymentEvent;
+        /// <summary>
+        /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract void RecordPartialCheckPayment(Modles.order order);
 
-        public event EventHandler<CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs> TableAllocationEvent;
+        /// <summary>
+        /// this method should record that a check has been fully paid by doshii, if bistro mode is being used it is at this point the order should be formally recorded in the system as the payment is now confirmed. 
+        /// </summary>
+        /// <returns></returns>
+        protected abstract void RecordFullCheckPayment(Modles.order order);
 
-        public event EventHandler<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs> ConsumerCheckinEvent;
+        /// <summary>
+        /// this method sould record that the contained order has been cancled. 
+        /// </summary>
+        /// <param name="order"></param>
+        protected abstract void OrderCancled(Modles.order order);
 
-        #region events
+        /// <summary>
+        /// this method should check the availability of the products that have been ordered. 
+        /// This method will only be called in bistro mode. 
+        /// If the price of any of the products are incorrect or the products are not available a rejection reason should be added to the product in question. 
+        /// as this is in bistro mode the order should not be formally created on the pos system untill a payment is completed and the paid message is received, but any products that have 
+        /// limited quantities should be reserved for this order as there is no opportunity to reject the order after it has been accepted on this step. 
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns>
+        /// true - if the entire order was accepted
+        /// false - if the any part of the order was rejected. 
+        /// </returns>
+        protected abstract bool ConfirmOrderAvailabilityBistroMode(Modles.order order);
+
+        /// <summary>
+        /// this method is used to check the availability of the products that have been ordered.
+        /// This method will only be called in restaurant mode.
+        /// if the price of any of the prodducts are incorrect or the products are not available a rejection reason should be added to the product in question
+        /// As this is in restaurant mode the order should be formally created on the pos when this order is accepted, paymend is expected at the end of the customer experience at the venue rather than 
+        /// with each order. 
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        protected abstract bool ConfirmOrderForRestaurantMode(Modles.order order);
+
+        /// <summary>
+        /// this method is used to confirm the order on doshii accuratly represents the order on the the pos
+        /// the pos is the source of truth for the order.
+        /// if the order is not correct the pos should update the order object to to represent the correct order. 
+        /// </summary>
+        /// <param name="order"></param>
+        protected abstract void ConfirmOrderTotalsBeforePaymentRestaurantMode(Modles.order order);
+
+        /// <summary>
+        /// this method should be used to record on the pos a customer has checked in. 
+        /// REVIEW: (liam) It might be a very good idea in the constructor to be given a path where images can be saved and in the method that calls this method to save the user images for use by the pos,
+        /// rather than giving the pos the URL of the image and expecting them to get the pic. 
+        /// </summary>
+        /// <param name="consumer"></param>
+        protected abstract void recordCheckedInUser(Modles.Consumer consumer);
+                
+
         #endregion
+
         #region socket communication event handlers
 
-        void SocketComs_TableAllocationEvent(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
+        private void SocketComs_TableAllocationEvent(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
         {
-            TableAllocationEvent(this, e);
+            Modles.table_allocation tableAllocation = new Modles.table_allocation();
+            tableAllocation = e.TableAllocation;
+            if (ConfirmTableAllocation(tableAllocation))
+            {
+                HttpComs.PutTableAllocation(tableAllocation.customerId, tableAllocation.name);
+                
+            }
+            else
+            {
+                HttpComs.RejectTableAllocation(tableAllocation.customerId, tableAllocation.name, tableAllocation);
+            }
         }
 
-        void SocketComs_OrderStatusEvent(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
+        private void SocketComs_OrderStatusEvent(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
             switch (e.order.status)
             {
                 case Enums.OrderStates.paid:
                     if (e.order.notPayingTotal > 0)
                     {
-                        CheckPartiallyPaidEvent(this, e);
+                        if (OrderMode == Enums.OrderModes.BistroMode)
+                        {
+                            throw new NotSupportedException("partial payment in bistro mode");
+                        }
+                        RecordPartialCheckPayment(e.order);
                     }
                     else
                     {
-                        CheckPartiallyPaidEvent(this, e);
+                        RecordFullCheckPayment(e.order);
                     }
                     break;
                 case Enums.OrderStates.cancelled:
-                    OrderCancledByClientEvent(this, e);
+                    OrderCancled(e.order);
                     break;
                 case Enums.OrderStates.pending:
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
-                        OrderAvailabilityConfirmationEvent(this, e);
+                        if (ConfirmOrderAvailabilityBistroMode(e.order))
+                        {
+                            e.order.status = Enums.OrderStates.waitingforpayment;
+                            HttpComs.PutOrder(e.order);
+                        }
+                        else
+                        {
+                            e.order.status = Enums.OrderStates.rejected;
+                            HttpComs.PutOrder(e.order);
+                        }
                     }
                     else
                     {
-                        RestaurantOrderConfirmationEvent(this, e);
+                        if (ConfirmOrderForRestaurantMode(e.order))
+                        {
+                            e.order.status = Enums.OrderStates.accepted;
+                            HttpComs.PutOrder(e.order);
+                        }
+                        else
+                        {
+                            e.order.status = Enums.OrderStates.rejected;
+                            HttpComs.PutOrder(e.order);
+                        }
                     }
                     break;
                 case Enums.OrderStates.readytopay:
-                    ConfirmCheckAmountForPaymentEvent(this, e);
+                    ConfirmOrderTotalsBeforePaymentRestaurantMode(e.order);
+                    e.order.status = Enums.OrderStates.waitingforpayment;
+                    HttpComs.PutOrder(e.order);
                     break;
                 default:
                     throw new NotSupportedException(e.order.status.ToString());
@@ -139,18 +233,36 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        void SocketComs_CreateOrderEvent(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
+        private void SocketComs_CreateOrderEvent(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
             switch (e.order.status)
             {
                 case Enums.OrderStates.pending:
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
-                        OrderAvailabilityConfirmationEvent(this, e);
+                        if (ConfirmOrderAvailabilityBistroMode(e.order))
+                        {
+                            e.order.status = Enums.OrderStates.waitingforpayment;
+                            HttpComs.PutOrder(e.order);
+                        }
+                        else
+                        {
+                            e.order.status = Enums.OrderStates.rejected;
+                            HttpComs.PutOrder(e.order);
+                        }
                     }
                     else
                     {
-                        RestaurantOrderConfirmationEvent(this, e);
+                        if (ConfirmOrderForRestaurantMode(e.order))
+                        {
+                            e.order.status = Enums.OrderStates.accepted;
+                            HttpComs.PutOrder(e.order);
+                        }
+                        else
+                        {
+                            e.order.status = Enums.OrderStates.rejected;
+                            HttpComs.PutOrder(e.order);
+                        }
                     }
                     break;
                 default:
@@ -158,19 +270,13 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        void SocketComs_ConsumerCheckinEvent(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
+        private void SocketComs_ConsumerCheckinEvent(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
         {
-            ConsumerCheckinEvent(this, e);
+            recordCheckedInUser(e.consumerObject);
         }
 
         #endregion
-        #endregion
-
-
-
-
-        #region menuUpload
-
+        
         #region product sync methods
 
         public List<Modles.product> GetAllProducts()
@@ -231,26 +337,7 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
-        #region individual product upload
-        
-        #endregion
-
-        #endregion
-
         #region ordering And Payment
-
-        public bool ConfirmOrder(Modles.order order)
-        {
-            order.status = Enums.OrderStates.accepted;
-            return HttpComs.PutOrder(order);
-        }
-
-        public bool RejectOrder(Modles.order order)
-        {
-            order.status = Enums.OrderStates.rejected;
-            return HttpComs.PutOrder(order);
-            
-        }
 
         public bool AddItemsToOrder(Modles.order order)
         {
@@ -271,33 +358,23 @@ namespace DoshiiDotNetIntegration
             throw new NotImplementedException();
         }
 
-        public bool ConfirmPaymentFromDoshii()
-        {
-            throw new NotImplementedException();
-        }
-        
         #endregion
 
         #region tableAllocation
 
-        public bool ConfirmTableAllocation()
+        public bool AllocateTableFromPos(string customerId, string tableName)
         {
-            if (SeatingMode == Enums.SeatingModes.PosAllocation)
-            {
-                return false;
-                throw new NotImplementedException();
-            }
-            throw new NotImplementedException();
-        }
-
-        public bool AllocateTableFromPos()
-        {
+            bool success = false;
             if (SeatingMode == Enums.SeatingModes.DoshiiAllocation)
             {
-                return false;
-                throw new NotImplementedException();
+                success = false;
             }
-            throw new NotImplementedException();
+            else
+            {
+                success = HttpComs.PutTableAllocation(customerId, tableName);
+            }
+            return success;
+            
         }
 
         #endregion

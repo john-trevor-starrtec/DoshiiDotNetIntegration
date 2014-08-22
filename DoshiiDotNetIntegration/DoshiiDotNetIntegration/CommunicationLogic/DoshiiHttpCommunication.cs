@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
-    internal class DoshiiHttpCommunication : LoggingBase 
+    internal class DoshiiHttpCommunication 
     {
         private string DoshiiUrlBase;
 
@@ -71,12 +71,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         }
 
-
         internal bool PutTableAllocation(string consumerId, string tableName)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations), consumerId, tableName);
+            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "PUT");
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {
@@ -90,6 +89,26 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             return success;
         }
+
+        internal bool RejectTableAllocation(string consumerId, string tableName, Modles.table_allocation tableAllocation)
+        {
+            bool success = false;
+            DoshiHttpResponceMessages responseMessage;
+            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", tableAllocation.ToJsonString());
+
+            if (responseMessage.Status == HttpStatusCode.OK)
+            {
+                success = true;
+            }
+            else
+            {
+                success = false;
+
+            }
+
+            return success;
+        }
+
         /// <summary>
         /// this method is used to confirm or reject an order placed by doshii
         /// </summary>
@@ -147,12 +166,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (WebException ex)
             {
-                log.Error("There was a web exception when attempting to delete products from doshii", ex);
+                Doshii.log.Error("There was a web exception when attempting to delete products from doshii", ex);
                 success = false;
             }
             catch (Exception ex)
             {
-                log.Error("There was a web exception when attempting to delete products from doshii", ex);
+                Doshii.log.Error("There was a web exception when attempting to delete products from doshii", ex);
                 success = false;
             }
 
@@ -232,7 +251,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             StringBuilder newUrlbuilder = new StringBuilder();
             if (string.IsNullOrWhiteSpace(DoshiiUrlBase))
             {
-                log.Error("the DoshiiHttpCommunication class was not initialized correctly, the base URl is null or white space");
+                Doshii.log.Error("the DoshiiHttpCommunication class was not initialized correctly, the base URl is null or white space");
                 return newUrlbuilder.ToString();
             }
             newUrlbuilder.AppendFormat("{0}", DoshiiUrlBase);

@@ -6,29 +6,29 @@ using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Modles
 {
-    public class SocketMessage : JsonSerializationBase<SocketMessage>
+    internal class SocketMessage : JsonSerializationBase<SocketMessage>
     {
         [JsonProperty(PropertyName = "event")]
-        public string EventName { get; set; }
+        internal string EventName { get; set; }
 
-        public string consumerId { get; set; }
+        internal string consumerId { get; set; }
 
-        public string paypalCustomerId { get; set; }
+        internal string paypalCustomerId { get; set; }
 
-        public string name { get; set; }
+        internal string name { get; set; }
 
-        public string id { get; set; }
+        internal string id { get; set; }
 
-        public string status { get; set; }
+        internal string status { get; set; }
 
-        public int orderId { get; set; }
+        internal int orderId { get; set; }
 
-        public string order { get; set; }
+        internal string order { get; set; }
 
-        public string consumer { get; set; }
+        internal string consumer { get; set; }
 
-        public string checkin { get; set; }
+        internal string checkin { get; set; }
 
-        public Uri uri { get; set; }
+        internal Uri uri { get; set; }
     }
 }
