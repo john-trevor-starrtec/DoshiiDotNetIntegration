@@ -78,5 +78,12 @@ namespace DoshiiTesting
             helper.DoshiiProductList = helper.GetAllProducts();
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            textBox1.Text = "http://meerkat.staging.dev.impos.com.au:80/api/v1/socket";
+            textBox3.Text = "Rl9FY0kZx1U_6w1GyAH2Sp9MMtI";
+            textBox2.Text = "http://meerkat.staging.dev.impos.com.au/pos/api/v1/";
+        }
+
     }
 }

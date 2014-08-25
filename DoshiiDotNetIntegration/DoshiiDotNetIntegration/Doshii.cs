@@ -37,11 +37,11 @@ namespace DoshiiDotNetIntegration
 
         protected Doshii(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
         {
-            string socketUrlWithToken = string.Format("{0}?{1}", socketUrl, token);
-            initialize(socketUrl, orderMode, seatingMode, UrlBase);
+            //string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
+            initialize(socketUrl, token, orderMode, seatingMode, UrlBase);
         }
 
-        private bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
+        private bool initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
         {
             log.Debug("initializing Doshii");
             
@@ -51,10 +51,10 @@ namespace DoshiiDotNetIntegration
             SeatingMode = seatingMode;
 
             //generate class for http communication. 
-            HttpComs = new CommunicationLogic.DoshiiHttpCommunication(UrlBase);
+            HttpComs = new CommunicationLogic.DoshiiHttpCommunication(UrlBase, token);
 
             // initialize socket connection
-            SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, HttpComs, this);
+            SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, token, HttpComs, this);
             // subscribe to scoket events
             SubscribeToSocketEvents();
                         

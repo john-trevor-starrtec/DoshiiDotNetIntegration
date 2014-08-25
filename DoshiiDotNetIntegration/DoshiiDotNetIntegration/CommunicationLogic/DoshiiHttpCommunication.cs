@@ -11,10 +11,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     internal class DoshiiHttpCommunication 
     {
         private string DoshiiUrlBase;
+        private string Token;
 
-        internal DoshiiHttpCommunication(string urlBase)
+        internal DoshiiHttpCommunication(string urlBase, string token)
         {
             DoshiiUrlBase = urlBase;
+            Token = token;
         }
 
         #region internal methods 
@@ -149,19 +151,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return productList;
         }
 
-        /// <summary>
-        /// gets all the products currently uploaded to doshii. 
-        /// </summary>
-        /// <returns></returns>
-        internal string GetWebSocketsAddress(string url)
-        {
-            HttpWebRequest request = null;
-            request = (HttpWebRequest)WebRequest.Create(url);
-            request.KeepAlive = false;
-            request.Method = "GET";
-            return GetResponse(request).data;
-        }
-        
+             
 
         /// <summary>
         /// deletes product data from doshii, if the productId is empty all the products will be delete from doshi else only the products that are with the provided Id will be deleted 
@@ -276,32 +266,43 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     newUrlbuilder.Append("/products");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("/{0}");
+                        newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
                 case Enums.EndPointPurposes.GetAllProducts:
                     newUrlbuilder.Append("/products");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("/{0}");
+                        newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
                 case Enums.EndPointPurposes.GetOrder:
                     newUrlbuilder.Append("/orders");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("/{0}");
+                        newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
                 case Enums.EndPointPurposes.GetTableAllocations:
                     newUrlbuilder.Append("/tables");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("/{0}");
+                        newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
                 case Enums.EndPointPurposes.ConfirmTableAllocation:
+                    if (string.IsNullOrWhiteSpace(identification))
+                    {
+                        throw new NotSupportedException("confirmTableAllocation without consumer Id");
+                    }
+                    if (string.IsNullOrWhiteSpace(tableName))
+                    {
+                        throw new NotSupportedException("confirmTableAllocation without table Id");
+                    }
                     newUrlbuilder.AppendFormat("/consumers/{0}/tables/{1}",identification,tableName);
+                    break;
+                case Enums.EndPointPurposes.GetConsumer:
+                    newUrlbuilder.AppendFormat("/consumers");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
                         newUrlbuilder.AppendFormat("/{0}");
@@ -310,7 +311,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 default:
                     throw new NotSupportedException(purpose.ToString());
             }
-
+            newUrlbuilder.AppendFormat("?token={0}", Token);
             return newUrlbuilder.ToString();
         }
 

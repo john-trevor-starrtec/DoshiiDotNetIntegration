@@ -19,7 +19,7 @@ namespace DoshiiTesting
         public DoshiiHelper(string socketUrl, string token, OrderModes orderMode, SeatingModes seatingMode, string UrlBase)
             : base(socketUrl, token, orderMode, seatingMode, UrlBase)
         {
-            GenerateProductList();
+            //GenerateProductList();
         }
 
         /// <summary>
