@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DoshiiDotNetIntegration;
+using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Modles;
 using WebSocketSharp;
 
 
@@ -23,7 +25,10 @@ namespace DoshiiTesting
     public partial class MainWindow : Window
     {
         //DoshiiWebSocketsCommunication wsLogic;
-        
+
+
+        private DoshiiHelper helper;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -31,8 +36,7 @@ namespace DoshiiTesting
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            //wsLogic = new DoshiiWebSocketsCommunication(textBox1.Text);
-            //wsLogic.webSocketMessage += new EventHandler<WebSocketSharp.MessageEventArgs>(wsLogic_webSocketMessage);
+            helper = new DoshiiHelper(textBox1.Text, textBox3.Text, OrderModes.BistroMode, SeatingModes.DoshiiAllocation, textBox2.Text);
         }
 
         void wsLogic_webSocketMessage(object sender, WebSocketSharp.MessageEventArgs e)
@@ -56,8 +60,23 @@ namespace DoshiiTesting
 
         private void button3_Click(object sender, RoutedEventArgs e)
         {
-            //wsLogic.SendMessage(textBox1.Text);
-            textBox1.Text = "";
+            helper.DeleteAllProducts();
         }
+
+        private void button4_Click(object sender, RoutedEventArgs e)
+        {
+            helper.AddNewProducts(helper.MyCompleteProductList);
+        }
+
+        private void button5_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void button6_Click(object sender, RoutedEventArgs e)
+        {
+            helper.DoshiiProductList = helper.GetAllProducts();
+        }
+
     }
 }

@@ -35,13 +35,16 @@ namespace DoshiiDotNetIntegration
             return versionStringBuilder.ToString();
         }
 
-        protected Doshii(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
+        protected Doshii(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
         {
+            string socketUrlWithToken = string.Format("{0}?{1}", socketUrl, token);
             initialize(socketUrl, orderMode, seatingMode, UrlBase);
         }
 
         private bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
         {
+            log.Debug("initializing Doshii");
+            
             bool result = true;
 
             OrderMode = orderMode;
@@ -81,7 +84,7 @@ namespace DoshiiDotNetIntegration
         /// This method should return a list of all the current doshii checked in customers registered in the pos. 
         /// </summary>
         /// <returns></returns>
-        internal abstract List<Modles.Consumer> GetCheckedInCustomers();
+        public abstract List<Modles.Consumer> GetCheckedInCustomersFromPos();
 
         /// <summary>
         /// This method will receive the table allocation object, and should either accept or reject the allocation. 

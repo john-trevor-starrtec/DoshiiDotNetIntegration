@@ -135,6 +135,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
 
         #region product sync methods
+        
         /// <summary>
         /// gets all the products currently uploaded to doshii. 
         /// </summary>
@@ -147,6 +148,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             List<Modles.product> productList = JsonConvert.DeserializeObject<List<Modles.product>>(responseMessage.data);
             return productList;
         }
+
+        /// <summary>
+        /// gets all the products currently uploaded to doshii. 
+        /// </summary>
+        /// <returns></returns>
+        internal string GetWebSocketsAddress(string url)
+        {
+            HttpWebRequest request = null;
+            request = (HttpWebRequest)WebRequest.Create(url);
+            request.KeepAlive = false;
+            request.Method = "GET";
+            return GetResponse(request).data;
+        }
+        
 
         /// <summary>
         /// deletes product data from doshii, if the productId is empty all the products will be delete from doshi else only the products that are with the provided Id will be deleted 

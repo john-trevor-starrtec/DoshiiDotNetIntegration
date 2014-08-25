@@ -46,7 +46,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal DoshiiWebSocketsCommunication(string webSocketURL, DoshiiHttpCommunication httpComs, Doshii doshii)
         {
             HttpComs = httpComs;
-            
+            HttpComs.GetWebSocketsAddress(webSocketURL);
             ws = new WebSocket(webSocketURL);
             ws.OnOpen += new EventHandler(ws_OnOpen);
             ws.OnClose += new EventHandler<CloseEventArgs>(ws_OnClose);
@@ -55,7 +55,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             DoshiiLogic = doshii;
 
-            initialize(DoshiiLogic.GetCheckedInCustomers());
+            initialize(DoshiiLogic.GetCheckedInCustomersFromPos());
             
         }
 
@@ -83,10 +83,25 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         //REVIEW: (liam) for the time being I'm going to assume that we always have the customers checked in, this is not likely to be the case but will help get the skeleton of the code together quicker.
                         
                         //GetConsumer
-
+                        Modles.Consumer customer = HttpComs.GetConsumer(ta.customerId);
                         //raise checkin event
-
+                        CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
+                        newCheckinEventArgs.checkin = ta.id;
+                        newCheckinEventArgs.consumer = customer.name;
+                        newCheckinEventArgs.paypalCustomerId = customer.paypalCustomerId;
+                        newCheckinEventArgs.uri = customer.PhotoUrl;
+                        newCheckinEventArgs.consumerObject = customer;
+                        ConsumerCheckinEvent(this, newCheckinEventArgs);
+                        
                         //raise allocation event
+                        CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
+
+                        AllocationEventArgs.TableAllocation.customerId = ta.customerId;
+                        AllocationEventArgs.TableAllocation.id = ta.id;
+                        AllocationEventArgs.TableAllocation.name = ta.name;
+                        AllocationEventArgs.TableAllocation.status = ta.status;
+                        
+                        TableAllocationEvent(this, AllocationEventArgs);
                     }
                 }
              }
@@ -252,7 +267,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         private void ws_OnClose(object sender, CloseEventArgs e)
         {
             Doshii.log.Debug(string.Format("webScokets connection to {0} closed", ws.Url.ToString()));
-            initialize(DoshiiLogic.GetCheckedInCustomers());
+            initialize(DoshiiLogic.GetCheckedInCustomersFromPos());
         }
 
         private void ws_OnOpen(object sender, EventArgs e)
