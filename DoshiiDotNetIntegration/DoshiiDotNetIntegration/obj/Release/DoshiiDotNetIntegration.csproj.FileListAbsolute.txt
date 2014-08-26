@@ -8,3 +8,4 @@ C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetInteg
 C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Release\websocket-sharp.xml
 C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Release\DoshiiDotNetIntegration.dll
 C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Release\DoshiiDotNetIntegration.pdb
+C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Release\DoshiiDotNetIntegration.csprojResolveAssemblyReference.cache
