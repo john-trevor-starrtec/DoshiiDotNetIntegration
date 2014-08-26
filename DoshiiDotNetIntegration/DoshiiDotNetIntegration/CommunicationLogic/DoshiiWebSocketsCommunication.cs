@@ -50,7 +50,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             //HttpComs.GetWebSocketsAddress(webSocketURL);
             Dictionary<string, string> tokenDict = new Dictionary<string, string>();
             tokenDict.Add("token", token);
-            ws = new Connection(webSocketURL, token);
+            ws = new Connection(webSocketURL, tokenDict);
             //ws.OnOpen += new EventHandler(ws_OnOpen);
             ws.Closed += () => 
             {
