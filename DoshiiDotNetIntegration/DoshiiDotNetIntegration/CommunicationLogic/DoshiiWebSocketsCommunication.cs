@@ -46,7 +46,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal DoshiiWebSocketsCommunication(string webSocketURL, DoshiiHttpCommunication httpComs, Doshii doshii)
         {
             HttpComs = httpComs;
-            HttpComs.GetWebSocketsAddress(webSocketURL);
+            //HttpComs.GetWebSocketsAddress(webSocketURL);
             ws = new WebSocket(webSocketURL);
             ws.OnOpen += new EventHandler(ws_OnOpen);
             ws.OnClose += new EventHandler<CloseEventArgs>(ws_OnClose);
@@ -62,61 +62,61 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal void initialize(List<Modles.Consumer> currentlyCheckInConsumers)
         {
             Connect();
-            List<Modles.table_allocation> initialTableAllocationList = GetTableAllocations();
-            foreach (Modles.table_allocation ta in initialTableAllocationList)
-            {
-                if (ta.status == Enums.AllocationStates.waiting_for_confirmation)
-                {
-                    bool customerFound = false;
-                    foreach (Modles.Consumer cus in currentlyCheckInConsumers)
-                    {
-                        if (ta.customerId == cus.paypalCustomerId)
-                        {
-                            customerFound = true;
-                            CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationEventArgs.TableAllocationEventArgs();
-                            args.TableAllocation = ta;
-                            TableAllocationEvent(this, args);
-                        }
-                    }
-                    if (!customerFound)
-                    {
-                        //REVIEW: (liam) for the time being I'm going to assume that we always have the customers checked in, this is not likely to be the case but will help get the skeleton of the code together quicker.
+            //List<Modles.table_allocation> initialTableAllocationList = GetTableAllocations();
+            //foreach (Modles.table_allocation ta in initialTableAllocationList)
+            //{
+            //    if (ta.status == Enums.AllocationStates.waiting_for_confirmation)
+            //    {
+            //        bool customerFound = false;
+            //        foreach (Modles.Consumer cus in currentlyCheckInConsumers)
+            //        {
+            //            if (ta.customerId == cus.paypalCustomerId)
+            //            {
+            //                customerFound = true;
+            //                CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationEventArgs.TableAllocationEventArgs();
+            //                args.TableAllocation = ta;
+            //                TableAllocationEvent(this, args);
+            //            }
+            //        }
+            //        if (!customerFound)
+            //        {
+            //            //REVIEW: (liam) for the time being I'm going to assume that we always have the customers checked in, this is not likely to be the case but will help get the skeleton of the code together quicker.
                         
-                        //GetConsumer
-                        Modles.Consumer customer = HttpComs.GetConsumer(ta.customerId);
-                        //raise checkin event
-                        CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
-                        newCheckinEventArgs.checkin = ta.id;
-                        newCheckinEventArgs.consumer = customer.name;
-                        newCheckinEventArgs.paypalCustomerId = customer.paypalCustomerId;
-                        newCheckinEventArgs.uri = customer.PhotoUrl;
-                        newCheckinEventArgs.consumerObject = customer;
-                        ConsumerCheckinEvent(this, newCheckinEventArgs);
+            //            //GetConsumer
+            //            Modles.Consumer customer = HttpComs.GetConsumer(ta.customerId);
+            //            //raise checkin event
+            //            CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
+            //            newCheckinEventArgs.checkin = ta.id;
+            //            newCheckinEventArgs.consumer = customer.name;
+            //            newCheckinEventArgs.paypalCustomerId = customer.paypalCustomerId;
+            //            newCheckinEventArgs.uri = customer.PhotoUrl;
+            //            newCheckinEventArgs.consumerObject = customer;
+            //            ConsumerCheckinEvent(this, newCheckinEventArgs);
                         
-                        //raise allocation event
-                        CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
+            //            //raise allocation event
+            //            CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
 
-                        AllocationEventArgs.TableAllocation.customerId = ta.customerId;
-                        AllocationEventArgs.TableAllocation.id = ta.id;
-                        AllocationEventArgs.TableAllocation.name = ta.name;
-                        AllocationEventArgs.TableAllocation.status = ta.status;
+            //            AllocationEventArgs.TableAllocation.customerId = ta.customerId;
+            //            AllocationEventArgs.TableAllocation.id = ta.id;
+            //            AllocationEventArgs.TableAllocation.name = ta.name;
+            //            AllocationEventArgs.TableAllocation.status = ta.status;
                         
-                        TableAllocationEvent(this, AllocationEventArgs);
-                    }
-                }
-             }
-            List<Modles.order> initialOrderList = GetOrders();
-            foreach (Modles.order order in initialOrderList)
-            {
-                if (order.status == Enums.OrderStates.pending || order.status == Enums.OrderStates.readytopay || order.status == Enums.OrderStates.cancelled)
-                {
-                    CommunicationEventArgs.OrderEventArgs args = new CommunicationEventArgs.OrderEventArgs();
-                    args.order = order;
-                    args.OrderId = order.id;
-                    args.status = order.status;
-                    CreateOrderEvent(this, args);
-                }
-            }
+            //            TableAllocationEvent(this, AllocationEventArgs);
+            //        }
+            //    }
+            // }
+            //List<Modles.order> initialOrderList = GetOrders();
+            //foreach (Modles.order order in initialOrderList)
+            //{
+            //    if (order.status == Enums.OrderStates.pending || order.status == Enums.OrderStates.readytopay || order.status == Enums.OrderStates.cancelled)
+            //    {
+            //        CommunicationEventArgs.OrderEventArgs args = new CommunicationEventArgs.OrderEventArgs();
+            //        args.order = order;
+            //        args.OrderId = order.id;
+            //        args.status = order.status;
+            //        CreateOrderEvent(this, args);
+            //    }
+            //}
         }
 
         private void Connect()

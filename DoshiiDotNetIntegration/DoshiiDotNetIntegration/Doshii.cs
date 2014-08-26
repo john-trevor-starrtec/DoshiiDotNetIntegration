@@ -37,8 +37,8 @@ namespace DoshiiDotNetIntegration
 
         protected Doshii(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
         {
-            string socketUrlWithToken = string.Format("{0}?{1}", socketUrl, token);
-            initialize(socketUrl, orderMode, seatingMode, UrlBase);
+            string socketUrlWithToken = string.Format("{0}{1}", socketUrl, "/?token=Rl9FY0kZx1U_6w1GyAH2Sp9MMtI&EIO=2&transport=websocket&sid=vCfOBzR6a3Jglvm3AAA5");
+            initialize(socketUrlWithToken, orderMode, seatingMode, UrlBase);
         }
 
         private bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
