@@ -62,61 +62,61 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal void initialize(List<Modles.Consumer> currentlyCheckInConsumers)
         {
             Connect();
-            //List<Modles.table_allocation> initialTableAllocationList = GetTableAllocations();
-            //foreach (Modles.table_allocation ta in initialTableAllocationList)
-            //{
-            //    if (ta.status == Enums.AllocationStates.waiting_for_confirmation)
-            //    {
-            //        bool customerFound = false;
-            //        foreach (Modles.Consumer cus in currentlyCheckInConsumers)
-            //        {
-            //            if (ta.customerId == cus.paypalCustomerId)
-            //            {
-            //                customerFound = true;
-            //                CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationEventArgs.TableAllocationEventArgs();
-            //                args.TableAllocation = ta;
-            //                TableAllocationEvent(this, args);
-            //            }
-            //        }
-            //        if (!customerFound)
-            //        {
-            //            //REVIEW: (liam) for the time being I'm going to assume that we always have the customers checked in, this is not likely to be the case but will help get the skeleton of the code together quicker.
-                        
-            //            //GetConsumer
-            //            Modles.Consumer customer = HttpComs.GetConsumer(ta.customerId);
-            //            //raise checkin event
-            //            CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
-            //            newCheckinEventArgs.checkin = ta.id;
-            //            newCheckinEventArgs.consumer = customer.name;
-            //            newCheckinEventArgs.paypalCustomerId = customer.paypalCustomerId;
-            //            newCheckinEventArgs.uri = customer.PhotoUrl;
-            //            newCheckinEventArgs.consumerObject = customer;
-            //            ConsumerCheckinEvent(this, newCheckinEventArgs);
-                        
-            //            //raise allocation event
-            //            CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
+            List<Modles.table_allocation> initialTableAllocationList = GetTableAllocations();
+            foreach (Modles.table_allocation ta in initialTableAllocationList)
+            {
+                if (ta.status == Enums.AllocationStates.waiting_for_confirmation)
+                {
+                    bool customerFound = false;
+                    foreach (Modles.Consumer cus in currentlyCheckInConsumers)
+                    {
+                        if (ta.customerId == cus.paypalCustomerId)
+                        {
+                            customerFound = true;
+                            CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationEventArgs.TableAllocationEventArgs();
+                            args.TableAllocation = ta;
+                            TableAllocationEvent(this, args);
+                        }
+                    }
+                    if (!customerFound)
+                    {
+                        //REVIEW: (liam) for the time being I'm going to assume that we always have the customers checked in, this is not likely to be the case but will help get the skeleton of the code together quicker.
 
-            //            AllocationEventArgs.TableAllocation.customerId = ta.customerId;
-            //            AllocationEventArgs.TableAllocation.id = ta.id;
-            //            AllocationEventArgs.TableAllocation.name = ta.name;
-            //            AllocationEventArgs.TableAllocation.status = ta.status;
-                        
-            //            TableAllocationEvent(this, AllocationEventArgs);
-            //        }
-            //    }
-            // }
-            //List<Modles.order> initialOrderList = GetOrders();
-            //foreach (Modles.order order in initialOrderList)
-            //{
-            //    if (order.status == Enums.OrderStates.pending || order.status == Enums.OrderStates.readytopay || order.status == Enums.OrderStates.cancelled)
-            //    {
-            //        CommunicationEventArgs.OrderEventArgs args = new CommunicationEventArgs.OrderEventArgs();
-            //        args.order = order;
-            //        args.OrderId = order.id;
-            //        args.status = order.status;
-            //        CreateOrderEvent(this, args);
-            //    }
-            //}
+                        //GetConsumer
+                        Modles.Consumer customer = HttpComs.GetConsumer(ta.customerId);
+                        //raise checkin event
+                        CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
+                        newCheckinEventArgs.checkin = ta.id;
+                        newCheckinEventArgs.consumer = customer.name;
+                        newCheckinEventArgs.paypalCustomerId = customer.paypalCustomerId;
+                        newCheckinEventArgs.uri = customer.PhotoUrl;
+                        newCheckinEventArgs.consumerObject = customer;
+                        ConsumerCheckinEvent(this, newCheckinEventArgs);
+
+                        //raise allocation event
+                        CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
+
+                        AllocationEventArgs.TableAllocation.customerId = ta.customerId;
+                        AllocationEventArgs.TableAllocation.id = ta.id;
+                        AllocationEventArgs.TableAllocation.name = ta.name;
+                        AllocationEventArgs.TableAllocation.status = ta.status;
+
+                        TableAllocationEvent(this, AllocationEventArgs);
+                    }
+                }
+            }
+            List<Modles.order> initialOrderList = GetOrders();
+            foreach (Modles.order order in initialOrderList)
+            {
+                if (order.status == Enums.OrderStates.pending || order.status == Enums.OrderStates.readytopay || order.status == Enums.OrderStates.cancelled)
+                {
+                    CommunicationEventArgs.OrderEventArgs args = new CommunicationEventArgs.OrderEventArgs();
+                    args.order = order;
+                    args.OrderId = order.id;
+                    args.status = order.status;
+                    CreateOrderEvent(this, args);
+                }
+            }
         }
 
         private void Connect()
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             else
             {
-                Doshii.log.Error(string.Format("Attempted to open a web socket connection before initializing the ws object"));
+                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Attempted to open a web socket connection before initializing the ws object"));
             }
         }
 
@@ -137,7 +137,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="message"></param>
         internal void SendMessage(string message)
         {
-            Doshii.log.Debug(string.Format("sending websockets message {0} to {1}", message, ws.Url.ToString()));
+            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("sending websockets message {0} to {1}", message, ws.Url.ToString()));
             ws.Send(message);
         }
 
@@ -149,7 +149,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private void ws_OnError(object sender, ErrorEventArgs e)
         {
-            Doshii.log.Error(string.Format("there was an error with the websockets connection to {0} the error was", ws.Url.ToString(), e.Message));
+            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("there was an error with the websockets connection to {0} the error was", ws.Url.ToString(), e.Message));
         }
 
         private void ws_OnMessage(object sender, MessageEventArgs e)
@@ -266,13 +266,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private void ws_OnClose(object sender, CloseEventArgs e)
         {
-            Doshii.log.Debug(string.Format("webScokets connection to {0} closed", ws.Url.ToString()));
+            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("webScokets connection to {0} closed", ws.Url.ToString()));
             initialize(DoshiiLogic.GetCheckedInCustomersFromPos());
         }
 
         private void ws_OnOpen(object sender, EventArgs e)
         {
-            Doshii.log.Debug(string.Format("webScokets connection open to {0}", ws.Url.ToString()));
+            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("webScokets connection open to {0}", ws.Url.ToString()));
         }
 
         #endregion

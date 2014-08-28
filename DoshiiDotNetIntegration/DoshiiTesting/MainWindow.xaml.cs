@@ -36,7 +36,7 @@ namespace DoshiiTesting
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            helper = new DoshiiHelper(textBox1.Text, textBox3.Text, OrderModes.BistroMode, SeatingModes.DoshiiAllocation, textBox2.Text);
+            helper = new DoshiiHelper(textBox1.Text, textBox3.Text, OrderModes.BistroMode, SeatingModes.DoshiiAllocation, textBox2.Text, true);
         }
 
         void wsLogic_webSocketMessage(object sender, WebSocketSharp.MessageEventArgs e)
@@ -80,7 +80,7 @@ namespace DoshiiTesting
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            textBox1.Text = "ws://meerkat.staging.dev.impos.com.au/api/v1/socket";
+            textBox1.Text = "ws://meerkat.staging.dev.impos.com.au/pos/api/v1/socket";
             textBox3.Text = "Rl9FY0kZx1U_6w1GyAH2Sp9MMtI";
             textBox2.Text = "https://meerkat.staging.dev.impos.com.au/pos/api/v1/";
         }

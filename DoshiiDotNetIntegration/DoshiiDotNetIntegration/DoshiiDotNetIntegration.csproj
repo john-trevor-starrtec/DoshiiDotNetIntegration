@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -57,6 +54,7 @@
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderEventArgs.cs" />
     <Compile Include="Doshii.cs" />
     <Compile Include="Enums\AllocationStates.cs" />
+    <Compile Include="Enums\DoshiiLogLevels.cs" />
     <Compile Include="Enums\EndPointPurposes.cs" />
     <Compile Include="Enums\OrderModes.cs" />
     <Compile Include="Enums\OrderStates.cs" />
