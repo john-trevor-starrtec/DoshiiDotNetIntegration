@@ -46,7 +46,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal DoshiiWebSocketsCommunication(string webSocketURL, DoshiiHttpCommunication httpComs, Doshii doshii)
         {
             HttpComs = httpComs;
-            HttpComs.GetWebSocketsAddress(webSocketURL);
+            //HttpComs.GetWebSocketsAddress(webSocketURL);
             ws = new WebSocket(webSocketURL);
             ws.OnOpen += new EventHandler(ws_OnOpen);
             ws.OnClose += new EventHandler<CloseEventArgs>(ws_OnClose);
@@ -81,7 +81,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if (!customerFound)
                     {
                         //REVIEW: (liam) for the time being I'm going to assume that we always have the customers checked in, this is not likely to be the case but will help get the skeleton of the code together quicker.
-                        
+
                         //GetConsumer
                         Modles.Consumer customer = HttpComs.GetConsumer(ta.customerId);
                         //raise checkin event
@@ -92,7 +92,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         newCheckinEventArgs.uri = customer.PhotoUrl;
                         newCheckinEventArgs.consumerObject = customer;
                         ConsumerCheckinEvent(this, newCheckinEventArgs);
-                        
+
                         //raise allocation event
                         CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
 
@@ -100,11 +100,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         AllocationEventArgs.TableAllocation.id = ta.id;
                         AllocationEventArgs.TableAllocation.name = ta.name;
                         AllocationEventArgs.TableAllocation.status = ta.status;
-                        
+
                         TableAllocationEvent(this, AllocationEventArgs);
                     }
                 }
-             }
+            }
             List<Modles.order> initialOrderList = GetOrders();
             foreach (Modles.order order in initialOrderList)
             {
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             else
             {
-                Doshii.log.Error(string.Format("Attempted to open a web socket connection before initializing the ws object"));
+                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Attempted to open a web socket connection before initializing the ws object"));
             }
         }
 
@@ -137,7 +137,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="message"></param>
         internal void SendMessage(string message)
         {
-            Doshii.log.Debug(string.Format("sending websockets message {0} to {1}", message, ws.Url.ToString()));
+            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("sending websockets message {0} to {1}", message, ws.Url.ToString()));
             ws.Send(message);
         }
 
@@ -149,7 +149,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private void ws_OnError(object sender, ErrorEventArgs e)
         {
-            Doshii.log.Error(string.Format("there was an error with the websockets connection to {0} the error was", ws.Url.ToString(), e.Message));
+            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("there was an error with the websockets connection to {0} the error was", ws.Url.ToString(), e.Message));
         }
 
         private void ws_OnMessage(object sender, MessageEventArgs e)
@@ -266,13 +266,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private void ws_OnClose(object sender, CloseEventArgs e)
         {
-            Doshii.log.Debug(string.Format("webScokets connection to {0} closed", ws.Url.ToString()));
+            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("webScokets connection to {0} closed", ws.Url.ToString()));
             initialize(DoshiiLogic.GetCheckedInCustomersFromPos());
         }
 
         private void ws_OnOpen(object sender, EventArgs e)
         {
-            Doshii.log.Debug(string.Format("webScokets connection open to {0}", ws.Url.ToString()));
+            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("webScokets connection open to {0}", ws.Url.ToString()));
         }
 
         #endregion

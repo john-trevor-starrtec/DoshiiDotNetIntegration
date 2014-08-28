@@ -12,7 +12,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     {
         private string DoshiiUrlBase;
 
-        internal DoshiiHttpCommunication(string urlBase)
+        private Doshii DoshiiLogic;
+
+        internal DoshiiHttpCommunication(string urlBase, Doshii doshiiLogic)
         {
             DoshiiUrlBase = urlBase;
         }
@@ -181,12 +183,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (WebException ex)
             {
-                Doshii.log.Error("There was a web exception when attempting to delete products from doshii", ex);
+                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "There was a web exception when attempting to delete products from doshii", ex);
                 success = false;
             }
             catch (Exception ex)
             {
-                Doshii.log.Error("There was a web exception when attempting to delete products from doshii", ex);
+                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "There was a web exception when attempting to delete products from doshii", ex);
                 success = false;
             }
 
@@ -266,7 +268,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             StringBuilder newUrlbuilder = new StringBuilder();
             if (string.IsNullOrWhiteSpace(DoshiiUrlBase))
             {
-                Doshii.log.Error("the DoshiiHttpCommunication class was not initialized correctly, the base URl is null or white space");
+                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "the DoshiiHttpCommunication class was not initialized correctly, the base URl is null or white space");
                 return newUrlbuilder.ToString();
             }
             newUrlbuilder.AppendFormat("{0}", DoshiiUrlBase);

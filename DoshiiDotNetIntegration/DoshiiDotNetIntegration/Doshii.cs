@@ -4,60 +4,59 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-[assembly: log4net.Config.XmlConfigurator(ConfigFile = "DoshiiLog4Net.config", Watch = true)]
 
 namespace DoshiiDotNetIntegration
 {
     public abstract class Doshii 
     {
 
-        internal static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        
         #region properties, constructors, Initialize, versionCheck
 
-        private CommunicationLogic.DoshiiWebSocketsCommunication SocketComs;
-        private CommunicationLogic.DoshiiHttpCommunication HttpComs;
+        private CommunicationLogic.DoshiiWebSocketsCommunication SocketComs = null;
+        private CommunicationLogic.DoshiiHttpCommunication HttpComs = null;
 
         private Enums.OrderModes OrderMode;
         private Enums.SeatingModes SeatingMode;
 
         protected static string CurrnetVersion()
         {
-
+            
             var versionStringBuilder = new StringBuilder();
             versionStringBuilder.Append("Doshii Integration Version: ");
             versionStringBuilder.Append(Assembly.GetExecutingAssembly().GetName().Version.ToString());
             versionStringBuilder.Append(Environment.NewLine);
-            versionStringBuilder.Append("Log4Net.Net version: ");
-            versionStringBuilder.Append(log4net.AssemblyInfo.Version);
-            versionStringBuilder.Append(Environment.NewLine);
-           
+            
             return versionStringBuilder.ToString();
         }
 
-        protected Doshii(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
+        protected Doshii(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
         {
-            string socketUrlWithToken = string.Format("{0}?{1}", socketUrl, token);
-            initialize(socketUrl, orderMode, seatingMode, UrlBase);
+            LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Initializing Doshii with sourceUrl: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), UrlBase));
+            string socketUrlWithToken = string.Format("{0}{1}", socketUrl, "/?token=Rl9FY0kZx1U_6w1GyAH2Sp9MMtI&EIO=2&transport=websocket&sid=vCfOBzR6a3Jglvm3AAA5");
+            initialize(socketUrl, orderMode, seatingMode, UrlBase, StartWebSocketConnection);
+
         }
 
-        private bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase)
+        private bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
         {
-            log.Debug("initializing Doshii");
-            
+            LogDoshiiError(Enums.DoshiiLogLevels.Debug, "initializing Doshii");
+
             bool result = true;
 
             OrderMode = orderMode;
             SeatingMode = seatingMode;
 
             //generate class for http communication. 
-            HttpComs = new CommunicationLogic.DoshiiHttpCommunication(UrlBase);
+            HttpComs = new CommunicationLogic.DoshiiHttpCommunication(UrlBase, this);
 
-            // initialize socket connection
-            SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, HttpComs, this);
-            // subscribe to scoket events
-            SubscribeToSocketEvents();
-                        
+            if (StartWebSocketConnection)
+            {
+                // initialize socket connection
+                SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, HttpComs, this);
+                // subscribe to scoket events
+                SubscribeToSocketEvents();
+            }
+                                    
             return result;
         }
 
@@ -65,7 +64,7 @@ namespace DoshiiDotNetIntegration
         {
             if (SocketComs == null)
             {
-                log.Error("the socketComs has not been initialized");
+                LogDoshiiError(Enums.DoshiiLogLevels.Debug, "the socketComs has not been initialized");
             }
             else
             {
@@ -155,7 +154,14 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="consumer"></param>
         protected abstract void recordCheckedInUser(Modles.Consumer consumer);
-                
+
+        /// <summary>
+        /// this method should be overridden so that the doshii logs appear in the regular system logs of your system, 
+        /// </summary>
+        /// <param name="logLevel"></param>
+        /// <param name="message"></param>
+        /// <param name="ex"></param>
+        public abstract void LogDoshiiError(Enums.DoshiiLogLevels logLevel, string message, Exception ex = null);
 
         #endregion
 
