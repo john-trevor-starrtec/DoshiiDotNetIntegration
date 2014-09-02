@@ -36,6 +36,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             Modles.Consumer retreivedConsumer = Modles.Consumer.deseralizeFromJson(responseMessage.data);
             return retreivedConsumer;
         }
+
+        internal List<Modles.Consumer> GetConsumers()
+        {
+            DoshiHttpResponceMessages responseMessage;
+            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetConsumer, ""), "GET");
+
+            List<Modles.Consumer> retreivedConsumerList = JsonConvert.DeserializeObject <List<Modles.Consumer>>(responseMessage.data); 
+            return retreivedConsumerList;
+        }
         #endregion
 
         #region order methods
@@ -77,7 +86,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "PUT");
+            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "PUT", Enums.AllocationStates.confirmed.ToString());
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {
@@ -92,11 +101,30 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return success;
         }
 
-        internal bool RejectTableAllocation(string consumerId, string tableName, Modles.table_allocation tableAllocation)
+        internal bool RemoveTableAllocation(string consumerId, string tableName, string rejectionReason)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", tableAllocation.ToJsonString());
+            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", rejectionReason);
+
+            if (responseMessage.Status == HttpStatusCode.OK)
+            {
+                success = true;
+            }
+            else
+            {
+                success = false;
+
+            }
+
+            return success;
+        }
+
+        internal bool RejectTableAllocation(string consumerId, string tableName, DoshiiDotNetIntegration.Modles.table_allocation allocation)
+        {
+            bool success = false;
+            DoshiHttpResponceMessages responseMessage;
+            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", allocation.ReasonCode);
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {
