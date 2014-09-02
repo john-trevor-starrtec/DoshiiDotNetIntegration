@@ -17,6 +17,6 @@ namespace DoshiiDotNetIntegration.Modles
         public int splitWays { get; set; }
         public int payTotal { get; set; }
         public int notPayingTotal { get; set; }
-        public product items { get; set; }
+        public List<product> items { get; set; }
     }
 }
