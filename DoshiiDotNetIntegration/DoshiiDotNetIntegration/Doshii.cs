@@ -32,8 +32,8 @@ namespace DoshiiDotNetIntegration
         protected Doshii(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
         {
             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Initializing Doshii with sourceUrl: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), UrlBase));
-            string socketUrlWithToken = string.Format("{0}{1}", socketUrl, "/?token=Rl9FY0kZx1U_6w1GyAH2Sp9MMtI&EIO=2&transport=websocket&sid=vCfOBzR6a3Jglvm3AAA5");
-            initialize(socketUrl, orderMode, seatingMode, UrlBase, StartWebSocketConnection);
+            string socketUrlWithToken = string.Format("{0}/?token={1}", socketUrl, token);
+            initialize(socketUrlWithToken, orderMode, seatingMode, UrlBase, StartWebSocketConnection);
 
         }
 
@@ -371,7 +371,22 @@ namespace DoshiiDotNetIntegration
 
         #region tableAllocation
 
-        public bool AllocateTableFromPos(string customerId, string tableName)
+        public bool TableAllocationConfirmDoshiiAllocation(string customerId, string tableName)
+        {
+            bool success = false;
+            if (SeatingMode == Enums.SeatingModes.DoshiiAllocation)
+            {
+                success = HttpComs.PutTableAllocation(customerId, tableName);
+            }
+            else
+            {
+                success = false;
+            }
+            return success;
+            
+        }
+
+        public bool TableAllocationFromPos(string customerId, string tableName)
         {
             bool success = false;
             if (SeatingMode == Enums.SeatingModes.DoshiiAllocation)
@@ -383,10 +398,15 @@ namespace DoshiiDotNetIntegration
                 success = HttpComs.PutTableAllocation(customerId, tableName);
             }
             return success;
-            
+
         }
 
         #endregion
+
+        public List<Modles.Consumer> GetCheckedInConsumersFromDoshii()
+        {
+            return HttpComs.GetConsumers();
+        }
 
     }
 }

@@ -18,6 +18,8 @@ namespace DoshiiDotNetIntegration.Modles
 
         public Uri PhotoUrl { get; set; }
 
+        public string CheckInId { get; set; }
+
 
     }
 }
