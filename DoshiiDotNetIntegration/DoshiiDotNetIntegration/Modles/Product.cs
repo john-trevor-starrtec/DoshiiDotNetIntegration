@@ -59,6 +59,11 @@ namespace DoshiiDotNetIntegration.Modles
         /// </summary>
         public string rejection_reason { get; set; }
 
+        /// <summary>
+        /// the status of the item that is being ordered. 
+        /// </summary>
+        public Enums.OrderStates status { get; set; }
+
         #region conditional json serialization
 
         /// <summary>

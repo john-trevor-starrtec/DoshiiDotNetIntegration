@@ -50,6 +50,10 @@ namespace DoshiiTesting
 
         }
 
+        protected override void RecordFullCheckPaymentBistroMode(order order)
+        {
+            throw new NotImplementedException();
+        }
         /// <summary>
         /// this method should record that a check has been fully paid by doshii, if bistro mode is being used it is at this point the order should be formally recorded in the system as the payment is now confirmed. 
         /// </summary>

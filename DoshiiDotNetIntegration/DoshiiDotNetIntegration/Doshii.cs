@@ -103,10 +103,17 @@ namespace DoshiiDotNetIntegration
         protected abstract void RecordPartialCheckPayment(Modles.order order);
 
         /// <summary>
-        /// this method should record that a check has been fully paid by doshii, if bistro mode is being used it is at this point the order should be formally recorded in the system as the payment is now confirmed. 
+        /// this method should record that a check has been fully paid by doshii. 
         /// </summary>
         /// <returns></returns>
         protected abstract void RecordFullCheckPayment(Modles.order order);
+
+        /// <summary>
+        /// this method should record that a check has been fully paid in bistro mode, the order should then be generated on the system and printed to the kitchen. 
+        /// </summary>
+        /// <param name="order"></param>
+        protected abstract void RecordFullCheckPaymentBistroMode(Modles.order order);
+
 
         /// <summary>
         /// this method sould record that the contained order has been cancled. 
