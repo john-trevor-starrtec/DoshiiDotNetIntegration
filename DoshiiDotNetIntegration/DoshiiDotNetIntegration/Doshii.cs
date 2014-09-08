@@ -17,6 +17,7 @@ namespace DoshiiDotNetIntegration
 
         private Enums.OrderModes OrderMode;
         private Enums.SeatingModes SeatingMode;
+        private string AuthorizeToken;
 
         protected static string CurrnetVersion()
         {
@@ -31,10 +32,11 @@ namespace DoshiiDotNetIntegration
 
         protected Doshii(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
         {
+            
             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Initializing Doshii with sourceUrl: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), UrlBase));
-            string socketUrlWithToken = string.Format("{0}/?token={1}", socketUrl, token);
+            AuthorizeToken = token;
+            string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
             initialize(socketUrlWithToken, orderMode, seatingMode, UrlBase, StartWebSocketConnection);
-
         }
 
         private bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
@@ -47,7 +49,7 @@ namespace DoshiiDotNetIntegration
             SeatingMode = seatingMode;
 
             //generate class for http communication. 
-            HttpComs = new CommunicationLogic.DoshiiHttpCommunication(UrlBase, this);
+            HttpComs = new CommunicationLogic.DoshiiHttpCommunication(UrlBase, this, AuthorizeToken);
 
             if (StartWebSocketConnection)
             {

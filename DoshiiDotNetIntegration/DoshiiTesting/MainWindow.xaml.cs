@@ -81,8 +81,8 @@ namespace DoshiiTesting
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             textBox1.Text = "ws://meerkat.staging.dev.impos.com.au/pos/api/v1/socket";
-            textBox3.Text = "Sp1AZJeT3xrmOXbJO7UKq75OpAk";
-            textBox2.Text = "https://meerkat.staging.dev.impos.com.au/pos/api/v1/";
+            textBox3.Text = "NUb3jlKiphiRmfSCbqHOZ_zV6_Q";
+            textBox2.Text = "http://meerkat.staging.dev.impos.com.au/pos/api/v1/";
         }
 
     }

@@ -14,9 +14,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private Doshii DoshiiLogic;
 
-        internal DoshiiHttpCommunication(string urlBase, Doshii doshiiLogic)
+        private string Token;
+
+        internal DoshiiHttpCommunication(string urlBase, Doshii doshiiLogic, string token)
         {
             DoshiiUrlBase = urlBase;
+            Token = token;
         }
 
         #region internal methods 
@@ -349,6 +352,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             HttpWebRequest request = null;
             request = (HttpWebRequest)WebRequest.Create(url);
             request.KeepAlive = false;
+            request.Headers.Add("authorization", Token);
             if (method.Equals("GET") || method.Equals("POST") || method.Equals("DELETE") || method.Equals("PUT"))
             {
                 // Set the Method property of the request to POST.
@@ -366,6 +370,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             HttpWebRequest request = null;
             request = (HttpWebRequest)WebRequest.Create(url);
             request.KeepAlive = false;
+            request.Headers.Add("authorization", Token);
                        
             // Set the ContentType property of the WebRequest.
             request.ContentType = "text/json";

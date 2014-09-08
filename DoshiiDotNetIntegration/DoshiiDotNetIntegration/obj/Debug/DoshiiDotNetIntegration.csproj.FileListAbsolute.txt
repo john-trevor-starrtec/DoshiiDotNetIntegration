@@ -8,3 +8,12 @@ C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetInteg
 C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Debug\DoshiiDotNetIntegration.pdb
 C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\websocket-sharp.dll
 C:\Development\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\websocket-sharp.xml
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.dll
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.pdb
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\Newtonsoft.Json.dll
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\websocket-sharp.dll
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\Newtonsoft.Json.xml
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\websocket-sharp.xml
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Debug\DoshiiDotNetIntegration.dll
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Debug\DoshiiDotNetIntegration.pdb
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Debug\DoshiiDotNetIntegration.csprojResolveAssemblyReference.cache
