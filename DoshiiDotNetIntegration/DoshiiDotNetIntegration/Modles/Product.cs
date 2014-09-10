@@ -10,18 +10,18 @@ namespace DoshiiDotNetIntegration.Modles
         /// <summary>
         /// The Doshii Id of the prduct this will be provided by Doshii
         /// </summary>
-        public int id { get; set; }
+        public string id { get; set; }
 
         /// <summary>
         /// the time the product was updated
         /// REVIEW: (liam): check what this updated at time is used for. 
         /// </summary>
-        public DateTime updatedAt { get; set; }
+        //public DateTime updatedAt { get; set; }
 
         /// <summary>
         /// The internal Id of the product
         /// </summary>
-        public string pos_Id { get; set; }
+        public string pos_id { get; set; }
 
         /// <summary>
         /// The name of the product that will be displayed to the user on the Doshii application
@@ -37,7 +37,7 @@ namespace DoshiiDotNetIntegration.Modles
         /// The price the product will be sold for through the mobile app, 
         /// This price is to be represented in cents. 
         /// </summary>
-        public int price { get; set; }
+        public string price { get; set; }
 
         /// <summary>
         /// A description of the product that will be displayed on the mobile app
@@ -64,13 +64,39 @@ namespace DoshiiDotNetIntegration.Modles
         /// </summary>
         public Enums.OrderStates status { get; set; }
 
+
+        public product()
+        {
+            tags = new List<string>();
+            product_options = new List<product_options>();
+        }
+
+
         #region conditional json serialization
+
+
 
         /// <summary>
         /// determians if the 
         /// </summary>
         /// <returns></returns>
         public bool ShouldSerializeadditional_instructions()
+        {
+            return false;
+        }
+
+        bool SerializeStatus = true;
+
+        public bool ShouldSerializestatus()
+        {
+            return SerializeStatus;
+        }
+
+        /// <summary>
+        /// this is no longer required to be stored by the pos. 
+        /// </summary>
+        /// <returns></returns>
+        public bool ShouldSerializeid()
         {
             return false;
         }
@@ -92,6 +118,7 @@ namespace DoshiiDotNetIntegration.Modles
         public string ToJsonStringForOrderConfirmation()
         {
             serializeRejectionReason = true;
+            SerializeStatus = true;
             SetSerializeForOrderForProductOptions(true);
             return base.ToJsonString();
         }
@@ -99,6 +126,7 @@ namespace DoshiiDotNetIntegration.Modles
         public string ToJsonSTringForOrder()
         {
             serializeRejectionReason = false;
+            SerializeStatus = true;
             SetSerializeForOrderForProductOptions(true);
             return base.ToJsonString();
         }
@@ -114,6 +142,7 @@ namespace DoshiiDotNetIntegration.Modles
         public string ToJsonStringForProductSync()
         {
             serializeRejectionReason = false;
+            SerializeStatus = false;
             SetSerializeForOrderForProductOptions(false);
             return base.ToJsonString();
         }

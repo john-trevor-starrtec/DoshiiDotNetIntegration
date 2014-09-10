@@ -309,17 +309,19 @@ namespace DoshiiDotNetIntegration
             return success;
         }
 
-        public bool AddNewProducts(Modles.product productToUpdate)
+        public bool AddNewProducts(Modles.product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
         {
             bool success = false;
-            success = HttpComs.PostProductData(productToUpdate, true);
+            List<Modles.product> productList = new List<Modles.product>();
+            productList.Add(productToUpdate);
+            success = HttpComs.PostProductData(productList, deleteAllProductsCurrentlyOnDoshii);
             return success;
         }
 
         public bool UpdateProcucts(Modles.product productToUpdate)
         {
             bool success = false;
-            success = HttpComs.PostProductData(productToUpdate, false);
+            success = HttpComs.PutProductData(productToUpdate);
             return success;
         }
         
@@ -329,20 +331,20 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productList"></param>
         /// <returns></returns>
-        public bool DeleteProducts(List<Modles.product> productList)
+        public bool DeleteProducts(List<string> productIdList)
         {
             bool success = false;
-            foreach (Modles.product pro in productList)
+            foreach (string pro in productIdList)
             {
                 success = DeleteProducts(pro);
             }
             return success;
         }
 
-        public bool DeleteProducts(Modles.product productToUpdate)
+        public bool DeleteProducts(string productId)
         {
             bool success = false;
-            success = HttpComs.DeleteProductData(productToUpdate.pos_Id);
+            success = HttpComs.DeleteProductData(productId);
             return success;
         }
 

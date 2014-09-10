@@ -23,6 +23,11 @@ namespace DoshiiDotNetIntegration.Modles
         public string customerId { get; set; }
 
         /// <summary>
+        /// this is the property that should be used to identify the client. 
+        /// </summary>
+        public string paypalCustomerId { get; set; }
+
+        /// <summary>
         /// the allocaiton state of the table. 
         /// </summary>
         public Enums.AllocationStates status { get; set; }
@@ -31,5 +36,12 @@ namespace DoshiiDotNetIntegration.Modles
         /// the reason the allocation was rejected if the allocation was rejected. 
         /// </summary>
         public string ReasonCode { get; set; }
+
+        /// <summary>
+        /// the checkin associated with the table allocation.
+        /// </summary>
+        public Checkin checkin { get; set; }
+
+
     }
 }

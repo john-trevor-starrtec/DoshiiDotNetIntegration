@@ -28,6 +28,6 @@ namespace DoshiiDotNetIntegration.Modles
         /// <summary>
         /// the internal Id of the product.
         /// </summary>
-        public string pos_Id { get; set; }
+        public string pos_id { get; set; }
     }
 }

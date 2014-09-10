@@ -34,7 +34,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal Modles.Consumer GetConsumer(string id)
         {
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetConsumer, id), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetConsumer, id), "GET");
 
             Modles.Consumer retreivedConsumer = Modles.Consumer.deseralizeFromJson(responseMessage.data);
             return retreivedConsumer;
@@ -43,7 +43,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal List<Modles.Consumer> GetConsumers()
         {
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetConsumer, ""), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetConsumer, ""), "GET");
 
             List<Modles.Consumer> retreivedConsumerList = JsonConvert.DeserializeObject <List<Modles.Consumer>>(responseMessage.data); 
             return retreivedConsumerList;
@@ -60,7 +60,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal Modles.order GetOrder(string id)
         {
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetOrder, id), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetOrder, id), "GET");
 
             Modles.order retreivedOrder = Modles.order.deseralizeFromJson(responseMessage.data);
             return retreivedOrder;
@@ -69,7 +69,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal List<Modles.order> GetOrders()
         {
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetOrder), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetOrder), "GET");
 
             List<Modles.order> retreivedOrderList = JsonConvert.DeserializeObject<List<Modles.order>>(responseMessage.data);
             return retreivedOrderList;
@@ -78,7 +78,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal List<Modles.table_allocation> GetTableAllocations()
         {
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations), "GET");
 
             List<Modles.table_allocation> retreivedOrderList = JsonConvert.DeserializeObject<List<Modles.table_allocation>>(responseMessage.data);
             return retreivedOrderList;
@@ -89,7 +89,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "PUT", Enums.AllocationStates.confirmed.ToString());
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "PUT", Enums.AllocationStates.confirmed.ToString());
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {
@@ -108,7 +108,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", rejectionReason);
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", rejectionReason);
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", allocation.ReasonCode);
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", allocation.ReasonCode);
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {
@@ -151,7 +151,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetOrder, order.id.ToString()), "PUT");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetOrder, order.id.ToString()), "PUT");
 
             if (responseMessage.Status == (HttpStatusCode)200)
             {
@@ -176,7 +176,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal List<Modles.product> GetDoshiiProducts()
         {
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.GetAllProducts), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetAllProducts), "GET");
 
             List<Modles.product> productList = JsonConvert.DeserializeObject<List<Modles.product>>(responseMessage.data);
             return productList;
@@ -209,7 +209,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             bool success = true;
             try
             {
-                DoshiHttpResponceMessages responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.UploadProducts, productId),"DELETE");
+                DoshiHttpResponceMessages responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts, productId),"DELETE");
                 //if the responce is fail might need to do something but should be able to continue
             }
             catch (WebException ex)
@@ -232,11 +232,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponceMessages responseMessage;
             if (isNewProduct)
             {
-                responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.UploadProducts, ""), "POST", productToPost.ToJsonStringForProductSync());
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts, ""), "POST", productToPost.ToJsonStringForProductSync());
             }
             else
             {
-                responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.UploadProducts, productToPost.pos_Id), "PUT", productToPost.ToJsonStringForProductSync());
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts, productToPost.pos_id), "PUT", productToPost.ToJsonStringForProductSync());
             }
             if (responseMessage.Status == (HttpStatusCode)200)
             {
@@ -270,8 +270,39 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 productListJsonString.Append(pro.ToJsonStringForProductSync());
                 count++;
             }
-            responseMessage = MakeRequest(generateUrl(Enums.EndPointPurposes.UploadProducts), "POST", productListJsonString.ToString());
-            if (responseMessage.Status == (HttpStatusCode)200)
+            productListJsonString.Append("]");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts), "POST", productListJsonString.ToString());
+            if (responseMessage.Status == HttpStatusCode.Created)
+            {
+                success = true;
+            }
+            else
+            {
+                success = false;
+            }
+            return success;
+        }
+
+        internal bool PutProductData(Modles.product productToPost)
+        {
+            bool success = false;
+            DoshiHttpResponceMessages responseMessage;
+            
+            StringBuilder productListJsonString = new StringBuilder();
+            productListJsonString.Append(productToPost.ToJsonStringForProductSync());
+            //int count = 0;
+            //foreach (Modles.product pro in productListToPost)
+            //{
+            //    if (count > 0)
+            //    {
+            //        productListJsonString.Append(",");
+            //    }
+            //    productListJsonString.Append(pro.ToJsonStringForProductSync());
+            //    count++;
+            //}
+            //productListJsonString.Append("]");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts, productToPost.pos_id), "PUT", productListJsonString.ToString());
+            if (responseMessage.Status == HttpStatusCode.OK)
             {
                 success = true;
             }
@@ -294,7 +325,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="purpose"></param>
         /// <param name="identification"></param>
         /// <returns></returns>
-        private string generateUrl(Enums.EndPointPurposes purpose, string identification = "", string tableName = "")
+        private string GenerateUrl(Enums.EndPointPurposes purpose, string identification = "", string tableName = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
             if (string.IsNullOrWhiteSpace(DoshiiUrlBase))
@@ -309,36 +340,35 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     newUrlbuilder.Append("/products");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("/{0}");
+                        newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
                 case Enums.EndPointPurposes.GetAllProducts:
                     newUrlbuilder.Append("/products");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("/{0}");
+                        newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
                 case Enums.EndPointPurposes.GetOrder:
                     newUrlbuilder.Append("/orders");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("/{0}");
+                        newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
                 case Enums.EndPointPurposes.GetTableAllocations:
                     newUrlbuilder.Append("/tables");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
-                        newUrlbuilder.AppendFormat("/{0}");
+                        newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
                 case Enums.EndPointPurposes.ConfirmTableAllocation:
-                    newUrlbuilder.AppendFormat("/consumers/{0}/tables/{1}",identification,tableName);
-                    if (!string.IsNullOrWhiteSpace(identification))
-                    {
-                        newUrlbuilder.AppendFormat("/{0}");
-                    }
+                    newUrlbuilder.AppendFormat("/consumers/{0}/tables/{1}", identification, tableName);
+                    break;
+                case Enums.EndPointPurposes.GetConsumer:
+                    newUrlbuilder.AppendFormat("/consumers/{0}", identification);
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());
@@ -347,7 +377,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return newUrlbuilder.ToString();
         }
 
-        private DoshiHttpResponceMessages MakeRequest(string url, string method)
+        private DoshiHttpResponceMessages MakeRequest(string url, string method, string data = "")
         {
             HttpWebRequest request = null;
             request = (HttpWebRequest)WebRequest.Create(url);
@@ -362,27 +392,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 throw new Exception("Invalid Method Type");
             }
-            return GetResponse(request);
-        }
-
-        private DoshiHttpResponceMessages MakeRequest(string url, string method, string data)
-        {
-            HttpWebRequest request = null;
-            request = (HttpWebRequest)WebRequest.Create(url);
-            request.KeepAlive = false;
-            request.Headers.Add("authorization", Token);
-                       
-            // Set the ContentType property of the WebRequest.
-            request.ContentType = "text/json";
-            
-            //set request data
-            using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+            if (!string.IsNullOrWhiteSpace(data))
             {
-                if (data != null)
+                // Set the ContentType property of the WebRequest.
+                request.ContentType = "application/json";
+
+                //set request data
+                using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
                 {
                     writer.Write(data);
+                    writer.Close();
                 }
-                writer.Close();
             }
             return GetResponse(request);
         }

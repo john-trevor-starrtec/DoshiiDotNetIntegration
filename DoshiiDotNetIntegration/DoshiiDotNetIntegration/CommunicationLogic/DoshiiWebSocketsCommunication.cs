@@ -82,7 +82,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         //REVIEW: (liam) for the time being I'm going to assume that we always have the customers checked in, this is not likely to be the case but will help get the skeleton of the code together quicker.
 
                         //GetConsumer
-                        Modles.Consumer customer = HttpComs.GetConsumer(ta.customerId);
+                        Modles.Consumer customer = HttpComs.GetConsumer(ta.paypalCustomerId);
                         //raise checkin event
                         CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
                         newCheckinEventArgs.checkin = ta.id;

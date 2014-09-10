@@ -187,8 +187,8 @@ namespace DoshiiTesting
             product newProduct = new product();
             newProduct.description = "Steak";
             newProduct.name = "STeak";
-            newProduct.pos_Id = "000001";
-            newProduct.price = 2500;
+            newProduct.pos_id = "000001";
+            newProduct.price = "2500";
             newProduct.product_options.Add(GenerateCookingTypesProductOption());
             newProduct.product_options.Add(GenerateTopingsProductOption());
 
@@ -200,8 +200,8 @@ namespace DoshiiTesting
             product newProduct = new product();
             newProduct.description = "CarltonPot";
             newProduct.name = "CarltonPot";
-            newProduct.pos_Id = "000002";
-            newProduct.price = 450;
+            newProduct.pos_id = "000002";
+            newProduct.price = "450";
 
             return newProduct;
         }
@@ -215,7 +215,7 @@ namespace DoshiiTesting
         {
             variants newVarient = new variants();
             newVarient.name = varientName;
-            newVarient.pos_Id = varientNumber;
+            newVarient.pos_id = varientNumber;
             newVarient.price = varientCost;
 
             return newVarient;
