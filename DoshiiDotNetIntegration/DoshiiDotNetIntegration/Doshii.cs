@@ -30,16 +30,19 @@ namespace DoshiiDotNetIntegration
             return versionStringBuilder.ToString();
         }
 
-        protected Doshii(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
+        protected Doshii()
         {
-            
+        }
+
+        protected void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
+        {
             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Initializing Doshii with sourceUrl: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), UrlBase));
             AuthorizeToken = token;
             string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
-            initialize(socketUrlWithToken, orderMode, seatingMode, UrlBase, StartWebSocketConnection);
+            InitializeProcess(socketUrlWithToken, orderMode, seatingMode, UrlBase, StartWebSocketConnection);
         }
 
-        private bool initialize(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
+        private bool InitializeProcess(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
         {
             LogDoshiiError(Enums.DoshiiLogLevels.Debug, "initializing Doshii");
 
@@ -57,6 +60,7 @@ namespace DoshiiDotNetIntegration
                 SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, HttpComs, this);
                 // subscribe to scoket events
                 SubscribeToSocketEvents();
+                SocketComs.initialize(GetCheckedInCustomersFromPos());
             }
                                     
             return result;
@@ -70,10 +74,10 @@ namespace DoshiiDotNetIntegration
             }
             else
             {
-                SocketComs.ConsumerCheckinEvent += new EventHandler<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs>(SocketComs_ConsumerCheckinEvent);
-                SocketComs.CreateOrderEvent += new EventHandler<CommunicationLogic.CommunicationEventArgs.OrderEventArgs>(SocketComs_CreateOrderEvent);
-                SocketComs.OrderStatusEvent += new EventHandler<CommunicationLogic.CommunicationEventArgs.OrderEventArgs>(SocketComs_OrderStatusEvent);
-                SocketComs.TableAllocationEvent += new EventHandler<CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs>(SocketComs_TableAllocationEvent);
+                SocketComs.ConsumerCheckinEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.ConsumerCheckInEventHandler(SocketComs_ConsumerCheckinEvent);
+                SocketComs.CreateOrderEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.CreatedOrderEventHandler(SocketComs_CreateOrderEvent);
+                SocketComs.OrderStatusEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComs_OrderStatusEvent);
+                SocketComs.TableAllocationEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.TableAllocationEventHandler(SocketComs_TableAllocationEvent);
             }
         }
 
@@ -182,12 +186,12 @@ namespace DoshiiDotNetIntegration
             tableAllocation = e.TableAllocation;
             if (ConfirmTableAllocation(tableAllocation))
             {
-                HttpComs.PutTableAllocation(tableAllocation.customerId, tableAllocation.name);
+                HttpComs.PutTableAllocation(tableAllocation.paypalCustomerId, tableAllocation.name);
                 
             }
             else
             {
-                HttpComs.RejectTableAllocation(tableAllocation.customerId, tableAllocation.name, tableAllocation);
+                HttpComs.RejectTableAllocation(tableAllocation.paypalCustomerId, tableAllocation.name, tableAllocation);
             }
         }
 

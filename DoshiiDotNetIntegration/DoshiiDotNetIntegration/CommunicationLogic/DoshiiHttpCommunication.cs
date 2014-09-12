@@ -89,7 +89,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "PUT", Enums.AllocationStates.confirmed.ToString());
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "PUT", Enums.AllocationStates.confirmed.ToString());
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {

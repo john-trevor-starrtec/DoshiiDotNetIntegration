@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WebSocketSharp;
+using Newtonsoft.Json;
+using System.Threading;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
@@ -23,19 +25,24 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private CommunicationLogic.DoshiiHttpCommunication HttpComs = null;
 
+        private Thread HeartBeatThread;
+
+
+
         #endregion
 
         #region internal methods and events
 
         #region events
 
-        internal event EventHandler<CommunicationEventArgs.OrderEventArgs> CreateOrderEvent;
-
-        internal event EventHandler<CommunicationEventArgs.OrderEventArgs> OrderStatusEvent;
-
-        internal event EventHandler<CommunicationEventArgs.CheckInEventArgs> ConsumerCheckinEvent;
-
-        internal event EventHandler<CommunicationEventArgs.TableAllocationEventArgs> TableAllocationEvent;
+        internal delegate void CreatedOrderEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        internal event CreatedOrderEventHandler CreateOrderEvent;
+        internal delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        internal event OrderStatusEventHandler OrderStatusEvent;
+        internal delegate void ConsumerCheckInEventHandler(object sender, CommunicationEventArgs.CheckInEventArgs e);
+        internal event ConsumerCheckInEventHandler ConsumerCheckinEvent;
+        internal delegate void TableAllocationEventHandler(object sender, CommunicationEventArgs.TableAllocationEventArgs e);
+        internal event TableAllocationEventHandler TableAllocationEvent;
 
 
 
@@ -54,7 +61,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             DoshiiLogic = doshii;
 
-            initialize(DoshiiLogic.GetCheckedInCustomersFromPos());
+            //initialize(DoshiiLogic.GetCheckedInCustomersFromPos());
             
         }
 
@@ -69,7 +76,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     bool customerFound = false;
                     foreach (Modles.Consumer cus in currentlyCheckInConsumers)
                     {
-                        if (ta.customerId == cus.paypalCustomerId)
+                        if (ta.paypalCustomerId == cus.paypalCustomerId)
                         {
                             customerFound = true;
                             CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationEventArgs.TableAllocationEventArgs();
@@ -90,7 +97,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         newCheckinEventArgs.paypalCustomerId = customer.paypalCustomerId;
                         newCheckinEventArgs.uri = customer.PhotoUrl;
                         newCheckinEventArgs.consumerObject = customer;
-                        ConsumerCheckinEvent(this, newCheckinEventArgs);
+                        if (ConsumerCheckinEvent != null)
+                        {
+                            ConsumerCheckinEvent(this, newCheckinEventArgs);
+                        }
+
 
                         //raise allocation event
                         CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
@@ -103,6 +114,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         TableAllocationEvent(this, AllocationEventArgs);
                     }
                 }
+                else if (ta.status == Enums.AllocationStates.confirmed)
+                {
+                    //confirm that table allocation exists. 
+                }
+
             }
             List<Modles.order> initialOrderList = GetOrders();
             foreach (Modles.order order in initialOrderList)
@@ -111,11 +127,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     CommunicationEventArgs.OrderEventArgs args = new CommunicationEventArgs.OrderEventArgs();
                     args.order = order;
-                    args.OrderId = order.id;
+                    args.OrderId = order.id.ToString();
                     args.status = order.status;
                     CreateOrderEvent(this, args);
                 }
             }
+            HeartBeatThread = new Thread(new ThreadStart(HeartBeatChecker));
+            HeartBeatThread.Start();
         }
 
         private void Connect()
@@ -123,6 +141,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             if (ws != null)
             {
                 ws.Connect();
+                SetLastMessageTime();
             }
             else
             {
@@ -134,10 +153,38 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// this should not be used as the pos does not communication with Doshii though web sockets, the pos uses http for sending messages to doshii. 
         /// </summary>
         /// <param name="message"></param>
-        internal void SendMessage(string message)
+        private void SendMessage(string message)
         {
             DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("sending websockets message {0} to {1}", message, ws.Url.ToString()));
             ws.Send(message);
+        }
+
+        private DateTime LastMessageTime;
+
+
+        private void HeartBeatChecker()
+        {
+            while (true)
+            {
+                Thread.Sleep(3000);
+                if (DateTime.Now.Add(new TimeSpan(0,0,-15)) > LastMessageTime)
+                {
+                    SendHeartBeat();
+                }
+            }
+        }
+
+        private void SendHeartBeat()
+        {
+            SetLastMessageTime();
+            string nowString = JsonConvert.SerializeObject(LastMessageTime);
+            string message = string.Format("primus::ping::<{0}>", nowString);
+            SendMessage(message);
+        }
+
+        private void SetLastMessageTime()
+        {
+            LastMessageTime = DateTime.Now;
         }
 
         #endregion
@@ -153,6 +200,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         private void ws_OnMessage(object sender, MessageEventArgs e)
         {
+            SetLastMessageTime();
             DoshiiDotNetIntegration.Modles.SocketMessage theMessage = new Modles.SocketMessage();
             if (e.Type == Opcode.Text)
             {
@@ -163,15 +211,32 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 theMessage = DoshiiDotNetIntegration.Modles.SocketMessage.deseralizeFromJson(e.RawData.ToString());
             }
-            switch (theMessage.EventName)
+
+            dynamic SMD = theMessage.emit[1];
+
+            Modles.SocketMessageData Md = new Modles.SocketMessageData();
+
+            Md.EventName = (string)theMessage.emit[0];
+            Md.checkinId = (string)SMD.checkinId;
+            Md.orderId = (string)SMD.orderId;
+            Md.paypalCustomerId = (string)SMD.paypalCustomerId;
+            Md.status = (string)SMD.status;
+            string uriString = (string)SMD.uri;
+            if (!string.IsNullOrWhiteSpace(uriString))
+            {
+                Md.uri = new Uri((string)SMD.uri);
+            }
+            
+
+            switch (Md.EventName)
             {
                 case "table_allocation":
                     CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
 
-                    AllocationEventArgs.TableAllocation.customerId = theMessage.consumerId;
-                    AllocationEventArgs.TableAllocation.id = theMessage.id;
-                    AllocationEventArgs.TableAllocation.name = theMessage.name;
-                    if (theMessage.status == "waiting_for_confirmation")
+                    AllocationEventArgs.TableAllocation.customerId = Md.consumerId;
+                    AllocationEventArgs.TableAllocation.id = Md.id;
+                    AllocationEventArgs.TableAllocation.name = Md.name;
+                    if (Md.status == "waiting_for_confirmation")
                     {
                         AllocationEventArgs.TableAllocation.status = Enums.AllocationStates.waiting_for_confirmation;
                     }
@@ -184,9 +249,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "order_create":
                     CommunicationEventArgs.OrderEventArgs createOrderEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    createOrderEventArgs.order = GetOrder(theMessage.order);
-                    createOrderEventArgs.OrderId = theMessage.orderId;
-                    switch (theMessage.status)
+                    createOrderEventArgs.order = GetOrder(Md.order);
+                    createOrderEventArgs.OrderId = Md.orderId;
+                    switch (Md.status)
                     {
                         case "accepted":
                             createOrderEventArgs.status = Enums.OrderStates.accepted; 
@@ -210,16 +275,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             createOrderEventArgs.status = Enums.OrderStates.cancelled;
                             break;
                         default:
-                            throw new NotSupportedException(theMessage.status);
+                            throw new NotSupportedException(Md.status);
                     }
                                         
                     CreateOrderEvent(this, createOrderEventArgs);
                     break;
                 case "order_status":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    orderStatusEventArgs.order = GetOrder(theMessage.order);
-                    orderStatusEventArgs.OrderId = theMessage.orderId;
-                    switch (theMessage.status)
+                    orderStatusEventArgs.order = GetOrder(Md.order);
+                    orderStatusEventArgs.OrderId = Md.orderId;
+                    switch (Md.status)
                     {
                         case "accepted":
                             orderStatusEventArgs.status = Enums.OrderStates.accepted;
@@ -243,24 +308,25 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             orderStatusEventArgs.status = Enums.OrderStates.cancelled;
                             break;
                         default:
-                            throw new NotSupportedException(theMessage.status);
+                            throw new NotSupportedException(Md.status);
                     }
 
                     OrderStatusEvent(this, orderStatusEventArgs);
                     break;
                 case "consumer_checkin":
                     CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
-                    newCheckinEventArgs.checkin = theMessage.checkin;
-                    newCheckinEventArgs.consumer = theMessage.consumer;
-                    newCheckinEventArgs.paypalCustomerId = theMessage.paypalCustomerId;
-                    newCheckinEventArgs.uri = theMessage.uri;
-                    newCheckinEventArgs.consumerObject = GetConsumer(theMessage.paypalCustomerId);
+                    newCheckinEventArgs.checkin = Md.checkinId;
+                    newCheckinEventArgs.consumer = Md.consumer;
+                    newCheckinEventArgs.paypalCustomerId = Md.paypalCustomerId;
+                    newCheckinEventArgs.uri = Md.uri;
+                    newCheckinEventArgs.consumerObject = GetConsumer(Md.paypalCustomerId);
 
                     ConsumerCheckinEvent(this, newCheckinEventArgs);
                     break;
                 default:
-                    throw new NotSupportedException(theMessage.EventName);
+                    throw new NotSupportedException(Md.EventName);
             }
+            
         }
 
         private void ws_OnClose(object sender, CloseEventArgs e)

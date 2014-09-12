@@ -66,6 +66,7 @@
     <Compile Include="Modles\product.cs" />
     <Compile Include="Modles\product_options.cs" />
     <Compile Include="Modles\SocketMessage.cs" />
+    <Compile Include="Modles\SocketMessageData.cs" />
     <Compile Include="Modles\table_allocation.cs" />
     <Compile Include="Modles\variants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

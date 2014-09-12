@@ -7,7 +7,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
     public class OrderEventArgs : EventArgs 
     {
-        public int OrderId;
+        public string OrderId;
 
         public Enums.OrderStates status;
 

@@ -17,9 +17,9 @@ namespace DoshiiTesting
         public List<product> DoshiiProductList = new List<product>();
         
         public DoshiiHelper(string socketUrl, string token, OrderModes orderMode, SeatingModes seatingMode, string UrlBase, bool startWebsocketsConnection)
-            : base(socketUrl, token, orderMode, seatingMode, UrlBase, startWebsocketsConnection)
+            : base()
         {
-            //GenerateProductList();
+            base.Initialize(socketUrl, token, orderMode, seatingMode, UrlBase, startWebsocketsConnection);
         }
 
         public override void LogDoshiiError(DoshiiLogLevels logLevel, string message, Exception ex = null)

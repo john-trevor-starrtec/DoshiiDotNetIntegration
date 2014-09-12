@@ -7,19 +7,23 @@ namespace DoshiiDotNetIntegration.Modles
 {
     public class Checkin : JsonSerializationBase<Checkin>
     {
-        string id { get; set; }
-        string paypalTabId { get; set; }
-        string consumerId { get; set; }
-        string locationId { get; set; }
+        public string id { get; set; }
+        public string paypalTabId { get; set; }
+        public string consumerId { get; set; }
+        public string locationId { get; set; }
         
         /// <summary>
         /// this is really only here because it is returned as part of the received data, it can be ignored by the pos and these statuses are handled by doshii.
         /// </summary>
-        string status { get; set; }
-        DateTime expirationDate {get;set;}
-        string gratuity {get;set;}
-        DateTime updatedAt {get;set;}
+        public string status { get; set; }
+        public DateTime expirationDate {get;set;}
+        public string gratuity {get;set;}
+        public DateTime updatedAt {get;set;}
 
-        string paypalCustomerId {get;set;}
+        public string paypalCustomerId {get;set;}
+
+        public Checkin()
+        {
+        }
     }
 }

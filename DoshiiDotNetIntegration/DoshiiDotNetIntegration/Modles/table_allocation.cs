@@ -42,6 +42,10 @@ namespace DoshiiDotNetIntegration.Modles
         /// </summary>
         public Checkin checkin { get; set; }
 
+        public table_allocation()
+        {
+        }
+
 
     }
 }
