@@ -74,13 +74,23 @@ namespace DoshiiDotNetIntegration
             }
             else
             {
+                UnsubscribeFromSocketEvents();
                 SocketComs.ConsumerCheckinEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.ConsumerCheckInEventHandler(SocketComs_ConsumerCheckinEvent);
                 SocketComs.CreateOrderEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.CreatedOrderEventHandler(SocketComs_CreateOrderEvent);
                 SocketComs.OrderStatusEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComs_OrderStatusEvent);
                 SocketComs.TableAllocationEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.TableAllocationEventHandler(SocketComs_TableAllocationEvent);
+                SocketComs.CheckOutEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.CheckOutEventHandler(SocketComs_CheckOutEvent);
             }
         }
 
+        private void UnsubscribeFromSocketEvents()
+        {
+            SocketComs.ConsumerCheckinEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.ConsumerCheckInEventHandler(SocketComs_ConsumerCheckinEvent);
+            SocketComs.CreateOrderEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.CreatedOrderEventHandler(SocketComs_CreateOrderEvent);
+            SocketComs.OrderStatusEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComs_OrderStatusEvent);
+            SocketComs.TableAllocationEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.TableAllocationEventHandler(SocketComs_TableAllocationEvent);
+            SocketComs.CheckOutEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.CheckOutEventHandler(SocketComs_CheckOutEvent);
+        }
         #endregion
 
         #region abstract methods
@@ -101,6 +111,12 @@ namespace DoshiiDotNetIntegration
         /// false - if the allocation failed,
         /// </returns>
         protected abstract bool ConfirmTableAllocation(Modles.table_allocation tableAllocation);
+
+        /// <summary>
+        /// this method should set the customer relating to the paypal customer id that is passed in as no longer at the venue. 
+        /// </summary>
+        /// <param name="consumerId"></param>
+        protected abstract void CheckOutConsumer(string consumerId);
 
         /// <summary>
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
@@ -179,6 +195,14 @@ namespace DoshiiDotNetIntegration
         #endregion
 
         #region socket communication event handlers
+
+        private void SocketComs_CheckOutEvent(object sender, CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(e.ConsumerId))
+            {
+                CheckOutConsumer(e.ConsumerId);
+            }
+        }
 
         private void SocketComs_TableAllocationEvent(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
         {

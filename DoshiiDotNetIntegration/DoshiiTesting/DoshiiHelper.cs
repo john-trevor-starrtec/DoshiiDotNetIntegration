@@ -27,6 +27,13 @@ namespace DoshiiTesting
             Console.WriteLine(string.Format("{0}: {1}", logLevel.ToString(), message));
         }
 
+        protected override void CheckOutConsumer(string consumerId)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
         /// <summary>
         /// This method will receive the table allocation object, and should either accept or reject the allocation. 
         /// if the allocation fails the reasoncode property should be populated. 

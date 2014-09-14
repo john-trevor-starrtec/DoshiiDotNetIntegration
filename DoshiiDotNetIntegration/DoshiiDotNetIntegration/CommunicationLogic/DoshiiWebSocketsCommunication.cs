@@ -43,6 +43,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal event ConsumerCheckInEventHandler ConsumerCheckinEvent;
         internal delegate void TableAllocationEventHandler(object sender, CommunicationEventArgs.TableAllocationEventArgs e);
         internal event TableAllocationEventHandler TableAllocationEvent;
+        internal delegate void CheckOutEventHandler(object sender, CommunicationEventArgs.CheckOutEventArgs e);
+        internal event CheckOutEventHandler CheckOutEvent;
 
 
 
@@ -106,19 +108,44 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         //raise allocation event
                         CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
 
+                        AllocationEventArgs.TableAllocation = new Modles.table_allocation();
+
                         AllocationEventArgs.TableAllocation.customerId = ta.customerId;
                         AllocationEventArgs.TableAllocation.id = ta.id;
                         AllocationEventArgs.TableAllocation.name = ta.name;
                         AllocationEventArgs.TableAllocation.status = ta.status;
+                        AllocationEventArgs.TableAllocation.paypalCustomerId = ta.paypalCustomerId;
 
                         TableAllocationEvent(this, AllocationEventArgs);
                     }
                 }
                 else if (ta.status == Enums.AllocationStates.confirmed)
                 {
+                    
                     //confirm that table allocation exists. 
                 }
 
+            }
+            //remove consumers that are not checked in. 
+            foreach (Modles.Consumer cus in currentlyCheckInConsumers)
+            {
+                bool customerFound = false;
+                foreach (Modles.table_allocation ta in initialTableAllocationList)
+                {
+                    if (ta.paypalCustomerId == cus.paypalCustomerId)
+                    {
+                        customerFound = true;
+                    }
+                }
+                if (!customerFound)
+                {
+                    //raise allocation event
+                    CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationEventArgs.CheckOutEventArgs();
+
+                    checkOutEventArgs.ConsumerId = cus.paypalCustomerId;
+
+                    CheckOutEvent(this, checkOutEventArgs);
+                }
             }
             List<Modles.order> initialOrderList = GetOrders();
             foreach (Modles.order order in initialOrderList)
@@ -177,8 +204,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         private void SendHeartBeat()
         {
             SetLastMessageTime();
+            DateTime utcTime = LastMessageTime.ToUniversalTime();
+            TimeSpan thisTimeSpan = new TimeSpan(utcTime.Ticks);
+            double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
             string nowString = JsonConvert.SerializeObject(LastMessageTime);
-            string message = string.Format("primus::ping::<{0}>", nowString);
+            string message = string.Format("\"primus::ping::<{0}>\"", doubleForHeartbeat.ToString());
             SendMessage(message);
         }
 
@@ -204,12 +234,30 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiiDotNetIntegration.Modles.SocketMessage theMessage = new Modles.SocketMessage();
             if (e.Type == Opcode.Text)
             {
-                theMessage = DoshiiDotNetIntegration.Modles.SocketMessage.deseralizeFromJson(e.Data.ToString());
+                string messageString = e.Data.ToString();
+                if (messageString.Contains("primus::pong::<"))
+                {
+                    return;
+                }
+                else
+                {
+                    theMessage = DoshiiDotNetIntegration.Modles.SocketMessage.deseralizeFromJson(messageString);
+                }
+                
             }
 
             if (e.Type == Opcode.Binary)
             {
-                theMessage = DoshiiDotNetIntegration.Modles.SocketMessage.deseralizeFromJson(e.RawData.ToString());
+                string messageString = e.RawData.ToString();
+                if (messageString.Contains("primus::pong::<"))
+                {
+                    return;
+                }
+                else
+                {
+                    theMessage = DoshiiDotNetIntegration.Modles.SocketMessage.deseralizeFromJson(messageString);
+                }
+                
             }
 
             dynamic SMD = theMessage.emit[1];
@@ -221,6 +269,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             Md.orderId = (string)SMD.orderId;
             Md.paypalCustomerId = (string)SMD.paypalCustomerId;
             Md.status = (string)SMD.status;
+            Md.name = (string)SMD.name;
+            Md.id = (string)SMD.id;
+            
             string uriString = (string)SMD.uri;
             if (!string.IsNullOrWhiteSpace(uriString))
             {
@@ -233,9 +284,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case "table_allocation":
                     CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
 
+                    AllocationEventArgs.TableAllocation = new Modles.table_allocation();
+
                     AllocationEventArgs.TableAllocation.customerId = Md.consumerId;
                     AllocationEventArgs.TableAllocation.id = Md.id;
                     AllocationEventArgs.TableAllocation.name = Md.name;
+                    AllocationEventArgs.TableAllocation.paypalCustomerId = Md.paypalCustomerId;
                     if (Md.status == "waiting_for_confirmation")
                     {
                         AllocationEventArgs.TableAllocation.status = Enums.AllocationStates.waiting_for_confirmation;
@@ -324,7 +378,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     ConsumerCheckinEvent(this, newCheckinEventArgs);
                     break;
                 default:
-                    throw new NotSupportedException(Md.EventName);
+                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Received socket message is not a supported message. messageType - '{0}'", Md.EventName));
+                    break;
             }
             
         }

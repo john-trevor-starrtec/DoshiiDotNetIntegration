@@ -89,7 +89,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "PUT", Enums.AllocationStates.confirmed.ToString());
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "PUT", "{\"status\": \"confirmed\"}");
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {
@@ -410,19 +410,26 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         private DoshiHttpResponceMessages GetResponse(WebRequest request)
         {
             DoshiHttpResponceMessages responceMessage = new DoshiHttpResponceMessages();
-            
-            // Get the original response.
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            try
+            {
+                // Get the original response.
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-            responceMessage.Status = response.StatusCode;
-            responceMessage.statusDescription = responceMessage.statusDescription;
+                responceMessage.Status = response.StatusCode;
+                responceMessage.statusDescription = responceMessage.statusDescription;
 
-            StreamReader sr = new StreamReader(response.GetResponseStream());
-            responceMessage.data = sr.ReadToEnd();
+                StreamReader sr = new StreamReader(response.GetResponseStream());
+                responceMessage.data = sr.ReadToEnd();
+
+                // Clean up the streams.
+                sr.Close();
+                response.Close();
+            }
+            catch (Exception ex)
+            {
+                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "As exception was thrown while attempting http communications with Doshii", ex);
+            }
             
-            // Clean up the streams.
-            sr.Close();
-            response.Close();
 
             return responceMessage;
         }

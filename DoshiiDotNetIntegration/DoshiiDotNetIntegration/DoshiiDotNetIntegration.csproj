@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommunicationLogic\CommunicationEventArgs\CheckInEventArgs.cs" />
+    <Compile Include="CommunicationLogic\CommunicationEventArgs\CheckOutEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\TableAllocationEventArgs.cs" />
     <Compile Include="CommunicationLogic\DoshiHttpResponceMessages.cs" />
     <Compile Include="CommunicationLogic\DoshiiHttpCommunication.cs" />
