@@ -210,12 +210,12 @@ namespace DoshiiDotNetIntegration
             tableAllocation = e.TableAllocation;
             if (ConfirmTableAllocation(tableAllocation))
             {
-                HttpComs.PutTableAllocation(tableAllocation.paypalCustomerId, tableAllocation.name);
+                HttpComs.PutTableAllocation(tableAllocation.paypalCustomerId, tableAllocation.id);
                 
             }
             else
             {
-                HttpComs.RejectTableAllocation(tableAllocation.paypalCustomerId, tableAllocation.name, tableAllocation);
+                HttpComs.RejectTableAllocation(tableAllocation.paypalCustomerId, tableAllocation.id, tableAllocation);
             }
         }
 
@@ -224,7 +224,10 @@ namespace DoshiiDotNetIntegration
             switch (e.order.status)
             {
                 case Enums.OrderStates.paid:
-                    if (e.order.notPayingTotal > 0)
+                    int nonPayingAmount = 0;
+                    int.TryParse(e.order.notPayingTotal, out nonPayingAmount);
+                    
+                    if (nonPayingAmount > 0)
                     {
                         if (OrderMode == Enums.OrderModes.BistroMode)
                         {
@@ -283,6 +286,7 @@ namespace DoshiiDotNetIntegration
         {
             switch (e.order.status)
             {
+                case Enums.OrderStates.New:
                 case Enums.OrderStates.pending:
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {

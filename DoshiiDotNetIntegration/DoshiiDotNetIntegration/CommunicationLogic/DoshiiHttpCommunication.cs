@@ -151,7 +151,23 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetOrder, order.id.ToString()), "PUT");
+            Modles.OrderToPut orderToPut = new Modles.OrderToPut();
+            orderToPut.updatedAt = DateTime.Now;
+            
+            if (order.status == Enums.OrderStates.accepted)
+            {
+                orderToPut.status = "accepted";
+            }
+            else if (order.status == Enums.OrderStates.waitingforpayment)
+            {
+                orderToPut.status = "waiting for payment";
+            }
+            else
+            {
+                orderToPut.status = "rejected";
+            }
+
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetOrder, order.id.ToString()), "PUT", orderToPut.ToJsonString());
 
             if (responseMessage.Status == (HttpStatusCode)200)
             {
@@ -365,7 +381,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     break;
                 case Enums.EndPointPurposes.ConfirmTableAllocation:
-                    newUrlbuilder.AppendFormat("/consumers/{0}/tables/{1}", identification, tableName);
+                    newUrlbuilder.AppendFormat("/consumers/{0}/table/{1}", identification, tableName);
                     break;
                 case Enums.EndPointPurposes.GetConsumer:
                     newUrlbuilder.AppendFormat("/consumers/{0}", identification);

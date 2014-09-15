@@ -64,6 +64,7 @@
     <Compile Include="Modles\Consumer.cs" />
     <Compile Include="Modles\JsonSerializationBase.cs" />
     <Compile Include="Modles\order.cs" />
+    <Compile Include="Modles\OrderToPut.cs" />
     <Compile Include="Modles\product.cs" />
     <Compile Include="Modles\product_options.cs" />
     <Compile Include="Modles\SocketMessage.cs" />

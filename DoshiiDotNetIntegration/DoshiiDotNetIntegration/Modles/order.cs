@@ -12,11 +12,11 @@ namespace DoshiiDotNetIntegration.Modles
         public string invoiceId{ get; set; }
         public string transactionId { get; set; } 
         public string checkinId { get; set; }
-        public int tip { get; set; }
-        public int paySplits { get; set; }
-        public int splitWays { get; set; }
-        public int payTotal { get; set; }
-        public int notPayingTotal { get; set; }
+        public string tip { get; set; }
+        public string paySplits { get; set; }
+        public string splitWays { get; set; }
+        public string payTotal { get; set; }
+        public string notPayingTotal { get; set; }
         public List<product> items { get; set; }
     }
 }

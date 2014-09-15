@@ -303,7 +303,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "order_create":
                     CommunicationEventArgs.OrderEventArgs createOrderEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    createOrderEventArgs.order = GetOrder(Md.order);
+                    createOrderEventArgs.order = GetOrder(Md.orderId);
                     createOrderEventArgs.OrderId = Md.orderId;
                     switch (Md.status)
                     {
@@ -328,6 +328,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         case "cancelled":
                             createOrderEventArgs.status = Enums.OrderStates.cancelled;
                             break;
+                        case "new":
+                            createOrderEventArgs.status = Enums.OrderStates.New;
+                            break;
                         default:
                             throw new NotSupportedException(Md.status);
                     }
@@ -336,7 +339,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "order_status":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    orderStatusEventArgs.order = GetOrder(Md.order);
+                    orderStatusEventArgs.order = GetOrder(Md.orderId);
                     orderStatusEventArgs.OrderId = Md.orderId;
                     switch (Md.status)
                     {

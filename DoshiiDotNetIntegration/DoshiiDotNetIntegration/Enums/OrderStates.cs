@@ -13,6 +13,7 @@ namespace DoshiiDotNetIntegration.Enums
         paid = 4,
         pending = 5,
         readytopay = 6,
-        cancelled = 7
+        cancelled = 7,
+        New = 8
     }
 }
