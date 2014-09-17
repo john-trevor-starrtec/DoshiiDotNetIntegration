@@ -6,6 +6,9 @@ using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models
 {
+    /// <summary>
+    /// the doshii representation of a product - (an item that can be sold)
+    /// </summary>
     public class Product : JsonSerializationBase<Product>
     {
         /// <summary>
@@ -13,13 +16,6 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
          [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
-
-        /// <summary>
-        /// the time the product was updated
-        /// REVIEW: (liam): check what this updated at time is used for. 
-        /// </summary>
-        // [JsonProperty(PropertyName = "updatedAt")]
-        //public DateTime UpdatedAt { get; set; }
 
         /// <summary>
         /// The internal Id of the product

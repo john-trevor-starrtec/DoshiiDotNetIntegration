@@ -5,20 +5,35 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.Enums
 {
+    /// <summary>
+    /// the possible actions for communication with the doshii restful api
+    /// </summary>
     internal enum EndPointPurposes
     {
-        UploadProducts = 1,
+        /// <summary>
+        /// requests about products
+        /// </summary>
+        Products = 1,
 
-        GetAllProducts = 2,
+        /// <summary>
+        /// requests about consumers
+        /// </summary>
+        Consumer = 2,
 
-        GetConsumer = 3,
+        /// <summary>
+        /// requests about orders
+        /// </summary>
+        Order = 3,
 
-        GetOrder = 4,
+        /// <summary>
+        /// getting a table allocation
+        /// </summary>
+        GetTableAllocations = 4,
 
-        GetTableAllocations = 5,
+        /// <summary>
+        /// confirming a table allocation
+        /// </summary>
+        ConfirmTableAllocation = 5,
 
-        ConfirmTableAllocation = 6,
-
-        PutOrder = 7
     }
 }

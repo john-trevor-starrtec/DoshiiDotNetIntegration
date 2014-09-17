@@ -6,6 +6,10 @@ using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models
 {
+    /// <summary>
+    /// a base class to make available json.net serialization functions. 
+    /// </summary>
+    /// <typeparam name="TSelf"></typeparam>
     public abstract class JsonSerializationBase<TSelf> 
     {
         /// <summary>

@@ -14,27 +14,28 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     internal class DoshiiWebSocketsCommunication 
     {
 
-        #region properties
+        #region fields and properties
 
         /// <summary>
         /// web socket object that will handle all the communications with doshii
         /// </summary>
-        WebSocket WebSocketsConnection = null;
+        WebSocket m_WebSocketsConnection = null;
 
-        private Doshii DoshiiLogic;
+        /// <summary>
+        /// field to indicate if the socket connection was successfully opened. 
+        /// </summary>
+        private bool m_SocketsConnectedSuccessfully = false;
 
-        private CommunicationLogic.DoshiiHttpCommunication HttpComs = null;
+        /// <summary>
+        /// a doshii logic instance
+        /// </summary>
+        private Doshii m_DoshiiLogic;
 
         /// <summary>
         /// A thread to send heartbeat socketmessage to doshii. 
         /// </summary>
-        private Thread HeartBeatThread;
+        private Thread m_HeartBeatThread;
 
-        /// <summary>
-        /// Holds a value for the last time a socket message was sent or received to determine if it is necessary to send a heartbeat message
-        /// </summary>
-        private DateTime LastMessageTime;
-        
         #endregion
 
         #region internal methods and events
@@ -42,158 +43,119 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         #region events
 
         internal delegate void CreatedOrderEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        /// <summary>
+        /// event will be raised when a new order is created on doshii
+        /// </summary>
         internal event CreatedOrderEventHandler CreateOrderEvent;
+        
         internal delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        /// <summary>
+        /// event will be raised when the state of an order has changed through doshii
+        /// </summary>
         internal event OrderStatusEventHandler OrderStatusEvent;
+        
         internal delegate void ConsumerCheckInEventHandler(object sender, CommunicationEventArgs.CheckInEventArgs e);
+        /// <summary>
+        /// event will be raised when a consumer checks in through doshii
+        /// </summary>
         internal event ConsumerCheckInEventHandler ConsumerCheckinEvent;
+        
         internal delegate void TableAllocationEventHandler(object sender, CommunicationEventArgs.TableAllocationEventArgs e);
+        /// <summary>
+        /// event will be raised when a table allocaiton event occurs through doshii
+        /// </summary>
         internal event TableAllocationEventHandler TableAllocationEvent;
+        
         internal delegate void CheckOutEventHandler(object sender, CommunicationEventArgs.CheckOutEventArgs e);
+        /// <summary>
+        /// event will be raised when a consumer is checked out from doshii
+        /// </summary>
         internal event CheckOutEventHandler CheckOutEvent;
-
+        
+        internal delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
+        /// <summary>
+        /// event will be raised when the socket communication with doshii are opened. 
+        /// </summary>
+        internal event SocketCommunicationEstablishedEventHandler SocketCommunicationEstablishedEvent;
 
 
         #endregion
 
         #region methods
 
-        internal DoshiiWebSocketsCommunication(string webSocketURL, DoshiiHttpCommunication httpComs, Doshii doshii)
+        /// <summary>
+        /// constructor, the initialize method must be called after the constructor to initialize the connection
+        /// </summary>
+        /// <param name="webSocketUrl"></param>
+        /// <param name="doshii"></param>
+        internal DoshiiWebSocketsCommunication(string webSocketUrl, Doshii doshii)
         {
-            HttpComs = httpComs;
-            WebSocketsConnection = new WebSocket(webSocketURL);
-            WebSocketsConnection.OnOpen += new EventHandler(WebSocketsConnectionOnOpenEventHandler);
-            WebSocketsConnection.OnClose += new EventHandler<CloseEventArgs>(WebSocketsConnectionOnCloseEventHandler);
-            WebSocketsConnection.OnMessage += new EventHandler<MessageEventArgs>(WebSocketsConnectionOnMessageEventHandler);
-            WebSocketsConnection.OnError += new EventHandler<ErrorEventArgs>(WebSocketsConnectionOnErrorEventHandler);
+            if (doshii == null)
+            {
+                throw new NotSupportedException("doshii");
+            }
 
-            DoshiiLogic = doshii;
+            m_DoshiiLogic = doshii;
+            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("instanciating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
+                
+            if (string.IsNullOrWhiteSpace(webSocketUrl))
+            {
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("cannot create an instance of DoshiiWebSocketsCommunication with a blank socketUrl"));
+                throw new NotSupportedException("webSocketUrl");
+            }
+            
+            
+            m_WebSocketsConnection = new WebSocket(webSocketUrl);
+            m_WebSocketsConnection.OnOpen += new EventHandler(WebSocketsConnectionOnOpenEventHandler);
+            m_WebSocketsConnection.OnClose += new EventHandler<CloseEventArgs>(WebSocketsConnectionOnCloseEventHandler);
+            m_WebSocketsConnection.OnMessage += new EventHandler<MessageEventArgs>(WebSocketsConnectionOnMessageEventHandler);
+            m_WebSocketsConnection.OnError += new EventHandler<ErrorEventArgs>(WebSocketsConnectionOnErrorEventHandler);
+
+            
         }
 
+        /// <summary>
+        /// initalizes the webScoket communication with doshii
+        /// this method should not be called until the events emitted from this class are subscribed to. 
+        /// </summary>
         internal void Initialize()
         {
+            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("initializing doshii websocket connection"));
             Connect();
-            List<Models.TableAllocation> initialTableAllocationList = GetTableAllocations();
-            foreach (Models.TableAllocation ta in initialTableAllocationList)
+            
+            //wait to ensure successful socket connection
+            Thread.Sleep(3000);
+
+            if (!m_SocketsConnectedSuccessfully)
             {
-                if (ta.Status == "waiting_for_confirmation")
-                {
-                    CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
-
-                    newCheckinEventArgs.Consumer = GetConsumer(ta.PaypalCustomerId);
-                    newCheckinEventArgs.Consumer.CheckInId = newCheckinEventArgs.CheckIn;
-                    newCheckinEventArgs.CheckIn = ta.Checkin.Id;
-                    newCheckinEventArgs.PaypalCustomerId = ta.PaypalCustomerId;
-                    newCheckinEventArgs.Uri = newCheckinEventArgs.Consumer.PhotoUrl;
-                    ConsumerCheckinEvent(this, newCheckinEventArgs);
-                        
-                    CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationEventArgs.TableAllocationEventArgs();
-                    args.TableAllocation = new Models.TableAllocation();
-                    args.TableAllocation.CustomerId = ta.CustomerId;
-                    args.TableAllocation.Id = ta.Id;
-                    args.TableAllocation.Name = ta.Name;
-                    args.TableAllocation.Status = ta.Status;
-                    args.TableAllocation.PaypalCustomerId = ta.PaypalCustomerId;
-
-                    TableAllocationEvent(this, args);
-                        
-                    
-                    //if (!customerFound)
-                    //{
-                    //    //REVIEW: (liam) for the time being I'm going to assume that we always have the customers checked in, this is not likely to be the case but will help get the skeleton of the code together quicker.
-
-                    //    //GetConsumer
-                    //    Models.Consumer customer = HttpComs.GetConsumer(ta.PaypalCustomerId);
-                    //    //raise checkin event
-                    //    CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
-                    //    newCheckinEventArgs.CheckIn = ta.Id;
-                    //    newCheckinEventArgs.PaypalCustomerId = customer.PaypalCustomerId;
-                    //    newCheckinEventArgs.Uri = customer.PhotoUrl;
-                    //    newCheckinEventArgs.Consumer = customer;
-                    //    if (ConsumerCheckinEvent != null)
-                    //    {
-                    //        ConsumerCheckinEvent(this, newCheckinEventArgs);
-                    //    }
-
-
-                    //    //raise allocation event
-                    //    CommunicationEventArgs.TableAllocationEventArgs AllocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
-
-                    //    AllocationEventArgs.TableAllocation = new Models.TableAllocation();
-
-                    //    AllocationEventArgs.TableAllocation.CustomerId = ta.CustomerId;
-                    //    AllocationEventArgs.TableAllocation.Id = ta.Id;
-                    //    AllocationEventArgs.TableAllocation.Name = ta.Name;
-                    //    AllocationEventArgs.TableAllocation.Status = ta.Status;
-                    //    AllocationEventArgs.TableAllocation.PaypalCustomerId = ta.PaypalCustomerId;
-
-                    //    TableAllocationEvent(this, AllocationEventArgs);
-                    //}
-                }
-                else if (ta.Status == "confirmed")
-                {
-                    
-                    //confirm that table allocation exists. 
-                }
-
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "Doshii: could not extablish and socket connection"); 
+                throw new EntryPointNotFoundException("socket connection could not be extablished with Doshii");
             }
-            //remove consumers that are not checked in. 
-            List<Models.Consumer> currentlyCheckInConsumers = DoshiiLogic.GetCheckedInCustomersFromPos();
-            foreach (Models.Consumer cus in currentlyCheckInConsumers)
-            {
-                bool customerFound = false;
-                foreach (Models.TableAllocation ta in initialTableAllocationList)
-                {
-                    if (ta.PaypalCustomerId == cus.PaypalCustomerId)
-                    {
-                        customerFound = true;
-                    }
-                }
-                if (!customerFound)
-                {
-                    //raise allocation event
-                    CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationEventArgs.CheckOutEventArgs();
 
-                    checkOutEventArgs.ConsumerId = cus.PaypalCustomerId;
-
-                    CheckOutEvent(this, checkOutEventArgs);
-                }
-            }
-            List<Models.Order> initialOrderList = GetOrders();
-            foreach (Models.Order order in initialOrderList)
-            {
-                if (order.Status == "pending" || order.Status == "ready to pay" || order.Status == "cancelled")
-                {
-                    Models.Order orderToConfirm = GetOrder(order.Id.ToString());
-                    CommunicationEventArgs.OrderEventArgs args = new CommunicationEventArgs.OrderEventArgs();
-                    args.Order = orderToConfirm;
-                    args.OrderId = orderToConfirm.Id.ToString();
-                    args.status = orderToConfirm.Status;
-                    CreateOrderEvent(this, args);
-                }
-            }
-            HeartBeatThread = new Thread(new ThreadStart(HeartBeatChecker));
-            HeartBeatThread.Start();
+            m_HeartBeatThread = new Thread(new ThreadStart(HeartBeatChecker));
+            m_HeartBeatThread.Start();
         }
 
+        /// <summary>
+        /// attempts to open a websockets connection with doshii
+        /// </summary>
         private void Connect()
         {
-            if (WebSocketsConnection != null)
+            if (m_WebSocketsConnection != null)
             {
                 try
                 {
-                    WebSocketsConnection.Connect();
-                    SetLastMessageTime();
+                    m_WebSocketsConnection.Connect();
                 }
                 catch(Exception ex)
                 {
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error initializing the web sockets conneciton to Doshii"), ex);
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error initializing the web sockets conneciton to Doshii"), ex);
                 }
                 
             }
             else
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the ws object"));
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the ws object"));
             }
         }
 
@@ -205,42 +167,30 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             try
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Sending websockets message '{0}' to {1}", message, WebSocketsConnection.Url.ToString()));
-                WebSocketsConnection.Send(message);
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Sending websockets message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()));
+                m_WebSocketsConnection.Send(message);
             }
             catch (Exception ex)
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Exception while sending a webSocket message '{0}' to {1}", message, WebSocketsConnection.Url.ToString()), ex);
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Exception while sending a webSocket message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()), ex);
             }
             
         }
 
+        /// <summary>
+        /// sends a heart beat message to doshii every ten seconds. 
+        /// </summary>
         private void HeartBeatChecker()
         {
             while (true)
             {
-                Thread.Sleep(3000);
-                if (DateTime.Now.Add(new TimeSpan(0,0,-15)) > LastMessageTime)
-                {
-                    SendHeartBeat();
-                }
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("webScoket heartBeat started"));
+                Thread.Sleep(10000);
+                TimeSpan thisTimeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
+                double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
+                string message = string.Format("\"primus::ping::<{0}>\"", doubleForHeartbeat.ToString());
+                SendMessage(message);
             }
-        }
-
-        private void SendHeartBeat()
-        {
-            SetLastMessageTime();
-            DateTime utcTime = LastMessageTime.ToUniversalTime();
-            TimeSpan thisTimeSpan = new TimeSpan(utcTime.Ticks);
-            double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
-            string nowString = JsonConvert.SerializeObject(LastMessageTime);
-            string message = string.Format("\"primus::ping::<{0}>\"", doubleForHeartbeat.ToString());
-            SendMessage(message);
-        }
-
-        private void SetLastMessageTime()
-        {
-            LastMessageTime = DateTime.Now;
         }
 
         #endregion
@@ -249,11 +199,21 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region event handlers
 
+        /// <summary>
+        /// handles the webSocket onError event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
-            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was", WebSocketsConnection.Url.ToString(), e.Message));
+            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was", m_WebSocketsConnection.Url.ToString(), e.Message));
         }
 
+        /// <summary>
+        /// handles the webSocket onMessage event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
         {
             DoshiiDotNetIntegration.Models.SocketMessage theMessage = new Models.SocketMessage();
@@ -286,7 +246,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 }
                 
             }
-
+            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("WebScoket message received - '{0}'", theMessage.ToString()));
             dynamic dynamicSocketMessageData = theMessage.Emit[1];
 
             Models.SocketMessageData messageData = new Models.SocketMessageData();
@@ -329,14 +289,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "order_create":
                     CommunicationEventArgs.OrderEventArgs createOrderEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    createOrderEventArgs.Order = GetOrder(messageData.OrderId);
+                    createOrderEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
                     createOrderEventArgs.OrderId = messageData.OrderId;
                     createOrderEventArgs.status = messageData.Status;    
                     CreateOrderEvent(this, createOrderEventArgs);
                     break;
                 case "order_status":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    orderStatusEventArgs.Order = GetOrder(messageData.OrderId);
+                    orderStatusEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
                     orderStatusEventArgs.OrderId = messageData.OrderId;
                     orderStatusEventArgs.status = messageData.Status;    
                 
@@ -347,49 +307,49 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     newCheckinEventArgs.CheckIn = messageData.CheckinId;
                     newCheckinEventArgs.PaypalCustomerId = messageData.PaypalCustomerId;
                     newCheckinEventArgs.Uri = messageData.Uri;
-                    newCheckinEventArgs.Consumer = GetConsumer(messageData.PaypalCustomerId);
+                    newCheckinEventArgs.Consumer = m_DoshiiLogic.GetConsumer(messageData.PaypalCustomerId);
                     newCheckinEventArgs.Consumer.CheckInId = newCheckinEventArgs.CheckIn;
 
                     ConsumerCheckinEvent(this, newCheckinEventArgs);
                     break;
+                case "consumer_checkout":
+                    CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs();
+
+                    checkOutEventArgs.ConsumerId = messageData.PaypalCustomerId;
+
+                    CheckOutEvent(this, checkOutEventArgs);
+                    break;
                 default:
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
                     break;
             }
             
         }
 
+        /// <summary>
+        /// handles the webSocket onClose event, 
+        /// automaticall tries to reconnect to doshii
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
         {
-            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection to {0} closed", WebSocketsConnection.Url.ToString()));
+            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection to {0} closed", m_WebSocketsConnection.Url.ToString()));
             Initialize();
         }
 
+        /// <summary>
+        /// handles the webScoket onOpen event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
         {
-            DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection open to {0}", WebSocketsConnection.Url.ToString()));
+            m_SocketsConnectedSuccessfully = true;
+            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection successfully open to {0}", m_WebSocketsConnection.Url.ToString()));
+            SocketCommunicationEstablishedEvent(this, e);
         }
 
         #endregion
-
-        private Models.Consumer GetConsumer(string paypalCustomerId)
-        {
-            return HttpComs.GetConsumer(paypalCustomerId);
-        }
-
-        private Models.Order GetOrder(string orderId)
-        {
-            return HttpComs.GetOrder(orderId);
-        }
-
-        private List<Models.Order> GetOrders()
-        {
-            return HttpComs.GetOrders();
-        }
-
-        private List<Models.TableAllocation> GetTableAllocations()
-        {
-            return HttpComs.GetTableAllocations();
-        }
     }
 }

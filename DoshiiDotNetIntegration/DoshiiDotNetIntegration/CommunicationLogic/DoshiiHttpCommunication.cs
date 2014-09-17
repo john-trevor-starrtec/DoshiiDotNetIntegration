@@ -10,17 +10,43 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 {
     internal class DoshiiHttpCommunication 
     {
-        private string DoshiiUrlBase;
+        private string m_DoshiiUrlBase;
 
-        private Doshii DoshiiLogic;
+        private Doshii m_DoshiiLogic;
 
-        private string Token;
+        private string m_Token;
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="urlBase"></param>
+        /// <param name="doshiiLogic"></param>
+        /// <param name="token"></param>
         internal DoshiiHttpCommunication(string urlBase, Doshii doshiiLogic, string token)
         {
-            DoshiiUrlBase = urlBase;
-            Token = token;
-            DoshiiLogic = doshiiLogic;
+            if (doshiiLogic == null)
+            {
+                throw new NotSupportedException("doshiiLogic");
+            }
+
+            m_DoshiiLogic = doshiiLogic;
+            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Instanciating DoshiiHttpCommunication Class with; urlBase - '{0}', token - '{1}'", urlBase, token));
+            //REVIEW: (LIAM) this should use regex to test the url form
+            if (string.IsNullOrWhiteSpace(urlBase))
+            {
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Instanciating DoshiiHttpCommunication Class with a blank urlBase - '{1}'", urlBase));
+                throw new NotSupportedException("blank url");
+            
+            }
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Instanciating DoshiiHttpCommunication Class with a blank token - '{1}'", token));
+                throw new NotSupportedException("blank token");
+            }
+            
+            m_DoshiiUrlBase = urlBase;
+            m_Token = token;
+            
         }
 
         #region internal methods 
@@ -28,15 +54,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         #region checkin and allocate methods
 
         /// <summary>
-        /// the Id is the paypal consumer id
+        /// gets a consumer from doshii with the paypalCustomerId provided, if no consumer exists a new consumer object is returned. 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="customerPayPalId"></param>
         /// <returns></returns>
-        internal Models.Consumer GetConsumer(string id)
+        internal Models.Consumer GetConsumer(string customerPayPalId)
         {
+                
             Models.Consumer retreivedConsumer = new Models.Consumer();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetConsumer, id), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId), "GET");
 
             if (responseMessage != null)
             {
@@ -48,28 +75,33 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.GetConsumer, id)));
+                        m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId)));
                     }
                     
                 }
                 else
                 {
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.GetConsumer, id)));
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId)));
                 }
             }
             else
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.GetConsumer, id)));
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId)));
             }
 
             return retreivedConsumer;
         }
 
+        /// <summary>
+        /// get all the customers currently checkedIn with doshii, if no customers are returned en empty list is returned. 
+        /// </summary>
+        /// <returns></returns>
         internal List<Models.Consumer> GetConsumers()
         {
+
             List<Models.Consumer> retreivedConsumerList = new List<Models.Consumer>();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetConsumer), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Consumer), "GET");
 
             if (responseMessage != null)
             {
@@ -81,17 +113,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.GetConsumer)));
+                        m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.Consumer)));
                     }
                 }
                 else
                 {
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.GetConsumer)));
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Consumer)));
                 }
             }
             else
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.GetConsumer)));
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Consumer)));
             }
             
             return retreivedConsumerList;
@@ -101,15 +133,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         #region order methods
 
         /// <summary>
-        /// this method is used to retreive the order from doshii, prymiarly used after doshii has sent an new order or an order changed notification. 
+        /// this method is used to retreive the order from doshii matching the provided orderId, if no order matches the provied orderId a new order is returned. 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="orderId"></param>
         /// <returns></returns>
-        internal Models.Order GetOrder(string id)
+        internal Models.Order GetOrder(string orderId)
         {
             Models.Order retreivedOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetOrder, id), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, orderId), "GET");
 
             if (responseMessage != null)
             {
@@ -121,28 +153,32 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.GetOrder, id)));
+                        m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
                     }
 
                 }
                 else
                 {
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.GetOrder, id)));
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
                 }
             }
             else
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.GetOrder, id)));
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
             }
 
             return retreivedOrder;
         }
 
+        /// <summary>
+        /// gets all the current active orders in doshii, if there are no active orders an empty list is returned. 
+        /// </summary>
+        /// <returns></returns>
         internal List<Models.Order> GetOrders()
         {
             List<Models.Order> retreivedOrderList = new List<Models.Order>();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetOrder), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order), "GET");
 
             if (responseMessage != null)
             {
@@ -154,33 +190,67 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.GetOrder)));
+                        m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.Order)));
                     }
 
                 }
                 else
                 {
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.GetOrder)));
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order)));
                 }
             }
             else
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.GetOrder)));
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
             }
 
             return retreivedOrderList;
         }
 
+        /// <summary>
+        /// gets all the current active table allocations in doshii, if there are no current active table allocations an enpty list is returned. 
+        /// </summary>
+        /// <returns></returns>
         internal List<Models.TableAllocation> GetTableAllocations()
         {
+            List<Models.TableAllocation> tableAllocationList = new List<Models.TableAllocation>();
             DoshiHttpResponceMessages responseMessage;
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations), "GET");
 
-            List<Models.TableAllocation> tableAllocationList = JsonConvert.DeserializeObject<List<Models.TableAllocation>>(responseMessage.Data);
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (responseMessage.Data != null)
+                    {
+                        tableAllocationList = JsonConvert.DeserializeObject<List<Models.TableAllocation>>(responseMessage.Data);
+                    }
+                    else
+                    {
+                        m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
+                    }
+
+                }
+                else
+                {
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
+                }
+            }
+            else
+            {
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
+            }
+
             return tableAllocationList;
 
         }
 
+        /// <summary>
+        /// attempts to put a table allocaiton to doshii, if successful returns true, else returns false. 
+        /// </summary>
+        /// <param name="consumerId"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
         internal bool PutTableAllocation(string consumerId, string tableName)
         {
             bool success = false;
@@ -200,6 +270,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return success;
         }
 
+        /// <summary>
+        /// removes a table allocation from doshii
+        /// </summary>
+        /// <param name="consumerId"></param>
+        /// <param name="tableName"></param>
+        /// <param name="rejectionReason"></param>
+        /// <returns>
+        /// true = successfully removed
+        /// false = not removed. 
+        /// </returns>
         internal bool RemoveTableAllocation(string consumerId, string tableName, string rejectionReason)
         {
             bool success = false;
@@ -224,8 +304,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return success;
         }
 
-        internal bool RejectTableAllocation(string consumerId, string tableName, DoshiiDotNetIntegration.Models.TableAllocation allocation)
+        /// <summary>
+        /// rejects a table allocation doshii has sent for approval. 
+        /// </summary>
+        /// <param name="consumerId"></param>
+        /// <param name="tableName"></param>
+        /// <param name="tableAllocation"></param>
+        /// <returns></returns>
+        internal bool RejectTableAllocation(string consumerId, string tableName, DoshiiDotNetIntegration.Models.TableAllocation tableAllocation)
         {
+            
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "DELETE");
@@ -275,7 +363,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             orderToPut.Items = order.Items;
 
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetOrder, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
 
             if (responseMessage != null)
             {
@@ -307,7 +395,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal List<Models.Product> GetDoshiiProducts()
         {
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetAllProducts), "GET");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products), "GET");
             List<Models.Product> productList = new List<Models.Product>();
             if (responseMessage != null)
             {
@@ -319,18 +407,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.GetAllProducts)));
+                        m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.Products)));
                     }
 
                 }
                 else
                 {
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.GetAllProducts)));
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Products)));
                 }
             }
             else
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.GetAllProducts)));
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Products)));
             }
             
             return productList;
@@ -342,14 +430,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="productId"></param>
         /// <returns>
         /// This will return true unless there was an exception, as the doshii web service will return an error responce if we attempt to delete an item that doesn't exist, we should ignore this error. 
-        /// REVIEW: (liam) we should prob return false if the responce code is not 200 or 404 this will prevent us from continuing if the error was not because the product does not exits. 
         /// </returns>
         internal bool DeleteProductData(string productId = "")
         {
             bool success = true;
             try
             {
-                DoshiHttpResponceMessages responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts, productId),"DELETE");
+                DoshiHttpResponceMessages responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productId),"DELETE");
                 //if the responce is fail might need to do something but should be able to continue
                 if (responseMessage != null)
                 {
@@ -369,29 +456,35 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (WebException ex)
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "Doshii: There was a web exception when attempting to delete products from doshii", ex);
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "Doshii: There was a web exception when attempting to delete products from doshii", ex);
                 success = false;
             }
             catch (Exception ex)
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "Doshii: There was a web exception when attempting to delete products from doshii", ex);
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "Doshii: There was a web exception when attempting to delete products from doshii", ex);
                 success = false;
             }
 
             return success;
         }
 
+        /// <summary>
+        /// posts a product to doshii to add to the menu. 
+        /// </summary>
+        /// <param name="productToPost"></param>
+        /// <param name="isNewProduct"></param>
+        /// <returns></returns>
         internal bool PostProductData(Models.Product productToPost, bool isNewProduct)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
             if (isNewProduct)
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts, ""), "POST", productToPost.ToJsonStringForProductSync());
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, ""), "POST", productToPost.ToJsonStringForProductSync());
             }
             else
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts, productToPost.PosId), "PUT", productToPost.ToJsonStringForProductSync());
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productToPost.PosId), "PUT", productToPost.ToJsonStringForProductSync());
             }
             if (responseMessage != null)
             {
@@ -411,6 +504,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return success;
         }
 
+        /// <summary>
+        /// post a product list to doshii to add to the menu.
+        /// </summary>
+        /// <param name="productListToPost"></param>
+        /// <param name="clearCurrentMenu"></param>
+        /// <returns></returns>
         internal bool PostProductData(List<Models.Product> productListToPost, bool clearCurrentMenu)
         {
             bool success = false;
@@ -433,7 +532,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 count++;
             }
             productListJsonString.Append("]");
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts), "POST", productListJsonString.ToString());
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products), "POST", productListJsonString.ToString());
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.Created)
@@ -452,6 +551,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return success;
         }
 
+        /// <summary>
+        /// puts product data to doshii - this method should only be used to update products already existing on doshii
+        /// </summary>
+        /// <param name="productToPost"></param>
+        /// <returns></returns>
         internal bool PutProductData(Models.Product productToPost)
         {
             bool success = false;
@@ -460,7 +564,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             StringBuilder productListJsonString = new StringBuilder();
             productListJsonString.Append(productToPost.ToJsonStringForProductSync());
             
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UploadProducts, productToPost.PosId), "PUT", productListJsonString.ToString());
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productToPost.PosId), "PUT", productListJsonString.ToString());
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -494,29 +598,22 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         private string GenerateUrl(Enums.EndPointPurposes purpose, string identification = "", string tableName = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
-            if (string.IsNullOrWhiteSpace(DoshiiUrlBase))
+            if (string.IsNullOrWhiteSpace(m_DoshiiUrlBase))
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "Doshii: The DoshiiHttpCommunication class was not initialized correctly, the base URl is null or white space");
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "Doshii: The DoshiiHttpCommunication class was not initialized correctly, the base URl is null or white space");
                 return newUrlbuilder.ToString();
             }
-            newUrlbuilder.AppendFormat("{0}", DoshiiUrlBase);
+            newUrlbuilder.AppendFormat("{0}", m_DoshiiUrlBase);
             switch (purpose)
             {
-                case Enums.EndPointPurposes.UploadProducts:
+                case Enums.EndPointPurposes.Products:
                     newUrlbuilder.Append("/products");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
                         newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
-                case Enums.EndPointPurposes.GetAllProducts:
-                    newUrlbuilder.Append("/products");
-                    if (!string.IsNullOrWhiteSpace(identification))
-                    {
-                        newUrlbuilder.AppendFormat("/{0}", identification);
-                    }
-                    break;
-                case Enums.EndPointPurposes.GetOrder:
+                case Enums.EndPointPurposes.Order:
                     newUrlbuilder.Append("/orders");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
@@ -533,7 +630,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case Enums.EndPointPurposes.ConfirmTableAllocation:
                     newUrlbuilder.AppendFormat("/consumers/{0}/table/{1}", identification, tableName);
                     break;
-                case Enums.EndPointPurposes.GetConsumer:
+                case Enums.EndPointPurposes.Consumer:
                     newUrlbuilder.AppendFormat("/consumers/{0}", identification);
                     break;
                 default:
@@ -543,12 +640,25 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return newUrlbuilder.ToString();
         }
 
+        /// <summary>
+        /// makes a request to doshii based on the paramaters provided. 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         private DoshiHttpResponceMessages MakeRequest(string url, string method, string data = "")
         {
+            //REVIEW: (LIAM) this should use regex to test if it is a correclty formed url
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                 m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("MakeRequest was called without a url"));
+                 throw new NotSupportedException("request with blank url");
+            }
             HttpWebRequest request = null;
             request = (HttpWebRequest)WebRequest.Create(url);
             request.KeepAlive = false;
-            request.Headers.Add("authorization", Token);
+            request.Headers.Add("authorization", m_Token);
             if (method.Equals("GET") || method.Equals("POST") || method.Equals("DELETE") || method.Equals("PUT"))
             {
                 // Set the Method property of the request to POST.
@@ -556,7 +666,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             else
             {
-                throw new Exception("Invalid Method Type");
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("MakeRequest was called with a non suppoerted Http request method type - '{0}", method));
+                throw new Exception("Invalid Http request Method Type");
             }
             if (!string.IsNullOrWhiteSpace(data))
             {
@@ -575,7 +686,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 // Get the original response.
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: generating {0} request to endpoint {1}, with data {2}", method, url, data));
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: generating {0} request to endpoint {1}, with data {2}", method, url, data));
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
                 responceMessage.Status = response.StatusCode;
@@ -590,16 +701,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responceMessage.Status == HttpStatusCode.OK || responceMessage.Status == HttpStatusCode.Created)
                 {
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Successfull responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Successfull responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
                 else
                 {
-                    DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Failed responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Failed responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
             }
             catch (Exception ex)
             {
-                DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2}", method, url, data, responceMessage.Status.ToString()), ex);
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2}", method, url, data, responceMessage.Status.ToString()), ex);
                 
             }
             return responceMessage;

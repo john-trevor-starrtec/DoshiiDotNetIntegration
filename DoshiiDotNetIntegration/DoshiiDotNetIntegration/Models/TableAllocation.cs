@@ -6,6 +6,9 @@ using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models
 {
+    /// <summary>
+    /// a table allocation object
+    /// </summary>
     public class TableAllocation : JsonSerializationBase<TableAllocation>
     {
         /// <summary>

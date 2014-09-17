@@ -6,6 +6,9 @@ using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models
 {
+    /// <summary>
+    /// these are options that are available with a product, they are not available for sale separatly but are available to be sold with products, productOptions can have a price but it is not necessary. 
+    /// </summary>
     public class ProductOptions : JsonSerializationBase<ProductOptions>
     {
         /// <summary>

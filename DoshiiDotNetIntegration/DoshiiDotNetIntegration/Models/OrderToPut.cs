@@ -6,14 +6,28 @@ using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.Models
 {
-    public class OrderToPut : JsonSerializationBase<Checkin>
+    /// <summary>
+    /// this item is specifically used when communicating with doshii for order updates.
+    /// </summary>
+    internal class OrderToPut : JsonSerializationBase<Checkin>
     {
+        /// <summary>
+        /// the order status
+        /// </summary>
         [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
+        internal string Status { get; set; }
+        
+        /// <summary>
+        /// the last time the order was updated. 
+        /// </summary>
         [JsonProperty(PropertyName = "updatedAt")]
-        public DateTime UpdatedAt { get; set; }
+        internal DateTime UpdatedAt { get; set; }
+        
+        /// <summary>
+        /// all the items included in the order. 
+        /// </summary>
         [JsonProperty(PropertyName = "items")]
-        public List<Product> Items { get; set; }
+        internal List<Product> Items { get; set; }
 
         public string ToJsonStringForOrder()
         {
