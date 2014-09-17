@@ -7,6 +7,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
     public class TableAllocationEventArgs : EventArgs
     {
-        public Modles.table_allocation TableAllocation;
+        public Models.TableAllocation TableAllocation;
     }
 }

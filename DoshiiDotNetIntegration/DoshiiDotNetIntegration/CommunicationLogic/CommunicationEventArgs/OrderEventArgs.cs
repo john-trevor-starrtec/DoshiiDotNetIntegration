@@ -9,8 +9,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
     {
         public string OrderId;
 
-        public Enums.OrderStates status;
+        public string status;
 
-        public Modles.order order;
+        public Models.Order Order;
     }
 }

@@ -36,7 +36,7 @@ namespace DoshiiDotNetIntegration
 
         protected void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
         {
-            LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Initializing Doshii with sourceUrl: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), UrlBase));
+            LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Initializing Doshii with sourceUrl: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), UrlBase));
             AuthorizeToken = token;
             string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
             InitializeProcess(socketUrlWithToken, orderMode, seatingMode, UrlBase, StartWebSocketConnection);
@@ -44,7 +44,7 @@ namespace DoshiiDotNetIntegration
 
         private bool InitializeProcess(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
         {
-            LogDoshiiError(Enums.DoshiiLogLevels.Debug, "initializing Doshii");
+            LogDoshiiError(Enums.DoshiiLogLevels.Debug, "Doshii: Initializing Doshii");
 
             bool result = true;
 
@@ -60,7 +60,7 @@ namespace DoshiiDotNetIntegration
                 SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, HttpComs, this);
                 // subscribe to scoket events
                 SubscribeToSocketEvents();
-                SocketComs.initialize(GetCheckedInCustomersFromPos());
+                SocketComs.Initialize();
             }
                                     
             return result;
@@ -70,13 +70,13 @@ namespace DoshiiDotNetIntegration
         {
             if (SocketComs == null)
             {
-                LogDoshiiError(Enums.DoshiiLogLevels.Debug, "the socketComs has not been initialized");
+                LogDoshiiError(Enums.DoshiiLogLevels.Debug, "Doshii: The socketComs has not been initialized");
             }
             else
             {
                 UnsubscribeFromSocketEvents();
                 SocketComs.ConsumerCheckinEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.ConsumerCheckInEventHandler(SocketComs_ConsumerCheckinEvent);
-                SocketComs.CreateOrderEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.CreatedOrderEventHandler(SocketComs_CreateOrderEvent);
+                SocketComs.CreateOrderEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.CreatedOrderEventHandler(SocketComs_OrderStatusEvent);
                 SocketComs.OrderStatusEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComs_OrderStatusEvent);
                 SocketComs.TableAllocationEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.TableAllocationEventHandler(SocketComs_TableAllocationEvent);
                 SocketComs.CheckOutEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.CheckOutEventHandler(SocketComs_CheckOutEvent);
@@ -86,7 +86,7 @@ namespace DoshiiDotNetIntegration
         private void UnsubscribeFromSocketEvents()
         {
             SocketComs.ConsumerCheckinEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.ConsumerCheckInEventHandler(SocketComs_ConsumerCheckinEvent);
-            SocketComs.CreateOrderEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.CreatedOrderEventHandler(SocketComs_CreateOrderEvent);
+            SocketComs.CreateOrderEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.CreatedOrderEventHandler(SocketComs_OrderStatusEvent);
             SocketComs.OrderStatusEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComs_OrderStatusEvent);
             SocketComs.TableAllocationEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.TableAllocationEventHandler(SocketComs_TableAllocationEvent);
             SocketComs.CheckOutEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.CheckOutEventHandler(SocketComs_CheckOutEvent);
@@ -99,7 +99,7 @@ namespace DoshiiDotNetIntegration
         /// This method should return a list of all the current doshii checked in customers registered in the pos. 
         /// </summary>
         /// <returns></returns>
-        public abstract List<Modles.Consumer> GetCheckedInCustomersFromPos();
+        public abstract List<Models.Consumer> GetCheckedInCustomersFromPos();
 
         /// <summary>
         /// This method will receive the table allocation object, and should either accept or reject the allocation. 
@@ -110,7 +110,7 @@ namespace DoshiiDotNetIntegration
         /// true - if the allocation was successful
         /// false - if the allocation failed,
         /// </returns>
-        protected abstract bool ConfirmTableAllocation(Modles.table_allocation tableAllocation);
+        protected abstract bool ConfirmTableAllocation(Models.TableAllocation tableAllocation);
 
         /// <summary>
         /// this method should set the customer relating to the paypal customer id that is passed in as no longer at the venue. 
@@ -122,26 +122,26 @@ namespace DoshiiDotNetIntegration
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
         /// </summary>
         /// <returns></returns>
-        protected abstract void RecordPartialCheckPayment(Modles.order order);
+        protected abstract void RecordPartialCheckPayment(Models.Order order);
 
         /// <summary>
         /// this method should record that a check has been fully paid by doshii. 
         /// </summary>
         /// <returns></returns>
-        protected abstract void RecordFullCheckPayment(Modles.order order);
+        protected abstract void RecordFullCheckPayment(Models.Order order);
 
         /// <summary>
         /// this method should record that a check has been fully paid in bistro mode, the order should then be generated on the system and printed to the kitchen. 
         /// </summary>
         /// <param name="order"></param>
-        protected abstract void RecordFullCheckPaymentBistroMode(Modles.order order);
+        protected abstract void RecordFullCheckPaymentBistroMode(Models.Order order);
 
 
         /// <summary>
         /// this method sould record that the contained order has been cancled. 
         /// </summary>
         /// <param name="order"></param>
-        protected abstract void OrderCancled(Modles.order order);
+        protected abstract void OrderCancled(Models.Order order);
 
         /// <summary>
         /// this method should check the availability of the products that have been ordered. 
@@ -155,7 +155,7 @@ namespace DoshiiDotNetIntegration
         /// true - if the entire order was accepted
         /// false - if the any part of the order was rejected. 
         /// </returns>
-        protected abstract bool ConfirmOrderAvailabilityBistroMode(Modles.order order);
+        protected abstract bool ConfirmOrderAvailabilityBistroMode(Models.Order order);
 
         /// <summary>
         /// this method is used to check the availability of the products that have been ordered.
@@ -166,7 +166,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        protected abstract bool ConfirmOrderForRestaurantMode(Modles.order order);
+        protected abstract bool ConfirmOrderForRestaurantMode(Models.Order order);
 
         /// <summary>
         /// this method is used to confirm the order on doshii accuratly represents the order on the the pos
@@ -174,7 +174,7 @@ namespace DoshiiDotNetIntegration
         /// if the order is not correct the pos should update the order object to to represent the correct order. 
         /// </summary>
         /// <param name="order"></param>
-        protected abstract void ConfirmOrderTotalsBeforePaymentRestaurantMode(Modles.order order);
+        protected abstract void ConfirmOrderTotalsBeforePaymentRestaurantMode(Models.Order order);
 
         /// <summary>
         /// this method should be used to record on the pos a customer has checked in. 
@@ -182,7 +182,7 @@ namespace DoshiiDotNetIntegration
         /// rather than giving the pos the URL of the image and expecting them to get the pic. 
         /// </summary>
         /// <param name="consumer"></param>
-        protected abstract void recordCheckedInUser(Modles.Consumer consumer);
+        protected abstract void recordCheckedInUser(Models.Consumer consumer);
 
         /// <summary>
         /// this method should be overridden so that the doshii logs appear in the regular system logs of your system, 
@@ -206,151 +206,161 @@ namespace DoshiiDotNetIntegration
 
         private void SocketComs_TableAllocationEvent(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
         {
-            Modles.table_allocation tableAllocation = new Modles.table_allocation();
+            Models.TableAllocation tableAllocation = new Models.TableAllocation();
             tableAllocation = e.TableAllocation;
             if (ConfirmTableAllocation(tableAllocation))
             {
-                HttpComs.PutTableAllocation(tableAllocation.paypalCustomerId, tableAllocation.id);
+                HttpComs.PutTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id);
                 
             }
             else
             {
-                HttpComs.RejectTableAllocation(tableAllocation.paypalCustomerId, tableAllocation.id, tableAllocation);
+                HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id, tableAllocation);
             }
         }
 
         private void SocketComs_OrderStatusEvent(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
-            switch (e.order.status)
+            switch (e.Order.Status)
             {
-                case Enums.OrderStates.paid:
-                    int nonPayingAmount = 0;
-                    int.TryParse(e.order.notPayingTotal, out nonPayingAmount);
+                case "paid":
+                    //int nonPayingAmount = 0;
+                    //int.TryParse(e.order.notPayingTotal, out nonPayingAmount);
                     
-                    if (nonPayingAmount > 0)
+                    //if (nonPayingAmount > 0)
+                    //{
+                    //    if (OrderMode == Enums.OrderModes.BistroMode)
+                    //    {
+                    //        throw new NotSupportedException("partial payment in bistro mode");
+                    //    }
+                    //    RecordPartialCheckPayment(e.order);
+                    //}
+                    //else
+                    //{
+                    //    RecordFullCheckPayment(e.order);
+                    //}
+                    break;
+                case "cancelled":
+                    OrderCancled(e.Order);
+                    break;
+                
+                case "ready to pay":
+                    ConfirmOrderTotalsBeforePaymentRestaurantMode(e.Order);
+                    e.Order.Status = "waiting for payment";
+                    if (HttpComs.PutOrder(e.Order))
                     {
-                        if (OrderMode == Enums.OrderModes.BistroMode)
+                        int nonPayingAmount = 0;
+                        int.TryParse(e.Order.NotPayingTotal, out nonPayingAmount);
+
+                        if (nonPayingAmount > 0)
                         {
-                            throw new NotSupportedException("partial payment in bistro mode");
+                            if (OrderMode == Enums.OrderModes.BistroMode)
+                            {
+                                RecordFullCheckPaymentBistroMode(e.Order);
+                            }
+                            else
+                            {
+                                RecordPartialCheckPayment(e.Order);
+                            }
+                            
                         }
-                        RecordPartialCheckPayment(e.order);
-                    }
-                    else
-                    {
-                        RecordFullCheckPayment(e.order);
+                        else
+                        {
+                            RecordFullCheckPayment(e.Order);
+                        }
                     }
                     break;
-                case Enums.OrderStates.cancelled:
-                    OrderCancled(e.order);
-                    break;
-                case Enums.OrderStates.pending:
+                case "new":
+                case "pending":
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
-                        if (ConfirmOrderAvailabilityBistroMode(e.order))
+                        if (ConfirmOrderAvailabilityBistroMode(e.Order))
                         {
-                            e.order.status = Enums.OrderStates.waitingforpayment;
-                            HttpComs.PutOrder(e.order);
+                            e.Order.Status = "accepted";
+                            if (HttpComs.PutOrder(e.Order))
+                            {
+                                e.Order.Status = "waiting for payment";
+                                if (HttpComs.PutOrder(e.Order))
+                                {
+                                    int nonPayingAmount = 0;
+                                    int.TryParse(e.Order.NotPayingTotal, out nonPayingAmount);
+
+                                    if (nonPayingAmount > 0)
+                                    {
+                                        if (OrderMode == Enums.OrderModes.BistroMode)
+                                        {
+                                            throw new NotSupportedException("partial payment in bistro mode");
+                                        }
+                                        RecordPartialCheckPayment(e.Order);
+                                    }
+                                    else
+                                    {
+                                        RecordFullCheckPayment(e.Order);
+                                    }
+                                }
+                            }
                         }
                         else
                         {
-                            e.order.status = Enums.OrderStates.rejected;
-                            HttpComs.PutOrder(e.order);
+                            e.Order.Status = "rejected";
+                            HttpComs.PutOrder(e.Order);
                         }
                     }
                     else
                     {
-                        if (ConfirmOrderForRestaurantMode(e.order))
+                        if (ConfirmOrderForRestaurantMode(e.Order))
                         {
-                            e.order.status = Enums.OrderStates.accepted;
-                            HttpComs.PutOrder(e.order);
+                            e.Order.Status = "accepted";
+                            HttpComs.PutOrder(e.Order);
                         }
                         else
                         {
-                            e.order.status = Enums.OrderStates.rejected;
-                            HttpComs.PutOrder(e.order);
-                        }
-                    }
-                    break;
-                case Enums.OrderStates.readytopay:
-                    ConfirmOrderTotalsBeforePaymentRestaurantMode(e.order);
-                    e.order.status = Enums.OrderStates.waitingforpayment;
-                    HttpComs.PutOrder(e.order);
-                    break;
-                default:
-                    throw new NotSupportedException(e.order.status.ToString());
-
-            }
-        }
-
-        private void SocketComs_CreateOrderEvent(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
-        {
-            switch (e.order.status)
-            {
-                case Enums.OrderStates.New:
-                case Enums.OrderStates.pending:
-                    if (OrderMode == Enums.OrderModes.BistroMode)
-                    {
-                        if (ConfirmOrderAvailabilityBistroMode(e.order))
-                        {
-                            e.order.status = Enums.OrderStates.waitingforpayment;
-                            HttpComs.PutOrder(e.order);
-                        }
-                        else
-                        {
-                            e.order.status = Enums.OrderStates.rejected;
-                            HttpComs.PutOrder(e.order);
-                        }
-                    }
-                    else
-                    {
-                        if (ConfirmOrderForRestaurantMode(e.order))
-                        {
-                            e.order.status = Enums.OrderStates.accepted;
-                            HttpComs.PutOrder(e.order);
-                        }
-                        else
-                        {
-                            e.order.status = Enums.OrderStates.rejected;
-                            HttpComs.PutOrder(e.order);
+                            e.Order.Status = "rejected";
+                            HttpComs.PutOrder(e.Order);
                         }
                     }
                     break;
                 default:
-                    throw new NotSupportedException(e.order.status.ToString());
+                    throw new NotSupportedException(e.Order.Status.ToString());
+
             }
         }
 
         private void SocketComs_ConsumerCheckinEvent(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
         {
-            recordCheckedInUser(e.consumerObject);
+            recordCheckedInUser(e.Consumer);
         }
 
         #endregion
         
         #region product sync methods
 
-        public List<Modles.product> GetAllProducts()
+        /// <summary>
+        /// This method will return all the products currently in Doshii, if the request fails the failure message will be logged and the products list will be empty. 
+        /// </summary>
+        /// <returns></returns>
+        public List<Models.Product> GetAllProducts()
         {
             return HttpComs.GetDoshiiProducts();
         }
 
-        public bool AddNewProducts(List<Modles.product> productList)
+        public bool AddNewProducts(List<Models.Product> productList)
         {
             bool success = false;
             success = HttpComs.PostProductData(productList, true);
             return success;
         }
 
-        public bool AddNewProducts(Modles.product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
+        public bool AddNewProducts(Models.Product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
         {
             bool success = false;
-            List<Modles.product> productList = new List<Modles.product>();
+            List<Models.Product> productList = new List<Models.Product>();
             productList.Add(productToUpdate);
             success = HttpComs.PostProductData(productList, deleteAllProductsCurrentlyOnDoshii);
             return success;
         }
 
-        public bool UpdateProcucts(Modles.product productToUpdate)
+        public bool UpdateProcucts(Models.Product productToUpdate)
         {
             bool success = false;
             success = HttpComs.PutProductData(productToUpdate);
@@ -391,13 +401,13 @@ namespace DoshiiDotNetIntegration
 
         #region ordering And Payment
 
-        public bool AddItemsToOrder(Modles.order order)
+        public bool AddItemsToOrder(Models.Order order)
         {
             if (OrderMode == Enums.OrderModes.BistroMode)
             {
                 return false;
             }
-            order.status = Enums.OrderStates.accepted;
+            order.Status = "accepted";
             return HttpComs.PutOrder(order);
         }
 
@@ -446,7 +456,7 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
-        public List<Modles.Consumer> GetCheckedInConsumersFromDoshii()
+        public List<Models.Consumer> GetCheckedInConsumersFromDoshii()
         {
             return HttpComs.GetConsumers();
         }

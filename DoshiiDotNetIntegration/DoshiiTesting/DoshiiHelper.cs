@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DoshiiDotNetIntegration.Enums;
-using DoshiiDotNetIntegration.Modles;
+using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiTesting
 {
@@ -12,9 +12,9 @@ namespace DoshiiTesting
 
         private List<Consumer> MyConsumerList = new List<Consumer>();
 
-        public List<product> MyCompleteProductList = new List<product>();
+        public List<Product> MyCompleteProductList = new List<Product>();
 
-        public List<product> DoshiiProductList = new List<product>();
+        public List<Product> DoshiiProductList = new List<Product>();
         
         public DoshiiHelper(string socketUrl, string token, OrderModes orderMode, SeatingModes seatingMode, string UrlBase, bool startWebsocketsConnection)
             : base()
@@ -43,7 +43,7 @@ namespace DoshiiTesting
         /// true - if the allocation was successful
         /// false - if the allocation failed,
         /// </returns>
-        protected override bool ConfirmTableAllocation(table_allocation tableAllocation)
+        protected override bool ConfirmTableAllocation(TableAllocation tableAllocation)
         {
             return true;
         }
@@ -52,12 +52,12 @@ namespace DoshiiTesting
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
         /// </summary>
         /// <returns></returns>
-        protected override void RecordPartialCheckPayment(order order)
+        protected override void RecordPartialCheckPayment(Order order)
         {
 
         }
 
-        protected override void RecordFullCheckPaymentBistroMode(order order)
+        protected override void RecordFullCheckPaymentBistroMode(Order order)
         {
             throw new NotImplementedException();
         }
@@ -65,7 +65,7 @@ namespace DoshiiTesting
         /// this method should record that a check has been fully paid by doshii, if bistro mode is being used it is at this point the order should be formally recorded in the system as the payment is now confirmed. 
         /// </summary>
         /// <returns></returns>
-        protected override void RecordFullCheckPayment(order order)
+        protected override void RecordFullCheckPayment(Order order)
         {
 
         }
@@ -74,7 +74,7 @@ namespace DoshiiTesting
         /// this method sould record that the contained order has been cancled. 
         /// </summary>
         /// <param name="order"></param>
-        protected override void OrderCancled(order order)
+        protected override void OrderCancled(Order order)
         {
 
         }
@@ -91,7 +91,7 @@ namespace DoshiiTesting
         /// true - if the entire order was accepted
         /// false - if the any part of the order was rejected. 
         /// </returns>
-        protected override bool ConfirmOrderAvailabilityBistroMode(order order)
+        protected override bool ConfirmOrderAvailabilityBistroMode(Order order)
         {
             return true;
         }
@@ -105,7 +105,7 @@ namespace DoshiiTesting
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        protected override bool ConfirmOrderForRestaurantMode(order order)
+        protected override bool ConfirmOrderForRestaurantMode(Order order)
         {
             return true;
         }
@@ -116,7 +116,7 @@ namespace DoshiiTesting
         /// if the order is not correct the pos should update the order object to to represent the correct order. 
         /// </summary>
         /// <param name="order"></param>
-        protected override void ConfirmOrderTotalsBeforePaymentRestaurantMode(order order)
+        protected override void ConfirmOrderTotalsBeforePaymentRestaurantMode(Order order)
         {
 
         }
@@ -139,25 +139,21 @@ namespace DoshiiTesting
 
         
         
-        private List<product> GenerateProductList()
+        private List<Product> GenerateProductList()
         {
-            MyCompleteProductList = new List<product>();
-            MyCompleteProductList.Add(GenerateCarltonProduct());
-            MyCompleteProductList.Add(GenerateSteakProduct());
-
-            return MyCompleteProductList;
+            throw new NotImplementedException();
         }
 
-        private product_options GenerateCookingTypesProductOption()
+        private ProductOptions GenerateCookingTypesProductOption()
         {
 
-            product_options po = new product_options();
-            po.max = 1;
-            po.min = 1;
-            po.name = "Cooking Types";
-            po.pos_id = "1";
+            ProductOptions po = new ProductOptions();
+            po.Max = 1;
+            po.Min = 1;
+            po.Name = "Cooking Types";
+            po.PosId = "1";
                  
-            List<variants> cookingList = new List<variants>();
+            List<Variants> cookingList = new List<Variants>();
 
             cookingList.Add(GenerateNoCostVarient("WellDone", "001"));
             cookingList.Add(GenerateNoCostVarient("MediumWell", "002"));
@@ -166,66 +162,47 @@ namespace DoshiiTesting
             cookingList.Add(GenerateNoCostVarient("Rear", "005"));
             cookingList.Add(GenerateNoCostVarient("Blue", "006"));
 
-            po.variants = cookingList;
+            po.Variants = cookingList;
             return po;
         }
 
-        private product_options GenerateTopingsProductOption()
+        private ProductOptions GenerateTopingsProductOption()
         {
-            product_options poi = new product_options();
-            poi.max = 1;
-            poi.min = 1;
-            poi.name = "Toppings";
-            poi.pos_id = "2";
+            ProductOptions poi = new ProductOptions();
+            poi.Max = 1;
+            poi.Min = 1;
+            poi.Name = "Toppings";
+            poi.PosId = "2";
             
-            List<variants> ToppingList = new List<variants>();
+            List<Variants> ToppingList = new List<Variants>();
 
             ToppingList.Add(GenerateCostVarient("Tomato", "007", 100));
             ToppingList.Add(GenerateCostVarient("Pepper", "008", 110));
             ToppingList.Add(GenerateCostVarient("Mustard", "009", 120));
             ToppingList.Add(GenerateCostVarient("Cream", "010", 130));
 
-            poi.variants = ToppingList;
+            poi.Variants = ToppingList;
             return poi;
         }
 
-        private product GenerateSteakProduct()
+        private Product GenerateSteakProduct()
         {
-            product newProduct = new product();
-            newProduct.description = "Steak";
-            newProduct.name = "STeak";
-            newProduct.pos_id = "000001";
-            newProduct.price = "2500";
-            newProduct.product_options.Add(GenerateCookingTypesProductOption());
-            newProduct.product_options.Add(GenerateTopingsProductOption());
-
-            return newProduct;
+            throw new NotImplementedException();
         }
 
-        private product GenerateCarltonProduct()
+        private Product GenerateCarltonProduct()
         {
-            product newProduct = new product();
-            newProduct.description = "CarltonPot";
-            newProduct.name = "CarltonPot";
-            newProduct.pos_id = "000002";
-            newProduct.price = "450";
-
-            return newProduct;
+            throw new NotImplementedException();
         }
 
-        private variants GenerateNoCostVarient(string varientName, string varientNumber)
+        private Variants GenerateNoCostVarient(string varientName, string varientNumber)
         {
             return GenerateCostVarient(varientName, varientNumber, 0);
         }
 
-        private variants GenerateCostVarient(string varientName, string varientNumber, int varientCost)
+        private Variants GenerateCostVarient(string varientName, string varientNumber, int varientCost)
         {
-            variants newVarient = new variants();
-            newVarient.name = varientName;
-            newVarient.pos_id = varientNumber;
-            newVarient.price = varientCost;
-
-            return newVarient;
+            throw new NotImplementedException();
         }
     }
 }

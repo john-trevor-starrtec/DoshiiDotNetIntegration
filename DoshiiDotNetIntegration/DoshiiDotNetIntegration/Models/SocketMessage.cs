@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace DoshiiDotNetIntegration.Modles
+namespace DoshiiDotNetIntegration.Models
 {
     internal class SocketMessage : JsonSerializationBase<SocketMessage>
     {
-        public List<object> emit { get; set; } 
+        [JsonProperty(PropertyName = "emit")]
+        public List<object> Emit { get; set; } 
     }
 }

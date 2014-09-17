@@ -7,14 +7,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
     public class CheckInEventArgs : EventArgs 
     {
-        public string consumer;
+        public string CheckIn;
 
-        public string checkin;
+        public string PaypalCustomerId;
 
-        public string paypalCustomerId;
+        public Uri Uri;
 
-        public Uri uri;
-
-        public Modles.Consumer consumerObject;
+        public Models.Consumer Consumer;
     }
 }

@@ -13,7 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DoshiiDotNetIntegration;
 using DoshiiDotNetIntegration.Enums;
-using DoshiiDotNetIntegration.Modles;
+using DoshiiDotNetIntegration.Models;
 using WebSocketSharp;
 
 

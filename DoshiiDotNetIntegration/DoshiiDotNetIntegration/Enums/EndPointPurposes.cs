@@ -19,6 +19,6 @@ namespace DoshiiDotNetIntegration.Enums
 
         ConfirmTableAllocation = 6,
 
-        putOrder = 7
+        PutOrder = 7
     }
 }

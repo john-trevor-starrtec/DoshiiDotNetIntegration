@@ -10,11 +10,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     {
         internal HttpStatusCode Status { get; set; }
 
-        internal string statusDescription { get; set; }
+        internal string StatusDescription { get; set; }
 
-        internal string data { get; set; }
+        internal string Data { get; set; }
 
-        internal string errorMessage { get; set; }
+        internal string ErrorMessage { get; set; }
 
         internal string Message { get; set; }
 

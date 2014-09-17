@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
-namespace DoshiiDotNetIntegration.Modles
+namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
     /// Varients are available to modify products on the Dohsii app,
@@ -13,21 +14,24 @@ namespace DoshiiDotNetIntegration.Modles
     /// or sides eg 'chips, veg, salad'
     /// each varient can have a price attahed to it.
     /// </summary>
-    public class variants : JsonSerializationBase<variants>
+    public class Variants : JsonSerializationBase<Variants>
     {
         /// <summary>
         /// The name of the varient that will be displayed on the mobile app
         /// </summary>
-        public string name { get; set; }
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
 
         /// <summary>
         /// The price of the varient in cents
         /// </summary>
-        public int price { get; set; }
+        [JsonProperty(PropertyName = "price")]
+        public int Price { get; set; }
 
         /// <summary>
         /// the internal Id of the product.
         /// </summary>
-        public string pos_id { get; set; }
+        [JsonProperty(PropertyName = "pos_id")]
+        public string PosId { get; set; }
     }
 }
