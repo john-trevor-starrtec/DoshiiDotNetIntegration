@@ -35,5 +35,10 @@ namespace DoshiiDotNetIntegration.Enums
         /// </summary>
         ConfirmTableAllocation = 5,
 
+        /// <summary>
+        /// delete the table allocation with the checkInId
+        /// </summary>
+        DeleteAllocationWithCheckInId = 6
+
     }
 }

@@ -311,6 +311,40 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="tableName"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
+        internal bool DeleteTableAllocationWithCheckInId(string checkInId)
+        {
+
+            bool success = false;
+            DoshiHttpResponceMessages responseMessage;
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.DeleteAllocationWithCheckInId, checkInId), "DELETE");
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    success = true;
+                }
+                else
+                {
+                    success = false;
+                }
+            }
+            else
+            {
+                success = false;
+            }
+
+            return success;
+        }
+
+
+        /// <summary>
+        /// rejects a table allocation doshii has sent for approval. 
+        /// </summary>
+        /// <param name="consumerId"></param>
+        /// <param name="tableName"></param>
+        /// <param name="tableAllocation"></param>
+        /// <returns></returns>
         internal bool RejectTableAllocation(string consumerId, string tableName, DoshiiDotNetIntegration.Models.TableAllocation tableAllocation)
         {
             
@@ -338,13 +372,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
-        /// this method is used to confirm or reject an order placed by doshii
+        /// this method is used to confirm or reject or update an order when the order has an Id order placed by doshii
         /// </summary>
         /// <param name="order"></param>
-        /// <returns></returns>
-        internal bool PutOrder(Models.Order order)
+        /// <returns>
+        /// if the request is not successfull a new order will be returned - you can check the order.Id in the returned order to confirm it is a valid responce. 
+        /// </returns>
+        internal Models.Order PutOrder(Models.Order order)
         {
-            bool success = false;
+            Models.Order returnOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
             Models.OrderToPut orderToPut = new Models.OrderToPut();
             orderToPut.UpdatedAt = DateTime.Now;
@@ -369,18 +405,80 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    success = true;
+                    if (responseMessage.Data != null)
+                    {
+                        returnOrder = JsonConvert.DeserializeObject<Models.Order>(responseMessage.Data);
+                    }
+                    else
+                    {
+                        m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
+                    }
+
                 }
                 else
                 {
-                    success = false;
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
                 }
             }
             else
             {
-                success = false;
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
             }
-            return success;
+            return returnOrder;
+        }
+
+        /// <summary>
+        /// This method is used to create an order when no order has been previously created createed on doshii for the checkinId
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        internal Models.Order PostOrder(Models.Order order)
+        {
+            Models.Order returnOrder = new Models.Order();
+            DoshiHttpResponceMessages responseMessage;
+            Models.OrderToPut orderToPut = new Models.OrderToPut();
+            orderToPut.UpdatedAt = DateTime.Now;
+
+            if (order.Status == "accepted")
+            {
+                orderToPut.Status = "accepted";
+            }
+            else if (order.Status == "waiting for payment")
+            {
+                orderToPut.Status = "waiting for payment";
+            }
+            else
+            {
+                orderToPut.Status = "rejected";
+            }
+            orderToPut.Items = order.Items;
+
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString()), "POST", orderToPut.ToJsonStringForOrder());
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (responseMessage.Data != null)
+                    {
+                        returnOrder = JsonConvert.DeserializeObject<Models.Order>(responseMessage.Data);
+                    }
+                    else
+                    {
+                        m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful responce but there was not data contained in the responce", GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString())));
+                    }
+                    
+                }
+                else
+                {
+                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString())));
+                }
+            }
+            else
+            {
+                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString())));
+            }
+            return returnOrder;
         }
 
         #endregion
@@ -632,6 +730,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case Enums.EndPointPurposes.Consumer:
                     newUrlbuilder.AppendFormat("/consumers/{0}", identification);
+                    break;
+                case Enums.EndPointPurposes.DeleteAllocationWithCheckInId:
+                    newUrlbuilder.AppendFormat("/tables?checkin={0}", identification);
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());

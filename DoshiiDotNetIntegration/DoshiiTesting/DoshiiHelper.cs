@@ -43,7 +43,7 @@ namespace DoshiiTesting
         /// true - if the allocation was successful
         /// false - if the allocation failed,
         /// </returns>
-        protected override bool ConfirmTableAllocation(TableAllocation tableAllocation)
+        protected override bool ConfirmTableAllocation(ref TableAllocation tableAllocation)
         {
             return true;
         }
@@ -52,12 +52,12 @@ namespace DoshiiTesting
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
         /// </summary>
         /// <returns></returns>
-        protected override void RecordPartialCheckPayment(Order order)
+        protected override void RecordPartialCheckPayment(ref Order order)
         {
 
         }
 
-        protected override void RecordFullCheckPaymentBistroMode(Order order)
+        protected override bool RecordFullCheckPaymentBistroMode(ref Order order)
         {
             throw new NotImplementedException();
         }
@@ -65,16 +65,16 @@ namespace DoshiiTesting
         /// this method should record that a check has been fully paid by doshii, if bistro mode is being used it is at this point the order should be formally recorded in the system as the payment is now confirmed. 
         /// </summary>
         /// <returns></returns>
-        protected override void RecordFullCheckPayment(Order order)
+        protected override bool RecordFullCheckPayment(ref Order order)
         {
-
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// this method sould record that the contained order has been cancled. 
         /// </summary>
         /// <param name="order"></param>
-        protected override void OrderCancled(Order order)
+        protected override void OrderCancled(ref Order order)
         {
 
         }
@@ -91,7 +91,7 @@ namespace DoshiiTesting
         /// true - if the entire order was accepted
         /// false - if the any part of the order was rejected. 
         /// </returns>
-        protected override bool ConfirmOrderAvailabilityBistroMode(Order order)
+        protected override bool ConfirmOrderAvailabilityBistroMode(ref Order order)
         {
             return true;
         }
@@ -105,7 +105,7 @@ namespace DoshiiTesting
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        protected override bool ConfirmOrderForRestaurantMode(Order order)
+        protected override bool ConfirmOrderForRestaurantMode(ref Order order)
         {
             return true;
         }
@@ -116,7 +116,7 @@ namespace DoshiiTesting
         /// if the order is not correct the pos should update the order object to to represent the correct order. 
         /// </summary>
         /// <param name="order"></param>
-        protected override void ConfirmOrderTotalsBeforePaymentRestaurantMode(Order order)
+        protected override void ConfirmOrderTotalsBeforePaymentRestaurantMode(ref Order order)
         {
 
         }
@@ -127,7 +127,7 @@ namespace DoshiiTesting
         /// rather than giving the pos the URL of the image and expecting them to get the pic. 
         /// </summary>
         /// <param name="consumer"></param>
-        protected override void recordCheckedInUser(Consumer consumer)
+        protected override void recordCheckedInUser(ref Consumer consumer)
         {
             MyConsumerList.Add(consumer);
         }

@@ -267,7 +267,7 @@ namespace DoshiiDotNetIntegration
         /// true - if the allocation was successful
         /// false - if the allocation failed,
         /// </returns>
-        protected abstract bool ConfirmTableAllocation(Models.TableAllocation tableAllocation);
+        protected abstract bool ConfirmTableAllocation(ref Models.TableAllocation tableAllocation);
 
         /// <summary>
         /// this method should set the customer relating to the paypal customer id that is passed in as no longer at the venue. 
@@ -279,26 +279,26 @@ namespace DoshiiDotNetIntegration
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
         /// </summary>
         /// <returns></returns>
-        protected abstract void RecordPartialCheckPayment(Models.Order order);
+        protected abstract void RecordPartialCheckPayment(ref Models.Order order);
 
         /// <summary>
         /// this method should record that a check has been fully paid by doshii. 
         /// </summary>
         /// <returns></returns>
-        protected abstract void RecordFullCheckPayment(Models.Order order);
+        protected abstract bool RecordFullCheckPayment(ref Models.Order order);
 
         /// <summary>
         /// this method should record that a check has been fully paid in bistro mode, the order should then be generated on the system and printed to the kitchen. 
         /// </summary>
         /// <param name="order"></param>
-        protected abstract void RecordFullCheckPaymentBistroMode(Models.Order order);
+        protected abstract bool RecordFullCheckPaymentBistroMode(ref Models.Order order);
 
 
         /// <summary>
         /// this method sould record that the contained order has been cancled. 
         /// </summary>
         /// <param name="order"></param>
-        protected abstract void OrderCancled(Models.Order order);
+        protected abstract void OrderCancled(ref Models.Order order);
 
         /// <summary>
         /// this method should check the availability of the products that have been ordered. 
@@ -306,13 +306,15 @@ namespace DoshiiDotNetIntegration
         /// If the price of any of the products are incorrect or the products are not available a rejection reason should be added to the product in question. 
         /// as this is in bistro mode the order should not be formally created on the pos system untill a payment is completed and the paid message is received, but any products that have 
         /// limited quantities should be reserved for this order as there is no opportunity to reject the order after it has been accepted on this step. 
+        /// 
+        /// This may be the first time the pos receives the orderId for this order, so the pos needs to check if it already has the order id recorded against the order and if not it should record the order against the order. 
         /// </summary>
         /// <param name="order"></param>
         /// <returns>
         /// true - if the entire order was accepted
         /// false - if the any part of the order was rejected. 
         /// </returns>
-        protected abstract bool ConfirmOrderAvailabilityBistroMode(Models.Order order);
+        protected abstract bool ConfirmOrderAvailabilityBistroMode(ref Models.Order order);
 
         /// <summary>
         /// this method is used to check the availability of the products that have been ordered.
@@ -320,10 +322,12 @@ namespace DoshiiDotNetIntegration
         /// if the price of any of the prodducts are incorrect or the products are not available a rejection reason should be added to the product in question
         /// As this is in restaurant mode the order should be formally created on the pos when this order is accepted, paymend is expected at the end of the customer experience at the venue rather than 
         /// with each order. 
+        /// 
+        /// This may be the first time the pos receives the orderId for this order, so the pos needs to check if it already has the order id recorded against the order and if not it should record the order against the order. 
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        protected abstract bool ConfirmOrderForRestaurantMode(Models.Order order);
+        protected abstract bool ConfirmOrderForRestaurantMode(ref Models.Order order);
 
         /// <summary>
         /// this method is used to confirm the order on doshii accuratly represents the order on the the pos
@@ -331,7 +335,7 @@ namespace DoshiiDotNetIntegration
         /// if the order is not correct the pos should update the order object to to represent the correct order. 
         /// </summary>
         /// <param name="order"></param>
-        protected abstract void ConfirmOrderTotalsBeforePaymentRestaurantMode(Models.Order order);
+        protected abstract void ConfirmOrderTotalsBeforePaymentRestaurantMode(ref Models.Order order);
 
         /// <summary>
         /// this method should be used to record on the pos a customer has checked in. 
@@ -339,7 +343,7 @@ namespace DoshiiDotNetIntegration
         /// rather than giving the pos the URL of the image and expecting them to get the pic. 
         /// </summary>
         /// <param name="consumer"></param>
-        protected abstract void recordCheckedInUser(Models.Consumer consumer);
+        protected abstract void recordCheckedInUser(ref Models.Consumer consumer);
 
         /// <summary>
         /// this method should be overridden so that the doshii logs appear in the regular system logs of your system, 
@@ -388,7 +392,7 @@ namespace DoshiiDotNetIntegration
             Models.TableAllocation tableAllocation = new Models.TableAllocation();
             tableAllocation = e.TableAllocation;
             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received table allocation event for consumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
-            if (ConfirmTableAllocation(tableAllocation))
+            if (ConfirmTableAllocation(ref tableAllocation))
             {
                 LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: confirming table allocaiton forconsumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
                 m_HttpComs.PutTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id);
@@ -409,16 +413,18 @@ namespace DoshiiDotNetIntegration
         private void SocketComsOrderStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received order status event with status '{0}', for order '{1}'", e.Order.Status, e.Order.ToJsonString()));
+            Models.Order returnedOrder = new Models.Order();
             switch (e.Order.Status)
             {
                 case "cancelled":
-                    OrderCancled(e.Order);
+                    OrderCancled(ref e.Order);
                     break;
                 
                 case "ready to pay":
-                    ConfirmOrderTotalsBeforePaymentRestaurantMode(e.Order);
+                    ConfirmOrderTotalsBeforePaymentRestaurantMode(ref e.Order);
                     e.Order.Status = "waiting for payment";
-                    if (m_HttpComs.PutOrder(e.Order))
+                    returnedOrder = m_HttpComs.PutOrder(e.Order);
+                    if (returnedOrder.Id != null && returnedOrder.Id == e.Order.Id)
                     {
                         LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order put for payment - '{0}'", e.Order.ToJsonString())); 
                         int nonPayingAmount = 0;
@@ -428,17 +434,23 @@ namespace DoshiiDotNetIntegration
                         {
                             if (OrderMode == Enums.OrderModes.BistroMode)
                             {
-                                RecordFullCheckPaymentBistroMode(e.Order);
+                                if (RecordFullCheckPaymentBistroMode(ref e.Order))
+                                {
+                                    m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
+                                }
                             }
                             else
                             {
-                                RecordPartialCheckPayment(e.Order);
+                                RecordPartialCheckPayment(ref e.Order);
                             }
                             
                         }
                         else
                         {
-                            RecordFullCheckPayment(e.Order);
+                            if (RecordFullCheckPayment(ref e.Order))
+                            {
+                                m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
+                            }
                         }
                     }
                     break;
@@ -446,29 +458,30 @@ namespace DoshiiDotNetIntegration
                 case "pending":
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
-                        if (ConfirmOrderAvailabilityBistroMode(e.Order))
+                        if (ConfirmOrderAvailabilityBistroMode(ref e.Order))
                         {
                             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order availibility confirmed for bistroMode - '{0}'", e.Order.ToJsonString())); 
                             e.Order.Status = "accepted";
-                            if (m_HttpComs.PutOrder(e.Order))
+                            returnedOrder = m_HttpComs.PutOrder(e.Order);
+                            if (returnedOrder.Id != null && returnedOrder.Id == e.Order.Id)
                             {
                                 e.Order.Status = "waiting for payment";
-                                if (m_HttpComs.PutOrder(e.Order))
+                                returnedOrder = m_HttpComs.PutOrder(e.Order);
+                                if (returnedOrder.Id != null && returnedOrder.Id == e.Order.Id)
                                 {
                                     int nonPayingAmount = 0;
                                     int.TryParse(e.Order.NotPayingTotal, out nonPayingAmount);
 
                                     if (nonPayingAmount > 0)
                                     {
-                                        if (OrderMode == Enums.OrderModes.BistroMode)
-                                        {
-                                            throw new NotSupportedException("Doshii: partial payment in bistro mode");
-                                        }
-                                        RecordPartialCheckPayment(e.Order);
+                                        throw new NotSupportedException("Doshii: partial payment in bistro mode");
                                     }
                                     else
                                     {
-                                        RecordFullCheckPayment(e.Order);
+                                        if (RecordFullCheckPayment(ref e.Order))
+                                        {
+                                            m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
+                                        }
                                     }
                                 }
                             }
@@ -482,7 +495,7 @@ namespace DoshiiDotNetIntegration
                     }
                     else
                     {
-                        if (ConfirmOrderForRestaurantMode(e.Order))
+                        if (ConfirmOrderForRestaurantMode(ref e.Order))
                         {
                             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order confirmed for restaurant mode - '{0}'", e.Order.ToJsonString())); 
                             e.Order.Status = "accepted";
@@ -512,7 +525,7 @@ namespace DoshiiDotNetIntegration
         private void SocketComsConsumerCheckinEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
         {
             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: checkIn event received for consumer - '{0}' with id '{1}'", e.Consumer.Name, e.Consumer.PaypalCustomerId)); 
-            recordCheckedInUser(e.Consumer);
+            recordCheckedInUser(ref e.Consumer);
         }
 
         #endregion
@@ -637,9 +650,8 @@ namespace DoshiiDotNetIntegration
         /// The order must contain all the products included in the check as this method overwrites all the items recorded on doshii for this check. 
         /// </param>
         /// <returns></returns>
-        public bool AddItemsToOrder(Models.Order order)
+        public Models.Order AddItemsToOrder(Models.Order order)
         {
-
             LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos adding items to order - '{0}'", order.ToJsonString()));
             if (OrderMode == Enums.OrderModes.BistroMode)
             {
@@ -647,7 +659,25 @@ namespace DoshiiDotNetIntegration
                 throw new NotSupportedException("Doshii: cannot add products to order in bistro mode");
             }
             order.Status = "accepted";
-            return m_HttpComs.PutOrder(order);
+            Models.Order returnedOrder = new Models.Order();
+            if (order.Id == null || order.Id == 0)
+            {
+                returnedOrder = m_HttpComs.PostOrder(order);
+                if (returnedOrder.Id != null && returnedOrder.Id != 0)
+                {
+                    LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
+                }
+            }
+            else
+            {
+                returnedOrder = m_HttpComs.PutOrder(order);
+                if (returnedOrder.Id != null && returnedOrder.Id != 0)
+                {
+                    LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
+                }
+            }
+
+            return returnedOrder;
         }
 
         /// <summary>
