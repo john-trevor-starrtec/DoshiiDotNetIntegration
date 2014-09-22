@@ -271,6 +271,37 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
+        /// attempts to post a table allocaiton to doshii, if successful returns true, else returns false. 
+        /// </summary>
+        /// <param name="consumerId"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        internal bool PostTableAllocation(string consumerId, string tableName)
+        {
+            bool success = false;
+            DoshiHttpResponceMessages responseMessage;
+            StringBuilder builder = new StringBuilder();
+            builder.Append("{\"tableName\": \"");
+            builder.AppendFormat("{0}", tableName);
+            builder.Append("\"}");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.AddTableAllocation, consumerId), "POST", builder.ToString());
+
+            if (responseMessage.Status == HttpStatusCode.OK)
+            {
+                success = true;
+            }
+            else
+            {
+                success = false;
+
+            }
+
+            return success;
+        }
+
+
+
+        /// <summary>
         /// removes a table allocation from doshii
         /// </summary>
         /// <param name="consumerId"></param>
@@ -733,6 +764,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case Enums.EndPointPurposes.DeleteAllocationWithCheckInId:
                     newUrlbuilder.AppendFormat("/tables?checkin={0}", identification);
+                    break;
+                case Enums.EndPointPurposes.AddTableAllocation:
+                    newUrlbuilder.AppendFormat("/consumers/{0}/table", identification, tableName);
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());

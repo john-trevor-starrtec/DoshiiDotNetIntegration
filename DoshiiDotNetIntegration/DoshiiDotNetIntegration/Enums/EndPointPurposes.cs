@@ -38,7 +38,10 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// delete the table allocation with the checkInId
         /// </summary>
-        DeleteAllocationWithCheckInId = 6
+        DeleteAllocationWithCheckInId = 6,
+
+
+        AddTableAllocation = 7
 
     }
 }

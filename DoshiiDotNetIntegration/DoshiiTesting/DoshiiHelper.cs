@@ -19,7 +19,7 @@ namespace DoshiiTesting
         public DoshiiHelper(string socketUrl, string token, OrderModes orderMode, SeatingModes seatingMode, string UrlBase, bool startWebsocketsConnection)
             : base()
         {
-            base.Initialize(socketUrl, token, orderMode, seatingMode, UrlBase, startWebsocketsConnection);
+            base.Initialize(socketUrl, token, orderMode, seatingMode, UrlBase, startWebsocketsConnection, true);
         }
 
         public override void LogDoshiiError(DoshiiLogLevels logLevel, string message, Exception ex = null)

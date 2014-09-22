@@ -39,6 +39,11 @@ namespace DoshiiDotNetIntegration
         private string AuthorizeToken { get; set; }
 
         /// <summary>
+        /// holds a value indicating if table allocations should be removed after a full check payment. 
+        /// </summary>
+        private bool RemoveTableAllocationsAfterFullPayment { get; set; }
+
+        /// <summary>
         /// get the current version
         /// </summary>
         /// <returns></returns>
@@ -78,7 +83,7 @@ namespace DoshiiDotNetIntegration
         /// the base url for communication with the doshii restfull api (the address should not end in a '/')
         /// </param>
         /// <param name="startWebSocketConnection"></param>
-        protected void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection)
+        protected void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, bool removeTableAllocationsAfterFullPayment)
         {
             LogDoshiiError(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Version {5} with; {6} sourceUrl: {0}, {6}token {1}, {6}orderMode {2}, {6}seatingMode: {3},{6}BaseUrl: {4}{6}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase, CurrnetVersion(), Environment.NewLine));
             LogDoshiiError(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Versioning Info: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase));
@@ -96,6 +101,7 @@ namespace DoshiiDotNetIntegration
                 throw new NotSupportedException("empty socketUrl");
             }
 
+            RemoveTableAllocationsAfterFullPayment = removeTableAllocationsAfterFullPayment;
             AuthorizeToken = token;
             string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
             InitializeProcess(socketUrlWithToken, orderMode, seatingMode, urlBase, startWebSocketConnection);
@@ -137,6 +143,11 @@ namespace DoshiiDotNetIntegration
             }
         
             return result;
+        }
+
+        public bool CreateTableAllocation(string paypalCustomerId, string tableName)
+        {
+            return m_HttpComs.PostTableAllocation(paypalCustomerId, tableName);
         }
 
         /// <summary>
@@ -434,7 +445,7 @@ namespace DoshiiDotNetIntegration
                         {
                             if (OrderMode == Enums.OrderModes.BistroMode)
                             {
-                                if (RecordFullCheckPaymentBistroMode(ref e.Order))
+                                if (RecordFullCheckPaymentBistroMode(ref e.Order) && RemoveTableAllocationsAfterFullPayment)
                                 {
                                     m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
                                 }
@@ -447,7 +458,7 @@ namespace DoshiiDotNetIntegration
                         }
                         else
                         {
-                            if (RecordFullCheckPayment(ref e.Order))
+                            if (RecordFullCheckPayment(ref e.Order) && RemoveTableAllocationsAfterFullPayment)
                             {
                                 m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
                             }
@@ -478,7 +489,7 @@ namespace DoshiiDotNetIntegration
                                     }
                                     else
                                     {
-                                        if (RecordFullCheckPayment(ref e.Order))
+                                        if (RecordFullCheckPayment(ref e.Order) && RemoveTableAllocationsAfterFullPayment)
                                         {
                                             m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
                                         }
