@@ -26,7 +26,7 @@ namespace DoshiiDotNetIntegration.Models
         /// The price of the varient in cents
         /// </summary>
         [JsonProperty(PropertyName = "price")]
-        public int Price { get; set; }
+        public string Price { get; set; }
 
         /// <summary>
         /// the internal Id of the product.
