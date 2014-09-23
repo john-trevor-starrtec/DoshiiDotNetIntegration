@@ -76,5 +76,11 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         [JsonProperty(PropertyName = "items")]
         public List<Product> Items { get; set; }
+
+        /// <summary>
+        /// the last time the order was updated on doshii
+        /// </summary>
+        [JsonProperty(PropertyName = "updatedAt")]
+        public DateTime UpdatedAt { get; set; }
     }
 }

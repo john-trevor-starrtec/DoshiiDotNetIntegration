@@ -476,12 +476,12 @@ namespace DoshiiDotNetIntegration
                             returnedOrder = m_HttpComs.PutOrder(e.Order);
                             if (returnedOrder.Id != null && returnedOrder.Id == e.Order.Id)
                             {
-                                e.Order.Status = "waiting for payment";
-                                returnedOrder = m_HttpComs.PutOrder(e.Order);
+                                returnedOrder.Status = "waiting for payment";
+                                returnedOrder = m_HttpComs.PutOrder(returnedOrder);
                                 if (returnedOrder.Id != null && returnedOrder.Id == e.Order.Id)
                                 {
                                     int nonPayingAmount = 0;
-                                    int.TryParse(e.Order.NotPayingTotal, out nonPayingAmount);
+                                    int.TryParse(returnedOrder.NotPayingTotal, out nonPayingAmount);
 
                                     if (nonPayingAmount > 0)
                                     {
@@ -489,7 +489,7 @@ namespace DoshiiDotNetIntegration
                                     }
                                     else
                                     {
-                                        if (RecordFullCheckPayment(ref e.Order) && RemoveTableAllocationsAfterFullPayment)
+                                        if (RecordFullCheckPayment(ref returnedOrder) && RemoveTableAllocationsAfterFullPayment)
                                         {
                                             m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
                                         }

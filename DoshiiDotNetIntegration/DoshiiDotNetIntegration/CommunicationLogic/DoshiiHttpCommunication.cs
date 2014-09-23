@@ -414,7 +414,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             Models.Order returnOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
             Models.OrderToPut orderToPut = new Models.OrderToPut();
-            orderToPut.UpdatedAt = DateTime.Now;
+
+            orderToPut.UpdatedAt = new DateTime(2015, 12, 12);
             
             if (order.Status == "accepted")
             {
