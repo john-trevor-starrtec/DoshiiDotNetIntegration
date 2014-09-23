@@ -489,7 +489,7 @@ namespace DoshiiDotNetIntegration
                                     }
                                     else
                                     {
-                                        if (RecordFullCheckPayment(ref returnedOrder) && RemoveTableAllocationsAfterFullPayment)
+                                        if (RecordFullCheckPaymentBistroMode(ref returnedOrder) && RemoveTableAllocationsAfterFullPayment)
                                         {
                                             m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
                                         }
