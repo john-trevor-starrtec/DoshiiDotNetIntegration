@@ -29,7 +29,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <summary>
         /// a doshii logic instance
         /// </summary>
-        private Doshii m_DoshiiLogic;
+        private DoshiiOperationLogic m_DoshiiLogic;
 
         /// <summary>
         /// A thread to send heartbeat socketmessage to doshii. 
@@ -88,7 +88,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="webSocketUrl"></param>
         /// <param name="doshii"></param>
-        internal DoshiiWebSocketsCommunication(string webSocketUrl, Doshii doshii)
+        internal DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiOperationLogic doshii)
         {
             if (doshii == null)
             {
@@ -96,11 +96,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
 
             m_DoshiiLogic = doshii;
-            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("instanciating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("instanciating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
                 
             if (string.IsNullOrWhiteSpace(webSocketUrl))
             {
-                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("cannot create an instance of DoshiiWebSocketsCommunication with a blank socketUrl"));
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("cannot create an instance of DoshiiWebSocketsCommunication with a blank socketUrl"));
                 throw new NotSupportedException("webSocketUrl");
             }
             
@@ -120,7 +120,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal void Initialize()
         {
-            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("initializing doshii websocket connection"));
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("initializing doshii websocket connection"));
             Connect();
             
             //wait to ensure successful socket connection
@@ -128,7 +128,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             if (!m_SocketsConnectedSuccessfully)
             {
-                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, "Doshii: could not extablish and socket connection"); 
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: could not extablish and socket connection"); 
                 throw new EntryPointNotFoundException("socket connection could not be extablished with Doshii");
             }
 
@@ -149,13 +149,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 }
                 catch(Exception ex)
                 {
-                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error initializing the web sockets conneciton to Doshii"), ex);
+                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error initializing the web sockets conneciton to Doshii"), ex);
                 }
                 
             }
             else
             {
-                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the ws object"));
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the ws object"));
             }
         }
 
@@ -167,12 +167,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             try
             {
-                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Sending websockets message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()));
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Sending websockets message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()));
                 m_WebSocketsConnection.Send(message);
             }
             catch (Exception ex)
             {
-                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Exception while sending a webSocket message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()), ex);
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Exception while sending a webSocket message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()), ex);
             }
             
         }
@@ -184,7 +184,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             while (true)
             {
-                m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("webScoket heartBeat started"));
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("webScoket heartBeat started"));
                 Thread.Sleep(10000);
                 TimeSpan thisTimeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
                 double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
@@ -206,7 +206,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         private void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
-            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was", m_WebSocketsConnection.Url.ToString(), e.Message));
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was", m_WebSocketsConnection.Url.ToString(), e.Message));
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 }
                 
             }
-            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("WebScoket message received - '{0}'", theMessage.ToString()));
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("WebScoket message received - '{0}'", theMessage.ToString()));
             dynamic dynamicSocketMessageData = theMessage.Emit[1];
 
             Models.SocketMessageData messageData = new Models.SocketMessageData();
@@ -320,7 +320,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CheckOutEvent(this, checkOutEventArgs);
                     break;
                 default:
-                    m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
+                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
                     break;
             }
             
@@ -334,7 +334,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         private void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
         {
-            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection to {0} closed", m_WebSocketsConnection.Url.ToString()));
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection to {0} closed", m_WebSocketsConnection.Url.ToString()));
             Initialize();
         }
 
@@ -346,7 +346,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         private void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
         {
             m_SocketsConnectedSuccessfully = true;
-            m_DoshiiLogic.LogDoshiiError(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection successfully open to {0}", m_WebSocketsConnection.Url.ToString()));
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection successfully open to {0}", m_WebSocketsConnection.Url.ToString()));
             SocketCommunicationEstablishedEvent(this, e);
         }
 

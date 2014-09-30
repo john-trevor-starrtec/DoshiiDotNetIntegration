@@ -7,7 +7,7 @@ using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiTesting
 {
-    public class DoshiiHelper : DoshiiDotNetIntegration.Doshii
+    public class DoshiiHelper : DoshiiDotNetIntegration.DoshiiOperationLogic
     {
 
         private List<Consumer> MyConsumerList = new List<Consumer>();
