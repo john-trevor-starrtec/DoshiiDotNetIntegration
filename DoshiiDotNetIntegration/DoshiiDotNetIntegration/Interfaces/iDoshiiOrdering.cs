@@ -119,7 +119,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        DateTime GetOrderUpdatedAtTime(Models.Order order);
+        string GetOrderUpdatedAtTime(Models.Order order);
 
         /// <summary>
         /// this method should be used to update an order on the Doshii service when it has been changed on the pos,
