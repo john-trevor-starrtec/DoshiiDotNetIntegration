@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoshiiDotNetIntegration", "DoshiiDotNetIntegration\DoshiiDotNetIntegration.csproj", "{C415EA93-1D45-4678-8CD4-F810B9521143}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoshiiTesting", "DoshiiTesting\DoshiiTesting.csproj", "{8DDF356E-7D4A-40E8-B074-B3394313D8D2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,16 +23,6 @@ Global
 		{C415EA93-1D45-4678-8CD4-F810B9521143}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{C415EA93-1D45-4678-8CD4-F810B9521143}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C415EA93-1D45-4678-8CD4-F810B9521143}.Release|x86.ActiveCfg = Release|Any CPU
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Debug|x86.ActiveCfg = Debug|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Debug|x86.Build.0 = Debug|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Release|Any CPU.ActiveCfg = Release|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Release|Mixed Platforms.Build.0 = Release|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Release|x86.ActiveCfg = Release|x86
-		{8DDF356E-7D4A-40E8-B074-B3394313D8D2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

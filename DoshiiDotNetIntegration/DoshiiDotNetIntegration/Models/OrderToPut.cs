@@ -21,7 +21,7 @@ namespace DoshiiDotNetIntegration.Models
         /// the last time the order was updated. 
         /// </summary>
         [JsonProperty(PropertyName = "updatedAt")]
-        internal DateTime UpdatedAt { get; set; }
+        internal string UpdatedAt { get; set; }
         
         /// <summary>
         /// all the items included in the order. 
