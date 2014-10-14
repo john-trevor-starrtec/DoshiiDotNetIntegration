@@ -473,7 +473,7 @@ namespace DoshiiDotNetIntegration
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos adding new product list- '{0}'", JsonConvert.SerializeObject(productList))); 
             bool success = false;
-            success = m_HttpComs.PostProductData(productList, true);
+            success = m_HttpComs.PostProductData(productList, false);
             return success;
         }
 
@@ -487,7 +487,7 @@ namespace DoshiiDotNetIntegration
         internal bool AddNewProducts(Models.Product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
         {
             bool success = false;
-            DeleteProduct(productToUpdate.PosId);
+            //DeleteProduct(productToUpdate.PosId);
             List<Models.Product> productList = new List<Models.Product>();
             productList.Add(productToUpdate);
             success = m_HttpComs.PostProductData(productList, deleteAllProductsCurrentlyOnDoshii);
@@ -651,7 +651,7 @@ namespace DoshiiDotNetIntegration
             }
             else
             {
-                success = m_HttpComs.PutTableAllocation(customerId, tableName);
+                success = m_HttpComs.PostTableAllocation(customerId, tableName);
             }
             return success;
 

@@ -206,7 +206,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         private void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was", m_WebSocketsConnection.Url.ToString(), e.Message));
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was (1)", m_WebSocketsConnection.Url.ToString(), e.Message));
         }
 
         /// <summary>
