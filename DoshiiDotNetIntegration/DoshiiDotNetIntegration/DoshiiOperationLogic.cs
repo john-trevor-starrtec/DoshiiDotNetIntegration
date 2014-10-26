@@ -543,7 +543,7 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         public bool DeleteAllProducts()
         {
-            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting all products from doshii - '{0}'"));
+            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting all products from doshii"));
             
             bool success = false;
             success = m_HttpComs.DeleteProductData();
