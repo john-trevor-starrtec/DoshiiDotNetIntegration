@@ -28,7 +28,7 @@ namespace DoshiiDotNetIntegration.Models
         /// serializes the derived class into a json string. 
         /// </summary>
         /// <returns></returns>
-        internal string ToJsonString()
+        public string ToJsonString()
         {
             string json = "";
             try
@@ -44,49 +44,6 @@ namespace DoshiiDotNetIntegration.Models
             
         }
 
-        /// <summary>
-        /// Object for thread safety when initialising <see cref="ms_XmlSerializerInstance"/>
-        /// </summary>
-        private static object ms_Sync = new object();
-
-        private static System.Xml.Serialization.XmlSerializer ms_XmlSerializerInstance = null;
-
-        public string ToStringXml()
-        {
-            System.Xml.Serialization.XmlSerializer serializer = XmlSerializerInstance;
-            System.IO.StringWriter writer = new System.IO.StringWriter();
-            serializer.Serialize(writer, this);
-            string instanceAsXml = writer.ToString();
-            writer = null;
-            serializer = null;
-            return instanceAsXml;
-        }
-
-        /// <summary>
-        /// Gets the only instance of the <see cref="System.Xml.Serialization.XmlSerializer"/> for the derived non-generic type.
-        /// </summary>
-        /// <remarks>
-        /// If there are problems with the incorrect serializer being used, this needs to be changed to the dictionary which is commented out above.
-        /// </remarks>
-        private static System.Xml.Serialization.XmlSerializer XmlSerializerInstance
-        {
-            get
-            {
-                System.Xml.Serialization.XmlSerializer serializer = ms_XmlSerializerInstance;
-                if (serializer == null)
-                {
-                    lock (ms_Sync)
-                    {
-                        serializer = ms_XmlSerializerInstance;
-                        if (ms_XmlSerializerInstance == null)
-                        {
-                            serializer = new System.Xml.Serialization.XmlSerializer(typeof(TSelf));
-                            ms_XmlSerializerInstance = serializer;
-                        }
-                    }
-                }
-                return serializer;
-            }
-        }
+        
     }
 }

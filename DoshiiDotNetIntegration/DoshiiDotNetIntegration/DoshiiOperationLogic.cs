@@ -94,7 +94,7 @@ namespace DoshiiDotNetIntegration
         /// the base url for communication with the doshii restfull api (the address should not end in a '/')
         /// </param>
         /// <param name="startWebSocketConnection"></param>
-        public void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, bool removeTableAllocationsAfterFullPayment)
+        public void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, bool removeTableAllocationsAfterFullPayment, int timeOutValueSecs)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Version {5} with; {6} sourceUrl: {0}, {6}token {1}, {6}orderMode {2}, {6}seatingMode: {3},{6}BaseUrl: {4}{6}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase, CurrnetVersion(), Environment.NewLine));
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Versioning Info: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase));
@@ -115,7 +115,7 @@ namespace DoshiiDotNetIntegration
             RemoveTableAllocationsAfterFullPayment = removeTableAllocationsAfterFullPayment;
             AuthorizeToken = token;
             string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
-            InitializeProcess(socketUrlWithToken, orderMode, seatingMode, urlBase, startWebSocketConnection);
+            InitializeProcess(socketUrlWithToken, orderMode, seatingMode, urlBase, startWebSocketConnection, timeOutValueSecs);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="UrlBase"></param>
         /// <param name="StartWebSocketConnection"></param>
         /// <returns></returns>
-        private bool InitializeProcess(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection)
+        private bool InitializeProcess(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Initializing Doshii");
 
@@ -142,7 +142,7 @@ namespace DoshiiDotNetIntegration
             {
                 try
                 {
-                    m_SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, this);
+                    m_SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, this, timeOutValueSecs);
                     SubscribeToSocketEvents();
                     m_SocketComs.Initialize();
                 }
@@ -255,6 +255,7 @@ namespace DoshiiDotNetIntegration
                 m_SocketComs.TableAllocationEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.TableAllocationEventHandler(SocketComsTableAllocationEventHandler);
                 m_SocketComs.CheckOutEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.CheckOutEventHandler(SocketComsCheckOutEventHandler);
                 m_SocketComs.SocketCommunicationEstablishedEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
+                m_SocketComs.SocketCommunicationTimeoutReached += new CommunicationLogic.DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(ScoketComsTimeOutValueReached);
             }
         }
 
@@ -269,7 +270,8 @@ namespace DoshiiDotNetIntegration
             m_SocketComs.OrderStatusEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComsOrderStatusEventHandler);
             m_SocketComs.TableAllocationEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.TableAllocationEventHandler(SocketComsTableAllocationEventHandler);
             m_SocketComs.CheckOutEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.CheckOutEventHandler(SocketComsCheckOutEventHandler);
-            m_SocketComs.SocketCommunicationEstablishedEvent += new CommunicationLogic.DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
+            m_SocketComs.SocketCommunicationEstablishedEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
+            m_SocketComs.SocketCommunicationTimeoutReached -= new CommunicationLogic.DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(ScoketComsTimeOutValueReached);
         }
         #endregion
 
@@ -298,6 +300,17 @@ namespace DoshiiDotNetIntegration
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
             RefreshConsumerData();
+        }
+
+        /// <summary>
+        /// handles a socket communicaiton timeOut event - this is when there has not been a successfull comunication with doshii within the specified timeout period. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScoketComsTimeOutValueReached(object sender, EventArgs e)
+        {
+            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: the web sockets connection with the doshii server is not currently available.");
+            m_DoshiiInterface.DissociateDoshiiChecks();
         }
 
         /// <summary>

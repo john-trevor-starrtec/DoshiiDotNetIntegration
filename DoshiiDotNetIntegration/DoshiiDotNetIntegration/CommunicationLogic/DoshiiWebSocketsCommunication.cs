@@ -36,6 +36,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         private Thread m_HeartBeatThread;
 
+        /// <summary>
+        /// this is used to hold the timeout value for the scoket connection being unable to connect to the server.
+        /// </summary>
+        private int m_SocketConnectionTimeOutValue;
+
+        /// <summary>
+        /// this is used to calculate if the last successfull cosket connection is within the timeOut range. 
+        /// </summary>
+        private DateTime m_LastSuccessfullSocketMessageTime;
+
         #endregion
 
         #region internal methods and events
@@ -78,6 +88,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal event SocketCommunicationEstablishedEventHandler SocketCommunicationEstablishedEvent;
 
+        internal delegate void SocketCommunicationTimeoutReachedEventHandler(object sender, EventArgs e);
+        /// <summary>
+        /// event will be raised when the socket communication with doshii are opened. 
+        /// </summary>
+        internal event SocketCommunicationTimeoutReachedEventHandler SocketCommunicationTimeoutReached;
 
         #endregion
 
@@ -88,13 +103,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="webSocketUrl"></param>
         /// <param name="doshii"></param>
-        internal DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiOperationLogic doshii)
+        internal DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiOperationLogic doshii, int socketConnectionTimeOutValue)
         {
             if (doshii == null)
             {
                 throw new NotSupportedException("doshii");
             }
 
+            m_SocketConnectionTimeOutValue = socketConnectionTimeOutValue;
             m_DoshiiLogic = doshii;
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("instanciating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
                 
@@ -190,6 +206,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
                 string message = string.Format("\"primus::ping::<{0}>\"", doubleForHeartbeat.ToString());
                 SendMessage(message);
+                if (!TestTimeOutValue())
+                {
+                    //raise event for isgnal that Timeout out is expired.
+                    SocketCommunicationTimeoutReached(this, new EventArgs());
+                }
             }
         }
 
@@ -207,6 +228,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         private void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was (1)", m_WebSocketsConnection.Url.ToString(), e.Message));
+            if (e.Message == "The WebSocket connection has already been closed.")
+            {
+                Initialize();
+            }
         }
 
         /// <summary>
@@ -216,6 +241,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         private void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
         {
+            SetLastSuccessfullSocketCommunicationTime();
             DoshiiDotNetIntegration.Models.SocketMessage theMessage = new Models.SocketMessage();
             if (e.Type == Opcode.Text)
             {
@@ -345,11 +371,29 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         private void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
         {
+            SetLastSuccessfullSocketCommunicationTime();
             m_SocketsConnectedSuccessfully = true;
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection successfully open to {0}", m_WebSocketsConnection.Url.ToString()));
             SocketCommunicationEstablishedEvent(this, e);
         }
 
         #endregion
+
+        private void SetLastSuccessfullSocketCommunicationTime()
+        {
+            m_LastSuccessfullSocketMessageTime = DateTime.Now;
+        }
+
+        private bool TestTimeOutValue()
+        {
+            if (m_LastSuccessfullSocketMessageTime.AddSeconds((double)m_SocketConnectionTimeOutValue) < DateTime.Now)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 }

@@ -56,6 +56,12 @@ namespace DoshiiDotNetIntegration.Interfaces
         void OrderCancled(ref Models.Order order);
 
         /// <summary>
+        /// this method should will be called when the web sockets communication is down for longer than the timeout period,
+        /// this method must dissociate all current doshii checks / tabs / checkins from currently opened checks. 
+        /// </summary>
+        void DissociateDoshiiChecks();
+
+        /// <summary>
         /// this method should check the availability of the products that have been ordered. 
         /// This method will only be called in bistro mode. 
         /// If the price of any of the products are incorrect or the products are not available a rejection reason should be added to the product in question. 
