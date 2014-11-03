@@ -469,7 +469,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             Models.Order returnOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
             Models.OrderToPut orderToPut = new Models.OrderToPut();
-            //orderToPut.UpdatedAt = DateTime.Now;
+            orderToPut.UpdatedAt = DateTime.Now.ToString();
 
             if (order.Status == "accepted")
             {

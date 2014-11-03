@@ -597,6 +597,7 @@ namespace DoshiiDotNetIntegration
             Models.Order returnedOrder = new Models.Order();
             if (order.Id == null || order.Id == 0)
             {
+                order.UpdatedAt = DateTime.Now.ToString();
                 returnedOrder = m_HttpComs.PostOrder(order);
                 if (returnedOrder.Id != null && returnedOrder.Id != 0)
                 {
