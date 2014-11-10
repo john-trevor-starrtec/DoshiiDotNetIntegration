@@ -431,13 +431,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             orderToPut.Items = order.Items;
 
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
-
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message has been returned to the put order function"));
+                    
             if (responseMessage != null)
             {
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message was not null"));
+            
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
+                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message was OK"));
                     if (responseMessage.Data != null)
                     {
+                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce order data was not null"));
                         returnOrder = JsonConvert.DeserializeObject<Models.Order>(responseMessage.Data);
                         m_DoshiiLogic.m_DoshiiInterface.RecordOrderUpdatedAtTime(returnOrder); 
                     }
@@ -456,6 +461,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
             }
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: the order is now bein returned - end of putorder method"));
             return returnOrder;
         }
 

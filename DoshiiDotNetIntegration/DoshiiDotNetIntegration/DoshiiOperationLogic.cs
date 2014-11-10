@@ -435,6 +435,7 @@ namespace DoshiiDotNetIntegration
                             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order confirmed for restaurant mode - '{0}'", e.Order.ToJsonString())); 
                             e.Order.Status = "accepted";
                             m_HttpComs.PutOrder(e.Order);
+                            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: the order has now being returned"));
                         }
                         else
                         {
@@ -449,6 +450,7 @@ namespace DoshiiDotNetIntegration
                     throw new NotSupportedException(e.Order.Status.ToString());
 
             }
+            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: SocketComsOrderStatusEventHandler has returned"));
         }
 
 
