@@ -40,8 +40,9 @@ namespace DoshiiDotNetIntegration.Enums
         /// </summary>
         DeleteAllocationWithCheckInId = 6,
 
+        AddTableAllocation = 7,
 
-        AddTableAllocation = 7
+        SetSeatingAndOrderConfiguration = 8
 
     }
 }

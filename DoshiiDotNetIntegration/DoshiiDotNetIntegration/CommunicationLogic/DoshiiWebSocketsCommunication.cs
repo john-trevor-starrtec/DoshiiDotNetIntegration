@@ -19,7 +19,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <summary>
         /// web socket object that will handle all the communications with doshii
         /// </summary>
-        WebSocket m_WebSocketsConnection = null;
+        private WebSocket m_WebSocketsConnection = null;
 
         /// <summary>
         /// field to indicate if the socket connection was successfully opened. 
@@ -97,6 +97,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         #endregion
 
         #region methods
+
+        internal void ClostSocketConnection()
+        {
+            m_WebSocketsConnection.Close();
+        }
 
         /// <summary>
         /// constructor, the initialize method must be called after the constructor to initialize the connection

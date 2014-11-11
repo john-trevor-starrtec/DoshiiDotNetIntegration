@@ -14,6 +14,15 @@ namespace DoshiiDotNetIntegration.Interfaces
         List<Models.Consumer> GetCheckedInCustomersFromPos();
 
         /// <summary>
+        /// this method should return the order associated with the checkin Id paramater
+        /// the method should return null if there is no order associated with the checkinId
+        /// this method will be called when the order mode is changed from restaurant mode to bistro mode and there are active checkins
+        /// a payment will then be requested for the active orders from doshii so there are no open restaurant orders when the integration is in bistro mode. 
+        /// </summary>
+        /// <returns></returns>
+        Models.Order GetOrderForCheckinId(string CheckinId);
+
+        /// <summary>
         /// This method will receive the table allocation object, and should either accept or reject the allocation. 
         /// if the allocation fails the reasoncode property should be populated. 
         /// </summary>

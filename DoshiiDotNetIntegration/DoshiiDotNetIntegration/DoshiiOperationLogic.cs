@@ -166,72 +166,90 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         public void RefreshConsumerData()
         {
-            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Refreshing consumers, allocation, and orders");
-            List<Models.Consumer> currentlyCheckInConsumers = m_DoshiiInterface.GetCheckedInCustomersFromPos();
-            List<Models.TableAllocation> initialTableAllocationList = m_HttpComs.GetTableAllocations(); 
-            foreach (Models.TableAllocation ta in initialTableAllocationList)
+            if (m_HttpComs.SetSeatingAndOrderConfiguration(SeatingMode, OrderMode))
             {
-                if (ta.Status == "waiting_for_confirmation")
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Refreshing consumers, allocation, and orders");
+                List<Models.Consumer> currentlyCheckInConsumers = m_DoshiiInterface.GetCheckedInCustomersFromPos();
+                if (OrderMode == Enums.OrderModes.BistroMode)
                 {
-                    CommunicationLogic.CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
-
-                    newCheckinEventArgs.Consumer = m_HttpComs.GetConsumer(ta.PaypalCustomerId);
-
-                    newCheckinEventArgs.Consumer.CheckInId = ta.Checkin.Id;
-                    newCheckinEventArgs.CheckIn = ta.Checkin.Id;
-                    newCheckinEventArgs.PaypalCustomerId = ta.PaypalCustomerId;
-                    newCheckinEventArgs.Uri = newCheckinEventArgs.Consumer.PhotoUrl;
-                    SocketComsConsumerCheckinEventHandler(this, newCheckinEventArgs);
-
-                    CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs();
-                    args.TableAllocation = new Models.TableAllocation();
-                    args.TableAllocation.CustomerId = ta.CustomerId;
-                    args.TableAllocation.Id = ta.Id;
-                    args.TableAllocation.Name = ta.Name;
-                    args.TableAllocation.Status = ta.Status;
-                    args.TableAllocation.PaypalCustomerId = ta.PaypalCustomerId;
-                    args.TableAllocation.Checkin = ta.Checkin;
-
-                    SocketComsTableAllocationEventHandler(this, args);
-                }
-            }
-            //remove consumers that are not checked in. 
-            foreach (Models.Consumer cus in currentlyCheckInConsumers)
-            {
-                bool customerFound = false;
-                foreach (Models.TableAllocation ta in initialTableAllocationList)
-                {
-                    if (ta.PaypalCustomerId == cus.PaypalCustomerId)
+                    foreach (Models.Consumer currentConsumer in currentlyCheckInConsumers)
                     {
-                        customerFound = true;
+                        //REVIEW: (Liam) this is where the payment should be requested. 
+                        Models.Order consumerOrder = m_DoshiiInterface.GetOrderForCheckinId(currentConsumer.CheckInId);
+                        if (consumerOrder != null)
+                        {
+                            RequestPaymentForOrder(consumerOrder);
+                        }
                     }
                 }
-                if (!customerFound)
+                List<Models.TableAllocation> initialTableAllocationList = m_HttpComs.GetTableAllocations();
+                foreach (Models.TableAllocation ta in initialTableAllocationList)
                 {
-                    //raise allocation event
-                    CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs();
+                    if (ta.Status == "waiting_for_confirmation")
+                    {
+                        CommunicationLogic.CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
 
-                    checkOutEventArgs.ConsumerId = cus.PaypalCustomerId;
+                        newCheckinEventArgs.Consumer = m_HttpComs.GetConsumer(ta.PaypalCustomerId);
 
-                    SocketComsCheckOutEventHandler(this, checkOutEventArgs);
+                        newCheckinEventArgs.Consumer.CheckInId = ta.Checkin.Id;
+                        newCheckinEventArgs.CheckIn = ta.Checkin.Id;
+                        newCheckinEventArgs.PaypalCustomerId = ta.PaypalCustomerId;
+                        newCheckinEventArgs.Uri = newCheckinEventArgs.Consumer.PhotoUrl;
+                        SocketComsConsumerCheckinEventHandler(this, newCheckinEventArgs);
+
+                        CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs();
+                        args.TableAllocation = new Models.TableAllocation();
+                        args.TableAllocation.CustomerId = ta.CustomerId;
+                        args.TableAllocation.Id = ta.Id;
+                        args.TableAllocation.Name = ta.Name;
+                        args.TableAllocation.Status = ta.Status;
+                        args.TableAllocation.PaypalCustomerId = ta.PaypalCustomerId;
+                        args.TableAllocation.Checkin = ta.Checkin;
+
+                        SocketComsTableAllocationEventHandler(this, args);
+                    }
+                }
+                //remove consumers that are not checked in. 
+                foreach (Models.Consumer cus in currentlyCheckInConsumers)
+                {
+                    bool customerFound = false;
+                    foreach (Models.TableAllocation ta in initialTableAllocationList)
+                    {
+                        if (ta.PaypalCustomerId == cus.PaypalCustomerId)
+                        {
+                            customerFound = true;
+                        }
+                    }
+                    if (!customerFound)
+                    {
+                        //raise allocation event
+                        CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs();
+
+                        checkOutEventArgs.ConsumerId = cus.PaypalCustomerId;
+
+                        SocketComsCheckOutEventHandler(this, checkOutEventArgs);
+                    }
+                }
+                // get any pending orders
+                List<Models.Order> initialOrderList = m_HttpComs.GetOrders();
+                foreach (Models.Order order in initialOrderList)
+                {
+                    m_DoshiiInterface.RecordOrderUpdatedAtTime(order);
+                    if (order.Status == "pending" || order.Status == "ready to pay" || order.Status == "cancelled")
+                    {
+                        Models.Order orderToConfirm = m_HttpComs.GetOrder(order.Id.ToString());
+                        CommunicationLogic.CommunicationEventArgs.OrderEventArgs args = new CommunicationLogic.CommunicationEventArgs.OrderEventArgs();
+                        args.Order = orderToConfirm;
+                        args.OrderId = orderToConfirm.Id.ToString();
+                        args.status = orderToConfirm.Status;
+                        SocketComsOrderStatusEventHandler(this, args);
+                    }
                 }
             }
-            // get any pending orders
-            List<Models.Order> initialOrderList = m_HttpComs.GetOrders();
-            foreach (Models.Order order in initialOrderList)
+            else
             {
-                m_DoshiiInterface.RecordOrderUpdatedAtTime(order);
-                if (order.Status == "pending" || order.Status == "ready to pay" || order.Status == "cancelled")
-                {
-                    Models.Order orderToConfirm = m_HttpComs.GetOrder(order.Id.ToString());
-                    CommunicationLogic.CommunicationEventArgs.OrderEventArgs args = new CommunicationLogic.CommunicationEventArgs.OrderEventArgs();
-                    args.Order = orderToConfirm;
-                    args.OrderId = orderToConfirm.Id.ToString();
-                    args.status = orderToConfirm.Status;
-                    SocketComsOrderStatusEventHandler(this, args);
-                }
+                m_SocketComs.ClostSocketConnection();
             }
-
             // REVIEW: (LIAM) -update all the current consumer orders with doshii - i'm not sure if this is necessary as the pos should be retrying order updates if the order update fails. 
         }
 
@@ -354,38 +372,8 @@ namespace DoshiiDotNetIntegration
                 
                 case "ready to pay":
                     m_DoshiiInterface.ConfirmOrderTotalsBeforePaymentRestaurantMode(ref e.Order);
-                    m_DoshiiInterface.RecordOrderUpdatedAtTime(e.Order); 
-                    e.Order.Status = "waiting for payment";
-                    returnedOrder = m_HttpComs.PutOrder(e.Order);
-                    if (returnedOrder.Id != null && returnedOrder.Id == e.Order.Id)
-                    {
-                        m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order put for payment - '{0}'", e.Order.ToJsonString())); 
-                        int nonPayingAmount = 0;
-                        int.TryParse(e.Order.NotPayingTotal, out nonPayingAmount);
-
-                        if (nonPayingAmount > 0)
-                        {
-                            if (OrderMode == Enums.OrderModes.BistroMode)
-                            {
-                                if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref e.Order) && RemoveTableAllocationsAfterFullPayment)
-                                {
-                                    m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
-                                }
-                            }
-                            else
-                            {
-                                m_DoshiiInterface.RecordPartialCheckPayment(ref e.Order);
-                            }
-                            
-                        }
-                        else
-                        {
-                            if (m_DoshiiInterface.RecordFullCheckPayment(ref e.Order) && RemoveTableAllocationsAfterFullPayment)
-                            {
-                                m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
-                            }
-                        }
-                    }
+                    m_DoshiiInterface.RecordOrderUpdatedAtTime(e.Order);
+                    RequestPaymentForOrder(e.Order);
                     break;
                 case "new":
                 case "pending":
@@ -453,6 +441,46 @@ namespace DoshiiDotNetIntegration
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: SocketComsOrderStatusEventHandler has returned"));
         }
 
+        public bool RequestPaymentForOrder(Models.Order order)
+        {
+            Models.Order returnedOrder = new Models.Order();
+            order.Status = "waiting for payment";
+            returnedOrder = m_HttpComs.PutOrder(order);
+            if (returnedOrder.Id != null && returnedOrder.Id == order.Id)
+            {
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order put for payment - '{0}'", order.ToJsonString()));
+                int nonPayingAmount = 0;
+                int.TryParse(order.NotPayingTotal, out nonPayingAmount);
+
+                if (nonPayingAmount > 0)
+                {
+                    if (OrderMode == Enums.OrderModes.BistroMode)
+                    {
+                        if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order) && RemoveTableAllocationsAfterFullPayment)
+                        {
+                            m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId);
+                        }
+                    }
+                    else
+                    {
+                        m_DoshiiInterface.RecordPartialCheckPayment(ref order);
+                    }
+
+                }
+                else
+                {
+                    if (m_DoshiiInterface.RecordFullCheckPayment(ref order) && RemoveTableAllocationsAfterFullPayment)
+                    {
+                        m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId);
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         /// <summary>
         /// handles the SocketComs_ConsumerCheckinEvent and records the checked in user
