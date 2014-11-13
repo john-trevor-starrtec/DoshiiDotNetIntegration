@@ -555,7 +555,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if (responseMessage.Data != null)
                     {
                         returnOrder = JsonConvert.DeserializeObject<Models.Order>(responseMessage.Data);
-                        m_DoshiiLogic.m_DoshiiInterface.RecordOrderUpdatedAtTime(order); 
+                        m_DoshiiLogic.m_DoshiiInterface.RecordOrderUpdatedAtTime(returnOrder); 
                     }
                     else
                     {

@@ -365,8 +365,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         private void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
         {
+            m_SocketsConnectedSuccessfully = false;
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection to {0} closed", m_WebSocketsConnection.Url.ToString()));
-            Initialize();
+            if (!m_SocketsConnectedSuccessfully)
+            {
+                Initialize();
+            }
+            
         }
 
         /// <summary>

@@ -43,7 +43,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
         /// </summary>
         /// <returns></returns>
-        void RecordPartialCheckPayment(ref Models.Order order);
+        bool RecordPartialCheckPayment(ref Models.Order order);
 
         /// <summary>
         /// this method should record that a check has been fully paid by doshii. 

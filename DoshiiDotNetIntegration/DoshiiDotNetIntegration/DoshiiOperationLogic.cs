@@ -463,7 +463,11 @@ namespace DoshiiDotNetIntegration
                     }
                     else
                     {
-                        m_DoshiiInterface.RecordPartialCheckPayment(ref order);
+                        if (m_DoshiiInterface.RecordPartialCheckPayment(ref order) && RemoveTableAllocationsAfterFullPayment)
+                        {
+                            m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId);
+                        }
+                        
                     }
 
                 }
