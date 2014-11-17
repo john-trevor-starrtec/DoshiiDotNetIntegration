@@ -234,9 +234,10 @@ namespace DoshiiDotNetIntegration
                 List<Models.Order> initialOrderList = m_HttpComs.GetOrders();
                 foreach (Models.Order order in initialOrderList)
                 {
-                    m_DoshiiInterface.RecordOrderUpdatedAtTime(order);
+                    
                     if (order.Status == "pending" || order.Status == "ready to pay" || order.Status == "cancelled")
                     {
+                        m_DoshiiInterface.RecordOrderUpdatedAtTime(order);
                         Models.Order orderToConfirm = m_HttpComs.GetOrder(order.Id.ToString());
                         CommunicationLogic.CommunicationEventArgs.OrderEventArgs args = new CommunicationLogic.CommunicationEventArgs.OrderEventArgs();
                         args.Order = orderToConfirm;
