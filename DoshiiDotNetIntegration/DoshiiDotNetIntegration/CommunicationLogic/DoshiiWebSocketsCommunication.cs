@@ -166,7 +166,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: could not extablish and socket connection"); 
-                throw new EntryPointNotFoundException("socket connection could not be extablished with Doshii");
             }
         }
 
@@ -214,7 +213,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Sending websockets message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()));
-                m_WebSocketsConnection.Send(message);
+                if (m_SocketsConnectedSuccessfully)
+                {
+                    m_WebSocketsConnection.Send(message);
+                }
             }
             catch (Exception ex)
             {
@@ -228,19 +230,27 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         private void HeartBeatChecker()
         {
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Starting web Socket heartbeat thread"));
             while (true)
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("webScoket heartBeat started"));
                 Thread.Sleep(10000);
-                TimeSpan thisTimeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
-                double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
-                string message = string.Format("\"primus::ping::<{0}>\"", doubleForHeartbeat.ToString());
-                SendMessage(message);
                 if (!TestTimeOutValue())
                 {
                     //raise event for isgnal that Timeout out is expired.
                     SocketCommunicationTimeoutReached(this, new EventArgs());
                 }
+                if (m_SocketsConnectedSuccessfully)
+                {
+                    TimeSpan thisTimeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
+                    double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
+                    string message = string.Format("\"primus::ping::<{0}>\"", doubleForHeartbeat.ToString());
+                    SendMessage(message);
+                }
+                else
+                {
+                    Initialize();
+                }
+                
             }
         }
 
