@@ -34,7 +34,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <summary>
         /// A thread to send heartbeat socketmessage to doshii. 
         /// </summary>
-        private Thread m_HeartBeatThread;
+        private Thread m_HeartBeatThread = null;
+
+        /// <summary>
+        /// This will hold the value for the last connected time so that there are not many connections established after the connection drops out. 
+        /// </summary>
+        private DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
 
         /// <summary>
         /// this is used to hold the timeout value for the scoket connection being unable to connect to the server.
@@ -147,14 +152,28 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             //wait to ensure successful socket connection
             Thread.Sleep(3000);
 
-            if (!m_SocketsConnectedSuccessfully)
+            if (m_SocketsConnectedSuccessfully)
+            {
+                if (m_HeartBeatThread == null)
+                {
+                    m_HeartBeatThread = new Thread(new ThreadStart(HeartBeatChecker));
+                }
+                if (m_HeartBeatThread.ThreadState != ThreadState.Running)
+                {
+                    m_HeartBeatThread.Start();
+                }
+            }
+            else
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: could not extablish and socket connection"); 
                 throw new EntryPointNotFoundException("socket connection could not be extablished with Doshii");
             }
+        }
 
-            m_HeartBeatThread = new Thread(new ThreadStart(HeartBeatChecker));
-            m_HeartBeatThread.Start();
+        private void SetLastConnectionAttemptTime()
+        {
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Setting last connection attempt time: {0}", DateTime.Now.ToString())); 
+            m_LastConnectionAttemptTime = DateTime.Now;
         }
 
         /// <summary>
@@ -166,7 +185,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 try
                 {
-                    m_WebSocketsConnection.Connect();
+                    if ((DateTime.Now.AddSeconds(-10) > m_LastConnectionAttemptTime) && m_SocketsConnectedSuccessfully == false)
+                    {
+                        SetLastConnectionAttemptTime();
+                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Attempting Socket connection")); 
+                        m_WebSocketsConnection.Connect();
+                    }
+                    
                 }
                 catch(Exception ex)
                 {
@@ -232,7 +257,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         private void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was (1)", m_WebSocketsConnection.Url.ToString(), e.Message));
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was {1}", m_WebSocketsConnection.Url.ToString(), e.Message));
             if (e.Message == "The WebSocket connection has already been closed.")
             {
                 Initialize();
