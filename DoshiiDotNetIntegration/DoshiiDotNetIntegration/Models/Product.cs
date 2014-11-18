@@ -3,35 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
     /// the doshii representation of a product - (an item that can be sold)
     /// </summary>
+    [DataContract]
+    [Serializable]
     public class Product : JsonSerializationBase<Product>
     {
         /// <summary>
         /// The Doshii Id of the prduct this will be provided by Doshii
         /// </summary>
-         [JsonProperty(PropertyName = "id")]
+        [DataMember]
+        [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
         /// <summary>
         /// The internal Id of the product
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "pos_id")]
         public string PosId { get; set; }
 
         /// <summary>
         /// The name of the product that will be displayed to the user on the Doshii application
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         /// <summary>
         /// A list of the tags the product should be displayed under in the mobile menu
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "tags")]
         List<string> Tags { get; set; }
 
@@ -39,36 +46,42 @@ namespace DoshiiDotNetIntegration.Models
         /// The price the product will be sold for through the mobile app, 
         /// This price is to be represented in cents. 
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "price")]
         public string Price { get; set; }
 
         /// <summary>
         /// A description of the product that will be displayed on the mobile app
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
         /// <summary>
         /// a list of varient lists the customer can choose from to modify their product.
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "product_options")]
         public List<ProductOptions> ProductOptions { get; set; }
 
         /// <summary>
         /// additional instructions added by the customer
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "additional_instructions")]
         public string AdditionalInstructions { get; set; }
 
         /// <summary>
         /// the reason the product was rejected by the pos
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "rejection_reason")]
         public string RejectionReason { get; set; }
 
         /// <summary>
         /// the status of the item that is being ordered. 
         /// </summary>
+        [DataMember]
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
 

@@ -28,7 +28,7 @@ namespace DoshiiDotNetIntegration.Models
         /// serializes the derived class into a json string. 
         /// </summary>
         /// <returns></returns>
-        internal string ToJsonString()
+        public string ToJsonString()
         {
             string json = "";
             try
@@ -43,5 +43,7 @@ namespace DoshiiDotNetIntegration.Models
             return json;
             
         }
+
+        
     }
 }

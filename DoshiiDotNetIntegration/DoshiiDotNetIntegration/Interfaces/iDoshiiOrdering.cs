@@ -14,6 +14,15 @@ namespace DoshiiDotNetIntegration.Interfaces
         List<Models.Consumer> GetCheckedInCustomersFromPos();
 
         /// <summary>
+        /// this method should return the order associated with the checkin Id paramater
+        /// the method should return null if there is no order associated with the checkinId
+        /// this method will be called when the order mode is changed from restaurant mode to bistro mode and there are active checkins
+        /// a payment will then be requested for the active orders from doshii so there are no open restaurant orders when the integration is in bistro mode. 
+        /// </summary>
+        /// <returns></returns>
+        Models.Order GetOrderForCheckinId(string CheckinId);
+
+        /// <summary>
         /// This method will receive the table allocation object, and should either accept or reject the allocation. 
         /// if the allocation fails the reasoncode property should be populated. 
         /// </summary>
@@ -34,7 +43,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
         /// </summary>
         /// <returns></returns>
-        void RecordPartialCheckPayment(ref Models.Order order);
+        bool RecordPartialCheckPayment(ref Models.Order order);
 
         /// <summary>
         /// this method should record that a check has been fully paid by doshii. 
@@ -54,6 +63,12 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="order"></param>
         void OrderCancled(ref Models.Order order);
+
+        /// <summary>
+        /// this method should will be called when the web sockets communication is down for longer than the timeout period,
+        /// this method must dissociate all current doshii checks / tabs / checkins from currently opened checks. 
+        /// </summary>
+        void DissociateDoshiiChecks();
 
         /// <summary>
         /// this method should check the availability of the products that have been ordered. 

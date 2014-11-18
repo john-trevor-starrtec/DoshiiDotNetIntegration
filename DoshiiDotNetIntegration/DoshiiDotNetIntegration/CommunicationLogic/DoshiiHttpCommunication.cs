@@ -368,6 +368,61 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return success;
         }
 
+        /// <summary>
+        /// rejects a table allocation doshii has sent for approval. 
+        /// </summary>
+        /// <param name="consumerId"></param>
+        /// <param name="tableName"></param>
+        /// <param name="tableAllocation"></param>
+        /// <returns></returns>
+        internal bool SetSeatingAndOrderConfiguration(Enums.SeatingModes seatingMode, Enums.OrderModes orderMode)
+        {
+
+            bool success = false;
+            DoshiHttpResponceMessages responseMessage;
+            //create the configuration message
+            StringBuilder configString = new StringBuilder();
+            configString.Append("{ \"restaurantMode\":");
+            if (orderMode == Enums.OrderModes.BistroMode)
+            {
+                configString.Append(" \"bistro\",");
+            }
+            else
+            {
+                configString.Append(" \"restaurant\",");
+            }
+
+            configString.Append(" \"tableMode\": ");
+
+            if (seatingMode == Enums.SeatingModes.PosAllocation)
+            {
+                configString.Append(" \"allocation\" }");
+            }
+            else
+            {
+                configString.Append(" \"selection\" }");
+            }
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Setting Order and Seating Configuration for Dohsii");
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.SetSeatingAndOrderConfiguration), "PUT", configString.ToString());
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    success = true;
+                }
+                else
+                {
+                    success = false;
+                }
+            }
+            else
+            {
+                success = false;
+            }
+
+            return success;
+        }
 
         /// <summary>
         /// rejects a table allocation doshii has sent for approval. 
@@ -431,13 +486,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             orderToPut.Items = order.Items;
 
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
-
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message has been returned to the put order function"));
+                    
             if (responseMessage != null)
             {
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message was not null"));
+            
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
+                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message was OK"));
                     if (responseMessage.Data != null)
                     {
+                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce order data was not null"));
                         returnOrder = JsonConvert.DeserializeObject<Models.Order>(responseMessage.Data);
                         m_DoshiiLogic.m_DoshiiInterface.RecordOrderUpdatedAtTime(returnOrder); 
                     }
@@ -456,6 +516,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
             }
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: the order is now bein returned - end of putorder method"));
             return returnOrder;
         }
 
@@ -469,7 +530,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             Models.Order returnOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
             Models.OrderToPut orderToPut = new Models.OrderToPut();
-            //orderToPut.UpdatedAt = DateTime.Now;
+            orderToPut.UpdatedAt = DateTime.Now.ToString();
 
             if (order.Status == "accepted")
             {
@@ -494,7 +555,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if (responseMessage.Data != null)
                     {
                         returnOrder = JsonConvert.DeserializeObject<Models.Order>(responseMessage.Data);
-                        m_DoshiiLogic.m_DoshiiInterface.RecordOrderUpdatedAtTime(order); 
+                        m_DoshiiLogic.m_DoshiiInterface.RecordOrderUpdatedAtTime(returnOrder); 
                     }
                     else
                     {
@@ -769,6 +830,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case Enums.EndPointPurposes.AddTableAllocation:
                     newUrlbuilder.AppendFormat("/consumers/{0}/table", identification, tableName);
+                    break;
+                case Enums.EndPointPurposes.SetSeatingAndOrderConfiguration:
+                    newUrlbuilder.AppendFormat("/config");
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());
