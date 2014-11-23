@@ -351,7 +351,7 @@ namespace DoshiiDotNetIntegration
             else
             {
                 m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton forconsumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
-                m_HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id, tableAllocation);
+                m_HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id);
             }
         }
 
@@ -693,15 +693,15 @@ namespace DoshiiDotNetIntegration
         public bool SetTableAllocation(string customerId, string tableName)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos allocating table for customerId - '{0}', table '{1}'", customerId, tableName));
-            bool success = false;
-            if (SeatingMode == Enums.SeatingModes.DoshiiAllocation)
-            {
-                success = false;
-            }
-            else
-            {
-                success = m_HttpComs.PostTableAllocation(customerId, tableName);
-            }
+            bool success = m_HttpComs.PostTableAllocation(customerId, tableName);
+            return success;
+
+        }
+
+        public bool DeleteTableAllocation(string customerId, string tableName)
+        {
+            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for customerId - '{0}', table '{1}'", customerId, tableName));
+            bool success = m_HttpComs.RejectTableAllocation(customerId, tableName);
             return success;
 
         }

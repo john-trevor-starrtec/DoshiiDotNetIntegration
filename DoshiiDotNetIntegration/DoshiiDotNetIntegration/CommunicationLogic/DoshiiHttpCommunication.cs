@@ -402,7 +402,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 configString.Append(" \"selection\" }");
             }
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Setting Order and Seating Configuration for Dohsii");
+            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Setting Order and Seating Configuration for Dohsii. SeatingMode = {0}, OrderMode = {1}", seatingMode.ToString(), orderMode.ToString()));
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.SetSeatingAndOrderConfiguration), "PUT", configString.ToString());
 
             if (responseMessage != null)
@@ -431,7 +431,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="tableName"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        internal bool RejectTableAllocation(string consumerId, string tableName, DoshiiDotNetIntegration.Models.TableAllocation tableAllocation)
+        internal bool RejectTableAllocation(string consumerId, string tableName)
         {
             
             bool success = false;
@@ -911,7 +911,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (Exception ex)
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2}", method, url, data, responceMessage.Status.ToString()), ex);
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} : {4}", method, url, data, responceMessage.Status.ToString(), ex), ex);
                 
             }
             return responceMessage;
