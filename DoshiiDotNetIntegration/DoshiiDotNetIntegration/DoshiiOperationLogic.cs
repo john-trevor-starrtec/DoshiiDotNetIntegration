@@ -142,13 +142,18 @@ namespace DoshiiDotNetIntegration
             {
                 try
                 {
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format(string.Format("socketUrl = {0}, timeOutValueSecs = {1}", socketUrl, timeOutValueSecs)));
                     m_SocketComs = new CommunicationLogic.DoshiiWebSocketsCommunication(socketUrl, this, timeOutValueSecs);
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format(string.Format("socket Comms are set")));
+                    
                     SubscribeToSocketEvents();
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format(string.Format("socket events are subscribed to")));
+                    
                     m_SocketComs.Initialize();
                 }
                 catch (Exception ex)
                 {
-                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Initializing Doshii failed"));
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format(string.Format("Initializing Doshii failed, there was an exception that was {0}", ex.ToString())));
                 }
                 
             }
