@@ -15,3 +15,4 @@ C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetInte
 C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Release\websocket-sharp.xml
 C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Release\DoshiiDotNetIntegration.dll
 C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Release\DoshiiDotNetIntegration.pdb
+C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\obj\Release\DoshiiDotNetIntegration.csprojResolveAssemblyReference.cache
