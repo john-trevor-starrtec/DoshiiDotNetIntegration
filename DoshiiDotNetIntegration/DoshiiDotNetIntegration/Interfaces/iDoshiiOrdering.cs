@@ -130,6 +130,14 @@ namespace DoshiiDotNetIntegration.Interfaces
         void RecordOrderUpdatedAtTime(Models.Order order);
 
         /// <summary>
+        /// this method should record the order.Id, the order id is necessary when put is called to update an order with doshii,
+        /// after post is called to update an order where the initial order is made from the pos this method will be called to set the order.id on the pos so the next time the order is updated from the pos the 
+        /// order.id will be available so put can be used. 
+        /// </summary>
+        /// <param name="order"></param>
+        void RecordOrderId(Models.Order order);
+
+        /// <summary>
         /// this method should retreive the order updatedAt time, the updated at time is used a a signature to prevent concurance issues between the pos the the doshii service. 
         /// </summary>
         /// <param name="order"></param>
