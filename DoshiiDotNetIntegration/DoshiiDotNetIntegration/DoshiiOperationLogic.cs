@@ -639,15 +639,17 @@ namespace DoshiiDotNetIntegration
             {
                 order.UpdatedAt = DateTime.Now.ToString();
                 returnedOrder = m_HttpComs.PostOrder(order);
-                if (returnedOrder.Id != null && returnedOrder.Id != 0)
+                if (returnedOrder.Id == null || returnedOrder.Id == 0)
                 {
                     m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
                 }
+                // record the order.Id in the pos so the post can put another order if more items are added from the pos. 
+                m_DoshiiInterface.RecordOrderId(returnedOrder);
             }
             else
             {
                 returnedOrder = m_HttpComs.PutOrder(order);
-                if (returnedOrder.Id != null && returnedOrder.Id != 0)
+                if (returnedOrder.Id == null || returnedOrder.Id == 0)
                 {
                     m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
                 }
