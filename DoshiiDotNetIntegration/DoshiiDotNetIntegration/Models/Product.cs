@@ -40,7 +40,7 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "tags")]
-        List<string> Tags { get; set; }
+        public List<string> Tags { get; set; }
 
         /// <summary>
         /// The price the product will be sold for through the mobile app, 
