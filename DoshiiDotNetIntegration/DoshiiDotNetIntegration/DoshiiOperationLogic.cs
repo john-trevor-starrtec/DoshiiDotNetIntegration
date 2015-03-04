@@ -353,10 +353,15 @@ namespace DoshiiDotNetIntegration
                 m_HttpComs.PutTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id);
                 
             }
+            else if (tableAllocation.rejectionReason == Enums.TableAllocationRejectionReasons.TableDoesNotExist)
+            {
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton forconsumer '{0}' and table '{1}' checkInId '{2}' Table dose not exist", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
+                m_HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id, tableAllocation.rejectionReason);
+            }
             else
             {
-                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton forconsumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
-                m_HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id);
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton forconsumer '{0}' and table '{1}' checkInId '{2}' Table is occupied", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
+                m_HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id, tableAllocation.rejectionReason);
             }
         }
 
@@ -705,10 +710,10 @@ namespace DoshiiDotNetIntegration
 
         }
 
-        public bool DeleteTableAllocation(string customerId, string tableName)
+        public bool DeleteTableAllocation(string customerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for customerId - '{0}', table '{1}'", customerId, tableName));
-            bool success = m_HttpComs.RejectTableAllocation(customerId, tableName);
+            bool success = m_HttpComs.RejectTableAllocation(customerId, tableName, deleteReason);
             return success;
 
         }
