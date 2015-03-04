@@ -431,12 +431,26 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="tableName"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        internal bool RejectTableAllocation(string consumerId, string tableName)
+        internal bool RejectTableAllocation(string consumerId, string tableName, Enums.TableAllocationRejectionReasons rejectionReason)
         {
             
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "DELETE");
+            string reasonCodeString = "";
+            switch (rejectionReason)
+            {
+                case Enums.TableAllocationRejectionReasons.TableDoesNotExist:
+                    reasonCodeString = "{\"reasonCode\" : \"1\"}";
+                    break;
+                case Enums.TableAllocationRejectionReasons.TableIsOccupied:
+                    reasonCodeString = "{\"reasonCode\" : \"2\"}";
+                    break;
+                case Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos:
+                    reasonCodeString = "{\"reasonCode\" : \"3\"}";
+                    break;
+            }
+            
+            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "DELETE", reasonCodeString);
 
             if (responseMessage != null)
             {
