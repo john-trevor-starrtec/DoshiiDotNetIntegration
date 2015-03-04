@@ -59,6 +59,7 @@
     <Compile Include="Enums\EndPointPurposes.cs" />
     <Compile Include="Enums\OrderModes.cs" />
     <Compile Include="Enums\SeatingModes.cs" />
+    <Compile Include="Enums\TableAllocationRejectionReasons.cs" />
     <Compile Include="Interfaces\iDoshiiOrdering.cs" />
     <Compile Include="Interfaces\iDoshiiProducts.cs" />
     <Compile Include="Models\Checkin.cs" />

@@ -50,18 +50,17 @@ namespace DoshiiDotNetIntegration.Models
         public string Status { get; set; }
 
         /// <summary>
-        /// the reason the allocation was rejected if the allocation was rejected. 
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "ReasonCode")]
-        public string ReasonCode { get; set; }
-
-        /// <summary>
         /// the checkin associated with the table allocation.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "checkin")]
         public Checkin Checkin { get; set; }
+
+        /// <summary>
+        /// the reason the allocation was rejected if the allocation was rejected. 
+        /// </summary>
+        public Enums.TableAllocationRejectionReasons rejectionReason;
+
 
         public TableAllocation()
         {
