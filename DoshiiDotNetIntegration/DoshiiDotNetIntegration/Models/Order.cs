@@ -91,6 +91,13 @@ namespace DoshiiDotNetIntegration.Models
         public List<Product> Items { get; set; }
 
         /// <summary>
+        /// a list of all surcounts applied at and order level
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "surcounts")]
+        public List<Surcount> Surcounts { get; set; }
+        
+        /// <summary>
         /// the last time the order was updated on doshii
         /// </summary>
         [DataMember]

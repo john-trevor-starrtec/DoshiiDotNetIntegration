@@ -71,6 +71,7 @@
     <Compile Include="Models\ProductOptions.cs" />
     <Compile Include="Models\SocketMessage.cs" />
     <Compile Include="Models\SocketMessageData.cs" />
+    <Compile Include="Models\Surcount.cs" />
     <Compile Include="Models\TableAllocation.cs" />
     <Compile Include="Models\Variants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
