@@ -35,6 +35,15 @@ namespace DoshiiDotNetIntegration.Models
         [JsonProperty(PropertyName = "items")]
         internal List<Product> Items { get; set; }
 
+        /// <summary>
+        /// a list of all surcounts applied at and order level
+        /// </summary>
+        //[DataMember]
+        //[JsonProperty(PropertyName = "surcounts")]
+        //public List<Surcount> Surcounts { get; set; }
+
+
+
         public string ToJsonStringForOrder()
         {
             foreach (Product pro in Items)

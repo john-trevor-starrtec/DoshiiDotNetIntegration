@@ -498,6 +498,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 orderToPut.Status = "rejected";
             }
             orderToPut.Items = order.Items;
+            //REVIEW(Surcounts)
+            //orderToPut.Surcounts = order.Surcounts;
 
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message has been returned to the put order function"));
@@ -559,6 +561,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 orderToPut.Status = "rejected";
             }
             orderToPut.Items = order.Items;
+            //REVIEW(Surcounts)
+            //orderToPut.Surcounts = order.Surcounts;
 
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString()), "POST", orderToPut.ToJsonStringForOrder());
 
