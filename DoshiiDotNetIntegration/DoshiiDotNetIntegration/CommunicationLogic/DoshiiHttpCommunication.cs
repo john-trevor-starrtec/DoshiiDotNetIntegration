@@ -34,13 +34,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             //REVIEW: (LIAM) this should use regex to test the url form
             if (string.IsNullOrWhiteSpace(urlBase))
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Instanciating DoshiiHttpCommunication Class with a blank urlBase - '{1}'", urlBase));
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Instanciating DoshiiHttpCommunication Class with a blank urlBase - '{0}'", urlBase));
                 throw new NotSupportedException("blank url");
             
             }
             if (string.IsNullOrWhiteSpace(token))
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Instanciating DoshiiHttpCommunication Class with a blank token - '{1}'", token));
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Instanciating DoshiiHttpCommunication Class with a blank token - '{0}'", token));
                 throw new NotSupportedException("blank token");
             }
             
@@ -499,7 +499,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             orderToPut.Items = order.Items;
             //REVIEW(Surcounts)
-            //orderToPut.Surcounts = order.Surcounts;
+            orderToPut.Surcounts = order.Surcounts;
 
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message has been returned to the put order function"));
@@ -562,7 +562,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             orderToPut.Items = order.Items;
             //REVIEW(Surcounts)
-            //orderToPut.Surcounts = order.Surcounts;
+            orderToPut.Surcounts = order.Surcounts;
 
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString()), "POST", orderToPut.ToJsonStringForOrder());
 

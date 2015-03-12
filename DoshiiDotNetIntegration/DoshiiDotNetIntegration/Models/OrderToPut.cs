@@ -38,9 +38,9 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// a list of all surcounts applied at and order level
         /// </summary>
-        //[DataMember]
-        //[JsonProperty(PropertyName = "surcounts")]
-        //public List<Surcount> Surcounts { get; set; }
+        [DataMember]
+        [JsonProperty(PropertyName = "surcounts")]
+        public List<Surcount> Surcounts { get; set; }
 
 
 
