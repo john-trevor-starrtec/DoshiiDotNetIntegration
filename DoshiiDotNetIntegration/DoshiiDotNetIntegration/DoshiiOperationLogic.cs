@@ -112,6 +112,18 @@ namespace DoshiiDotNetIntegration
                 throw new NotSupportedException("empty socketUrl");
             }
 
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: Initialization failed - required token");
+                throw new NotSupportedException("token");
+            }
+
+            if (timeOutValueSecs <= 0)
+            {
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: Initialization failed - timeoutvaluesecs must be larger than 0");
+                throw new NotSupportedException("timeoutvaluesecs");
+            }
+
             RemoveTableAllocationsAfterFullPayment = removeTableAllocationsAfterFullPayment;
             AuthorizeToken = token;
             string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
@@ -127,7 +139,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="UrlBase"></param>
         /// <param name="StartWebSocketConnection"></param>
         /// <returns></returns>
-        private bool InitializeProcess(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
+        internal bool InitializeProcess(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Initializing Doshii");
 
@@ -729,6 +741,18 @@ namespace DoshiiDotNetIntegration
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos requesting all checked in users"));
             return m_HttpComs.GetConsumers();
         }
+
+        public int AdditionMethod(int x, int y)
+        {
+            return x + y;
+        }
+
+        public double divisionTest(int x, int y)
+        {
+            return x / y;
+        }
+
+        
 
     }
 }
