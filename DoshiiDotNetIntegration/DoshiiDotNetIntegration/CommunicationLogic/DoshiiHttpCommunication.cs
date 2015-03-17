@@ -448,6 +448,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos:
                     reasonCodeString = "{\"reasonCode\" : \"3\"}";
                     break;
+                case Enums.TableAllocationRejectionReasons.ConcurrencyIssueWithPos:
+                    reasonCodeString = "{\"reasonCode\" : \"4\"}";
+                    break;
             }
             
             responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "DELETE", reasonCodeString);
