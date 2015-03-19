@@ -705,6 +705,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     success = true;
                 }
+                else if (responseMessage.Status == HttpStatusCode.InternalServerError)
+                {
+                    success = PutProductData(productToPost);
+                }
                 else
                 {
                     success = false;
