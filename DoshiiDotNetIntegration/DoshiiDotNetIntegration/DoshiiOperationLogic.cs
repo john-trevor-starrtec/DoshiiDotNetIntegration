@@ -197,30 +197,14 @@ namespace DoshiiDotNetIntegration
                         {
                             RequestPaymentForOrder(consumerOrder);
                         }
-                        //else
-                        //{
-                        //    CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs();
-
-                        //    checkOutEventArgs.ConsumerId = cus.PaypalCustomerId;
-
-                        //    SocketComsCheckOutEventHandler(this, checkOutEventArgs);
-                        //}
+                        
                     }
                 }
                 currentlyCheckInConsumers = m_DoshiiInterface.GetCheckedInCustomersFromPos();
                 List<Models.Consumer> currentlyCheckedInDoshiiConsumers = m_HttpComs.GetConsumers();
                 foreach(Models.Consumer doshiiCon in currentlyCheckedInDoshiiConsumers)
                 {
-                    bool consumerFound = false;
-                    foreach(Models.Consumer localCon in currentlyCheckInConsumers)
-                    {
-                        if (doshiiCon.PaypalCustomerId == localCon.PaypalCustomerId)
-                        {
-                            consumerFound = true;
-                            break;
-                        }
-                    }
-                    if (!consumerFound)
+                    if (!findCurrentConsumer(currentlyCheckInConsumers, doshiiCon))
                     {
                         CommunicationLogic.CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
 
@@ -250,15 +234,7 @@ namespace DoshiiDotNetIntegration
                 //remove consumers that are not checked in. 
                 foreach (Models.Consumer localCon in currentlyCheckInConsumers)
                 {
-                    bool customerFound = false;
-                    foreach (Models.Consumer doshiiCon in currentlyCheckedInDoshiiConsumers)
-                    {
-                        if (doshiiCon.PaypalCustomerId == localCon.PaypalCustomerId)
-                        {
-                            customerFound = true;
-                        }
-                    }
-                    if (!customerFound)
+                    if (!findCurrentConsumer(currentlyCheckedInDoshiiConsumers, localCon))
                     {
                         CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs();
 
@@ -288,6 +264,20 @@ namespace DoshiiDotNetIntegration
             {
                 m_SocketComs.ClostSocketConnection();
             }
+        }
+
+        private bool findCurrentConsumer(List<Models.Consumer> consumersList, Models.Consumer currentConsumer)
+        {
+            bool consumerFound = false;
+            foreach (Models.Consumer localCon in consumersList)
+            {
+                if (currentConsumer.PaypalCustomerId == localCon.PaypalCustomerId)
+                {
+                    consumerFound = true;
+                    break;
+                }
+            }
+            return consumerFound;
         }
 
         /// <summary>
