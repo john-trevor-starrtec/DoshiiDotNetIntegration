@@ -187,62 +187,58 @@ namespace DoshiiDotNetIntegration
             {
                 m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Refreshing consumers, allocation, and orders");
                 List<Models.Consumer> currentlyCheckInConsumers = m_DoshiiInterface.GetCheckedInCustomersFromPos();
+                
                 if (OrderMode == Enums.OrderModes.BistroMode)
                 {
                     foreach (Models.Consumer currentConsumer in currentlyCheckInConsumers)
                     {
-                        //REVIEW: (Liam) this is where the payment should be requested. 
                         Models.Order consumerOrder = m_DoshiiInterface.GetOrderForCheckinId(currentConsumer.CheckInId);
                         if (consumerOrder != null)
                         {
                             RequestPaymentForOrder(consumerOrder);
                         }
+                        
+                    }
+                }
+                currentlyCheckInConsumers = m_DoshiiInterface.GetCheckedInCustomersFromPos();
+                List<Models.Consumer> currentlyCheckedInDoshiiConsumers = m_HttpComs.GetConsumers();
+                foreach(Models.Consumer doshiiCon in currentlyCheckedInDoshiiConsumers)
+                {
+                    if (!findCurrentConsumer(currentlyCheckInConsumers, doshiiCon))
+                    {
+                        CommunicationLogic.CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
+
+                        newCheckinEventArgs.Consumer = m_HttpComs.GetConsumer(doshiiCon.PaypalCustomerId);
+
+                        newCheckinEventArgs.Consumer.CheckInId = doshiiCon.CheckInId;
+                        newCheckinEventArgs.CheckIn = doshiiCon.CheckInId;
+                        newCheckinEventArgs.PaypalCustomerId = doshiiCon.PaypalCustomerId;
+                        newCheckinEventArgs.Uri = doshiiCon.PhotoUrl;
+                        SocketComsConsumerCheckinEventHandler(this, newCheckinEventArgs);
                     }
                 }
                 List<Models.TableAllocation> initialTableAllocationList = m_HttpComs.GetTableAllocations();
                 foreach (Models.TableAllocation ta in initialTableAllocationList)
                 {
-                    if (ta.Status == "waiting_for_confirmation")
-                    {
-                        CommunicationLogic.CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
+                    CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs();
+                    args.TableAllocation = new Models.TableAllocation();
+                    args.TableAllocation.CustomerId = ta.CustomerId;
+                    args.TableAllocation.Id = ta.Id;
+                    args.TableAllocation.Name = ta.Name;
+                    args.TableAllocation.Status = ta.Status;
+                    args.TableAllocation.PaypalCustomerId = ta.PaypalCustomerId;
+                    args.TableAllocation.Checkin = ta.Checkin;
 
-                        newCheckinEventArgs.Consumer = m_HttpComs.GetConsumer(ta.PaypalCustomerId);
-
-                        newCheckinEventArgs.Consumer.CheckInId = ta.Checkin.Id;
-                        newCheckinEventArgs.CheckIn = ta.Checkin.Id;
-                        newCheckinEventArgs.PaypalCustomerId = ta.PaypalCustomerId;
-                        newCheckinEventArgs.Uri = newCheckinEventArgs.Consumer.PhotoUrl;
-                        SocketComsConsumerCheckinEventHandler(this, newCheckinEventArgs);
-
-                        CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs args = new CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs();
-                        args.TableAllocation = new Models.TableAllocation();
-                        args.TableAllocation.CustomerId = ta.CustomerId;
-                        args.TableAllocation.Id = ta.Id;
-                        args.TableAllocation.Name = ta.Name;
-                        args.TableAllocation.Status = ta.Status;
-                        args.TableAllocation.PaypalCustomerId = ta.PaypalCustomerId;
-                        args.TableAllocation.Checkin = ta.Checkin;
-
-                        SocketComsTableAllocationEventHandler(this, args);
-                    }
+                    SocketComsTableAllocationEventHandler(this, args);
                 }
                 //remove consumers that are not checked in. 
-                foreach (Models.Consumer cus in currentlyCheckInConsumers)
+                foreach (Models.Consumer localCon in currentlyCheckInConsumers)
                 {
-                    bool customerFound = false;
-                    foreach (Models.TableAllocation ta in initialTableAllocationList)
+                    if (!findCurrentConsumer(currentlyCheckedInDoshiiConsumers, localCon))
                     {
-                        if (ta.PaypalCustomerId == cus.PaypalCustomerId)
-                        {
-                            customerFound = true;
-                        }
-                    }
-                    if (!customerFound)
-                    {
-                        //raise allocation event
                         CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs();
 
-                        checkOutEventArgs.ConsumerId = cus.PaypalCustomerId;
+                        checkOutEventArgs.ConsumerId = localCon.PaypalCustomerId;
 
                         SocketComsCheckOutEventHandler(this, checkOutEventArgs);
                     }
@@ -268,7 +264,20 @@ namespace DoshiiDotNetIntegration
             {
                 m_SocketComs.ClostSocketConnection();
             }
-            // REVIEW: (LIAM) -update all the current consumer orders with doshii - i'm not sure if this is necessary as the pos should be retrying order updates if the order update fails. 
+        }
+
+        private bool findCurrentConsumer(List<Models.Consumer> consumersList, Models.Consumer currentConsumer)
+        {
+            bool consumerFound = false;
+            foreach (Models.Consumer localCon in consumersList)
+            {
+                if (currentConsumer.PaypalCustomerId == localCon.PaypalCustomerId)
+                {
+                    consumerFound = true;
+                    break;
+                }
+            }
+            return consumerFound;
         }
 
         /// <summary>
@@ -409,11 +418,11 @@ namespace DoshiiDotNetIntegration
                              
                             e.Order.Status = "accepted";
                             returnedOrder = m_HttpComs.PutOrder(e.Order);
-                            if (returnedOrder.Id != null && returnedOrder.Id == e.Order.Id)
+                            if (returnedOrder.Id == e.Order.Id)
                             {
                                 returnedOrder.Status = "waiting for payment";
                                 returnedOrder = m_HttpComs.PutOrder(returnedOrder);
-                                if (returnedOrder.Id != null && returnedOrder.Id == e.Order.Id)
+                                if (returnedOrder.Id == e.Order.Id)
                                 {
                                     int nonPayingAmount = 0;
                                     int.TryParse(returnedOrder.NotPayingTotal, out nonPayingAmount);
@@ -469,7 +478,7 @@ namespace DoshiiDotNetIntegration
             Models.Order returnedOrder = new Models.Order();
             order.Status = "waiting for payment";
             returnedOrder = m_HttpComs.PutOrder(order);
-            if (returnedOrder.Id != null && returnedOrder.Id == order.Id)
+            if (returnedOrder.Id == order.Id)
             {
                 m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order put for payment - '{0}'", order.ToJsonString()));
                 int nonPayingAmount = 0;
