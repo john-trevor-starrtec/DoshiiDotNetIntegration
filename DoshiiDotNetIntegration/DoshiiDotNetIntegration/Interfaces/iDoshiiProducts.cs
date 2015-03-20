@@ -14,7 +14,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="doshiiLogic"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        bool AddNewProducts(DoshiiOperationLogic doshiiLogic, List<Models.Product> productList);
+        void AddNewProducts(DoshiiOperationLogic doshiiLogic, List<Models.Product> productList);
 
         /// <summary>
         /// this method should be used to update a product on doshii
@@ -23,7 +23,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="doshiiLogic"></param>
         /// <param name="productToUpdate"></param>
         /// <returns></returns>
-        bool UpdateProduct(DoshiiOperationLogic doshiiLogic, Models.Product productToUpdate);
+        void UpdateProduct(DoshiiOperationLogic doshiiLogic, Models.Product productToUpdate);
 
         /// <summary>
         /// this method should be used to delete products from doshii
@@ -32,7 +32,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="doshiiLogic"></param>
         /// <param name="productIdList"></param>
         /// <returns></returns>
-        bool DeleteProducts(DoshiiOperationLogic doshiiLogic, List<string> productIdList);
+        void DeleteProducts(DoshiiOperationLogic doshiiLogic, List<string> productIdList);
 
         /// <summary>
         /// this method should be used to delete all products from doshii
@@ -40,7 +40,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="doshiiLogic"></param>
         /// <returns></returns>
-        bool DeleteAllProducts(DoshiiOperationLogic doshiiLogic);
+        void DeleteAllProducts(DoshiiOperationLogic doshiiLogic);
 
         /// <summary>
         /// this method should be used to retreive all products from doshii

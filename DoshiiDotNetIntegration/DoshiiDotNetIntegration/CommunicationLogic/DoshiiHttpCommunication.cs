@@ -63,8 +63,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 
             Models.Consumer retreivedConsumer = new Models.Consumer();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId), "GET");
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId), "GET");
 
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -101,8 +109,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             List<Models.Consumer> retreivedConsumerList = new List<Models.Consumer>();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Consumer), "GET");
-
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Consumer), "GET");
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -141,7 +155,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             Models.Order retreivedOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, orderId), "GET");
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, orderId), "GET");
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
 
             if (responseMessage != null)
             {
@@ -178,7 +200,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             List<Models.Order> retreivedOrderList = new List<Models.Order>();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order), "GET");
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order), "GET");
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
 
             if (responseMessage != null)
             {
@@ -215,8 +245,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             List<Models.TableAllocation> tableAllocationList = new List<Models.TableAllocation>();
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations), "GET");
-
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations), "GET");
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -255,8 +291,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "PUT", "{\"status\": \"confirmed\"}");
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "PUT", "{\"status\": \"confirmed\"}");
 
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
             if (responseMessage.Status == HttpStatusCode.OK)
             {
                 success = true;
@@ -284,7 +328,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             builder.Append("{\"tableName\": \"");
             builder.AppendFormat("{0}", tableName);
             builder.Append("\"}");
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.AddTableAllocation, consumerId), "POST", builder.ToString());
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.AddTableAllocation, consumerId), "POST", builder.ToString());
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
 
             if (responseMessage.Status == HttpStatusCode.OK)
             {
@@ -314,8 +366,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal bool RemoveTableAllocation(string consumerId, string tableName, string rejectionReason)
         {
             bool success = false;
-            DoshiHttpResponceMessages responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", rejectionReason);
-
+            DoshiHttpResponceMessages responseMessage;
+            try
+            {
+                 responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", rejectionReason);
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -347,7 +407,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.DeleteAllocationWithCheckInId, checkInId), "DELETE");
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.DeleteAllocationWithCheckInId, checkInId), "DELETE");
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
 
             if (responseMessage != null)
             {
@@ -403,7 +471,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 configString.Append(" \"selection\" }");
             }
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Setting Order and Seating Configuration for Dohsii. SeatingMode = {0}, OrderMode = {1}", seatingMode.ToString(), orderMode.ToString()));
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.SetSeatingAndOrderConfiguration), "PUT", configString.ToString());
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.SetSeatingAndOrderConfiguration), "PUT", configString.ToString());
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
 
             if (responseMessage != null)
             {
@@ -452,8 +528,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     reasonCodeString = "{\"reasonCode\" : \"4\"}";
                     break;
             }
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "DELETE", reasonCodeString);
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
             
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "DELETE", reasonCodeString);
 
             if (responseMessage != null)
             {
@@ -503,8 +586,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             orderToPut.Items = order.Items;
             //REVIEW(Surcounts)
             orderToPut.Surcounts = order.Surcounts;
-
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
+            
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message has been returned to the put order function"));
                     
             if (responseMessage != null)
@@ -566,9 +656,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             orderToPut.Items = order.Items;
             //REVIEW(Surcounts)
             orderToPut.Surcounts = order.Surcounts;
-
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString()), "POST", orderToPut.ToJsonStringForOrder());
-
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString()), "POST", orderToPut.ToJsonStringForOrder());
+            
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -597,8 +694,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         #endregion
-
-
+        
         #region product sync methods
         
         /// <summary>
@@ -608,7 +704,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal List<Models.Product> GetDoshiiProducts()
         {
             DoshiHttpResponceMessages responseMessage;
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products), "GET");
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products), "GET");
+            
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
             List<Models.Product> productList = new List<Models.Product>();
             if (responseMessage != null)
             {
@@ -649,7 +753,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             bool success = true;
             try
             {
-                DoshiHttpResponceMessages responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productId),"DELETE");
+                DoshiHttpResponceMessages responseMessage;
+                try
+                {
+                    responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productId), "DELETE");
+                
+                }
+                catch (RestfullApiErrorResponceException rex)
+                {
+                    throw rex;
+                }
                 //if the responce is fail might need to do something but should be able to continue
                 if (responseMessage != null)
                 {
@@ -666,6 +779,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     success = false;
                 }
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
             }
             catch (WebException ex)
             {
@@ -693,11 +810,27 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponceMessages responseMessage;
             if (isNewProduct)
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, ""), "POST", productToPost.ToJsonStringForProductSync());
+                try
+                {
+                    responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, ""), "POST", productToPost.ToJsonStringForProductSync());
+                }
+                catch (RestfullApiErrorResponceException rex)
+                {
+                    throw rex;
+                }
+                
             }
             else
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productToPost.PosId), "PUT", productToPost.ToJsonStringForProductSync());
+                try
+                {
+                    responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productToPost.PosId), "PUT", productToPost.ToJsonStringForProductSync());
+                }
+                catch (RestfullApiErrorResponceException rex)
+                {
+                    throw rex;
+                }
+                
             }
             if (responseMessage != null)
             {
@@ -745,7 +878,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 count++;
             }
             productListJsonString.Append("]");
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products), "POST", productListJsonString.ToString());
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products), "POST", productListJsonString.ToString());
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
+            
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.Created)
@@ -776,8 +917,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             
             StringBuilder productListJsonString = new StringBuilder();
             productListJsonString.Append(productToPost.ToJsonStringForProductSync());
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productToPost.PosId), "PUT", productListJsonString.ToString());
+            }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
             
-            responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products, productToPost.PosId), "PUT", productListJsonString.ToString());
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -925,16 +1073,24 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Successfull responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
+                else if (responceMessage.Status == HttpStatusCode.BadRequest || responceMessage.Status == HttpStatusCode.Unauthorized || responceMessage.Status == HttpStatusCode.Forbidden || responceMessage.Status == HttpStatusCode.InternalServerError)
+                {
+                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Failed responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
+                    throw new RestfullApiErrorResponceException();
+                }
                 else
                 {
                     m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Failed responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
                 
             }
+            catch (RestfullApiErrorResponceException rex)
+            {
+                throw rex;
+            }
             catch (Exception ex)
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} : {4}", method, url, data, responceMessage.Status.ToString(), ex), ex);
-                
             }
             return responceMessage;
         }
