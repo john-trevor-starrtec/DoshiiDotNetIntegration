@@ -1088,6 +1088,31 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 throw rex;
             }
+            catch (WebException wex)
+            {
+                using (WebResponse response = wex.Response)
+                {
+                    HttpWebResponse httpResponse = (HttpWebResponse)response;
+                    Console.WriteLine("Error code: {0}", httpResponse.StatusCode);
+                    string errorResponce;
+                    using (Stream responceErrorData = response.GetResponseStream())
+                    {
+                        using (var reader = new StreamReader(responceErrorData))
+                        {
+                            errorResponce = reader.ReadToEnd();
+                        }
+                    }
+                    if (httpResponse.StatusCode == HttpStatusCode.BadRequest || httpResponse.StatusCode == HttpStatusCode.Unauthorized || httpResponse.StatusCode == HttpStatusCode.Forbidden)
+                    {
+                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2} : error Responce {3} : exception {4}", method, url, data, errorResponce, wex), wex);
+                        throw new RestfullApiErrorResponceException();
+                    }
+                    else
+                    {
+                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2} : error Responce {3}  : exception {4}", method, url, data, errorResponce, wex), wex);
+                    }
+                }
+            }
             catch (Exception ex)
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} : {4}", method, url, data, responceMessage.Status.ToString(), ex), ex);
