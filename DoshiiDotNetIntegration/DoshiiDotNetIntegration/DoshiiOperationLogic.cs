@@ -548,12 +548,18 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productList"></param>
         /// <returns></returns>
-        public bool AddNewProducts(List<Models.Product> productList)
+        public void AddNewProducts(List<Models.Product> productList)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos adding new product list- '{0}'", JsonConvert.SerializeObject(productList))); 
-            bool success = false;
-            success = m_HttpComs.PostProductData(productList, false);
-            return success;
+            try
+            {
+                m_HttpComs.PostProductData(productList, false);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            
         }
 
         /// <summary>
@@ -563,14 +569,19 @@ namespace DoshiiDotNetIntegration
         /// <param name="productToUpdate"></param>
         /// <param name="deleteAllProductsCurrentlyOnDoshii"></param>
         /// <returns></returns>
-        internal bool AddNewProducts(Models.Product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
+        internal void AddNewProducts(Models.Product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
         {
-            bool success = false;
-            //DeleteProduct(productToUpdate.PosId);
             List<Models.Product> productList = new List<Models.Product>();
             productList.Add(productToUpdate);
-            success = m_HttpComs.PostProductData(productList, deleteAllProductsCurrentlyOnDoshii);
-            return success;
+            try
+            {
+                m_HttpComs.PostProductData(productList, deleteAllProductsCurrentlyOnDoshii);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            
         }
 
         /// <summary>
@@ -578,12 +589,17 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productToUpdate"></param>
         /// <returns></returns>
-        public bool UpdateProcuct(Models.Product productToUpdate)
+        public void UpdateProcuct(Models.Product productToUpdate)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos updating product - '{0}'", productToUpdate.ToJsonStringForProductSync()));
-            bool success = false;
-            success = m_HttpComs.PutProductData(productToUpdate);
-            return success;
+            try
+            {
+                m_HttpComs.PutProductData(productToUpdate);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
         }
         
         /// <summary>
@@ -592,15 +608,21 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productList"></param>
         /// <returns></returns>
-        public bool DeleteProducts(List<string> productIdList)
+        public void DeleteProducts(List<string> productIdList)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting product list- '{0}'", JsonConvert.SerializeObject(productIdList)));
-            bool success = false;
-            foreach (string pro in productIdList)
+            try
             {
-                success = DeleteProduct(pro);
+                foreach (string pro in productIdList)
+                {
+                    DeleteProduct(pro);
+                }
             }
-            return success;
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            
         }
 
         /// <summary>
@@ -608,25 +630,35 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
-        internal bool DeleteProduct(string productId)
+        internal void DeleteProduct(string productId)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting product from doshii - '{0}'", productId));
-            bool success = false;
-            success = m_HttpComs.DeleteProductData(productId);
-            return success;
+            try
+            {
+                m_HttpComs.DeleteProductData(productId);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            
         }
 
         /// <summary>
         /// deletes all the products from doshii
         /// </summary>
         /// <returns></returns>
-        public bool DeleteAllProducts()
+        public void DeleteAllProducts()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting all products from doshii"));
-            
-            bool success = false;
-            success = m_HttpComs.DeleteProductData();
-            return success;
+            try
+            {
+                m_HttpComs.DeleteProductData();
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
         }
 
         #endregion
@@ -640,7 +672,15 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         public Models.Order GetOrder(string orderId)
         {
-            return m_HttpComs.GetOrder(orderId);
+            try
+            {
+                return m_HttpComs.GetOrder(orderId);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            
         }
 
 
@@ -661,23 +701,37 @@ namespace DoshiiDotNetIntegration
             }
             order.Status = "accepted";
             Models.Order returnedOrder = new Models.Order();
-            if (order.Id == null || order.Id == 0)
+            if (order.Id == 0)
             {
                 order.UpdatedAt = DateTime.Now.ToString();
-                returnedOrder = m_HttpComs.PostOrder(order);
-                if (returnedOrder.Id == null || returnedOrder.Id == 0)
+                try
                 {
-                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
+                    returnedOrder = m_HttpComs.PostOrder(order);
+                    if (returnedOrder.Id == 0)
+                    {
+                        m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
+                    }
+                }
+                catch (RestfulApiErrorResponseException rex)
+                {
+                    throw rex;
                 }
                 // record the order.Id in the pos so the post can put another order if more items are added from the pos. 
                 m_DoshiiInterface.RecordOrderId(returnedOrder);
             }
             else
             {
-                returnedOrder = m_HttpComs.PutOrder(order);
-                if (returnedOrder.Id == null || returnedOrder.Id == 0)
+                try
                 {
-                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
+                    returnedOrder = m_HttpComs.PutOrder(order);
+                    if (returnedOrder.Id == 0)
+                    {
+                        m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
+                    }
+                }
+                catch (RestfulApiErrorResponseException rex)
+                {
+                    throw rex;
                 }
             }
 
@@ -710,7 +764,15 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         public Models.Consumer GetConsumer(string paypalCustomerId)
         {
-            return m_HttpComs.GetConsumer(paypalCustomerId);
+            try
+            {
+                return m_HttpComs.GetConsumer(paypalCustomerId);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            
         }
 
         /// <summary>
@@ -723,20 +785,31 @@ namespace DoshiiDotNetIntegration
         /// the name of the table to be allocated.
         /// </param>
         /// <returns></returns>
-        public bool SetTableAllocation(string customerId, string tableName)
+        public void SetTableAllocation(string customerId, string tableName)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos allocating table for customerId - '{0}', table '{1}'", customerId, tableName));
-            bool success = m_HttpComs.PostTableAllocation(customerId, tableName);
-            return success;
-
+            try
+            {
+                m_HttpComs.PostTableAllocation(customerId, tableName);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            
         }
 
-        public bool DeleteTableAllocation(string customerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
+        public void DeleteTableAllocation(string customerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for customerId - '{0}', table '{1}'", customerId, tableName));
-            bool success = m_HttpComs.RejectTableAllocation(customerId, tableName, deleteReason);
-            return success;
-
+            try
+            {
+                m_HttpComs.RejectTableAllocation(customerId, tableName, deleteReason);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
         }
 
         #endregion
@@ -748,20 +821,16 @@ namespace DoshiiDotNetIntegration
         public List<Models.Consumer> GetCheckedInConsumersFromDoshii()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos requesting all checked in users"));
-            return m_HttpComs.GetConsumers();
+            try
+            {
+                return m_HttpComs.GetConsumers();
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            
         }
-
-        public int AdditionMethod(int x, int y)
-        {
-            return x + y;
-        }
-
-        public double divisionTest(int x, int y)
-        {
-            return x / y;
-        }
-
-        
 
     }
 }
