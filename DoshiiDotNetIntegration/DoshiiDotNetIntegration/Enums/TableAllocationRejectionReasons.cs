@@ -16,6 +16,8 @@ namespace DoshiiDotNetIntegration.Enums
 
         CheckinWasDeallocatedByPos = 3,
 
-        ConcurrencyIssueWithPos = 4
+        ConcurrencyIssueWithPos = 4,
+
+        tableDoesNotHaveATab = 5
     }
 }
