@@ -157,6 +157,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 if (m_HeartBeatThread == null)
                 {
                     m_HeartBeatThread = new Thread(new ThreadStart(HeartBeatChecker));
+                    m_HeartBeatThread.IsBackground = true;
                 }
                 if (m_HeartBeatThread.ThreadState != ThreadState.Running)
                 {
@@ -289,6 +290,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 // drop heart beat responce
                 if (messageString.Contains("primus::pong::<"))
                 {
+                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Received websockets message '{0}' from {1}", messageString, m_WebSocketsConnection.Url.ToString()));
                     return;
                 }
                 else

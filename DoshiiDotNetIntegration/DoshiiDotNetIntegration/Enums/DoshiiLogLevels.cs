@@ -29,5 +29,6 @@ namespace DoshiiDotNetIntegration.Enums
         /// and error has occured in the DoshiiDotNetIntegration.dll, these messages should always be logged. 
         /// </summary>
         Error = 4
+
     }
 }
