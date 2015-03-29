@@ -527,6 +527,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case Enums.TableAllocationRejectionReasons.ConcurrencyIssueWithPos:
                     reasonCodeString = "{\"reasonCode\" : \"4\"}";
                     break;
+                case Enums.TableAllocationRejectionReasons.tableDoesNotHaveATab:
+                    reasonCodeString = "{\"reasonCode\" : \"5\"}";
+                    break;
             }
             try
             {
