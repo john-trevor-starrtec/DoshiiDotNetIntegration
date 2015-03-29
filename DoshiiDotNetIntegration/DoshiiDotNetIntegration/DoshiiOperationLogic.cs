@@ -555,7 +555,7 @@ namespace DoshiiDotNetIntegration
             {
                 m_HttpComs.PostProductData(productList, false);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -577,7 +577,7 @@ namespace DoshiiDotNetIntegration
             {
                 m_HttpComs.PostProductData(productList, deleteAllProductsCurrentlyOnDoshii);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -596,7 +596,7 @@ namespace DoshiiDotNetIntegration
             {
                 m_HttpComs.PutProductData(productToUpdate);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -618,7 +618,7 @@ namespace DoshiiDotNetIntegration
                     DeleteProduct(pro);
                 }
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -637,7 +637,7 @@ namespace DoshiiDotNetIntegration
             {
                 m_HttpComs.DeleteProductData(productId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -655,7 +655,7 @@ namespace DoshiiDotNetIntegration
             {
                 m_HttpComs.DeleteProductData();
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -676,7 +676,7 @@ namespace DoshiiDotNetIntegration
             {
                 return m_HttpComs.GetOrder(orderId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -712,7 +712,7 @@ namespace DoshiiDotNetIntegration
                         m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
                     }
                 }
-                catch (RestfulApiErrorResponseException rex)
+                catch (Exceptions.RestfulApiErrorResponseException rex)
                 {
                     throw rex;
                 }
@@ -729,7 +729,7 @@ namespace DoshiiDotNetIntegration
                         m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
                     }
                 }
-                catch (RestfulApiErrorResponseException rex)
+                catch (Exceptions.RestfulApiErrorResponseException rex)
                 {
                     throw rex;
                 }
@@ -768,7 +768,7 @@ namespace DoshiiDotNetIntegration
             {
                 return m_HttpComs.GetConsumer(paypalCustomerId);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -792,7 +792,7 @@ namespace DoshiiDotNetIntegration
             {
                 m_HttpComs.PostTableAllocation(customerId, tableName);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -806,7 +806,7 @@ namespace DoshiiDotNetIntegration
             {
                 m_HttpComs.RejectTableAllocation(customerId, tableName, deleteReason);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
@@ -825,7 +825,7 @@ namespace DoshiiDotNetIntegration
             {
                 return m_HttpComs.GetConsumers();
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
