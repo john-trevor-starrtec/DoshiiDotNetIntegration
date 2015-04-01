@@ -82,21 +82,64 @@ namespace DoshiiDotNetIntegration.Models
         [DataMember]
         [JsonProperty(PropertyName = "notPayingTotal")]
         public string NotPayingTotal { get; set; }
+
+        private List<Product> _items;
         
         /// <summary>
         /// a list of all the items included in the order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]
-        public List<Product> Items { get; set; }
+        public List<Product> Items {
+            get
+            {
+                if (_items == null)
+                {
+                    _items = new List<Product>();
+                }
+                return _items;
+            }
+            set { _items = value; } 
+        }
+
+        private List<Surcount> _surcounts;
 
         /// <summary>
         /// a list of all surcounts applied at and order level
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "surcounts")]
-        public List<Surcount> Surcounts { get; set; }
-        
+        public List<Surcount> Surcounts
+        {
+            get
+            {
+                if (_surcounts == null)
+                {
+                    _surcounts = new List<Surcount>();
+                }
+                return _surcounts;
+            }
+            set { _surcounts = value; }
+        }
+
+        private List<Payment> _payments;
+        /// <summary>
+        /// a list of all payments applied at and order level
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "payments")]
+        public List<Payment> Payments {
+            get
+            {
+                if (_payments == null)
+                {
+                    _payments = new List<Payment>();
+                }
+                return _payments;
+            }
+            set { _payments = value; }
+        }
+
         /// <summary>
         /// the last time the order was updated on doshii
         /// </summary>

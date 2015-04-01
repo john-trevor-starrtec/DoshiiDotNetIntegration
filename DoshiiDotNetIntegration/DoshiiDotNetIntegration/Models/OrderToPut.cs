@@ -40,9 +40,14 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "surcounts")]
-        public List<Surcount> Surcounts { get; set; }
+        internal List<Surcount> Surcounts { get; set; }
 
-
+        /// <summary>
+        /// a list of all payments applied at and order level
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "payments")]
+        internal List<Payment> Payments { get; set; }
 
         public string ToJsonStringForOrder()
         {
