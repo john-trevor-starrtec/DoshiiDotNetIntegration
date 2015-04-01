@@ -589,6 +589,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             orderToPut.Items = order.Items;
             //REVIEW(Surcounts)
             orderToPut.Surcounts = order.Surcounts;
+            orderToPut.Payments = order.Payments;
             try
             {
                 responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString()), "PUT", orderToPut.ToJsonStringForOrder());
@@ -659,6 +660,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             orderToPut.Items = order.Items;
             //REVIEW(Surcounts)
             orderToPut.Surcounts = order.Surcounts;
+            orderToPut.Payments = order.Payments;
             try
             {
                 responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString()), "POST", orderToPut.ToJsonStringForOrder());
