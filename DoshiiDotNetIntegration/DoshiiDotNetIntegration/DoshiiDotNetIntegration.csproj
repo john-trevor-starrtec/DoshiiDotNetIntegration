@@ -82,6 +82,7 @@
     <Compile Include="Enums\OrderModes.cs" />
     <Compile Include="Enums\SeatingModes.cs" />
     <Compile Include="Enums\TableAllocationRejectionReasons.cs" />
+    <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Interfaces\iDoshiiOrdering.cs" />
     <Compile Include="Interfaces\iDoshiiProducts.cs" />
     <Compile Include="Models\Checkin.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Models\JsonSerializationBase.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderToPut.cs" />
+    <Compile Include="Models\Payment.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductOptions.cs" />
     <Compile Include="Models\SocketMessage.cs" />

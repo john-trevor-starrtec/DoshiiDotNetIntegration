@@ -103,6 +103,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// this method is used to confirm the order on doshii accuratly represents the order on the the pos
         /// the pos is the source of truth for the order.
         /// if the order is not correct the pos should update the order object to to represent the correct order. 
+        /// If the order cannot be located on the pos the pos should throw a 
         /// </summary>
         /// <param name="order"></param>
         void ConfirmOrderTotalsBeforePaymentRestaurantMode(ref Models.Order order);

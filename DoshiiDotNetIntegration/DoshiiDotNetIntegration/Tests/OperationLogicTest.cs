@@ -76,25 +76,5 @@ namespace DoshiiDotNetIntegration.Tests
         //}
 
 
-
-
-
-        [Test]
-        public void AdditionTest()
-        {
-            int expectedResult;
-            int x = 2, y = 3;
-            expectedResult = x + y;
-            Assert.AreEqual(expectedResult, operationLogic.AdditionMethod(x,y));
-        }
-
-        [Test]
-        public void DivisionTest()
-        {
-            int expectedResult;
-            int x = 6, y = 2;
-            expectedResult = x / y;
-            Assert.AreEqual(expectedResult, operationLogic.divisionTest(x, y));
-        }
     }
 }
