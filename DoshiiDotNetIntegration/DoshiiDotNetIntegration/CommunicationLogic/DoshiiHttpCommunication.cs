@@ -1082,7 +1082,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Successfull responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
-                else if (responceMessage.Status == HttpStatusCode.BadRequest || responceMessage.Status == HttpStatusCode.Unauthorized || responceMessage.Status == HttpStatusCode.Forbidden || responceMessage.Status == HttpStatusCode.InternalServerError)
+                else if (responceMessage.Status == HttpStatusCode.BadRequest || responceMessage.Status == HttpStatusCode.Unauthorized || responceMessage.Status == HttpStatusCode.Forbidden || responceMessage.Status == HttpStatusCode.InternalServerError || responceMessage.Status == HttpStatusCode.NotFound)
                 {
                     m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Failed responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                     throw new Exceptions.RestfulApiErrorResponseException();
