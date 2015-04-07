@@ -40,6 +40,12 @@ namespace DoshiiDotNetIntegration.Interfaces
         void CheckOutConsumer(string consumerId);
 
         /// <summary>
+        /// this method should set the customer relating to the checkinId that is passed in as no longer at the venue, and disaccoiate any orders / check/ tabs from doshii so no further updates about these structures are sent to meerkat. 
+        /// </summary>
+        /// <param name="checkInId"></param>
+        void CheckOutConsumerWithCheckInId(string checkInId);
+
+        /// <summary>
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode.
         /// </summary>
         /// <returns></returns>
