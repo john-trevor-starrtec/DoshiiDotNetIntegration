@@ -477,7 +477,19 @@ namespace DoshiiDotNetIntegration
         {
             Models.Order returnedOrder = new Models.Order();
             order.Status = "waiting for payment";
-            returnedOrder = m_HttpComs.PutOrder(order);
+            try
+            {
+                returnedOrder = m_HttpComs.PutOrder(order);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                }
+            }
+            
+            
             if (returnedOrder.Id == order.Id)
             {
                 m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order put for payment - '{0}'", order.ToJsonString()));
@@ -714,6 +726,10 @@ namespace DoshiiDotNetIntegration
                 }
                 catch (Exceptions.RestfulApiErrorResponseException rex)
                 {
+                    if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                    }
                     throw rex;
                 }
                 // record the order.Id in the pos so the post can put another order if more items are added from the pos. 
@@ -731,6 +747,10 @@ namespace DoshiiDotNetIntegration
                 }
                 catch (Exceptions.RestfulApiErrorResponseException rex)
                 {
+                    if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                    }
                     throw rex;
                 }
             }
