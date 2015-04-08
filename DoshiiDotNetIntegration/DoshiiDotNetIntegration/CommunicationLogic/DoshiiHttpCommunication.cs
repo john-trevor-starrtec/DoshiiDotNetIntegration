@@ -578,6 +578,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 orderToPut.Status = "accepted";
             }
+            else if (order.Status == "paid")
+            {
+                orderToPut.Status = "paid";
+            }
             else if (order.Status == "waiting for payment")
             {
                 orderToPut.Status = "waiting for payment";
@@ -648,6 +652,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             if (order.Status == "accepted")
             {
                 orderToPut.Status = "accepted";
+            }
+            else if (order.Status == "paid")
+            {
+                orderToPut.Status = "paid";
             }
             else if (order.Status == "waiting for payment")
             {

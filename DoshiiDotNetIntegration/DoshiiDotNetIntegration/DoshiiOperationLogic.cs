@@ -485,7 +485,7 @@ namespace DoshiiDotNetIntegration
             {
                 if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    //m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                    m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                 }
             }
             
@@ -728,7 +728,7 @@ namespace DoshiiDotNetIntegration
                 {
                     if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        //m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                        m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                     }
                     throw rex;
                 }
@@ -749,7 +749,7 @@ namespace DoshiiDotNetIntegration
                 {
                     if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        //m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                        m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                     }
                     throw rex;
                 }
