@@ -578,6 +578,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 orderToPut.Status = "accepted";
             }
+            else if (order.Status == "paid")
+            {
+                orderToPut.Status = "paid";
+            }
             else if (order.Status == "waiting for payment")
             {
                 orderToPut.Status = "waiting for payment";
@@ -648,6 +652,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             if (order.Status == "accepted")
             {
                 orderToPut.Status = "accepted";
+            }
+            else if (order.Status == "paid")
+            {
+                orderToPut.Status = "paid";
             }
             else if (order.Status == "waiting for payment")
             {
@@ -1082,7 +1090,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Successfull responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
-                else if (responceMessage.Status == HttpStatusCode.BadRequest || responceMessage.Status == HttpStatusCode.Unauthorized || responceMessage.Status == HttpStatusCode.Forbidden || responceMessage.Status == HttpStatusCode.InternalServerError || responceMessage.Status == HttpStatusCode.NotFound)
+                else if (responceMessage.Status == HttpStatusCode.BadRequest || 
+                    responceMessage.Status == HttpStatusCode.Unauthorized || 
+                    responceMessage.Status == HttpStatusCode.Forbidden || 
+                    responceMessage.Status == HttpStatusCode.InternalServerError || 
+                    responceMessage.Status == HttpStatusCode.NotFound || 
+                    responceMessage.Status == HttpStatusCode.Conflict)
                 {
                     m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Failed responce from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                     throw new Exceptions.RestfulApiErrorResponseException(responceMessage.Status);
@@ -1111,25 +1124,28 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                             errorResponce = reader.ReadToEnd();
                         }
                     }
-                    if (httpResponse.StatusCode == HttpStatusCode.BadRequest || httpResponse.StatusCode == HttpStatusCode.Unauthorized || httpResponse.StatusCode == HttpStatusCode.Forbidden || httpResponse.StatusCode == HttpStatusCode.NotFound)
+                    if (httpResponse.StatusCode == HttpStatusCode.BadRequest || 
+                        httpResponse.StatusCode == HttpStatusCode.Unauthorized || 
+                        httpResponse.StatusCode == HttpStatusCode.Forbidden ||
+                        httpResponse.StatusCode == HttpStatusCode.InternalServerError || 
+                        httpResponse.StatusCode == HttpStatusCode.NotFound || 
+                        httpResponse.StatusCode == HttpStatusCode.Conflict)
                     {
-                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2} : error Responce {3} : exception {4}", method, url, data, errorResponce, wex), wex);
+                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Responce {3}, exception {4}", method, url, data, errorResponce, wex));
                         throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode);
                     }
                     else
                     {
-                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2} : error Responce {3}  : exception {4}", method, url, data, errorResponce, wex), wex);
+                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Responce {3}, exception {4}", method, url, data, errorResponce, wex));
                     }
                 }
             }
             catch (Exception ex)
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} : {4}", method, url, data, responceMessage.Status.ToString(), ex), ex);
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} : {4}", method, url, data, responceMessage.Status.ToString(), ex));
             }
             return responceMessage;
         }
-
-
         #endregion
 
     }

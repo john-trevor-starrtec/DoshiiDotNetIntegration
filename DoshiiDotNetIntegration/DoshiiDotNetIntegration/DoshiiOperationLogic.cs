@@ -485,7 +485,7 @@ namespace DoshiiDotNetIntegration
             {
                 if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    //m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                    m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                 }
             }
             
@@ -569,7 +569,15 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
-                throw rex;
+                if (rex.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new Exceptions.ProductNotCreatedException();
+                }
+                else
+                {
+                    throw rex;
+                }
+                
             }
             
         }
@@ -728,7 +736,7 @@ namespace DoshiiDotNetIntegration
                 {
                     if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        //m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                        m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                     }
                     throw rex;
                 }
@@ -749,7 +757,7 @@ namespace DoshiiDotNetIntegration
                 {
                     if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        //m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                        m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                     }
                     throw rex;
                 }

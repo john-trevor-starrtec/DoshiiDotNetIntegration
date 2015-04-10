@@ -10,6 +10,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <summary>
         /// this method should be used to post new products to doshii
         /// when implementing this method doshiiLodic.AddNewProducts MUST be called
+        /// The above call must be in a try catch and you must catch a Exceptions.ProductNotCreatedException exception
+        /// if caught UpdateProduct for each of the products in the product list.  
         /// </summary>
         /// <param name="doshiiLogic"></param>
         /// <param name="order"></param>
