@@ -569,7 +569,15 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
-                throw rex;
+                if (rex.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new Exceptions.ProductNotCreatedException();
+                }
+                else
+                {
+                    throw rex;
+                }
+                
             }
             
         }
