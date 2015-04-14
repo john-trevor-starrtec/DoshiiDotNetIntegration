@@ -713,13 +713,16 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         public Models.Order UpdateOrder(Models.Order order)
         {
-            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos adding items to order - '{0}'", order.ToJsonString()));
+            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", order.ToJsonString()));
             if (OrderMode == Enums.OrderModes.BistroMode)
             {
                 m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: cannot add products to order in bistro mode"));
                 throw new NotSupportedException("Doshii: cannot add products to order in bistro mode");
             }
-            order.Status = "accepted";
+            if (order.Status != "paid")
+            {
+                order.Status = "accepted";
+            }
             Models.Order returnedOrder = new Models.Order();
             if (order.Id == 0)
             {
