@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     /// <summary>
     /// faciliates the web sockets communication with the doshii application
     /// </summary>
-    internal class DoshiiWebSocketsCommunication 
+    public class DoshiiWebSocketsCommunication 
     {
 
         #region fields and properties

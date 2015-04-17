@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
-    internal class DoshiiHttpCommunication 
+    public class DoshiiHttpCommunication 
     {
         private string m_DoshiiUrlBase;
 
@@ -22,7 +22,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="urlBase"></param>
         /// <param name="doshiiLogic"></param>
         /// <param name="token"></param>
-        internal DoshiiHttpCommunication(string urlBase, DoshiiOperationLogic doshiiLogic, string token)
+        public DoshiiHttpCommunication(string urlBase, DoshiiOperationLogic doshiiLogic, string token)
         {
             if (doshiiLogic == null)
             {
@@ -337,7 +337,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 throw rex;
             }
             
-
             if (responseMessage.Status == HttpStatusCode.OK)
             {
                 success = true;
@@ -345,7 +344,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 success = false;
-
             }
 
             return success;
@@ -1034,7 +1032,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="method"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        private DoshiHttpResponceMessages MakeRequest(string url, string method, string data = "")
+        public virtual DoshiHttpResponceMessages MakeRequest(string url, string method, string data = "")
         {
             //REVIEW: (LIAM) this should use regex to test if it is a correclty formed url
             if (string.IsNullOrWhiteSpace(url))

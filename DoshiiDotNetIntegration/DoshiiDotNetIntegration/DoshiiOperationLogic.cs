@@ -16,12 +16,12 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// holds the class for interacting with the Doshii webSocket connection
         /// </summary>
-        private CommunicationLogic.DoshiiWebSocketsCommunication m_SocketComs = null;
+        public CommunicationLogic.DoshiiWebSocketsCommunication m_SocketComs = null;
 
         /// <summary>
         /// holds the class for interacting with the Doshii http restful api
         /// </summary>
-        private CommunicationLogic.DoshiiHttpCommunication m_HttpComs = null;
+        public CommunicationLogic.DoshiiHttpCommunication m_HttpComs = null;
 
         /// <summary>
         /// holds the interface for doshiis interaction with the pos. 
@@ -169,7 +169,6 @@ namespace DoshiiDotNetIntegration
                 }
                 
             }
-        
             return result;
         }
 
