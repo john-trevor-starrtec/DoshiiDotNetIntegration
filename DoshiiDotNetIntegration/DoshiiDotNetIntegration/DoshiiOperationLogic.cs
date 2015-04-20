@@ -26,27 +26,27 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// holds the interface for doshiis interaction with the pos. 
         /// </summary>
-        internal Interfaces.iDoshiiOrdering m_DoshiiInterface = null;
+        public  Interfaces.iDoshiiOrdering m_DoshiiInterface = null;
 
         /// <summary>
         /// the order mode for the venue
         /// </summary>
-        private Enums.OrderModes OrderMode{ get; set; }
+        public  Enums.OrderModes OrderMode{ get; set; }
 
         /// <summary>
         /// the seating mode for the venue
         /// </summary>
-        private Enums.SeatingModes SeatingMode { get; set; }
+        public  Enums.SeatingModes SeatingMode { get; set; }
         
         /// <summary>
         /// the authentication token for the venue 
         /// </summary>
-        private string AuthorizeToken { get; set; }
+        public  string AuthorizeToken { get; set; }
 
         /// <summary>
         /// holds a value indicating if table allocations should be removed after a full check payment. 
         /// </summary>
-        private bool RemoveTableAllocationsAfterFullPayment { get; set; }
+        public  bool RemoveTableAllocationsAfterFullPayment { get; set; }
 
         /// <summary>
         /// get the current version
@@ -94,7 +94,7 @@ namespace DoshiiDotNetIntegration
         /// the base url for communication with the doshii restfull api (the address should not end in a '/')
         /// </param>
         /// <param name="startWebSocketConnection"></param>
-        public void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, bool removeTableAllocationsAfterFullPayment, int timeOutValueSecs)
+        public virtual void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, bool removeTableAllocationsAfterFullPayment, int timeOutValueSecs)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Version {5} with; {6} sourceUrl: {0}, {6}token {1}, {6}orderMode {2}, {6}seatingMode: {3},{6}BaseUrl: {4}{6}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase, CurrnetVersion(), Environment.NewLine));
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Versioning Info: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase));
@@ -139,7 +139,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="UrlBase"></param>
         /// <param name="StartWebSocketConnection"></param>
         /// <returns></returns>
-        internal bool InitializeProcess(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
+        public virtual bool InitializeProcess(string socketUrl, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Initializing Doshii");
 
@@ -172,15 +172,10 @@ namespace DoshiiDotNetIntegration
             return result;
         }
 
-        public bool CreateTableAllocation(string paypalCustomerId, string tableName)
-        {
-            return m_HttpComs.PostTableAllocation(paypalCustomerId, tableName);
-        }
-
         /// <summary>
         /// refreshes the current consumer checkins, allocations and orders. 
         /// </summary>
-        public void RefreshConsumerData()
+        public virtual void RefreshConsumerData()
         {
             if (m_HttpComs.SetSeatingAndOrderConfiguration(SeatingMode, OrderMode))
             {
@@ -265,7 +260,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        private bool findCurrentConsumer(List<Models.Consumer> consumersList, Models.Consumer currentConsumer)
+        public virtual bool findCurrentConsumer(List<Models.Consumer> consumersList, Models.Consumer currentConsumer)
         {
             bool consumerFound = false;
             foreach (Models.Consumer localCon in consumersList)
@@ -282,7 +277,7 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// subcribs to the socket communication events 
         /// </summary>
-        private void SubscribeToSocketEvents()
+        public virtual void SubscribeToSocketEvents()
         {
             if (m_SocketComs == null)
             {
@@ -306,7 +301,7 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// unsubcribs to the socket communication events 
         /// </summary>
-        private void UnsubscribeFromSocketEvents()
+        public virtual void UnsubscribeFromSocketEvents()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: unscribing from socket events");
             m_SocketComs.ConsumerCheckinEvent -= new CommunicationLogic.DoshiiWebSocketsCommunication.ConsumerCheckInEventHandler(SocketComsConsumerCheckinEventHandler);
@@ -326,7 +321,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SocketComsCheckOutEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs e)
+        public virtual void SocketComsCheckOutEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received comsumer checkout event for consumerId '{0}'", e.ConsumerId));
             if (!string.IsNullOrWhiteSpace(e.ConsumerId))
@@ -340,7 +335,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SocketComsConnectionEventHandler(object sender, EventArgs e)
+        public virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
             RefreshConsumerData();
@@ -351,7 +346,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ScoketComsTimeOutValueReached(object sender, EventArgs e)
+        public virtual void ScoketComsTimeOutValueReached(object sender, EventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: the web sockets connection with the doshii server is not currently available.");
             m_DoshiiInterface.DissociateDoshiiChecks();
@@ -362,25 +357,25 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SocketComsTableAllocationEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
+        public virtual void SocketComsTableAllocationEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
         {
             Models.TableAllocation tableAllocation = new Models.TableAllocation();
             tableAllocation = e.TableAllocation;
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received table allocation event for consumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
             if (m_DoshiiInterface.ConfirmTableAllocation(ref tableAllocation))
             {
-                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: confirming table allocaiton forconsumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: confirming table allocaiton for consumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
                 m_HttpComs.PutTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id);
                 
             }
             else if (tableAllocation.rejectionReason == Enums.TableAllocationRejectionReasons.TableDoesNotExist)
             {
-                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton forconsumer '{0}' and table '{1}' checkInId '{2}' Table dose not exist", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton for consumer '{0}' and table '{1}' checkInId '{2}' Table dose not exist", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
                 m_HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id, tableAllocation.rejectionReason);
             }
             else
             {
-                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton forconsumer '{0}' and table '{1}' checkInId '{2}' Table is occupied", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton for consumer '{0}' and table '{1}' checkInId '{2}' Table is occupied", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
                 m_HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id, tableAllocation.rejectionReason);
             }
         }
@@ -390,7 +385,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SocketComsOrderStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
+        public virtual void SocketComsOrderStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received order status event with status '{0}', for order '{1}'", e.Order.Status, e.Order.ToJsonString()));
             Models.Order returnedOrder = new Models.Order();
@@ -434,7 +429,7 @@ namespace DoshiiDotNetIntegration
                                     {
                                         if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref returnedOrder) && RemoveTableAllocationsAfterFullPayment)
                                         {
-                                            m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId);
+                                            m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
                                         }
                                     }
                                 }
@@ -472,7 +467,7 @@ namespace DoshiiDotNetIntegration
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: SocketComsOrderStatusEventHandler has returned"));
         }
 
-        public bool RequestPaymentForOrder(Models.Order order)
+        public virtual bool RequestPaymentForOrder(Models.Order order)
         {
             Models.Order returnedOrder = new Models.Order();
             order.Status = "waiting for payment";
@@ -501,14 +496,14 @@ namespace DoshiiDotNetIntegration
                     {
                         if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order) && RemoveTableAllocationsAfterFullPayment)
                         {
-                            m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId);
+                            m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
                         }
                     }
                     else
                     {
                         if (m_DoshiiInterface.RecordPartialCheckPayment(ref order) && RemoveTableAllocationsAfterFullPayment)
                         {
-                            m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId);
+                            m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
                         }
                         
                     }
@@ -518,7 +513,7 @@ namespace DoshiiDotNetIntegration
                 {
                     if (m_DoshiiInterface.RecordFullCheckPayment(ref order) && RemoveTableAllocationsAfterFullPayment)
                     {
-                        m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId);
+                        m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
                     }
                 }
                 return true;
@@ -534,7 +529,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SocketComsConsumerCheckinEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
+        public virtual void SocketComsConsumerCheckinEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: checkIn event received for consumer - '{0}' with id '{1}'", e.Consumer.Name, e.Consumer.PaypalCustomerId));
             m_DoshiiInterface.recordCheckedInUser(ref e.Consumer);
@@ -548,7 +543,7 @@ namespace DoshiiDotNetIntegration
         /// This method will return all the products currently in Doshii, if the request fails the failure message will be logged and the products list will be empty. 
         /// </summary>
         /// <returns></returns>
-        public List<Models.Product> GetAllProducts()
+        public virtual List<Models.Product> GetAllProducts()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos requesting all doshii products")); 
             return m_HttpComs.GetDoshiiProducts();
@@ -559,7 +554,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productList"></param>
         /// <returns></returns>
-        public void AddNewProducts(List<Models.Product> productList)
+        public virtual void AddNewProducts(List<Models.Product> productList)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos adding new product list- '{0}'", JsonConvert.SerializeObject(productList))); 
             try
@@ -588,7 +583,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="productToUpdate"></param>
         /// <param name="deleteAllProductsCurrentlyOnDoshii"></param>
         /// <returns></returns>
-        internal void AddNewProducts(Models.Product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
+        public virtual void AddNewProducts(Models.Product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
         {
             List<Models.Product> productList = new List<Models.Product>();
             productList.Add(productToUpdate);
@@ -608,7 +603,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productToUpdate"></param>
         /// <returns></returns>
-        public void UpdateProcuct(Models.Product productToUpdate)
+        public virtual void UpdateProcuct(Models.Product productToUpdate)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos updating product - '{0}'", productToUpdate.ToJsonStringForProductSync()));
             try
@@ -627,7 +622,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productList"></param>
         /// <returns></returns>
-        public void DeleteProducts(List<string> productIdList)
+        public virtual void DeleteProducts(List<string> productIdList)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting product list- '{0}'", JsonConvert.SerializeObject(productIdList)));
             try
@@ -649,7 +644,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
-        internal void DeleteProduct(string productId)
+        public virtual void DeleteProduct(string productId)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting product from doshii - '{0}'", productId));
             try
@@ -667,7 +662,7 @@ namespace DoshiiDotNetIntegration
         /// deletes all the products from doshii
         /// </summary>
         /// <returns></returns>
-        public void DeleteAllProducts()
+        public virtual void DeleteAllProducts()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting all products from doshii"));
             try
@@ -689,7 +684,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        public Models.Order GetOrder(string orderId)
+        public virtual Models.Order GetOrder(string orderId)
         {
             try
             {
@@ -710,7 +705,7 @@ namespace DoshiiDotNetIntegration
         /// The order must contain all the products included in the check as this method overwrites all the items recorded on doshii for this check. 
         /// </param>
         /// <returns></returns>
-        public Models.Order UpdateOrder(Models.Order order)
+        public virtual Models.Order UpdateOrder(Models.Order order)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", order.ToJsonString()));
             if (OrderMode == Enums.OrderModes.BistroMode)
@@ -772,7 +767,7 @@ namespace DoshiiDotNetIntegration
         /// This is not currently implemented as doshii can't currently respond to the payment with success or failure. 
         /// </summary>
         /// <returns></returns>
-        private bool AddPayment(Models.Order order)
+        public virtual bool AddPayment(Models.Order order)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos adding payment to order - '{0}'", order.ToJsonString()));
             if (OrderMode == Enums.OrderModes.BistroMode)
@@ -792,7 +787,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="paypalCustomerId"></param>
         /// <returns></returns>
-        public Models.Consumer GetConsumer(string paypalCustomerId)
+        public virtual Models.Consumer GetConsumer(string paypalCustomerId)
         {
             try
             {
@@ -815,7 +810,7 @@ namespace DoshiiDotNetIntegration
         /// the name of the table to be allocated.
         /// </param>
         /// <returns></returns>
-        public void SetTableAllocation(string customerId, string tableName)
+        public virtual void SetTableAllocation(string customerId, string tableName)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos allocating table for customerId - '{0}', table '{1}'", customerId, tableName));
             try
@@ -829,7 +824,7 @@ namespace DoshiiDotNetIntegration
             
         }
 
-        public void DeleteTableAllocation(string customerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
+        public virtual void DeleteTableAllocation(string customerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for customerId - '{0}', table '{1}'", customerId, tableName));
             try
@@ -848,7 +843,7 @@ namespace DoshiiDotNetIntegration
         /// returns a list of all the consumers currently in doshii. 
         /// </summary>
         /// <returns></returns>
-        public List<Models.Consumer> GetCheckedInConsumersFromDoshii()
+        public virtual List<Models.Consumer> GetCheckedInConsumersFromDoshii()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos requesting all checked in users"));
             try

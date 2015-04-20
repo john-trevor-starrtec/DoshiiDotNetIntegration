@@ -18,6 +18,8 @@ namespace DoshiiDotNetIntegration.Enums
 
         ConcurrencyIssueWithPos = 4,
 
-        tableDoesNotHaveATab = 5
+        tableDoesNotHaveATab = 5,
+
+        tableHasBeenPaid = 6
     }
 }

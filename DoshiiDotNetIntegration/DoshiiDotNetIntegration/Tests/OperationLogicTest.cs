@@ -23,6 +23,11 @@ namespace DoshiiDotNetIntegration.Tests
         int socketTimeOutSecs;
         CommunicationLogic.DoshiiHttpCommunication m_httpComs;
 
+        string TestBaseUrl = "TestUrl";
+        string TestCustomerId = "TestCustomerId";
+        string TestTableNumber = "TestTableNumber";
+        string TestToken = "TestToken";
+
 
         [SetUp]
         public void Init()
@@ -39,7 +44,7 @@ namespace DoshiiDotNetIntegration.Tests
             startWebSocketsConnection = false;
             removeTableAllocationsAfterPayment = false;
             socketTimeOutSecs = 600;
-
+            operationLogic.m_HttpComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiHttpCommunication>(TestBaseUrl, operationLogic, TestToken);
         }
         
         [Test]
@@ -71,31 +76,22 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        public void createTableAllocation_CorrectData()
+        public void createTableAllocation_WhenProvidedCorrectParams_ShouldCallPostTableAllocation()
         {
-            //Arrange
-            var mocker = new MockRepository();
-            m_httpComs = mocker.CreateMock<CommunicationLogic.DoshiiHttpCommunication>("xyz", operationLogic, "test");
-            m_httpComs.Stub(x => x.MakeRequest("test", "test", "")).Return(new CommunicationLogic.DoshiHttpResponceMessages { Status = System.Net.HttpStatusCode.OK, Data = "", ErrorMessage = "", Message = "", StatusDescription = "ok"});
+            operationLogic.m_HttpComs.Expect(x => x.PostTableAllocation(TestCustomerId, TestTableNumber)).Return(true);
 
-            //m_httpComs.Expect(x => x.PostTableAllocation("test", "test")).IgnoreArguments().Return(true);
-            m_httpComs.Expect(x => x.MakeRequest("test", "test", "")).Return(new CommunicationLogic.DoshiHttpResponceMessages { Status = System.Net.HttpStatusCode.OK, Data = "", ErrorMessage = "", Message = "", StatusDescription = "ok" });
+            operationLogic.SetTableAllocation(TestCustomerId, TestTableNumber);
 
-            operationLogic.m_HttpComs = m_httpComs;
-            //Act
-            mocker.ReplayAll();
-            operationLogic.CreateTableAllocation("TestCustomerId", "tableNo");
-            
-            //Assert
-            IList<object[]> argumentsSentPostTableAllocation = m_httpComs.GetArgumentsForCallsMadeOn(x => x.PostTableAllocation("test", "test"));
-            var call1Arg1 = (string)argumentsSentPostTableAllocation[0][0];
-            var call1Arg2 = (string)argumentsSentPostTableAllocation[0][1];
-
-
-            Assert.AreEqual("CustomerId", call1Arg1);
-            Assert.AreEqual("tableNo", call1Arg2);
+            operationLogic.m_HttpComs.VerifyAllExpectations();
         }
 
 
+
+
+        [Test]
+        public void Test_RefreshConsumerData()
+        {
+            //dont know how to test yet. 
+        }
     }
 }

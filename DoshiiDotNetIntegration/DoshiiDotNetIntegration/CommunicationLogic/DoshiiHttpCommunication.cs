@@ -10,11 +10,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 {
     public class DoshiiHttpCommunication 
     {
-        private string m_DoshiiUrlBase;
+        public  string m_DoshiiUrlBase;
 
-        private DoshiiOperationLogic m_DoshiiLogic;
+        public  DoshiiOperationLogic m_DoshiiLogic;
 
-        private string m_Token;
+        public  string m_Token;
 
         /// <summary>
         /// constructor
@@ -49,7 +49,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             
         }
 
-        #region internal methods 
+        #region public  methods 
 
         #region checkin and allocate methods
 
@@ -58,7 +58,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="customerPayPalId"></param>
         /// <returns></returns>
-        internal Models.Consumer GetConsumer(string customerPayPalId)
+        public virtual Models.Consumer GetConsumer(string customerPayPalId)
         {
                 
             Models.Consumer retreivedConsumer = new Models.Consumer();
@@ -104,7 +104,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// get all the customers currently checkedIn with doshii, if no customers are returned en empty list is returned. 
         /// </summary>
         /// <returns></returns>
-        internal List<Models.Consumer> GetConsumers()
+        public virtual List<Models.Consumer> GetConsumers()
         {
 
             List<Models.Consumer> retreivedConsumerList = new List<Models.Consumer>();
@@ -151,7 +151,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        internal Models.Order GetOrder(string orderId)
+        public virtual Models.Order GetOrder(string orderId)
         {
             Models.Order retreivedOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
@@ -196,7 +196,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// gets all the current active orders in doshii, if there are no active orders an empty list is returned. 
         /// </summary>
         /// <returns></returns>
-        internal List<Models.Order> GetOrders()
+        public virtual List<Models.Order> GetOrders()
         {
             List<Models.Order> retreivedOrderList = new List<Models.Order>();
             DoshiHttpResponceMessages responseMessage;
@@ -241,7 +241,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// gets all the current active table allocations in doshii, if there are no current active table allocations an enpty list is returned. 
         /// </summary>
         /// <returns></returns>
-        internal List<Models.TableAllocation> GetTableAllocations()
+        public virtual List<Models.TableAllocation> GetTableAllocations()
         {
             List<Models.TableAllocation> tableAllocationList = new List<Models.TableAllocation>();
             DoshiHttpResponceMessages responseMessage;
@@ -287,7 +287,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="consumerId"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        internal bool PutTableAllocation(string consumerId, string tableName)
+        public virtual bool PutTableAllocation(string consumerId, string tableName)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -320,7 +320,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="consumerId"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        internal bool PostTableAllocation(string consumerId, string tableName)
+        public virtual bool PostTableAllocation(string consumerId, string tableName)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -361,7 +361,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// true = successfully removed
         /// false = not removed. 
         /// </returns>
-        internal bool RemoveTableAllocation(string consumerId, string tableName, string rejectionReason)
+        public virtual bool RemoveTableAllocation(string consumerId, string tableName, string rejectionReason)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -400,14 +400,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="tableName"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        internal bool DeleteTableAllocationWithCheckInId(string checkInId)
+        public virtual bool DeleteTableAllocationWithCheckInId(string checkInId, Enums.TableAllocationRejectionReasons rejectionReasons)
         {
 
             bool success = false;
+            
             DoshiHttpResponceMessages responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.DeleteAllocationWithCheckInId, checkInId), "DELETE");
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.DeleteAllocationWithCheckInId, checkInId), "DELETE", SerializeTableDeAllocationRejectionReason(rejectionReasons));
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -441,7 +442,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="tableName"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        internal bool SetSeatingAndOrderConfiguration(Enums.SeatingModes seatingMode, Enums.OrderModes orderMode)
+        public virtual bool SetSeatingAndOrderConfiguration(Enums.SeatingModes seatingMode, Enums.OrderModes orderMode)
         {
 
             bool success = false;
@@ -498,18 +499,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return success;
         }
 
-        /// <summary>
-        /// rejects a table allocation doshii has sent for approval. 
-        /// </summary>
-        /// <param name="consumerId"></param>
-        /// <param name="tableName"></param>
-        /// <param name="tableAllocation"></param>
-        /// <returns></returns>
-        internal bool RejectTableAllocation(string consumerId, string tableName, Enums.TableAllocationRejectionReasons rejectionReason)
+        public virtual string SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons rejectionReason)
         {
-            
-            bool success = false;
-            DoshiHttpResponceMessages responseMessage;
             string reasonCodeString = "";
             switch (rejectionReason)
             {
@@ -528,7 +519,27 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case Enums.TableAllocationRejectionReasons.tableDoesNotHaveATab:
                     reasonCodeString = "{\"reasonCode\" : \"5\"}";
                     break;
+                case Enums.TableAllocationRejectionReasons.tableHasBeenPaid:
+                    reasonCodeString = "{\"reasonCode\" : \"6\"}";
+                    break;
             }
+            return reasonCodeString;
+        }
+        
+        /// <summary>
+        /// rejects a table allocation doshii has sent for approval. 
+        /// </summary>
+        /// <param name="consumerId"></param>
+        /// <param name="tableName"></param>
+        /// <param name="tableAllocation"></param>
+        /// <returns></returns>
+        public virtual bool RejectTableAllocation(string consumerId, string tableName, Enums.TableAllocationRejectionReasons rejectionReason)
+        {
+            
+            bool success = false;
+            DoshiHttpResponceMessages responseMessage;
+            string reasonCodeString = SerializeTableDeAllocationRejectionReason(rejectionReason);
+            
             try
             {
                 responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "DELETE", reasonCodeString);
@@ -565,7 +576,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// if the request is not successfull a new order will be returned - you can check the order.Id in the returned order to confirm it is a valid responce. 
         /// </returns>
-        internal Models.Order PutOrder(Models.Order order)
+        public virtual Models.Order PutOrder(Models.Order order)
         {
             Models.Order returnOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
@@ -640,7 +651,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        internal Models.Order PostOrder(Models.Order order)
+        public virtual Models.Order PostOrder(Models.Order order)
         {
             Models.Order returnOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
@@ -712,7 +723,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// gets all the products currently uploaded to doshii. 
         /// </summary>
         /// <returns></returns>
-        internal List<Models.Product> GetDoshiiProducts()
+        public  List<Models.Product> GetDoshiiProducts()
         {
             DoshiHttpResponceMessages responseMessage;
             try
@@ -759,7 +770,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// This will return true unless there was an exception, as the doshii web service will return an error responce if we attempt to delete an item that doesn't exist, we should ignore this error. 
         /// </returns>
-        internal bool DeleteProductData(string productId = "")
+        public  bool DeleteProductData(string productId = "")
         {
             bool success = true;
             try
@@ -815,7 +826,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="productToPost"></param>
         /// <param name="isNewProduct"></param>
         /// <returns></returns>
-        internal bool PostProductData(Models.Product productToPost, bool isNewProduct)
+        public  bool PostProductData(Models.Product productToPost, bool isNewProduct)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -871,7 +882,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="productListToPost"></param>
         /// <param name="clearCurrentMenu"></param>
         /// <returns></returns>
-        internal bool PostProductData(List<Models.Product> productListToPost, bool clearCurrentMenu)
+        public  bool PostProductData(List<Models.Product> productListToPost, bool clearCurrentMenu)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -925,7 +936,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="productToPost"></param>
         /// <returns></returns>
-        internal bool PutProductData(Models.Product productToPost)
+        public  bool PutProductData(Models.Product productToPost)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -971,7 +982,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="purpose"></param>
         /// <param name="identification"></param>
         /// <returns></returns>
-        private string GenerateUrl(Enums.EndPointPurposes purpose, string identification = "", string tableName = "")
+        public virtual string GenerateUrl(Enums.EndPointPurposes purpose, string identification = "", string tableName = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
             if (string.IsNullOrWhiteSpace(m_DoshiiUrlBase))

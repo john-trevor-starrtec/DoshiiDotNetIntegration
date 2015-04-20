@@ -22,7 +22,7 @@ namespace DoshiiDotNetIntegration.Models
         public string Id { get; set; }
 
         /// <summary>
-        /// The internal Id of the product
+        /// The public  Id of the product
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "pos_id")]
@@ -121,7 +121,7 @@ namespace DoshiiDotNetIntegration.Models
             return false;
         }
 
-        private bool SerializeRejectionReason = false;
+        public  bool SerializeRejectionReason = false;
 
         public bool ShouldSerializeRejectionReason()
         {
@@ -151,7 +151,7 @@ namespace DoshiiDotNetIntegration.Models
             return base.ToJsonString();
         }
 
-        private void SetSerializeForOrderForProductOptions(bool isForOrder)
+        public  void SetSerializeForOrderForProductOptions(bool isForOrder)
         {
             foreach (ProductOptions po in ProductOptions)
             {

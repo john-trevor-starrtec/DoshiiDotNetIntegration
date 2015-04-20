@@ -19,86 +19,86 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <summary>
         /// web socket object that will handle all the communications with doshii
         /// </summary>
-        private WebSocket m_WebSocketsConnection = null;
+        public  WebSocket m_WebSocketsConnection = null;
 
         /// <summary>
         /// a doshii logic instance
         /// </summary>
-        private DoshiiOperationLogic m_DoshiiLogic;
+        public  DoshiiOperationLogic m_DoshiiLogic;
 
         /// <summary>
         /// A thread to send heartbeat socketmessage to doshii. 
         /// </summary>
-        private Thread m_HeartBeatThread = null;
+        public  Thread m_HeartBeatThread = null;
 
         /// <summary>
         /// This will hold the value for the last connected time so that there are not many connections established after the connection drops out. 
         /// </summary>
-        private DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
+        public  DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
 
         /// <summary>
         /// this is used to hold the timeout value for the scoket connection being unable to connect to the server.
         /// </summary>
-        private int m_SocketConnectionTimeOutValue;
+        public  int m_SocketConnectionTimeOutValue;
 
         /// <summary>
         /// this is used to calculate if the last successfull cosket connection is within the timeOut range. 
         /// </summary>
-        private DateTime m_LastSuccessfullSocketMessageTime;
+        public  DateTime m_LastSuccessfullSocketMessageTime;
 
         #endregion
 
-        #region internal methods and events
+        #region public  methods and events
 
         #region events
 
-        internal delegate void CreatedOrderEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        public  delegate void CreatedOrderEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
         /// <summary>
         /// event will be raised when a new order is created on doshii
         /// </summary>
-        internal event CreatedOrderEventHandler CreateOrderEvent;
+        public  event CreatedOrderEventHandler CreateOrderEvent;
         
-        internal delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        public  delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
         /// <summary>
         /// event will be raised when the state of an order has changed through doshii
         /// </summary>
-        internal event OrderStatusEventHandler OrderStatusEvent;
+        public  event OrderStatusEventHandler OrderStatusEvent;
         
-        internal delegate void ConsumerCheckInEventHandler(object sender, CommunicationEventArgs.CheckInEventArgs e);
+        public  delegate void ConsumerCheckInEventHandler(object sender, CommunicationEventArgs.CheckInEventArgs e);
         /// <summary>
         /// event will be raised when a consumer checks in through doshii
         /// </summary>
-        internal event ConsumerCheckInEventHandler ConsumerCheckinEvent;
+        public  event ConsumerCheckInEventHandler ConsumerCheckinEvent;
         
-        internal delegate void TableAllocationEventHandler(object sender, CommunicationEventArgs.TableAllocationEventArgs e);
+        public  delegate void TableAllocationEventHandler(object sender, CommunicationEventArgs.TableAllocationEventArgs e);
         /// <summary>
         /// event will be raised when a table allocaiton event occurs through doshii
         /// </summary>
-        internal event TableAllocationEventHandler TableAllocationEvent;
+        public  event TableAllocationEventHandler TableAllocationEvent;
         
-        internal delegate void CheckOutEventHandler(object sender, CommunicationEventArgs.CheckOutEventArgs e);
+        public  delegate void CheckOutEventHandler(object sender, CommunicationEventArgs.CheckOutEventArgs e);
         /// <summary>
         /// event will be raised when a consumer is checked out from doshii
         /// </summary>
-        internal event CheckOutEventHandler CheckOutEvent;
+        public  event CheckOutEventHandler CheckOutEvent;
         
-        internal delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
+        public  delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
         /// <summary>
         /// event will be raised when the socket communication with doshii are opened. 
         /// </summary>
-        internal event SocketCommunicationEstablishedEventHandler SocketCommunicationEstablishedEvent;
+        public  event SocketCommunicationEstablishedEventHandler SocketCommunicationEstablishedEvent;
 
-        internal delegate void SocketCommunicationTimeoutReachedEventHandler(object sender, EventArgs e);
+        public  delegate void SocketCommunicationTimeoutReachedEventHandler(object sender, EventArgs e);
         /// <summary>
         /// event will be raised when the socket communication with doshii are opened. 
         /// </summary>
-        internal event SocketCommunicationTimeoutReachedEventHandler SocketCommunicationTimeoutReached;
+        public  event SocketCommunicationTimeoutReachedEventHandler SocketCommunicationTimeoutReached;
 
         #endregion
 
         #region methods
 
-        internal void ClostSocketConnection()
+        public virtual void ClostSocketConnection()
         {
             m_WebSocketsConnection.Close();
         }
@@ -108,7 +108,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="webSocketUrl"></param>
         /// <param name="doshii"></param>
-        internal DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiOperationLogic doshii, int socketConnectionTimeOutValue)
+        public DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiOperationLogic doshii, int socketConnectionTimeOutValue)
         {
             if (doshii == null)
             {
@@ -139,26 +139,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// initalizes the webScoket communication with doshii
         /// this method should not be called until the events emitted from this class are subscribed to. 
         /// </summary>
-        internal void Initialize()
+        public virtual void Initialize()
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("initializing doshii websocket connection"));
             Connect();
         }
 
-        //internal void StopHeartbeatThread()
-        //{
-        //    if (m_HeartBeatThread == null)
-        //    {
-        //        if (!m_HeartBeatThread.IsAlive)
-        //        {
-        //            m_HeartBeatThread.Abort();
-        //        }
-        //        m_HeartBeatThread = null;
-        //    }
-            
-        //}
-        
-        internal void StartHeartbeatThread()
+        public virtual void StartHeartbeatThread()
         {
             if (m_HeartBeatThread == null)
             {
@@ -172,7 +159,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             
         }
 
-        private void SetLastConnectionAttemptTime()
+        public virtual void SetLastConnectionAttemptTime()
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Setting last connection attempt time: {0}", DateTime.Now.ToString())); 
             m_LastConnectionAttemptTime = DateTime.Now;
@@ -181,7 +168,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <summary>
         /// attempts to open a websockets connection with doshii
         /// </summary>
-        private void Connect()
+        public virtual void Connect()
         {
             if (m_WebSocketsConnection != null && !m_WebSocketsConnection.IsAlive)
             {
@@ -211,7 +198,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// this should not be used for anything other than heartbeats as the pos does not communication with Doshii though web sockets, the pos uses http for sending messages to doshii. 
         /// </summary>
         /// <param name="message"></param>
-        private void SendMessage(string message)
+        public virtual void SendMessage(string message)
         {
             try
             {
@@ -231,7 +218,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <summary>
         /// sends a heart beat message to doshii every ten seconds. 
         /// </summary>
-        private void HeartBeatChecker()
+        public virtual void HeartBeatChecker()
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Starting web Socket heartbeat thread"));
             while (true)
@@ -267,7 +254,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
+        public virtual void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the websockets connection to {0} the error was {1}", m_WebSocketsConnection.Url.ToString(), e.Message));
             //StopHeartbeatThread();
@@ -282,7 +269,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
+        public virtual void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
             DoshiiDotNetIntegration.Models.SocketMessage theMessage = new Models.SocketMessage();
@@ -402,7 +389,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
+        public virtual void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
         {
             //StopHeartbeatThread();
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection to {0} closed", m_WebSocketsConnection.Url.ToString()));
@@ -415,7 +402,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
+        public virtual void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection successfully open to {0}", m_WebSocketsConnection.Url.ToString()));
@@ -425,12 +412,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #endregion
 
-        private void SetLastSuccessfullSocketCommunicationTime()
+        public virtual void SetLastSuccessfullSocketCommunicationTime()
         {
             m_LastSuccessfullSocketMessageTime = DateTime.Now;
         }
 
-        private bool TestTimeOutValue()
+        public virtual bool TestTimeOutValue()
         {
             if (m_LastSuccessfullSocketMessageTime.AddSeconds((double)m_SocketConnectionTimeOutValue) < DateTime.Now)
             {

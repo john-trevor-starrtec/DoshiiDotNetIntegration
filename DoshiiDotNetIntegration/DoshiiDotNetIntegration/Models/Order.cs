@@ -83,7 +83,7 @@ namespace DoshiiDotNetIntegration.Models
         [JsonProperty(PropertyName = "notPayingTotal")]
         public string NotPayingTotal { get; set; }
 
-        private List<Product> _items;
+        public  List<Product> _items;
         
         /// <summary>
         /// a list of all the items included in the order. 
@@ -102,7 +102,7 @@ namespace DoshiiDotNetIntegration.Models
             set { _items = value; } 
         }
 
-        private List<Surcount> _surcounts;
+        public  List<Surcount> _surcounts;
 
         /// <summary>
         /// a list of all surcounts applied at and order level
@@ -122,7 +122,7 @@ namespace DoshiiDotNetIntegration.Models
             set { _surcounts = value; }
         }
 
-        private List<Payment> _payments;
+        public  List<Payment> _payments;
         /// <summary>
         /// a list of all payments applied at and order level
         /// </summary>

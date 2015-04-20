@@ -36,7 +36,7 @@ namespace DoshiiDotNetIntegration.Models
         public int Max { get; set; }
 
         /// <summary>
-        /// the internal pos identifier for this product list. 
+        /// the public  pos identifier for this product list. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "pos_id")]
@@ -52,7 +52,7 @@ namespace DoshiiDotNetIntegration.Models
 
         #region serialization methods 
 
-        private bool SerializeSelected = false;
+        public  bool SerializeSelected = false;
 
         public bool ShouldSerializeSelected()
         {

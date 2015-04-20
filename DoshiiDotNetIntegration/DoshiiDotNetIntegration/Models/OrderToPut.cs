@@ -12,42 +12,42 @@ namespace DoshiiDotNetIntegration.Models
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class OrderToPut : JsonSerializationBase<Checkin>
+    public  class OrderToPut : JsonSerializationBase<Checkin>
     {
         /// <summary>
         /// the order status
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "status")]
-        internal string Status { get; set; }
+        public  string Status { get; set; }
         
         /// <summary>
         /// the last time the order was updated. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "updatedAt")]
-        internal string UpdatedAt { get; set; }
+        public  string UpdatedAt { get; set; }
         
         /// <summary>
         /// all the items included in the order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]
-        internal List<Product> Items { get; set; }
+        public  List<Product> Items { get; set; }
 
         /// <summary>
         /// a list of all surcounts applied at and order level
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "surcounts")]
-        internal List<Surcount> Surcounts { get; set; }
+        public  List<Surcount> Surcounts { get; set; }
 
         /// <summary>
         /// a list of all payments applied at and order level
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "payments")]
-        internal List<Payment> Payments { get; set; }
+        public  List<Payment> Payments { get; set; }
 
         public string ToJsonStringForOrder()
         {

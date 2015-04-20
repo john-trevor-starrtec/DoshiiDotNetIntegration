@@ -8,7 +8,7 @@ namespace DoshiiDotNetIntegration.Enums
     /// <summary>
     /// the possible actions for communication with the doshii restful api
     /// </summary>
-    internal enum EndPointPurposes
+    public enum EndPointPurposes
     {
         /// <summary>
         /// requests about products
