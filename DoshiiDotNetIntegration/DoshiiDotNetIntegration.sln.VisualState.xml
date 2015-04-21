@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ShowCheckBoxes="false">
+  <TopNode>[0-1000]C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration.sln</TopNode>
+  <SelectedNode>[0-1000]C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration.sln</SelectedNode>
+  <ExcludeCategories>false</ExcludeCategories>
+  <Nodes>
+    <Node UniqueName="[0-1000]C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration.sln" Expanded="true" />
+    <Node UniqueName="[0-1014]C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.dll" Expanded="true" />
+    <Node UniqueName="[0-1015]DoshiiDotNetIntegration" Expanded="true" />
+    <Node UniqueName="[0-1016]DoshiiDotNetIntegration.Tests" Expanded="true" />
+    <Node UniqueName="[0-1001]DoshiiDotNetIntegration.Tests.OperationLogicTest" Expanded="true" />
+  </Nodes>
+</VisualState>

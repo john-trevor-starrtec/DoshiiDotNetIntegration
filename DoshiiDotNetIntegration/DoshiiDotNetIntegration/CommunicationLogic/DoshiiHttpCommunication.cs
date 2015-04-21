@@ -543,29 +543,27 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, consumerId, tableName), "DELETE", reasonCodeString);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-            
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
+                if (responseMessage != null)
                 {
-                    success = true;
+                    if (responseMessage.Status == HttpStatusCode.OK)
+                    {
+                        success = true;
+                    }
+                    else
+                    {
+                        success = false;
+                    }
                 }
                 else
                 {
                     success = false;
                 }
             }
-            else
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
-                success = false;
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: there was an exception rejecting a table allocation with doshii", rex));
             }
-
+           
             return success;
         }
 

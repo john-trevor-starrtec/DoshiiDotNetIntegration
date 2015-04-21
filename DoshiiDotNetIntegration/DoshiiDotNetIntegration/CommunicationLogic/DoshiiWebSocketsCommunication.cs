@@ -348,14 +348,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.OrderEventArgs createOrderEventArgs = new CommunicationEventArgs.OrderEventArgs();
                     createOrderEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
                     createOrderEventArgs.OrderId = messageData.OrderId;
-                    createOrderEventArgs.status = messageData.Status;    
+                    createOrderEventArgs.Status = messageData.Status;    
                     CreateOrderEvent(this, createOrderEventArgs);
                     break;
                 case "order_status":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
                     orderStatusEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
                     orderStatusEventArgs.OrderId = messageData.OrderId;
-                    orderStatusEventArgs.status = messageData.Status;    
+                    orderStatusEventArgs.Status = messageData.Status;    
                 
                     OrderStatusEvent(this, orderStatusEventArgs);
                     break;

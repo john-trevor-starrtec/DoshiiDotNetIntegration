@@ -20,6 +20,8 @@ namespace DoshiiDotNetIntegration.Enums
 
         tableDoesNotHaveATab = 5,
 
-        tableHasBeenPaid = 6
+        tableHasBeenPaid = 6,
+
+        unknownError = 7
     }
 }

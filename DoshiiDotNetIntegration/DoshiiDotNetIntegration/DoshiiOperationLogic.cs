@@ -132,6 +132,7 @@ namespace DoshiiDotNetIntegration
 
         /// <summary>
         /// starts the http and socket communications
+        /// not tested
         /// </summary>
         /// <param name="socketUrl"></param>
         /// <param name="orderMode"></param>
@@ -174,6 +175,7 @@ namespace DoshiiDotNetIntegration
 
         /// <summary>
         /// refreshes the current consumer checkins, allocations and orders. 
+        /// not tested
         /// </summary>
         public virtual void RefreshConsumerData()
         {
@@ -249,7 +251,7 @@ namespace DoshiiDotNetIntegration
                         CommunicationLogic.CommunicationEventArgs.OrderEventArgs args = new CommunicationLogic.CommunicationEventArgs.OrderEventArgs();
                         args.Order = orderToConfirm;
                         args.OrderId = orderToConfirm.Id.ToString();
-                        args.status = orderToConfirm.Status;
+                        args.Status = orderToConfirm.Status;
                         SocketComsOrderStatusEventHandler(this, args);
                     }
                 }
@@ -276,6 +278,7 @@ namespace DoshiiDotNetIntegration
 
         /// <summary>
         /// subcribs to the socket communication events 
+        /// not tested
         /// </summary>
         public virtual void SubscribeToSocketEvents()
         {
@@ -359,13 +362,21 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         public virtual void SocketComsTableAllocationEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
         {
-            Models.TableAllocation tableAllocation = new Models.TableAllocation();
-            tableAllocation = e.TableAllocation;
+            Models.TableAllocation tableAllocation = e.TableAllocation;
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received table allocation event for consumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
             if (m_DoshiiInterface.ConfirmTableAllocation(ref tableAllocation))
             {
                 m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: confirming table allocaiton for consumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
-                m_HttpComs.PutTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id);
+                try
+                {
+                    m_HttpComs.PutTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id);
+                }
+                catch(Exception ex)
+                {
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting the table allocaiton to Doshii, {0}", ex));
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: rejecting table allocaiton for consumer '{0}' and table '{1}' checkInId '{2}' Table is occupied", e.TableAllocation.PaypalCustomerId, e.TableAllocation.Name, e.TableAllocation.Id));
+                    m_HttpComs.RejectTableAllocation(tableAllocation.PaypalCustomerId, tableAllocation.Id, Enums.TableAllocationRejectionReasons.unknownError);
+                }
                 
             }
             else if (tableAllocation.rejectionReason == Enums.TableAllocationRejectionReasons.TableDoesNotExist)
@@ -397,8 +408,8 @@ namespace DoshiiDotNetIntegration
                     break;
                 
                 case "ready to pay":
-                    m_DoshiiInterface.ConfirmOrderTotalsBeforePaymentRestaurantMode(ref e.Order);
                     m_DoshiiInterface.RecordOrderUpdatedAtTime(e.Order);
+                    m_DoshiiInterface.ConfirmOrderTotalsBeforePaymentRestaurantMode(ref e.Order);
                     RequestPaymentForOrder(e.Order);
                     break;
                 case "new":

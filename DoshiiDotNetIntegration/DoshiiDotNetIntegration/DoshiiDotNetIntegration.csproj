@@ -105,6 +105,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Tests\GenerateObjectsAndStringHelper.cs" />
     <Compile Include="Tests\OperationLogicTest.cs" />
   </ItemGroup>
   <ItemGroup>
