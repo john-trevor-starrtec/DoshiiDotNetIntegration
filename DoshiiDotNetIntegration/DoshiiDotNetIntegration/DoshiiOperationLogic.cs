@@ -205,7 +205,6 @@ namespace DoshiiDotNetIntegration
 
                         newCheckinEventArgs.Consumer = m_HttpComs.GetConsumer(doshiiCon.PaypalCustomerId);
 
-                        //newCheckinEventArgs.Consumer.CheckInId = doshiiCon.CheckInId;
                         newCheckinEventArgs.CheckIn = newCheckinEventArgs.Consumer.CheckInId;
                         newCheckinEventArgs.PaypalCustomerId = doshiiCon.PaypalCustomerId;
                         newCheckinEventArgs.Uri = newCheckinEventArgs.Consumer.PhotoUrl;
@@ -242,7 +241,6 @@ namespace DoshiiDotNetIntegration
                 List<Models.Order> initialOrderList = m_HttpComs.GetOrders();
                 foreach (Models.Order order in initialOrderList)
                 {
-                    
                     if (order.Status == "pending" || order.Status == "ready to pay" || order.Status == "cancelled")
                     {
                         m_DoshiiInterface.RecordOrderUpdatedAtTime(order);

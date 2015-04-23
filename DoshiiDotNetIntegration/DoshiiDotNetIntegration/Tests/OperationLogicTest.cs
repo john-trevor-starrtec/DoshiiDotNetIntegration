@@ -21,17 +21,15 @@ namespace DoshiiDotNetIntegration.Tests
         bool startWebSocketsConnection;
         bool removeTableAllocationsAfterPayment;
         int socketTimeOutSecs = 600;
-        CommunicationLogic.DoshiiHttpCommunication m_httpComs;
+        DoshiiOperationLogic mockOperationLogic;
 
         
-
-
         [SetUp]
         public void Init()
         {
             orderingInterface = MockRepository.GenerateMock<Interfaces.iDoshiiOrdering>();
             operationLogic = new DoshiiOperationLogic(orderingInterface);
-            
+            mockOperationLogic = MockRepository.GeneratePartialMock<DoshiiOperationLogic>(orderingInterface);
 
             socketUrl = "wss://alpha.corp.doshii.co/pos/api/v1/socket";
             token = "QGkXTui42O5VdfSFid_nrFZ4u7A";
@@ -42,6 +40,10 @@ namespace DoshiiDotNetIntegration.Tests
             removeTableAllocationsAfterPayment = false;
             socketTimeOutSecs = 600;
             operationLogic.m_HttpComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
+            operationLogic.m_SocketComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TextSocketUrl, operationLogic, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            mockOperationLogic.m_HttpComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
+            mockOperationLogic.m_SocketComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TextSocketUrl, operationLogic, GenerateObjectsAndStringHelper.TestTimeOutValue);
+        
         }
         
         [Test]
@@ -107,7 +109,6 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsConnectionEventHandler_shouldCallRefreshConsumerData()
         {
-            var mockOperationLogic = MockRepository.GeneratePartialMock<DoshiiOperationLogic>(orderingInterface);
             mockOperationLogic.Expect(x => x.RefreshConsumerData()).IgnoreArguments();
 
             mockOperationLogic.SocketComsConnectionEventHandler(new Object(), new EventArgs());
@@ -176,7 +177,6 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_CancelledStatus_ShouldCallRecordOrderUpdatedAtTime_AndConfirmOrderTotalsBeforePaymentRestaurantMode_AndRequestPaymentForOrder()
         {
-            var mockOperationLogic = MockRepository.GeneratePartialMock<DoshiiOperationLogic>(orderingInterface);
             var order = GenerateObjectsAndStringHelper.GenerateOrder();
             order.Status = "ready to pay";
 
@@ -594,8 +594,7 @@ namespace DoshiiDotNetIntegration.Tests
             var productNoList = new List<string>();
             productNoList.Add("one");
             productNoList.Add("two");
-            var mockOperationLogic = MockRepository.GeneratePartialMock<DoshiiOperationLogic>(orderingInterface);
-
+            
             mockOperationLogic.Expect(x => x.DeleteProduct(productNoList[0])).Repeat.Once();
             mockOperationLogic.Expect(x => x.DeleteProduct(productNoList[0])).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
@@ -779,6 +778,153 @@ namespace DoshiiDotNetIntegration.Tests
             operationLogic.GetCheckedInConsumersFromDoshii();
 
             operationLogic.m_HttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void RefreshConsumerData_SetSeatingAndOrderConfigurationFails()
+        {
+            operationLogic.SeatingMode = Enums.SeatingModes.DoshiiAllocation;
+            operationLogic.OrderMode = Enums.OrderModes.BistroMode;
+            operationLogic.m_HttpComs.Expect(x => x.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation,Enums.OrderModes.BistroMode)).Return(false).Repeat.Once();
+            operationLogic.m_SocketComs.Expect(x => x.CloseSocketConnection()).Repeat.Once();
+
+            operationLogic.RefreshConsumerData();
+            
+            operationLogic.m_HttpComs.VerifyAllExpectations();
+            operationLogic.m_SocketComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void RefreshConsumerData_SetSeatingAndOrderConfigurationPasses_RequestPaymentForOrder()
+        {
+            mockOperationLogic.SeatingMode = Enums.SeatingModes.DoshiiAllocation;
+            mockOperationLogic.OrderMode = Enums.OrderModes.BistroMode;
+            mockOperationLogic.m_HttpComs.Stub(x => x.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode)).Return(true).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetConsumers()).Return(new List<Models.Consumer>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetTableAllocations()).Return(new List<Models.TableAllocation>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetOrders()).Return(new List<Models.Order>()).Repeat.Once();
+            var orderList = GenerateObjectsAndStringHelper.GenerateOrderList();
+
+            orderingInterface.Expect(x => x.GetCheckedInCustomersFromPos()).Return(GenerateObjectsAndStringHelper.GenerateConsumerList()).Repeat.Once();
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(new List<Models.Consumer>()).Repeat.Once();
+            
+            orderingInterface.Expect(x => x.GetOrderForCheckinId(GenerateObjectsAndStringHelper.GenerateConsumer1().CheckInId)).Return(orderList[0]).Repeat.Once();
+            orderingInterface.Expect(x => x.GetOrderForCheckinId(GenerateObjectsAndStringHelper.GenerateConsumer2().CheckInId)).Return(orderList[1]).Repeat.Once();
+            orderingInterface.Expect(x => x.GetOrderForCheckinId(GenerateObjectsAndStringHelper.GenerateConsumer3().CheckInId)).Return(orderList[2]).Repeat.Once();
+            orderingInterface.Expect(x => x.GetOrderForCheckinId(GenerateObjectsAndStringHelper.GenerateConsumer4().CheckInId)).Return(orderList[3]).Repeat.Once();
+            
+            mockOperationLogic.Expect(x => x.RequestPaymentForOrder(orderList[0])).Return(true).Repeat.Once();
+            mockOperationLogic.Expect(x => x.RequestPaymentForOrder(orderList[1])).Return(true).Repeat.Once();
+            mockOperationLogic.Expect(x => x.RequestPaymentForOrder(orderList[2])).Return(true).Repeat.Once();
+            mockOperationLogic.Expect(x => x.RequestPaymentForOrder(orderList[3])).Return(true).Repeat.Once();
+
+            mockOperationLogic.RefreshConsumerData();
+
+            mockOperationLogic.VerifyAllExpectations();
+            orderingInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void RefreshConsumerData_SetSeatingAndOrderConfigurationPasses_SocketComsConsumerCheckinEventHandler()
+        {
+            mockOperationLogic.SeatingMode = Enums.SeatingModes.DoshiiAllocation;
+            mockOperationLogic.OrderMode = Enums.OrderModes.BistroMode;
+            var consumerList = GenerateObjectsAndStringHelper.GenerateConsumerList();
+            mockOperationLogic.m_HttpComs.Stub(x => x.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode)).Return(true).Repeat.Once();
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(new List<Models.Consumer>()).Repeat.Once();
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(new List<Models.Consumer>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetTableAllocations()).Return(new List<Models.TableAllocation>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetOrders()).Return(new List<Models.Order>()).Repeat.Once();
+            
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumers()).Return(consumerList).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[0].PaypalCustomerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer1()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[1].PaypalCustomerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer2()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[2].PaypalCustomerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer3()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[3].PaypalCustomerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer4()).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsConsumerCheckinEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs>.Matches(y => y.CheckIn == consumerList[0].CheckInId))).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsConsumerCheckinEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs>.Matches(y => y.CheckIn == consumerList[1].CheckInId))).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsConsumerCheckinEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs>.Matches(y => y.CheckIn == consumerList[2].CheckInId))).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsConsumerCheckinEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs>.Matches(y => y.CheckIn == consumerList[3].CheckInId))).Repeat.Once();
+            
+            
+            
+            mockOperationLogic.RefreshConsumerData();
+
+            mockOperationLogic.m_HttpComs.VerifyAllExpectations();
+            mockOperationLogic.VerifyAllExpectations();
+            
+        }
+
+        [Test]
+        public void RefreshConsumerData_SetSeatingAndOrderConfigurationPasses_SocketComsTableAllocationEventHandler()
+        {
+            mockOperationLogic.SeatingMode = Enums.SeatingModes.DoshiiAllocation;
+            mockOperationLogic.OrderMode = Enums.OrderModes.BistroMode;
+            var tableAllocationList = GenerateObjectsAndStringHelper.GenerateTableAllocationList();
+            mockOperationLogic.m_HttpComs.Stub(x => x.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode)).Return(true).Repeat.Once();
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(new List<Models.Consumer>()).Repeat.Once();
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(new List<Models.Consumer>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetConsumers()).Return(new List<Models.Consumer>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetOrders()).Return(new List<Models.Order>()).Repeat.Once();
+                        
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetTableAllocations()).Return(tableAllocationList).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsTableAllocationEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs>.Matches(y => y.TableAllocation.CustomerId == tableAllocationList[0].CustomerId))).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsTableAllocationEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs>.Matches(y => y.TableAllocation.CustomerId == tableAllocationList[1].CustomerId))).Repeat.Once();
+
+            mockOperationLogic.RefreshConsumerData();
+
+            mockOperationLogic.m_HttpComs.VerifyAllExpectations();
+            mockOperationLogic.VerifyAllExpectations();
+            
+        }
+
+        [Test]
+        public void RefreshConsumerData_SetSeatingAndOrderConfigurationPasses_SocketComsOrderStatusEventHandler()
+        {
+            mockOperationLogic.SeatingMode = Enums.SeatingModes.DoshiiAllocation;
+            mockOperationLogic.OrderMode = Enums.OrderModes.BistroMode;
+            var orderList = GenerateObjectsAndStringHelper.GenerateOrderList();
+            mockOperationLogic.m_HttpComs.Stub(x => x.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode)).Return(true).Repeat.Once();
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(new List<Models.Consumer>()).Repeat.Once();
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(new List<Models.Consumer>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetConsumers()).Return(new List<Models.Consumer>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetTableAllocations()).Return(new List<Models.TableAllocation>()).Repeat.Once();
+
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetOrders()).Return(orderList).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetOrder(GenerateObjectsAndStringHelper.GenerateOrderPending().Id.ToString())).Return(GenerateObjectsAndStringHelper.GenerateOrderPending()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetOrder(GenerateObjectsAndStringHelper.GenerateOrderReadyToPay().Id.ToString())).Return(GenerateObjectsAndStringHelper.GenerateOrderReadyToPay()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetOrder(GenerateObjectsAndStringHelper.GenerateOrderCancelled().Id.ToString())).Return(GenerateObjectsAndStringHelper.GenerateOrderCancelled()).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsOrderStatusEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.OrderEventArgs>.Matches(y => y.OrderId == GenerateObjectsAndStringHelper.GenerateOrderPending().Id.ToString()))).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsOrderStatusEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.OrderEventArgs>.Matches(y => y.OrderId == GenerateObjectsAndStringHelper.GenerateOrderReadyToPay().Id.ToString()))).Repeat.Once();
+            mockOperationLogic.Expect(x => x.SocketComsOrderStatusEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.OrderEventArgs>.Matches(y => y.OrderId == GenerateObjectsAndStringHelper.GenerateOrderCancelled().Id.ToString()))).Repeat.Once();
+
+            mockOperationLogic.RefreshConsumerData();
+
+            mockOperationLogic.m_HttpComs.VerifyAllExpectations();
+            mockOperationLogic.VerifyAllExpectations();
+            
+        }
+
+        [Test]
+        public void RefreshConsumerData_RemoveCheckinsFromThePos()
+        {
+            mockOperationLogic.SeatingMode = Enums.SeatingModes.DoshiiAllocation;
+            mockOperationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
+            mockOperationLogic.m_HttpComs.Stub(x => x.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.RestaurantMode)).Return(true).Repeat.Once();
+
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(GenerateObjectsAndStringHelper.GenerateConsumerList());
+
+            orderingInterface.Stub(x => x.GetCheckedInCustomersFromPos()).Return(GenerateObjectsAndStringHelper.GenerateConsumerList()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetConsumers()).Return(new List<Models.Consumer>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetTableAllocations()).Return(new List<Models.TableAllocation>()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Stub(x => x.GetOrders()).Return(new List<Models.Order>()).Repeat.Once();
+            //this should not be ignoring the arguments it should be making sure that what is passed in is what is being in the call
+            mockOperationLogic.Expect(x => x.SocketComsCheckOutEventHandler(operationLogic, new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs())).IgnoreArguments().Repeat.Times(3);
+
+            mockOperationLogic.RefreshConsumerData();
+
+            mockOperationLogic.m_HttpComs.VerifyAllExpectations();
+            mockOperationLogic.VerifyAllExpectations();
         }
     }
 }

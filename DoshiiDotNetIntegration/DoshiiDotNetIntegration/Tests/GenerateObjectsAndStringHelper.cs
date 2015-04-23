@@ -9,7 +9,8 @@ namespace DoshiiDotNetIntegration.Tests
     {
         #region Generate TestObjects and TestValues
 
-        public static string TestBaseUrl = "TestUrl";
+        public static string TestBaseUrl = "https://Google.com.au";
+        public static string TextSocketUrl = "wss://google.com.au";
         public static string TestCustomerId = "TestCustomerId";
         public static string TestPayPalCustomerId = "TestPaypalCustomerId";
         public static string TestTableNumber = "TestTableNumber";
@@ -24,7 +25,7 @@ namespace DoshiiDotNetIntegration.Tests
         public static string TestGratuity = "TestGratuity";
         public static Uri TestCheckinUrl = new Uri("c:\\impos\\");
         public static int TestOrderId = 123;
-
+        public static int TestTimeOutValue = 600;
 
         public static List<Models.Product> GenerateProductList()
         {
@@ -137,6 +138,17 @@ namespace DoshiiDotNetIntegration.Tests
             return checkInArgs;
         }
 
+
+        public static List<Models.Order> GenerateOrderList()
+        {
+            var list = new List<Models.Order>();
+            list.Add(GenerateOrder());
+            list.Add(GenerateOrderPending());
+            list.Add(GenerateOrderReadyToPay());
+            list.Add(GenerateOrderCancelled());
+            return list;
+        }
+
         public static Models.Order GenerateOrder()
         {
             var order = new Models.Order()
@@ -148,6 +160,41 @@ namespace DoshiiDotNetIntegration.Tests
             return order;
         }
 
+        public static Models.Order GenerateOrderPending()
+        {
+            var order = new Models.Order()
+            {
+                Id = TestOrderId + 1,
+                CheckinId = string.Format("{0}2",TestCheckinId),
+                Status = "pending"
+            };
+            return order;
+        }
+
+        public static Models.Order GenerateOrderReadyToPay()
+        {
+            var order = new Models.Order()
+            {
+                Id = TestOrderId + 2,
+                CheckinId = string.Format("{0}3", TestCheckinId),
+                Status = "pending"
+            };
+            return order;
+        }
+
+        public static Models.Order GenerateOrderCancelled()
+        {
+            var order = new Models.Order()
+            {
+                Id = TestOrderId + 3,
+                CheckinId = string.Format("{0}4", TestCheckinId),
+                Status = "cancelled"
+            };
+            return order;
+        }
+
+
+
         public static CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs GenerateTableAllocationEventArgs()
         {
             var allocationEventArgs = new CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs()
@@ -155,6 +202,14 @@ namespace DoshiiDotNetIntegration.Tests
                 TableAllocation = GenerateTableAllocation()
             };
             return allocationEventArgs;
+        }
+
+        public static List<Models.TableAllocation> GenerateTableAllocationList()
+        {
+            var list = new List<Models.TableAllocation>();
+            list.Add(GenerateTableAllocation());
+            list.Add(GenerateTableAllocation2());
+            return list;
         }
 
         public static Models.TableAllocation GenerateTableAllocation()
@@ -165,6 +220,21 @@ namespace DoshiiDotNetIntegration.Tests
                 Name = TestTableAllocationName,
                 CustomerId = TestCustomerId,
                 PaypalCustomerId = TestCustomerId,
+                Status = TestTableAllocationStatus,
+                Checkin = GenerateCheckin(),
+                rejectionReason = Enums.TableAllocationRejectionReasons.TableDoesNotExist
+            };
+            return tableAllocation;
+        }
+
+        public static Models.TableAllocation GenerateTableAllocation2()
+        {
+            var tableAllocation = new Models.TableAllocation()
+            {
+                Id = string.Format("{0}2",TestTableName),
+                Name = string.Format("{0}2",TestTableAllocationName),
+                CustomerId = string.Format("{0}2",TestCustomerId),
+                PaypalCustomerId = string.Format("{0}2",TestCustomerId),
                 Status = TestTableAllocationStatus,
                 Checkin = GenerateCheckin(),
                 rejectionReason = Enums.TableAllocationRejectionReasons.TableDoesNotExist
