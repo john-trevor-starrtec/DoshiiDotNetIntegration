@@ -98,7 +98,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region methods
 
-        public virtual void ClostSocketConnection()
+        public virtual void CloseSocketConnection()
         {
             m_WebSocketsConnection.Close();
         }

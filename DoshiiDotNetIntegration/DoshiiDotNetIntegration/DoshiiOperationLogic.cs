@@ -205,10 +205,10 @@ namespace DoshiiDotNetIntegration
 
                         newCheckinEventArgs.Consumer = m_HttpComs.GetConsumer(doshiiCon.PaypalCustomerId);
 
-                        newCheckinEventArgs.Consumer.CheckInId = doshiiCon.CheckInId;
-                        newCheckinEventArgs.CheckIn = doshiiCon.CheckInId;
+                        //newCheckinEventArgs.Consumer.CheckInId = doshiiCon.CheckInId;
+                        newCheckinEventArgs.CheckIn = newCheckinEventArgs.Consumer.CheckInId;
                         newCheckinEventArgs.PaypalCustomerId = doshiiCon.PaypalCustomerId;
-                        newCheckinEventArgs.Uri = doshiiCon.PhotoUrl;
+                        newCheckinEventArgs.Uri = newCheckinEventArgs.Consumer.PhotoUrl;
                         SocketComsConsumerCheckinEventHandler(this, newCheckinEventArgs);
                     }
                 }
@@ -257,7 +257,7 @@ namespace DoshiiDotNetIntegration
             }
             else
             {
-                m_SocketComs.ClostSocketConnection();
+                m_SocketComs.CloseSocketConnection();
             }
         }
 
