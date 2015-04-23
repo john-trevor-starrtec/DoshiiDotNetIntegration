@@ -22,15 +22,128 @@ namespace DoshiiDotNetIntegration.Tests
         public static string TestLocationId = "TestLocationId";
         public static string TestCheckinStatus = "TestCheckinStatus";
         public static string TestGratuity = "TestGratuity";
+        public static Uri TestCheckinUrl = new Uri("c:\\impos\\");
         public static int TestOrderId = 123;
 
+
+        public static List<Models.Product> GenerateProductList()
+        {
+            var list = new List<Models.Product>();
+            list.Add(GenerateProduct1WithOptions());
+            list.Add(GenerateProduct2());
+            return list;
+        }
+        
+        public static Models.Product GenerateProduct1WithOptions()
+        {
+            var tagsList = new List<string>();
+            tagsList.Add("Product1Department");
+            var optionsList = new List<Models.ProductOptions>();
+            var product = new Models.Product()
+            {
+                Id = "1",
+                PosId = "1",
+                Name = "Product1",
+                Tags = tagsList,
+                Price = "100",
+                Description = "The first Product",
+                ProductOptions = GenerateProductOptionList(),
+                AdditionalInstructions = "No aditional instructions",
+                RejectionReason = "",
+                Status = "pending"    
+            };
+            return product;
+        }
+
+
+        public static Models.Product GenerateProduct2()
+        {
+            var tagsList = new List<string>();
+            tagsList.Add("Product2Department");
+            var product = new Models.Product()
+            {
+                Id = "2",
+                PosId = "2",
+                Name = "Product2",
+                Tags = tagsList,
+                Price = "100",
+                Description = "The first Product",
+                ProductOptions = null,
+                AdditionalInstructions = "No aditional instructions",
+                RejectionReason = "",
+                Status = "pending"    
+            };
+            return product;
+        }
+        
+        public static List<Models.Variants> GenerateProductVarientList()
+        {
+            var list = new List<Models.Variants>();
+            list.Add(GenerateProductVarient1());
+            list.Add(GenerateProductVarient2());
+            return list;
+        }
+
+        public static Models.Variants GenerateProductVarient1()
+        {
+            var variant = new Models.Variants()
+            {
+                Name = "variant1",
+                Price = "10",
+                PosId = "var1"
+            };
+            return variant;
+        }
+
+        public static Models.Variants GenerateProductVarient2()
+        {
+            var variant = new Models.Variants()
+            {
+                Name = "variant2",
+                Price = "10",
+                PosId = "var2"
+            };
+            return variant;
+        }
+
+        public static List<Models.ProductOptions> GenerateProductOptionList()
+        {
+            var list = new List<Models.ProductOptions>();
+            list.Add(GenerateProductOption1());
+            return list;
+        }
+
+        public static Models.ProductOptions GenerateProductOption1()
+        {
+            var productOption = new Models.ProductOptions()
+            {
+                Name = "ProductOptions1",
+                Min = 0,
+                Max = 0,
+                PosId = "10",
+                Variants = GenerateProductVarientList(),
+                Selected = new List<Models.Variants>()
+            };
+            return productOption;
+        }
+
+        public static CommunicationLogic.CommunicationEventArgs.CheckInEventArgs GenerateCheckinEventArgs()
+        {
+            var checkInArgs = new CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
+            checkInArgs.Consumer = GenerateConsumer1();
+            checkInArgs.CheckIn = checkInArgs.Consumer.CheckInId;
+            checkInArgs.PaypalCustomerId = checkInArgs.Consumer.PaypalCustomerId;
+            checkInArgs.Uri = TestCheckinUrl;
+            return checkInArgs;
+        }
 
         public static Models.Order GenerateOrder()
         {
             var order = new Models.Order()
             {
                 Id = TestOrderId,
-                CheckinId = TestCheckinId
+                CheckinId = TestCheckinId,
+                Status = "accepted"
             };
             return order;
         }
@@ -118,6 +231,16 @@ namespace DoshiiDotNetIntegration.Tests
             consumer.PaypalCustomerId = "bgr531gb";
             consumer.PhotoUrl = new Uri("http://www.google.com");
             return consumer;
+        }
+
+        public static List<Models.Consumer> GenerateConsumerList()
+        {
+            var list = new List<Models.Consumer>();
+            list.Add(GenerateConsumer1());
+            list.Add(GenerateConsumer2());
+            list.Add(GenerateConsumer3());
+            list.Add(GenerateConsumer4());
+            return list;
         }
         #endregion
     }

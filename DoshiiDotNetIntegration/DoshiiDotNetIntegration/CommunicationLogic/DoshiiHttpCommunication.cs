@@ -522,6 +522,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case Enums.TableAllocationRejectionReasons.tableHasBeenPaid:
                     reasonCodeString = "{\"reasonCode\" : \"6\"}";
                     break;
+                case Enums.TableAllocationRejectionReasons.unknownError:
+                    reasonCodeString = "{\"reasonCode\" : \"7\"}";
+                    break;
             }
             return reasonCodeString;
         }
@@ -721,7 +724,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// gets all the products currently uploaded to doshii. 
         /// </summary>
         /// <returns></returns>
-        public  List<Models.Product> GetDoshiiProducts()
+        public virtual List<Models.Product> GetDoshiiProducts()
         {
             DoshiHttpResponceMessages responseMessage;
             try
@@ -768,7 +771,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// This will return true unless there was an exception, as the doshii web service will return an error responce if we attempt to delete an item that doesn't exist, we should ignore this error. 
         /// </returns>
-        public  bool DeleteProductData(string productId = "")
+        public virtual bool DeleteProductData(string productId = "")
         {
             bool success = true;
             try
@@ -824,7 +827,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="productToPost"></param>
         /// <param name="isNewProduct"></param>
         /// <returns></returns>
-        public  bool PostProductData(Models.Product productToPost, bool isNewProduct)
+        public virtual bool PostProductData(Models.Product productToPost, bool isNewProduct)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -880,7 +883,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="productListToPost"></param>
         /// <param name="clearCurrentMenu"></param>
         /// <returns></returns>
-        public  bool PostProductData(List<Models.Product> productListToPost, bool clearCurrentMenu)
+        public virtual bool PostProductData(List<Models.Product> productListToPost, bool clearCurrentMenu)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -934,7 +937,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="productToPost"></param>
         /// <returns></returns>
-        public  bool PutProductData(Models.Product productToPost)
+        public virtual bool PutProductData(Models.Product productToPost)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;

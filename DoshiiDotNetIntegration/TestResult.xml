@@ -1,29 +1,63 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--This file represents the results of running a test suite-->
-<test-results name="C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration.sln" total="11" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2015-04-21" time="11:09:30">
+<test-results name="C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration.sln" total="45" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2015-04-23" time="09:07:14">
   <environment nunit-version="2.6.4.14350" clr-version="2.0.50727.8009" os-version="Microsoft Windows NT 6.2.9200.0" platform="Win32NT" cwd="C:\Program Files (x86)\NUnit 2.6.4\bin" machine-name="LIAM-PC" user="liam.c" user-domain="IMPOS" />
   <culture-info current-culture="en-AU" current-uiculture="en-US" />
-  <test-suite type="Project" name="C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration.sln" executed="True" result="Success" success="True" time="26.500" asserts="0">
+  <test-suite type="Project" name="C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration.sln" executed="True" result="Success" success="True" time="111.869" asserts="0">
     <results>
-      <test-suite type="Assembly" name="C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.dll" executed="True" result="Success" success="True" time="26.500" asserts="0">
+      <test-suite type="Assembly" name="C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.dll" executed="True" result="Success" success="True" time="111.869" asserts="0">
         <results>
-          <test-suite type="Namespace" name="DoshiiDotNetIntegration" executed="True" result="Success" success="True" time="26.500" asserts="0">
+          <test-suite type="Namespace" name="DoshiiDotNetIntegration" executed="True" result="Success" success="True" time="111.869" asserts="0">
             <results>
-              <test-suite type="Namespace" name="Tests" executed="True" result="Success" success="True" time="26.499" asserts="0">
+              <test-suite type="Namespace" name="Tests" executed="True" result="Success" success="True" time="111.868" asserts="0">
                 <results>
-                  <test-suite type="TestFixture" name="OperationLogicTest" executed="True" result="Success" success="True" time="26.499" asserts="0">
+                  <test-suite type="TestFixture" name="OperationLogicTest" executed="True" result="Success" success="True" time="111.868" asserts="0">
                     <results>
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.AddNewProducts_ShouldCall_PostProductData" executed="True" result="Success" success="True" time="2.762" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.DeleteAllProducts_ShouldCall_DeleteProductData" executed="True" result="Success" success="True" time="0.848" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.DeleteProducts_ShouldCall_DeleteProduct" executed="True" result="Success" success="True" time="0.849" asserts="0" />
                       <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.findCurrentConsumer_ConsumerExistsInList" executed="True" result="Success" success="True" time="0.000" asserts="1" />
                       <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.findCurrentConsumer_ConsumerIsNotInList" executed="True" result="Success" success="True" time="0.000" asserts="1" />
-                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.Initialze_NoSocketTimeOutValue" executed="True" result="Success" success="True" time="3.681" asserts="0" />
-                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.Initialze_NoSocketUrl" executed="True" result="Success" success="True" time="0.867" asserts="0" />
-                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.Initialze_NoToken" executed="True" result="Success" success="True" time="0.766" asserts="0" />
-                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.Initialze_NoUrlBase" executed="True" result="Success" success="True" time="0.843" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.GetAllProducts_ShouldCall_GetDoshiiProducts" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.GetOrder_ShouldCall_GetOrder" executed="True" result="Success" success="True" time="0.812" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.Initialze_NoSocketTimeOutValue" executed="True" result="Success" success="True" time="1.075" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.Initialze_NoSocketUrl" executed="True" result="Success" success="True" time="0.936" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.Initialze_NoToken" executed="True" result="Success" success="True" time="1.074" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.Initialze_NoUrlBase" executed="True" result="Success" success="True" time="0.949" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_BistroMode_FullyPaid" executed="True" result="Success" success="True" time="0.025" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_BistroMode_FullyPaid_DontDeleteAllocation" executed="True" result="Success" success="True" time="0.023" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_BistroMode_PartialPayment" executed="True" result="Success" success="True" time="0.024" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_BistroMode_PartialPayment_DontDeleteAllocation" executed="True" result="Success" success="True" time="0.024" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_PutOrderException" executed="True" result="Success" success="True" time="0.052" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_RestaurantMode_FullyPaid" executed="True" result="Success" success="True" time="0.024" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_RestaurantMode_FullyPaid_DontDeleteAllocation" executed="True" result="Success" success="True" time="0.024" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_RestaurantMode_PartialPayment" executed="True" result="Success" success="True" time="0.024" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.RequestPaymentForOrder_RestaurantMode_PartialPayment_DontDeleteAllocation" executed="True" result="Success" success="True" time="0.024" asserts="0" />
                       <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.ScoketComsTimeOutValueReached_ShouldCallDissociateDoshiiChecks" executed="True" result="Success" success="True" time="0.023" asserts="0" />
-                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SetTableAllocation_ShouldCallPostTableAllocation_withSameParams" executed="True" result="Success" success="True" time="0.023" asserts="0" />
-                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsCheckOutEventHandler_shouldCallCheckoutConsumer_withConsumerCheckinId" executed="True" result="Success" success="True" time="0.024" asserts="0" />
-                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsConnectionEventHandler_shouldCallRefreshConsumerData" executed="True" result="Success" success="True" time="0.025" asserts="0" />
-                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsTableAllocationEventHandler_ShouldCallConfirmTableAllocation_ThenPutTableAllocation" executed="True" result="Success" success="True" time="20.219" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SetTableAllocation_ShouldCallPostTableAllocation_withSameParams" executed="True" result="Success" success="True" time="0.022" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsCheckOutEventHandler_shouldCallCheckoutConsumer_withConsumerCheckinId" executed="True" result="Success" success="True" time="0.023" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsConnectionEventHandler_shouldCallRefreshConsumerData" executed="True" result="Success" success="True" time="0.023" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsConsumerCheckinEventHandler_ShouldCallRecordCheckedInUser" executed="True" result="Success" success="True" time="0.023" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_CancelledStatus_ShouldCallRecordOrderUpdatedAtTime_AndConfirmOrderTotalsBeforePaymentRestaurantMode_AndRequestPaymentForOrder" executed="True" result="Success" success="True" time="0.068" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_CancelledStatus_ShouldCallRecordOrderUpdatedAtTime_AndOrderCancled" executed="True" result="Success" success="True" time="0.045" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_NewStatus_BistroMode_FailedAvailability" executed="True" result="Success" success="True" time="0.046" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_NewStatus_BistroMode_PassedAvailabliity" executed="True" result="Success" success="True" time="0.076" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_NewStatus_BistroMode_PaymentWithRemainder" executed="True" result="Success" success="True" time="1.481" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_NewStatus_RestaurantMode_FailedAvailabliity" executed="True" result="Success" success="True" time="0.046" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_NewStatus_RestaurantMode_PassedAvailabliity" executed="True" result="Success" success="True" time="0.046" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_PendingStatus_BistroMode_FailedAvailability" executed="True" result="Success" success="True" time="0.047" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_PendingStatus_BistroMode_PassedAvailabliity" executed="True" result="Success" success="True" time="0.069" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_PendingStatus_BistroMode_PaymentWithRemainder" executed="True" result="Success" success="True" time="0.931" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_PendingStatus_RestaurantMode_FailedAvailabliity" executed="True" result="Success" success="True" time="0.049" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsOrderStatusEventHandler_PendingStatus_RestaurantMode_PassedAvailabliity" executed="True" result="Success" success="True" time="0.049" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsTableAllocationEventHandler_ShouldCallConfirmTableAllocation_ThenPutTableAllocation" executed="True" result="Success" success="True" time="0.046" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsTableAllocationEventHandler_ShouldCallConfirmTableAllocation_ThenRejectTableAllocation__NotWithTableDoesNotExist" executed="True" result="Success" success="True" time="0.046" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.SocketComsTableAllocationEventHandler_ShouldCallConfirmTableAllocation_ThenRejectTableAllocation__WithTableDoesNotExist" executed="True" result="Success" success="True" time="0.046" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.UpdateOrder_ExistingOrder_WhenOrderAccepted_CallsPutOrder" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.UpdateOrder_ExistingOrder_WhenOrderPaid_CallsPutOrder_CheckOutConsumerWithCheckinId" executed="True" result="Success" success="True" time="69.600" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.UpdateOrder_NewOrder_WhenOrderAccepted_CallsPostOrder" executed="True" result="Success" success="True" time="0.024" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.UpdateOrder_NewOrder_WhenOrderPaid_CallsPostOrder_CheckOutConsumerWithCheckinId" executed="True" result="Success" success="True" time="29.384" asserts="0" />
+                      <test-case name="DoshiiDotNetIntegration.Tests.OperationLogicTest.UpdateProducts_ShouldCall_PutProductData" executed="True" result="Success" success="True" time="0.001" asserts="0" />
                     </results>
                   </test-suite>
                 </results>

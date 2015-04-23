@@ -82,6 +82,7 @@
     <Compile Include="Enums\OrderModes.cs" />
     <Compile Include="Enums\SeatingModes.cs" />
     <Compile Include="Enums\TableAllocationRejectionReasons.cs" />
+    <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
     <Compile Include="Exceptions\ProductNotCreatedException.cs" />
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Interfaces\iDoshiiOrdering.cs" />

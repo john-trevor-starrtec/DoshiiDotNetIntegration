@@ -193,7 +193,6 @@ namespace DoshiiDotNetIntegration
                         {
                             RequestPaymentForOrder(consumerOrder);
                         }
-                        
                     }
                 }
                 currentlyCheckInConsumers = m_DoshiiInterface.GetCheckedInCustomersFromPos();
@@ -493,8 +492,6 @@ namespace DoshiiDotNetIntegration
                     m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                 }
             }
-            
-            
             if (returnedOrder.Id == order.Id)
             {
                 m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order put for payment - '{0}'", order.ToJsonString()));
@@ -505,6 +502,7 @@ namespace DoshiiDotNetIntegration
                 {
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
+                        //this should only happen when the the mode has changed to bistro mode and there was an amount already paid on the order because it was previously in restaurnat mode. 
                         if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order) && RemoveTableAllocationsAfterFullPayment)
                         {
                             m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
@@ -516,15 +514,23 @@ namespace DoshiiDotNetIntegration
                         {
                             m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
                         }
-                        
                     }
-
                 }
                 else
                 {
-                    if (m_DoshiiInterface.RecordFullCheckPayment(ref order) && RemoveTableAllocationsAfterFullPayment)
+                    if (OrderMode == Enums.OrderModes.BistroMode)
                     {
-                        m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
+                        if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order) && RemoveTableAllocationsAfterFullPayment)
+                        {
+                            m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
+                        }
+                    }
+                    else
+                    {
+                        if (m_DoshiiInterface.RecordFullCheckPayment(ref order) && RemoveTableAllocationsAfterFullPayment)
+                        {
+                            m_HttpComs.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
+                        }
                     }
                 }
                 return true;
@@ -543,7 +549,7 @@ namespace DoshiiDotNetIntegration
         public virtual void SocketComsConsumerCheckinEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: checkIn event received for consumer - '{0}' with id '{1}'", e.Consumer.Name, e.Consumer.PaypalCustomerId));
-            m_DoshiiInterface.recordCheckedInUser(ref e.Consumer);
+            m_DoshiiInterface.RecordCheckedInUser(ref e.Consumer);
         }
 
         #endregion
@@ -582,31 +588,7 @@ namespace DoshiiDotNetIntegration
                 {
                     throw rex;
                 }
-                
             }
-            
-        }
-
-        /// <summary>
-        /// adds a single product to doshii
-        /// This method will delete the current product on doshii and replace it with the paramater if it already exists. 
-        /// </summary>
-        /// <param name="productToUpdate"></param>
-        /// <param name="deleteAllProductsCurrentlyOnDoshii"></param>
-        /// <returns></returns>
-        public virtual void AddNewProducts(Models.Product productToUpdate, bool deleteAllProductsCurrentlyOnDoshii)
-        {
-            List<Models.Product> productList = new List<Models.Product>();
-            productList.Add(productToUpdate);
-            try
-            {
-                m_HttpComs.PostProductData(productList, deleteAllProductsCurrentlyOnDoshii);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-            
         }
 
         /// <summary>
@@ -714,6 +696,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="order">
         /// The order must contain all the products included in the check as this method overwrites all the items recorded on doshii for this check. 
+        /// not tested
         /// </param>
         /// <returns></returns>
         public virtual Models.Order UpdateOrder(Models.Order order)
@@ -742,6 +725,10 @@ namespace DoshiiDotNetIntegration
                 }
                 catch (Exceptions.RestfulApiErrorResponseException rex)
                 {
+                    if (rex.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    {
+                        throw new Exceptions.ConflictWithOrderUpdateException(string.Format("There was a conflict updating order.id {0}", order.Id.ToString()));
+                    }
                     if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
@@ -763,6 +750,10 @@ namespace DoshiiDotNetIntegration
                 }
                 catch (Exceptions.RestfulApiErrorResponseException rex)
                 {
+                    if (rex.StatusCode == System.Net.HttpStatusCode.Conflict)
+                    {
+                        throw new Exceptions.ConflictWithOrderUpdateException(string.Format("There was a conflict updating order.id {0}", order.Id.ToString()));
+                    }
                     if (rex.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
@@ -772,21 +763,6 @@ namespace DoshiiDotNetIntegration
             }
 
             return returnedOrder;
-        }
-
-        /// <summary>
-        /// This is not currently implemented as doshii can't currently respond to the payment with success or failure. 
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool AddPayment(Models.Order order)
-        {
-            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos adding payment to order - '{0}'", order.ToJsonString()));
-            if (OrderMode == Enums.OrderModes.BistroMode)
-            {
-                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: paying from the pos in bistro mode is not supported"));
-                throw new NotSupportedException("Doshii: paying from the pos in bistro mode is not supported");
-            }
-            throw new NotImplementedException();
         }
 
         #endregion
@@ -808,7 +784,6 @@ namespace DoshiiDotNetIntegration
             {
                 throw rex;
             }
-            
         }
 
         /// <summary>

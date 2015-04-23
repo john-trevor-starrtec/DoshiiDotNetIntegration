@@ -120,7 +120,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// rather than giving the pos the URL of the image and expecting them to get the pic. 
         /// </summary>
         /// <param name="consumer"></param>
-        void recordCheckedInUser(ref Models.Consumer consumer);
+        void RecordCheckedInUser(ref Models.Consumer consumer);
 
         /// <summary>
         /// this method should be overridden so that the doshii logs appear in the regular system logs of your system, 
