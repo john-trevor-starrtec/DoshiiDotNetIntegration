@@ -46,7 +46,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             
             m_DoshiiUrlBase = urlBase;
             m_Token = token;
-            
         }
 
         #region public  methods 
@@ -361,37 +360,37 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// true = successfully removed
         /// false = not removed. 
         /// </returns>
-        public virtual bool RemoveTableAllocation(string consumerId, string tableName, string rejectionReason)
-        {
-            bool success = false;
-            DoshiHttpResponceMessages responseMessage;
-            try
-            {
-                 responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", rejectionReason);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+        //public virtual bool RemoveTableAllocation(string consumerId, string tableName, string rejectionReason)
+        //{
+        //    bool success = false;
+        //    DoshiHttpResponceMessages responseMessage;
+        //    try
+        //    {
+        //         responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, consumerId, tableName), "DELETE", rejectionReason);
+        //    }
+        //    catch (Exceptions.RestfulApiErrorResponseException rex)
+        //    {
+        //        throw rex;
+        //    }
             
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    success = true;
-                }
-                else
-                {
-                    success = false;
-                }
-            }
-            else
-            {
-                success = false;
-            }
+        //    if (responseMessage != null)
+        //    {
+        //        if (responseMessage.Status == HttpStatusCode.OK)
+        //        {
+        //            success = true;
+        //        }
+        //        else
+        //        {
+        //            success = false;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        success = false;
+        //    }
             
-            return success;
-        }
+        //    return success;
+        //}
 
         /// <summary>
         /// rejects a table allocation doshii has sent for approval. 
@@ -622,7 +621,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
                     m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce message was OK"));
-                    if (responseMessage.Data != null)
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: The Responce order data was not null"));
                         returnOrder = JsonConvert.DeserializeObject<Models.Order>(responseMessage.Data);
@@ -642,6 +641,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
+                throw new Exceptions.NullOrderReturnedException();
             }
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: the order is now bein returned - end of putorder method"));
             return returnOrder;
@@ -693,7 +693,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    if (responseMessage.Data != null)
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         returnOrder = JsonConvert.DeserializeObject<Models.Order>(responseMessage.Data);
                         m_DoshiiLogic.m_DoshiiInterface.RecordOrderUpdatedAtTime(returnOrder); 
@@ -712,6 +712,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and url '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, order.CheckinId.ToString())));
+                throw new Exceptions.NullOrderReturnedException();
             }
             return returnOrder;
         }
@@ -892,22 +893,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 DeleteProductData("");
             }
 
-            StringBuilder productListJsonString = new StringBuilder();
-            productListJsonString.Append("[");
-            int count = 0;
-            foreach (Models.Product pro in productListToPost)
-            {
-                if (count > 0)
-                {
-                    productListJsonString.Append(",");
-                }
-                productListJsonString.Append(pro.ToJsonStringForProductSync());
-                count++;
-            }
-            productListJsonString.Append("]");
+            string productListJsonString = Newtonsoft.Json.JsonConvert.SerializeObject(productListToPost);
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products), "POST", productListJsonString.ToString());
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Products), "POST", productListJsonString);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -1025,7 +1014,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     newUrlbuilder.AppendFormat("/tables?checkin={0}", identification);
                     break;
                 case Enums.EndPointPurposes.AddTableAllocation:
-                    newUrlbuilder.AppendFormat("/consumers/{0}/table", identification, tableName);
+                    newUrlbuilder.AppendFormat("/consumers/{0}/table", identification);
                     break;
                 case Enums.EndPointPurposes.SetSeatingAndOrderConfiguration:
                     newUrlbuilder.AppendFormat("/config");
@@ -1033,12 +1022,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 default:
                     throw new NotSupportedException(purpose.ToString());
             }
-
             return newUrlbuilder.ToString();
         }
 
         /// <summary>
         /// makes a request to doshii based on the paramaters provided. 
+        /// not tested
         /// </summary>
         /// <param name="url"></param>
         /// <param name="method"></param>
@@ -1064,7 +1053,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("MakeRequest was called with a non suppoerted Http request method type - '{0}", method));
-                throw new Exception("Invalid Http request Method Type");
+                throw new NotSupportedException("Invalid Http request Method Type");
             }
             if (!string.IsNullOrWhiteSpace(data))
             {

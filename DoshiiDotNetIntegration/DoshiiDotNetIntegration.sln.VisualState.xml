@@ -5,9 +5,9 @@
   <ExcludeCategories>false</ExcludeCategories>
   <Nodes>
     <Node UniqueName="[0-1000]C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration.sln" Expanded="true" />
-    <Node UniqueName="[0-1014]C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.dll" Expanded="true" />
-    <Node UniqueName="[0-1015]DoshiiDotNetIntegration" Expanded="true" />
-    <Node UniqueName="[0-1016]DoshiiDotNetIntegration.Tests" Expanded="true" />
+    <Node UniqueName="[0-1058]C:\Development\frontoffice\Impos.Common\doshiidotnetintegration\DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Debug\DoshiiDotNetIntegration.dll" Expanded="true" />
+    <Node UniqueName="[0-1059]DoshiiDotNetIntegration" Expanded="true" />
+    <Node UniqueName="[0-1060]DoshiiDotNetIntegration.Tests" Expanded="true" />
     <Node UniqueName="[0-1001]DoshiiDotNetIntegration.Tests.OperationLogicTest" Expanded="true" />
   </Nodes>
 </VisualState>

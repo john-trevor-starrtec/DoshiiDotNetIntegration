@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 
 namespace DoshiiDotNetIntegration.Tests
 {
     public static class GenerateObjectsAndStringHelper
     {
-        #region Generate TestObjects and TestValues
+
+        #region test fields
 
         public static string TestBaseUrl = "https://Google.com.au";
         public static string TextSocketUrl = "wss://google.com.au";
@@ -26,6 +28,111 @@ namespace DoshiiDotNetIntegration.Tests
         public static Uri TestCheckinUrl = new Uri("c:\\impos\\");
         public static int TestOrderId = 123;
         public static int TestTimeOutValue = 600;
+        public static string TestProductId = "asd123";
+
+        #endregion 
+
+        #region responceMessages
+
+        public static CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumerSuccess()
+        {
+            return new CommunicationLogic.DoshiHttpResponceMessages()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = GenerateConsumer1().ToJsonString(),
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        public static CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumersSuccess()
+        {
+            return new CommunicationLogic.DoshiHttpResponceMessages()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateConsumerList()),
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        public static CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrderSuccess()
+        {
+            return new CommunicationLogic.DoshiHttpResponceMessages()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = GenerateOrderAccepted().ToJsonString(),
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        public static CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrdersSuccess()
+        {
+            return new CommunicationLogic.DoshiHttpResponceMessages()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateOrderList()),
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        public static CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageTableAllocationSuccess()
+        {
+            return new CommunicationLogic.DoshiHttpResponceMessages()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateTableAllocationList()),
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        public static CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationSuccess()
+        {
+            return new CommunicationLogic.DoshiHttpResponceMessages()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = "",
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        public static CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationFailure()
+        {
+            return new CommunicationLogic.DoshiHttpResponceMessages()
+            {
+                Status = HttpStatusCode.InternalServerError,
+                StatusDescription = "Internal Service Error",
+                Data = "",
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        public static CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageSuccessfulOrder()
+        {
+            return new CommunicationLogic.DoshiHttpResponceMessages()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = GenerateOrderAccepted().ToJsonString(),
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        #endregion
+
+        #region Generate TestObjects and TestValues
 
         public static List<Models.Product> GenerateProductList()
         {
@@ -142,20 +249,42 @@ namespace DoshiiDotNetIntegration.Tests
         public static List<Models.Order> GenerateOrderList()
         {
             var list = new List<Models.Order>();
-            list.Add(GenerateOrder());
+            list.Add(GenerateOrderAccepted());
             list.Add(GenerateOrderPending());
             list.Add(GenerateOrderReadyToPay());
             list.Add(GenerateOrderCancelled());
             return list;
         }
 
-        public static Models.Order GenerateOrder()
+        public static Models.Order GenerateOrderAccepted()
         {
             var order = new Models.Order()
             {
                 Id = TestOrderId,
                 CheckinId = TestCheckinId,
                 Status = "accepted"
+            };
+            return order;
+        }
+
+        public static Models.Order GenerateOrderPaid()
+        {
+            var order = new Models.Order()
+            {
+                Id = TestOrderId,
+                CheckinId = TestCheckinId,
+                Status = "paid"
+            };
+            return order;
+        }
+
+        public static Models.Order GenerateOrderWaitingForPayment()
+        {
+            var order = new Models.Order()
+            {
+                Id = TestOrderId,
+                CheckinId = TestCheckinId,
+                Status = "waiting for payment"
             };
             return order;
         }

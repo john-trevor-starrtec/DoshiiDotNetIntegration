@@ -165,7 +165,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_CancelledStatus_ShouldCallRecordOrderUpdatedAtTime_AndOrderCancled()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "cancelled";
 
             orderingInterface.Expect(x => x.RecordOrderUpdatedAtTime(order));
@@ -177,7 +177,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_CancelledStatus_ShouldCallRecordOrderUpdatedAtTime_AndConfirmOrderTotalsBeforePaymentRestaurantMode_AndRequestPaymentForOrder()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "ready to pay";
 
             orderingInterface.Expect(x => x.RecordOrderUpdatedAtTime(order));
@@ -191,7 +191,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_NewStatus_BistroMode_PassedAvailabliity()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "new";
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             
@@ -211,7 +211,7 @@ namespace DoshiiDotNetIntegration.Tests
         [ExpectedException(typeof(NotSupportedException))]
         public void SocketComsOrderStatusEventHandler_NewStatus_BistroMode_PaymentWithRemainder()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "new";
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             orderingInterface.Stub(x => x.RecordOrderUpdatedAtTime(order));
@@ -231,7 +231,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_NewStatus_BistroMode_FailedAvailability()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "new";
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             orderingInterface.Stub(x => x.RecordOrderUpdatedAtTime(order));
@@ -247,7 +247,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_NewStatus_RestaurantMode_PassedAvailabliity()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "new";
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
 
@@ -264,7 +264,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_NewStatus_RestaurantMode_FailedAvailabliity()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "new";
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
 
@@ -281,7 +281,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_PendingStatus_BistroMode_PassedAvailabliity()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "pending";
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
 
@@ -301,12 +301,12 @@ namespace DoshiiDotNetIntegration.Tests
         [ExpectedException(typeof(NotSupportedException))]
         public void SocketComsOrderStatusEventHandler_PendingStatus_BistroMode_PaymentWithRemainder()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "pending";
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             orderingInterface.Stub(x => x.RecordOrderUpdatedAtTime(order));
             orderingInterface.Stub(x => x.ConfirmOrderAvailabilityBistroMode(ref order)).Return(true);
-
+            
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "accepted"))).Return(order).Repeat.Once();
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(new Models.Order()
             {
@@ -316,14 +316,14 @@ namespace DoshiiDotNetIntegration.Tests
             }).Repeat.Once();
 
             operationLogic.SocketComsOrderStatusEventHandler(new object(), new CommunicationLogic.CommunicationEventArgs.OrderEventArgs { OrderId = GenerateObjectsAndStringHelper.TestOrderId.ToString(), Status = "new", Order = order });
-
+            
             operationLogic.m_HttpComs.VerifyAllExpectations();
         }
 
         [Test]
         public void SocketComsOrderStatusEventHandler_PendingStatus_BistroMode_FailedAvailability()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "pending";
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             orderingInterface.Stub(x => x.RecordOrderUpdatedAtTime(order));
@@ -339,7 +339,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_PendingStatus_RestaurantMode_PassedAvailabliity()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "pending";
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
 
@@ -356,7 +356,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SocketComsOrderStatusEventHandler_PendingStatus_RestaurantMode_FailedAvailabliity()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "pending";
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
 
@@ -372,7 +372,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_PutOrderException()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = true;
 
@@ -388,7 +388,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_RestaurantMode_FullyPaid()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = true;
             
@@ -407,7 +407,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_BistroMode_FullyPaid()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = true;
 
@@ -426,7 +426,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_BistroMode_PartialPayment()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.NotPayingTotal = "2";
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = true;
@@ -446,7 +446,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_RestaurantMode_PartialPayment()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.NotPayingTotal = "2";
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = true;
@@ -466,7 +466,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_RestaurantMode_FullyPaid_DontDeleteAllocation()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = false;
 
@@ -485,7 +485,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_BistroMode_FullyPaid_DontDeleteAllocation()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = false;
 
@@ -504,7 +504,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_BistroMode_PartialPayment_DontDeleteAllocation()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = false;
 
@@ -522,7 +522,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RequestPaymentForOrder_RestaurantMode_PartialPayment_DontDeleteAllocation()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
             operationLogic.RemoveTableAllocationsAfterFullPayment = false;
 
@@ -619,7 +619,7 @@ namespace DoshiiDotNetIntegration.Tests
         [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
         public void GetOrder_ShouldCall_GetOrder()
         {
-            operationLogic.m_HttpComs.Expect(x => x.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString())).Return(GenerateObjectsAndStringHelper.GenerateOrder()).Repeat.Once();
+            operationLogic.m_HttpComs.Expect(x => x.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString())).Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted()).Repeat.Once();
             operationLogic.m_HttpComs.Expect(x => x.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString())).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException() { StatusCode = System.Net.HttpStatusCode.Conflict }).Repeat.Once();
 
             operationLogic.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString());
@@ -632,7 +632,7 @@ namespace DoshiiDotNetIntegration.Tests
         [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
         public void UpdateOrder_NewOrder_WhenOrderPaid_CallsPostOrder_CheckOutConsumerWithCheckinId()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "paid";
             order.Id = 0;
 
@@ -650,7 +650,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void UpdateOrder_NewOrder_WhenOrderAccepted_CallsPostOrder()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "accepted";
             order.Id = 0;
 
@@ -667,7 +667,7 @@ namespace DoshiiDotNetIntegration.Tests
         [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
         public void UpdateOrder_ExistingOrder_WhenOrderPaid_CallsPutOrder_CheckOutConsumerWithCheckinId()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "paid";
             
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "paid"))).Return(order).Repeat.Once();
@@ -686,7 +686,7 @@ namespace DoshiiDotNetIntegration.Tests
         [ExpectedException(typeof(Exceptions.ConflictWithOrderUpdateException))]
         public void UpdateOrder_ExistingOrder_NewOrder_ConflictUpdating()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Id = 0;
             
             operationLogic.m_HttpComs.Stub(x => x.PostOrder(order)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException() { StatusCode = System.Net.HttpStatusCode.Conflict }).Repeat.Once();
@@ -700,7 +700,7 @@ namespace DoshiiDotNetIntegration.Tests
         [ExpectedException(typeof(Exceptions.ConflictWithOrderUpdateException))]
         public void UpdateOrder_ExistingOrder_ExistingOrder_ConflictUpdating()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             
             operationLogic.m_HttpComs.Stub(x => x.PutOrder(order)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException() { StatusCode = System.Net.HttpStatusCode.Conflict }).Repeat.Once();
 
@@ -712,7 +712,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void UpdateOrder_ExistingOrder_WhenOrderAccepted_CallsPutOrder()
         {
-            var order = GenerateObjectsAndStringHelper.GenerateOrder();
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.Status = "accepted";
             
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "accepted"))).Return(order).Repeat.Once();

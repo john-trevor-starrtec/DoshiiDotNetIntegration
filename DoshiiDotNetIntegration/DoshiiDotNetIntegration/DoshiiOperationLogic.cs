@@ -412,60 +412,76 @@ namespace DoshiiDotNetIntegration
                 case "new":
                 case "pending":
                     m_DoshiiInterface.RecordOrderUpdatedAtTime(e.Order);    
-                    if (OrderMode == Enums.OrderModes.BistroMode)
+                    try
                     {
-                        if (m_DoshiiInterface.ConfirmOrderAvailabilityBistroMode(ref e.Order))
+                        if (OrderMode == Enums.OrderModes.BistroMode)
                         {
-                            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order availibility confirmed for bistroMode - '{0}'", e.Order.ToJsonString()));
-                             
-                            e.Order.Status = "accepted";
-                            returnedOrder = m_HttpComs.PutOrder(e.Order);
-                            if (returnedOrder.Id == e.Order.Id)
+                            if (m_DoshiiInterface.ConfirmOrderAvailabilityBistroMode(ref e.Order))
                             {
-                                returnedOrder.Status = "waiting for payment";
-                                returnedOrder = m_HttpComs.PutOrder(returnedOrder);
-                                if (returnedOrder.Id == e.Order.Id)
-                                {
-                                    int nonPayingAmount = 0;
-                                    int.TryParse(returnedOrder.NotPayingTotal, out nonPayingAmount);
-
-                                    if (nonPayingAmount > 0)
+                                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order availibility confirmed for bistroMode - '{0}'", e.Order.ToJsonString()));
+                             
+                                e.Order.Status = "accepted";
+                            
+                                    returnedOrder = m_HttpComs.PutOrder(e.Order);
+                                    if (returnedOrder.Id == e.Order.Id)
                                     {
-                                        throw new NotSupportedException("Doshii: partial payment in bistro mode");
-                                    }
-                                    else
-                                    {
-                                        if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref returnedOrder) && RemoveTableAllocationsAfterFullPayment)
+                                        returnedOrder.Status = "waiting for payment";
+                                        returnedOrder = m_HttpComs.PutOrder(returnedOrder);
+                                        if (returnedOrder.Id == e.Order.Id)
                                         {
-                                            m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
+                                            int nonPayingAmount = 0;
+                                            int.TryParse(returnedOrder.NotPayingTotal, out nonPayingAmount);
+
+                                            if (nonPayingAmount > 0)
+                                            {
+                                                throw new NotSupportedException("Doshii: partial payment in bistro mode");
+                                            }
+                                            else
+                                            {
+                                                if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref returnedOrder) && RemoveTableAllocationsAfterFullPayment)
+                                                {
+                                                    m_HttpComs.DeleteTableAllocationWithCheckInId(e.Order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                            
+                            }
+                            else
+                            {
+                                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order rejected for bistro mode - '{0}'", e.Order.ToJsonString())); 
+                                e.Order.Status = "rejected";
+                            
+                                    m_HttpComs.PutOrder(e.Order); 
+                            
                             }
                         }
                         else
                         {
-                            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order rejected for bistro mode - '{0}'", e.Order.ToJsonString())); 
-                            e.Order.Status = "rejected";
-                            m_HttpComs.PutOrder(e.Order);
+                            if (m_DoshiiInterface.ConfirmOrderForRestaurantMode(ref e.Order))
+                            {
+                                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order confirmed for restaurant mode - '{0}'", e.Order.ToJsonString())); 
+                                e.Order.Status = "accepted";
+                                m_HttpComs.PutOrder(e.Order);
+                            
+                            }
+                            else
+                            {
+                                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order rejected for restaurant mode - '{0}'", e.Order.ToJsonString())); 
+                                e.Order.Status = "rejected";
+                                m_HttpComs.PutOrder(e.Order);
+                            }
                         }
                     }
-                    else
+                    catch (Exceptions.NullOrderReturnedException nex)
                     {
-                        if (m_DoshiiInterface.ConfirmOrderForRestaurantMode(ref e.Order))
-                        {
-                            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order confirmed for restaurant mode - '{0}'", e.Order.ToJsonString())); 
-                            e.Order.Status = "accepted";
-                            m_HttpComs.PutOrder(e.Order);
-                            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: the order has now being returned"));
-                        }
-                        else
-                        {
-                            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: order rejected for restaurant mode - '{0}'", e.Order.ToJsonString())); 
-                            e.Order.Status = "rejected";
-                            m_HttpComs.PutOrder(e.Order);
-                        }
+                        m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", e.Order.Id));
                     }
+                    catch (Exceptions.RestfulApiErrorResponseException rex)
+                    {
+                        m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: a RestfulApiErrorResponseException response was returned during a putOrder for order.Id{0}", e.Order.Id));
+                    }
+                    
                     break;
                 default:
                     m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: unkonwn order status - '{0}'", e.Order.ToJsonString())); 
@@ -489,6 +505,14 @@ namespace DoshiiDotNetIntegration
                 {
                     m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                 }
+            }
+            catch (Exceptions.NullOrderReturnedException nex)
+            {
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
+            }
+            catch (Exception ex)
+            {
+                m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0} : {1}", order.Id, ex));
             }
             if (returnedOrder.Id == order.Id)
             {
@@ -733,6 +757,15 @@ namespace DoshiiDotNetIntegration
                     }
                     throw rex;
                 }
+                catch (Exceptions.NullOrderReturnedException nex)
+                {
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a PostOrder for order.CheckinId {0}", order.CheckinId));
+                }
+                catch (Exception ex)
+                {
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for order.CheckinId {0} : {1}", order.CheckinId, ex));
+                }
+                
                 // record the order.Id in the pos so the post can put another order if more items are added from the pos. 
                 m_DoshiiInterface.RecordOrderId(returnedOrder);
             }
@@ -757,6 +790,14 @@ namespace DoshiiDotNetIntegration
                         m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                     }
                     throw rex;
+                }
+                catch (Exceptions.NullOrderReturnedException nex)
+                {
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
+                }
+                catch (Exception ex)
+                {
+                    m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0} : {1}", order.Id, ex));
                 }
             }
 

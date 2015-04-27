@@ -35,12 +35,29 @@ namespace DoshiiDotNetIntegration.Models
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
+
+        private List<string> _Tags;
+        
         /// <summary>
         /// A list of the tags the product should be displayed under in the mobile menu
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "tags")]
-        public List<string> Tags { get; set; }
+        public List<string> Tags 
+        { 
+            get
+            { 
+                if (_Tags == null)
+                {
+                    _Tags = new List<string>();
+                }
+                return _Tags;
+            }
+            set
+            {
+                _Tags = value;
+            }
+        }
 
         /// <summary>
         /// The price the product will be sold for through the mobile app, 
@@ -57,12 +74,27 @@ namespace DoshiiDotNetIntegration.Models
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
+        private List<ProductOptions> _ProductOptions;
+        
         /// <summary>
         /// a list of varient lists the customer can choose from to modify their product.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "product_options")]
-        public List<ProductOptions> ProductOptions { get; set; }
+        public List<ProductOptions> ProductOptions {
+            get
+            {
+                if (_ProductOptions == null)
+                {
+                    _ProductOptions = new List<ProductOptions>();
+                }
+                return _ProductOptions;
+            } 
+            set
+            {
+                _ProductOptions = value;
+            }
+        }
 
         /// <summary>
         /// additional instructions added by the customer
