@@ -40,9 +40,9 @@ namespace DoshiiDotNetIntegration.Tests
             removeTableAllocationsAfterPayment = false;
             socketTimeOutSecs = 600;
             operationLogic.m_HttpComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
-            operationLogic.m_SocketComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TextSocketUrl, operationLogic, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            operationLogic.m_SocketComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TestSocketUrl, operationLogic, GenerateObjectsAndStringHelper.TestTimeOutValue);
             mockOperationLogic.m_HttpComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
-            mockOperationLogic.m_SocketComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TextSocketUrl, operationLogic, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            mockOperationLogic.m_SocketComs = MockRepository.GenerateMock<CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TestSocketUrl, operationLogic, GenerateObjectsAndStringHelper.TestTimeOutValue);
         
         }
         

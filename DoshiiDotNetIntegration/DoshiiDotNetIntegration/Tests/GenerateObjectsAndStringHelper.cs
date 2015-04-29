@@ -12,7 +12,7 @@ namespace DoshiiDotNetIntegration.Tests
         #region test fields
 
         public static string TestBaseUrl = "https://Google.com.au";
-        public static string TextSocketUrl = "wss://google.com.au";
+        public static string TestSocketUrl = "wss://google.com.au";
         public static string TestCustomerId = "TestCustomerId";
         public static string TestPayPalCustomerId = "TestPaypalCustomerId";
         public static string TestTableNumber = "TestTableNumber";

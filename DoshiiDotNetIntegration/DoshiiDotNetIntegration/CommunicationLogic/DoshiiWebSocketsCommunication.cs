@@ -48,7 +48,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #endregion
 
-        #region public  methods and events
+        #region public methods and events
 
         #region events
 
@@ -114,7 +114,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 throw new NotSupportedException("doshii");
             }
-
+            if (socketConnectionTimeOutValue < 10)
+            {
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("The socketConnectionTimeOutValue is set to less than 10 seconds, Times smaller than 10 seconds are not supported."));
+                throw new NotSupportedException("SocketConnectionTimeOutValue is less that 10");
+            }
             m_SocketConnectionTimeOutValue = socketConnectionTimeOutValue;
             m_DoshiiLogic = doshii;
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("instanciating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
@@ -124,15 +128,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("cannot create an instance of DoshiiWebSocketsCommunication with a blank socketUrl"));
                 throw new NotSupportedException("webSocketUrl");
             }
-            
-            
+                        
             m_WebSocketsConnection = new WebSocket(webSocketUrl);
             m_WebSocketsConnection.OnOpen += new EventHandler(WebSocketsConnectionOnOpenEventHandler);
             m_WebSocketsConnection.OnClose += new EventHandler<CloseEventArgs>(WebSocketsConnectionOnCloseEventHandler);
             m_WebSocketsConnection.OnMessage += new EventHandler<MessageEventArgs>(WebSocketsConnectionOnMessageEventHandler);
             m_WebSocketsConnection.OnError += new EventHandler<ErrorEventArgs>(WebSocketsConnectionOnErrorEventHandler);
-
-            
         }
 
         /// <summary>
@@ -196,6 +197,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// this should not be used for anything other than heartbeats as the pos does not communication with Doshii though web sockets, the pos uses http for sending messages to doshii. 
+        /// not tested - need to figure out how to mock the webSockets class
         /// </summary>
         /// <param name="message"></param>
         public virtual void SendMessage(string message)
