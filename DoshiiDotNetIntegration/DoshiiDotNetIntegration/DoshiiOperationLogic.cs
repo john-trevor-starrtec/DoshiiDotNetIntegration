@@ -75,6 +75,7 @@ namespace DoshiiDotNetIntegration
             m_DoshiiInterface = doshiiInterface;
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: Instanciating Doshii Class");
         }
+        
         /// initalizes the webSocket communicaiton with Doshii,
         /// initalizes the Http communicaiton with Doshii,
         /// </summary>

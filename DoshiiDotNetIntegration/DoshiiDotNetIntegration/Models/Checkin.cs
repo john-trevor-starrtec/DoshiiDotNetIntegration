@@ -12,63 +12,57 @@ namespace DoshiiDotNetIntegration.Models
     public class Checkin : JsonSerializationBase<Checkin>
     {
         /// <summary>
-        /// the checkIn Id
+        /// The CheckIn Id
         /// </summary>
         [DataMember]
         [JsonProperty (PropertyName = "id")]
         public string Id { get; set; }
         
         /// <summary>
-        /// the paypalTabId related to the checkin
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "paypalTabId")]
-        public string PaypalTabId { get; set; }
-        
-        /// <summary>
-        /// The doshii customerId
+        /// The Doshii customerId
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "consumerId")]
         public string ConsumerId { get; set; }
         
         /// <summary>
-        /// the venue specific id supplied by doshii
+        /// The venue specific Id supplied by Doshii
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "locationId")]
         public string LocationId { get; set; }
         
         /// <summary>
-        /// this is really only here because it is returned as part of the received data, it can be ignored by the pos and these statuses are handled by doshii.
+        /// This value is controlled by Doshii,
+        /// The value can be ignored by the Pos
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
         
         /// <summary>
-        /// the expirationDate of the checkin
+        /// The ExpirationDate of the CheckIn
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "ExpirationDate")]
         public DateTime ExpirationDate {get;set;}
         
         /// <summary>
-        /// the Gratuity for the checkin
+        /// The Gratuity for the CheckIn
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "Gratuity")]
         public string Gratuity {get;set;}
         
         /// <summary>
-        /// the last time the checkin was updated
+        /// The last time the CheckIn was updated
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "updatedAt")]
         public DateTime UpdatedAt {get;set;}
         
         /// <summary>
-        /// the paypalConsumerId used to identify the consumer for all interactions with doshii
+        /// The PaypalConsumerId used to identify the consumer for all interactions with doshii
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "paypalCustomerId")]

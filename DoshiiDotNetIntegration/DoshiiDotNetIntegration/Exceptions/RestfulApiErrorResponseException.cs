@@ -6,6 +6,10 @@ using System.Net;
 
 namespace DoshiiDotNetIntegration.Exceptions
 {
+    /// <summary>
+    /// This exception will be thrown when requests to doshii return errors, 
+    /// This needs to be handled by the Pos. 
+    /// </summary>
     public class RestfulApiErrorResponseException : Exception
     {
         public HttpStatusCode StatusCode { get; set; }

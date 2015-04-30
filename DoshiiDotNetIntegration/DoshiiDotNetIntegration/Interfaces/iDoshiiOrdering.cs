@@ -5,18 +5,21 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.Interfaces
 {
+    /// <summary>
+    /// This interface implements 
+    /// </summary>
     public interface iDoshiiOrdering
     {
         /// <summary>
-        /// This method should return a list of all the current doshii checked in customers registered in the pos. 
+        /// This method should return a list of all the current doshii checked in customers registered in the Pos. 
         /// </summary>
         /// <returns></returns>
         List<Models.Consumer> GetCheckedInCustomersFromPos();
 
         /// <summary>
-        /// this method should return the order associated with the checkin Id paramater
+        /// this method should return the order associated with the CheckIn Id parameter
         /// the method should return null if there is no order associated with the checkinId
-        /// this method will be called when the order mode is changed from restaurant mode to bistro mode and there are active checkins
+        /// this method will be called when the order mode is changed from restaurant mode to bistro mode and there are active CheckIns
         /// a payment will then be requested for the active orders from doshii so there are no open restaurant orders when the integration is in bistro mode. 
         /// </summary>
         /// <returns></returns>

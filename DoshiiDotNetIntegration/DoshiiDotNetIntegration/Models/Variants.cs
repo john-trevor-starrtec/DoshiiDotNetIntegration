@@ -34,7 +34,7 @@ namespace DoshiiDotNetIntegration.Models
         public string Price { get; set; }
 
         /// <summary>
-        /// the public  Id of the product.
+        /// The POS Id of the varient.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "pos_id")]

@@ -376,7 +376,6 @@ namespace DoshiiDotNetIntegration.Tests
             var checkin = new Models.Checkin()
             {
                 Id = TestCheckinId,
-                PaypalTabId = TestPaypalTabId,
                 ConsumerId = TestCustomerId,
                 LocationId = TestLocationId,
                 Status = TestCheckinStatus,

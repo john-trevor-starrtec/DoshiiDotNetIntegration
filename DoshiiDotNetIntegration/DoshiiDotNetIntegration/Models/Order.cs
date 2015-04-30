@@ -8,76 +8,76 @@ using System.Runtime.Serialization;
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// a doshii order
+    /// A Doshii order
     /// </summary>
     [DataContract]
     [Serializable]
     public class Order : JsonSerializationBase<Order>
     {
         /// <summary>
-        /// order id
+        /// Order id
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }
         
         /// <summary>
-        /// order status
+        /// Order status
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
         
         /// <summary>
-        /// paypal invoice Id
+        /// PayPal invoice Id
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "invoiceId")]
         public string InvoiceId{ get; set; }
         
         /// <summary>
-        /// paypal transaciton id
+        /// PayPal transaciton id
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "transactionId")]
         public string TransactionId { get; set; }
         
         /// <summary>
-        /// the checkinId the order is associated with
+        /// The CheckinId the order is associated with
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "checkinId")]
         public string CheckinId { get; set; }
         
         /// <summary>
-        /// any tips associated with the order
+        /// Any tips associated with the order
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "tip")]
         public string Tip { get; set; }
 
         /// <summary>
-        /// this is used by doahii when splitting the bill
+        /// This is used by doahii when splitting the bill - should not be changed on the pos
         /// </summary>
         [JsonProperty(PropertyName = "paySplits")]
         public string PaySplits { get; set; }
 
         /// <summary>
-        /// this is used by doshii when splitting the bill
+        /// This is used by doshii when splitting the bill - should not be changed on the pos
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "splitWays")]
         public string SplitWays { get; set; }
 
         /// <summary>
-        /// the amount that is being paid REVIEW: (LIAM) - how will this work with multi payments on paypal. 
+        /// The amount that is being paid 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "payTotal")]
         public string PayTotal { get; set; }
 
         /// <summary>
-        /// the amount that has not been paid REVIEW: (LIAM) - how will this work with multi payments on paypal.
+        /// The amount that has not been paid 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "notPayingTotal")]
@@ -86,7 +86,7 @@ namespace DoshiiDotNetIntegration.Models
         public  List<Product> _items;
         
         /// <summary>
-        /// a list of all the items included in the order. 
+        /// A list of all the items included in the order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]
@@ -105,7 +105,8 @@ namespace DoshiiDotNetIntegration.Models
         public  List<Surcount> _surcounts;
 
         /// <summary>
-        /// a list of all surcounts applied at and order level
+        /// A list of all surcounts applied at and order level
+        /// Surcounts are discounts and surcharges / discounts should have a negative value. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "surcounts")]
@@ -124,7 +125,7 @@ namespace DoshiiDotNetIntegration.Models
 
         public  List<Payment> _payments;
         /// <summary>
-        /// a list of all payments applied at and order level
+        /// A list of all payments applied at and order level
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "payments")]
@@ -141,7 +142,7 @@ namespace DoshiiDotNetIntegration.Models
         }
 
         /// <summary>
-        /// the last time the order was updated on doshii
+        /// The last time the order was updated on Doshii
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "updatedAt")]

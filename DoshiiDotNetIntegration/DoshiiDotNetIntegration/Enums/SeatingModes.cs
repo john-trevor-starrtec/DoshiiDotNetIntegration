@@ -11,12 +11,13 @@ namespace DoshiiDotNetIntegration.Enums
     public enum SeatingModes
     {
         /// <summary>
-        /// pos users allocate a table once consumers are checked in
+        /// Pos users allocate a table on the Pos once consumers are checked in
         /// </summary>
         PosAllocation = 1,
 
         /// <summary>
-        /// doshii customers select a table on the mobile app and this is confirmed by the pos. 
+        /// Doshii customers select a table on the mobile app and this is confirmed by the pos. 
+        /// The confirmation can be set to be automatic by the pos or manual depending on the implementation. 
         /// </summary>
         DoshiiAllocation = 2
     }
