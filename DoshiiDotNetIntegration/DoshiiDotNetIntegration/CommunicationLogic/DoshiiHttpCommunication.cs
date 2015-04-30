@@ -572,7 +572,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             string orderIdentifier;
             if (method.Equals("POST"))
             {
-                orderIdentifier = order.CheckinId;
+                orderIdentifier = order.CheckinId.ToString();
             }
             else
             {
