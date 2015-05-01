@@ -6,7 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Enums
 {
     /// <summary>
-    /// the possible seating modes that can be implemented in the doshii integation. 
+    /// the possible seating modes that can be implemented in the doshii integration. 
     /// </summary>
     public enum SeatingModes
     {

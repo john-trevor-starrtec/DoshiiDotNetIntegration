@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
     /// <summary>
-    /// DO NOT USE, This class is used internally by the SDK and should not be instanciated by the pos.
+    /// DO NOT USE, This class is used internally by the SDK and should not be instantiated by the pos.
     /// </summary>
     public class DoshiiHttpCommunication 
     {
@@ -69,18 +69,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Gets a consumer from Doshii with the PayPalCustomerId provided, if no consumer exists a new consumer object is returned. 
+        /// Gets a consumer from Doshii with the meerkatCustomerId provided, if no consumer exists a new consumer object is returned. 
         /// </summary>
-        /// <param name="customerPayPalId"></param>
+        /// <param name="meerkatCustomerId"></param>
         /// <returns></returns>
-        public virtual Models.Consumer GetConsumer(string customerPayPalId)
+        public virtual Models.Consumer GetConsumer(string meerkatCustomerId)
         {
                 
             Models.Consumer retreivedConsumer = new Models.Consumer();
             DoshiHttpResponceMessages responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId), "GET");
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Consumer, meerkatCustomerId), "GET");
 
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
@@ -98,18 +98,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId)));
+                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Consumer, meerkatCustomerId)));
                     }
                     
                 }
                 else
                 {
-                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId)));
+                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Consumer, meerkatCustomerId)));
                 }
             }
             else
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Consumer, customerPayPalId)));
+                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Consumer, meerkatCustomerId)));
             }
 
             return retreivedConsumer;
@@ -570,19 +570,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 throw new NotSupportedException("Method Not Supported");
             }
             string orderIdentifier;
+            Models.Order returnOrder = new Models.Order();
+            DoshiHttpResponceMessages responseMessage;
+            Models.OrderToPut orderToPut = new Models.OrderToPut();
             if (method.Equals("POST"))
             {
                 orderIdentifier = order.CheckinId.ToString();
+                orderToPut.UpdatedAt = DateTime.Now.ToString();
             }
             else
             {
                 orderIdentifier = order.Id.ToString();
+                orderToPut.UpdatedAt = m_DoshiiLogic.m_DoshiiInterface.GetOrderUpdatedAtTime(order);
             }
-            Models.Order returnOrder = new Models.Order();
-            DoshiHttpResponceMessages responseMessage;
-            Models.OrderToPut orderToPut = new Models.OrderToPut();
-            orderToPut.UpdatedAt = m_DoshiiLogic.m_DoshiiInterface.GetOrderUpdatedAtTime(order);
-
+            
             if (order.Status == "accepted")
             {
                 orderToPut.Status = "accepted";

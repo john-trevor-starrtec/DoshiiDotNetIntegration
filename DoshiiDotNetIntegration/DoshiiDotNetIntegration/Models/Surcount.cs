@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// Surchages and Discounts that are applied at an order level.
+    /// Surcharges and Discounts that are applied at an order level.
     /// This model should not be used to record Product level discounts - discounts applied at a product level should be applied directly to the price attached to the product itself. 
     /// Surcharges should have a positive price.
     /// Discounts should have a negative price. 

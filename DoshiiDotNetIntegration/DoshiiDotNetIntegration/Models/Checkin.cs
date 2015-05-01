@@ -65,8 +65,8 @@ namespace DoshiiDotNetIntegration.Models
         /// The PaypalConsumerId used to identify the consumer for all interactions with doshii
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "paypalCustomerId")]
-        public string PaypalCustomerId {get;set;}
+        [JsonProperty(PropertyName = "meerkatConsumerId")]
+        public string MeerkatConsumerId { get; set; }
 
         public Checkin()
         {

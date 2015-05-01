@@ -258,7 +258,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 Thread.Sleep(10000);
                 if (!TestTimeOutValue())
                 {
-                    //raise event for isgnal that Timeout out is expired.
+                    //raise event to signal that Timeout out is expired.
                     SocketCommunicationTimeoutReached(this, new EventArgs());
                 }
                 if (m_WebSocketsConnection.IsAlive)
@@ -366,7 +366,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     allocationEventArgs.TableAllocation.CustomerId = messageData.ConsumerId;
                     allocationEventArgs.TableAllocation.Id = messageData.Id;
                     allocationEventArgs.TableAllocation.Name = messageData.Name;
-                    allocationEventArgs.TableAllocation.PaypalCustomerId = messageData.meerkatConsumerId;
+                    allocationEventArgs.TableAllocation.MeerkatConsumerId = messageData.meerkatConsumerId;
                     if (messageData.Status == "waiting_for_confirmation")
                     {
                         allocationEventArgs.TableAllocation.Status = "waiting_for_confirmation";
@@ -396,7 +396,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case "consumer_checkin":
                     CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
                     newCheckinEventArgs.CheckIn = messageData.CheckinId;
-                    newCheckinEventArgs.PaypalCustomerId = messageData.meerkatConsumerId;
+                    newCheckinEventArgs.MeerkatCustomerId = messageData.meerkatConsumerId;
                     newCheckinEventArgs.Uri = messageData.Uri;
                     newCheckinEventArgs.Consumer = m_DoshiiLogic.GetConsumer(messageData.meerkatConsumerId);
                     newCheckinEventArgs.Consumer.CheckInId = newCheckinEventArgs.CheckIn;
@@ -406,7 +406,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case "consumer_checkout":
                     CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs();
 
-                    checkOutEventArgs.ConsumerId = messageData.meerkatConsumerId;
+                    checkOutEventArgs.MeerkatConsumerId = messageData.meerkatConsumerId;
 
                     CheckOutEvent(this, checkOutEventArgs);
                     break;

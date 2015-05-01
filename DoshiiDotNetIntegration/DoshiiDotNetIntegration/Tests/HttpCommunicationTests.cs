@@ -79,7 +79,7 @@ namespace DoshiiDotNetIntegration.Tests
             //MockHttpComs.VerifyAllExpectations();
             Assert.AreEqual(consumerResponse.Id , consumerInput.Id);
             Assert.AreEqual(consumerResponse.Name, consumerInput.Name);
-            Assert.AreEqual(consumerResponse.PaypalCustomerId, consumerInput.PaypalCustomerId);
+            Assert.AreEqual(consumerResponse.MeerkatConsumerId, consumerInput.MeerkatConsumerId);
             Assert.AreEqual(consumerResponse.PhotoUrl, consumerInput.PhotoUrl);
         }
 

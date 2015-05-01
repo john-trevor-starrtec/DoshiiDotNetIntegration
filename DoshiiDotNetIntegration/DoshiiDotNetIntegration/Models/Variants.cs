@@ -8,33 +8,33 @@ using System.Runtime.Serialization;
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// Varients are available to modify products on the Dohsii app,
-    /// Examples of varients may include;
+    /// Variants are available to modify products on the Doshii app,
+    /// Examples of variants may include;
     /// Steak cooking methods eg 'rare, medium, or well done',
     /// sauces eg 'Tomato, bbq, sour cream'
     /// or sides eg 'chips, veg, salad'
-    /// each varient can have a price attahed to it.
+    /// each variant can have a price attached to it.
     /// </summary>
     [DataContract]
     [Serializable]
     public class Variants : JsonSerializationBase<Variants>
     {
         /// <summary>
-        /// The name of the varient that will be displayed on the mobile app
+        /// The name of the variant that will be displayed on the mobile app
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         /// <summary>
-        /// The price of the varient in cents
+        /// The price of the variant in cents
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "price")]
         public string Price { get; set; }
 
         /// <summary>
-        /// The POS Id of the varient.
+        /// The POS Id of the variant.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "pos_id")]

@@ -13,7 +13,7 @@ namespace DoshiiDotNetIntegration.Models
     public abstract class JsonSerializationBase<TSelf> 
     {
         /// <summary>
-        /// Deseralizes a json string into the derived class
+        /// Deserializes a json string into the derived class
         /// </summary>
         /// <param name="json"></param>
         /// <returns></returns>

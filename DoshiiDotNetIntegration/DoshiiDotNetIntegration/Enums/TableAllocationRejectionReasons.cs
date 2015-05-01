@@ -22,13 +22,13 @@ namespace DoshiiDotNetIntegration.Enums
         TableIsOccupied = 2,
 
         /// <summary>
-        /// The Pos has deallocation the checkin from the table allocaiton,
+        /// The Pos has deallocation the checkin from the table allocation,
         /// This might happen when the checkin is moved to a different table on the pos
         /// </summary>
         CheckinWasDeallocatedByPos = 3,
 
         /// <summary>
-        /// There was a concurreny Issue with the Checkin Allocaiton on the pos
+        /// There was a concurrency Issue with the Checkin Allocation on the pos
         /// eg the checkin was moved on the pos at the same time the checkin was moved on doshii and the allocation message for doshii couldn't be processed because the checkin was no longer at the original table. 
         /// </summary>
         ConcurrencyIssueWithPos = 4,

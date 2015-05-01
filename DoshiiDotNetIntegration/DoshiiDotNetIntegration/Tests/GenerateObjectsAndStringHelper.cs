@@ -14,7 +14,7 @@ namespace DoshiiDotNetIntegration.Tests
         public static string TestBaseUrl = "https://Google.com.au";
         public static string TestSocketUrl = "wss://google.com.au";
         public static string TestCustomerId = "TestCustomerId";
-        public static string TestPayPalCustomerId = "TestPaypalCustomerId";
+        public static string TestMeerkatConsumerId = "TestPaypalCustomerId";
         public static string TestTableNumber = "TestTableNumber";
         public static string TestToken = "TestToken";
         public static string TestCheckinId = "TestCheckinId";
@@ -240,7 +240,7 @@ namespace DoshiiDotNetIntegration.Tests
             var checkInArgs = new CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
             checkInArgs.Consumer = GenerateConsumer1();
             checkInArgs.CheckIn = checkInArgs.Consumer.CheckInId;
-            checkInArgs.PaypalCustomerId = checkInArgs.Consumer.PaypalCustomerId;
+            checkInArgs.MeerkatCustomerId = checkInArgs.Consumer.MeerkatConsumerId;
             checkInArgs.Uri = TestCheckinUrl;
             return checkInArgs;
         }
@@ -348,7 +348,7 @@ namespace DoshiiDotNetIntegration.Tests
                 Id = TestTableName,
                 Name = TestTableAllocationName,
                 CustomerId = TestCustomerId,
-                PaypalCustomerId = TestCustomerId,
+                MeerkatConsumerId = TestCustomerId,
                 Status = TestTableAllocationStatus,
                 Checkin = GenerateCheckin(),
                 rejectionReason = Enums.TableAllocationRejectionReasons.TableDoesNotExist
@@ -363,7 +363,7 @@ namespace DoshiiDotNetIntegration.Tests
                 Id = string.Format("{0}2",TestTableName),
                 Name = string.Format("{0}2",TestTableAllocationName),
                 CustomerId = string.Format("{0}2",TestCustomerId),
-                PaypalCustomerId = string.Format("{0}2",TestCustomerId),
+                MeerkatConsumerId = string.Format("{0}2",TestCustomerId),
                 Status = TestTableAllocationStatus,
                 Checkin = GenerateCheckin(),
                 rejectionReason = Enums.TableAllocationRejectionReasons.TableDoesNotExist
@@ -382,7 +382,7 @@ namespace DoshiiDotNetIntegration.Tests
                 ExpirationDate = DateTime.Now,
                 Gratuity = TestGratuity,
                 UpdatedAt = DateTime.Now,
-                PaypalCustomerId = TestPayPalCustomerId
+                MeerkatConsumerId = TestMeerkatConsumerId
             };
             return checkin;
         }
@@ -393,7 +393,7 @@ namespace DoshiiDotNetIntegration.Tests
             consumer.CheckInId = "123";
             consumer.Id = 1;
             consumer.Name = "John Doe";
-            consumer.PaypalCustomerId = "NC123NV";
+            consumer.MeerkatConsumerId = "NC123NV";
             consumer.PhotoUrl = new Uri("http://www.google.com");
             return consumer;
         }
@@ -404,7 +404,7 @@ namespace DoshiiDotNetIntegration.Tests
             consumer.CheckInId = "456";
             consumer.Id = 2;
             consumer.Name = "Jayne Doe";
-            consumer.PaypalCustomerId = "ACB123AB";
+            consumer.MeerkatConsumerId = "ACB123AB";
             consumer.PhotoUrl = new Uri("http://www.google.com");
             return consumer;
         }
@@ -415,7 +415,7 @@ namespace DoshiiDotNetIntegration.Tests
             consumer.CheckInId = "789";
             consumer.Id = 3;
             consumer.Name = "Bulkan e";
-            consumer.PaypalCustomerId = "axy765xa";
+            consumer.MeerkatConsumerId = "axy765xa";
             consumer.PhotoUrl = new Uri("http://www.google.com");
             return consumer;
         }
@@ -426,7 +426,7 @@ namespace DoshiiDotNetIntegration.Tests
             consumer.CheckInId = "101";
             consumer.Id = 4;
             consumer.Name = "Mary Jane";
-            consumer.PaypalCustomerId = "bgr531gb";
+            consumer.MeerkatConsumerId = "bgr531gb";
             consumer.PhotoUrl = new Uri("http://www.google.com");
             return consumer;
         }

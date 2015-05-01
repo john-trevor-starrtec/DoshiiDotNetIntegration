@@ -36,7 +36,7 @@ namespace DoshiiDotNetIntegration.Models
         public string InvoiceId{ get; set; }
         
         /// <summary>
-        /// PayPal transaciton id
+        /// PayPal transaction id
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "transactionId")]
@@ -57,20 +57,20 @@ namespace DoshiiDotNetIntegration.Models
         public string Tip { get; set; }
 
         /// <summary>
-        /// This is used by doahii when splitting the bill - should not be changed on the pos
+        /// This is used by Doshii when splitting the bill - should not be changed on the pos
         /// </summary>
         [JsonProperty(PropertyName = "paySplits")]
         public string PaySplits { get; set; }
 
         /// <summary>
-        /// This is used by doshii when splitting the bill - should not be changed on the pos
+        /// This is used by Doshii when splitting the bill - should not be changed on the pos
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "splitWays")]
         public string SplitWays { get; set; }
 
         /// <summary>
-        /// The amount that is being paid 
+        /// The amount that is being paid when a payment is made from Doshii.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "payTotal")]
@@ -83,7 +83,7 @@ namespace DoshiiDotNetIntegration.Models
         [JsonProperty(PropertyName = "notPayingTotal")]
         public string NotPayingTotal { get; set; }
 
-        public  List<Product> _items;
+        private List<Product> _items;
         
         /// <summary>
         /// A list of all the items included in the order. 
@@ -102,7 +102,7 @@ namespace DoshiiDotNetIntegration.Models
             set { _items = value; } 
         }
 
-        public  List<Surcount> _surcounts;
+        private List<Surcount> _surcounts;
 
         /// <summary>
         /// A list of all surcounts applied at and order level
@@ -123,9 +123,9 @@ namespace DoshiiDotNetIntegration.Models
             set { _surcounts = value; }
         }
 
-        public  List<Payment> _payments;
+        private List<Payment> _payments;
         /// <summary>
-        /// A list of all payments applied at and order level
+        /// A list of all payments applied from the pos at an order level. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "payments")]

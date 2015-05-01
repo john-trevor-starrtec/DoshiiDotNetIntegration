@@ -24,7 +24,7 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "meerkatConsumerId")]
-        public string PaypalCustomerId { get; set; }
+        public string MeerkatConsumerId { get; set; }
         
         /// <summary>
         /// The name of the consumer
@@ -34,7 +34,7 @@ namespace DoshiiDotNetIntegration.Models
         public string Name { get; set; }
         
         /// <summary>
-        /// The url of the consumer photos
+        /// The URL of the consumer photos
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "PhotoUrl")]

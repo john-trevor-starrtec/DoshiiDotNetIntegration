@@ -40,10 +40,10 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "meerkatConsumerId")]
-        public string PaypalCustomerId { get; set; }
+        public string MeerkatConsumerId { get; set; }
 
         /// <summary>
-        /// The allocaiton status of the table. 
+        /// The allocation status of the table. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "status")]

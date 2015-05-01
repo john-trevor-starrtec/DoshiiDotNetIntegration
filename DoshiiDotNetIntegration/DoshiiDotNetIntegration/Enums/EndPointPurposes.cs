@@ -6,7 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Enums
 {
     /// <summary>
-    /// The possible actions for communication with the doshii restful api over http
+    /// The possible actions for communication with the doshii restful API over HTTP
     /// </summary>
     public enum EndPointPurposes
     {

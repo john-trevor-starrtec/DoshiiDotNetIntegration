@@ -10,7 +10,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// DO NOT USE FROM POS
     /// This model is used when either completing a PUT or a POST to update an order
-    /// This model should not instanciated by the Pos and should only be used internaly. 
+    /// This model should not instantiated by the Pos and should only be used internally. 
     /// </summary>
     [DataContract]
     [Serializable]

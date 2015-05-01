@@ -28,7 +28,7 @@ namespace DoshiiDotNetIntegration.Models
 
         /// <summary>
         /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// The PayPalCustomerId associated with the message. 
+        /// The MeerkatCustomerId associated with the message. 
         /// </summary>
         [JsonProperty(PropertyName = "meerkatConsumerId")]
         public string meerkatConsumerId { get; set; }
@@ -84,7 +84,7 @@ namespace DoshiiDotNetIntegration.Models
 
         /// <summary>
         /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// The Url associated with the message. 
+        /// The URL associated with the message. 
         /// </summary>
         [JsonProperty(PropertyName = "uri")]
         public Uri Uri { get; set; }

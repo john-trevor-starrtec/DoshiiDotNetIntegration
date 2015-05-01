@@ -15,28 +15,28 @@ namespace DoshiiDotNetIntegration.Models
     public class ProductOptions : JsonSerializationBase<ProductOptions>
     {
         /// <summary>
-        /// The name of this product options / or list of vairents
+        /// The name of this product options / or list of variants
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         /// <summary>
-        /// The minimum amount of varients that must be chosen from this set of varients
+        /// The minimum amount of variants that must be chosen from this set of variants
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "min")]
         public int Min { get; set; }
 
         /// <summary>
-        /// The maximum amount of varients that can be chosen form this set of varients. 
+        /// The maximum amount of variants that can be chosen form this set of variants. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "max")]
         public int Max { get; set; }
 
         /// <summary>
-        /// The POS identifier for this set of varients. 
+        /// The POS identifier for this set of variants. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "pos_id")]

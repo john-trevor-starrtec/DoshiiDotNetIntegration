@@ -16,7 +16,7 @@ namespace DoshiiDotNetIntegration.Models
     public class Product : JsonSerializationBase<Product>
     {
         /// <summary>
-        /// The Doshii Id of the prduct.
+        /// The Doshii Id of the product.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "id")]
@@ -43,8 +43,8 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// A list of the groups the product should be displayed under in the doshii mobile app
         /// This field is optional,
-        /// Products can be added manualy to groups in the doshii dashboard,
-        /// If this list is populated the product will be automoatically added to the groups included, this will reduce setup time. 
+        /// Products can be added manually to groups in the doshii dashboard,
+        /// If this list is populated the product will be automatically added to the groups included, this will reduce setup time. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "tags")]

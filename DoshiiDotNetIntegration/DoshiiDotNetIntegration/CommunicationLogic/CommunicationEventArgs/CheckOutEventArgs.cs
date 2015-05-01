@@ -7,6 +7,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
     public class CheckOutEventArgs : EventArgs
     {
-        public string ConsumerId { get; set; }
+        public string MeerkatConsumerId { get; set; }
     }
 }

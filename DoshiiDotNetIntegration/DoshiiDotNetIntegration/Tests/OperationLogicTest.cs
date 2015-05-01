@@ -50,28 +50,28 @@ namespace DoshiiDotNetIntegration.Tests
         [ExpectedException(typeof(NotSupportedException))]
         public void Initialze_NoSocketUrl()
         {
-            operationLogic.Initialize("",token,orderMode, seatingMode, urlBase, startWebSocketsConnection, removeTableAllocationsAfterPayment, socketTimeOutSecs);
+            operationLogic.Initialize("",token,orderMode, seatingMode, urlBase, startWebSocketsConnection, socketTimeOutSecs);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Initialze_NoUrlBase()
         {
-            operationLogic.Initialize(socketUrl, token, orderMode, seatingMode, "", startWebSocketsConnection, removeTableAllocationsAfterPayment, socketTimeOutSecs);
+            operationLogic.Initialize(socketUrl, token, orderMode, seatingMode, "", startWebSocketsConnection, socketTimeOutSecs);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Initialze_NoSocketTimeOutValue()
         {
-            operationLogic.Initialize(socketUrl, token, orderMode, seatingMode, urlBase, startWebSocketsConnection, removeTableAllocationsAfterPayment, 0);
+            operationLogic.Initialize(socketUrl, token, orderMode, seatingMode, urlBase, startWebSocketsConnection, 0);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Initialze_NoToken()
         {
-            operationLogic.Initialize(socketUrl, "", orderMode, seatingMode, urlBase, startWebSocketsConnection, removeTableAllocationsAfterPayment, socketTimeOutSecs);
+            operationLogic.Initialize(socketUrl, "", orderMode, seatingMode, urlBase, startWebSocketsConnection, socketTimeOutSecs);
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace DoshiiDotNetIntegration.Tests
         public void SocketComsCheckOutEventHandler_shouldCallCheckoutConsumer_withConsumerCheckinId()
         {
             orderingInterface.Expect(x => x.CheckOutConsumer(GenerateObjectsAndStringHelper.TestCustomerId));
-            operationLogic.SocketComsCheckOutEventHandler(new object(), new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs() { ConsumerId = GenerateObjectsAndStringHelper.TestCustomerId });
+            operationLogic.SocketComsCheckOutEventHandler(new object(), new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs() { MeerkatConsumerId = GenerateObjectsAndStringHelper.TestCustomerId });
             orderingInterface.VerifyAllExpectations();
         }
 
@@ -129,7 +129,7 @@ namespace DoshiiDotNetIntegration.Tests
         {
             var tableAllocationEventArgs = GenerateObjectsAndStringHelper.GenerateTableAllocationEventArgs();
             orderingInterface.Expect(x => x.ConfirmTableAllocation(ref tableAllocationEventArgs.TableAllocation)).Return(true);
-            operationLogic.m_HttpComs.Expect(x => x.PutTableAllocation(tableAllocationEventArgs.TableAllocation.PaypalCustomerId, tableAllocationEventArgs.TableAllocation.Id)).Return(true);
+            operationLogic.m_HttpComs.Expect(x => x.PutTableAllocation(tableAllocationEventArgs.TableAllocation.MeerkatConsumerId, tableAllocationEventArgs.TableAllocation.Id)).Return(true);
 
             operationLogic.SocketComsTableAllocationEventHandler(new object(), tableAllocationEventArgs);
             orderingInterface.VerifyAllExpectations();
@@ -142,7 +142,7 @@ namespace DoshiiDotNetIntegration.Tests
             var tableAllocationEventArgs = GenerateObjectsAndStringHelper.GenerateTableAllocationEventArgs();
             tableAllocationEventArgs.TableAllocation.rejectionReason = Enums.TableAllocationRejectionReasons.TableDoesNotExist;
             orderingInterface.Expect(x => x.ConfirmTableAllocation(ref tableAllocationEventArgs.TableAllocation)).Return(false);
-            operationLogic.m_HttpComs.Expect(x => x.RejectTableAllocation(tableAllocationEventArgs.TableAllocation.PaypalCustomerId, tableAllocationEventArgs.TableAllocation.Id, tableAllocationEventArgs.TableAllocation.rejectionReason)).Return(true);
+            operationLogic.m_HttpComs.Expect(x => x.RejectTableAllocation(tableAllocationEventArgs.TableAllocation.MeerkatConsumerId, tableAllocationEventArgs.TableAllocation.Id, tableAllocationEventArgs.TableAllocation.rejectionReason)).Return(true);
 
             operationLogic.SocketComsTableAllocationEventHandler(new object(), tableAllocationEventArgs);
             orderingInterface.VerifyAllExpectations();
@@ -155,7 +155,7 @@ namespace DoshiiDotNetIntegration.Tests
             var tableAllocationEventArgs = GenerateObjectsAndStringHelper.GenerateTableAllocationEventArgs();
             tableAllocationEventArgs.TableAllocation.rejectionReason = Enums.TableAllocationRejectionReasons.TableIsOccupied;
             orderingInterface.Expect(x => x.ConfirmTableAllocation(ref tableAllocationEventArgs.TableAllocation)).Return(false);
-            operationLogic.m_HttpComs.Expect(x => x.RejectTableAllocation(tableAllocationEventArgs.TableAllocation.PaypalCustomerId, tableAllocationEventArgs.TableAllocation.Id, tableAllocationEventArgs.TableAllocation.rejectionReason)).Return(true);
+            operationLogic.m_HttpComs.Expect(x => x.RejectTableAllocation(tableAllocationEventArgs.TableAllocation.MeerkatConsumerId, tableAllocationEventArgs.TableAllocation.Id, tableAllocationEventArgs.TableAllocation.rejectionReason)).Return(true);
 
             operationLogic.SocketComsTableAllocationEventHandler(new object(), tableAllocationEventArgs);
             orderingInterface.VerifyAllExpectations();
@@ -374,14 +374,11 @@ namespace DoshiiDotNetIntegration.Tests
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = true;
-
+            
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException() {StatusCode = System.Net.HttpStatusCode.NotFound });
-            orderingInterface.Expect(x => x.CheckOutConsumerWithCheckInId(order.CheckinId));
-
+            
             operationLogic.RequestPaymentForOrder(order);
 
-            orderingInterface.VerifyAllExpectations();
             operationLogic.m_HttpComs.VerifyAllExpectations();
         }
 
@@ -390,14 +387,11 @@ namespace DoshiiDotNetIntegration.Tests
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = true;
             
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(order).Repeat.Once();
             
             orderingInterface.Expect(x => x.RecordFullCheckPayment(ref order)).Return(true);
 
-            operationLogic.m_HttpComs.Expect(x => x.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid)).Return(true).Repeat.Once();
-            
             operationLogic.RequestPaymentForOrder(order);
             
             operationLogic.m_HttpComs.VerifyAllExpectations();
@@ -409,13 +403,10 @@ namespace DoshiiDotNetIntegration.Tests
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = true;
-
+            
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(order).Repeat.Once();
 
             orderingInterface.Expect(x => x.RecordFullCheckPaymentBistroMode(ref order)).Return(true);
-
-            operationLogic.m_HttpComs.Expect(x => x.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid)).Return(true).Repeat.Once();
 
             operationLogic.RequestPaymentForOrder(order);
 
@@ -429,13 +420,10 @@ namespace DoshiiDotNetIntegration.Tests
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.NotPayingTotal = "2";
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = true;
-
+            
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(order).Repeat.Once();
 
             orderingInterface.Expect(x => x.RecordFullCheckPaymentBistroMode(ref order)).Return(true);
-
-            operationLogic.m_HttpComs.Expect(x => x.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid)).Return(true).Repeat.Once();
 
             operationLogic.RequestPaymentForOrder(order);
 
@@ -449,13 +437,10 @@ namespace DoshiiDotNetIntegration.Tests
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             order.NotPayingTotal = "2";
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = true;
-
+            
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(order).Repeat.Once();
 
             orderingInterface.Expect(x => x.RecordPartialCheckPayment(ref order)).Return(true);
-
-            operationLogic.m_HttpComs.Expect(x => x.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid)).Return(true).Repeat.Once();
 
             operationLogic.RequestPaymentForOrder(order);
 
@@ -468,13 +453,10 @@ namespace DoshiiDotNetIntegration.Tests
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = false;
-
+            
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(order).Repeat.Once();
 
             orderingInterface.Expect(x => x.RecordFullCheckPayment(ref order)).Return(true);
-
-            operationLogic.m_HttpComs.Expect(x => x.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid)).Return(true).Repeat.Never();
 
             operationLogic.RequestPaymentForOrder(order);
 
@@ -487,13 +469,10 @@ namespace DoshiiDotNetIntegration.Tests
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = false;
-
+            
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(order).Repeat.Once();
 
             orderingInterface.Expect(x => x.RecordFullCheckPaymentBistroMode(ref order)).Return(true);
-
-            operationLogic.m_HttpComs.Expect(x => x.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid)).Return(true).Repeat.Never();
 
             operationLogic.RequestPaymentForOrder(order);
 
@@ -506,13 +485,10 @@ namespace DoshiiDotNetIntegration.Tests
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.BistroMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = false;
-
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(order).Repeat.Once();
 
             orderingInterface.Expect(x => x.RecordFullCheckPaymentBistroMode(ref order)).Return(true);
 
-            operationLogic.m_HttpComs.Expect(x => x.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid)).Return(true).Repeat.Never();
             operationLogic.RequestPaymentForOrder(order);
 
             operationLogic.m_HttpComs.VerifyAllExpectations();
@@ -524,13 +500,9 @@ namespace DoshiiDotNetIntegration.Tests
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
             operationLogic.OrderMode = Enums.OrderModes.RestaurantMode;
-            operationLogic.RemoveTableAllocationsAfterFullPayment = false;
-
             operationLogic.m_HttpComs.Expect(x => x.PutOrder(Arg<Models.Order>.Matches(y => y.Status == "waiting for payment"))).Return(order).Repeat.Once();
 
             orderingInterface.Expect(x => x.RecordFullCheckPayment(ref order)).Return(true);
-
-            operationLogic.m_HttpComs.Expect(x => x.DeleteTableAllocationWithCheckInId(order.CheckinId, Enums.TableAllocationRejectionReasons.tableHasBeenPaid)).Return(true).Repeat.Never();
 
             operationLogic.RequestPaymentForOrder(order);
 
@@ -728,11 +700,11 @@ namespace DoshiiDotNetIntegration.Tests
         public void GetConsumer_CallsGetConsumer()
         {
             var consumer = GenerateObjectsAndStringHelper.GenerateConsumer1();
-            operationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumer.PaypalCustomerId)).Return(consumer).Repeat.Once();
-            operationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumer.PaypalCustomerId)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            operationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumer.MeerkatConsumerId)).Return(consumer).Repeat.Once();
+            operationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumer.MeerkatConsumerId)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
-            operationLogic.GetConsumer(consumer.PaypalCustomerId);
-            operationLogic.GetConsumer(consumer.PaypalCustomerId);
+            operationLogic.GetConsumer(consumer.MeerkatConsumerId);
+            operationLogic.GetConsumer(consumer.MeerkatConsumerId);
 
             operationLogic.m_HttpComs.VerifyAllExpectations();
         }
@@ -837,10 +809,10 @@ namespace DoshiiDotNetIntegration.Tests
             mockOperationLogic.m_HttpComs.Stub(x => x.GetOrders()).Return(new List<Models.Order>()).Repeat.Once();
             
             mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumers()).Return(consumerList).Repeat.Once();
-            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[0].PaypalCustomerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer1()).Repeat.Once();
-            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[1].PaypalCustomerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer2()).Repeat.Once();
-            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[2].PaypalCustomerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer3()).Repeat.Once();
-            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[3].PaypalCustomerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer4()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[0].MeerkatConsumerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer1()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[1].MeerkatConsumerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer2()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[2].MeerkatConsumerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer3()).Repeat.Once();
+            mockOperationLogic.m_HttpComs.Expect(x => x.GetConsumer(consumerList[3].MeerkatConsumerId)).Return(GenerateObjectsAndStringHelper.GenerateConsumer4()).Repeat.Once();
             mockOperationLogic.Expect(x => x.SocketComsConsumerCheckinEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs>.Matches(y => y.CheckIn == consumerList[0].CheckInId))).Repeat.Once();
             mockOperationLogic.Expect(x => x.SocketComsConsumerCheckinEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs>.Matches(y => y.CheckIn == consumerList[1].CheckInId))).Repeat.Once();
             mockOperationLogic.Expect(x => x.SocketComsConsumerCheckinEventHandler(Arg<DoshiiOperationLogic>.Is.Anything, Arg<CommunicationLogic.CommunicationEventArgs.CheckInEventArgs>.Matches(y => y.CheckIn == consumerList[2].CheckInId))).Repeat.Once();

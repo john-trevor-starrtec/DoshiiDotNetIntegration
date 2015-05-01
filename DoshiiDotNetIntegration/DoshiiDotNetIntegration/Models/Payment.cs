@@ -16,7 +16,7 @@ namespace DoshiiDotNetIntegration.Models
     public class Payment
     {
         /// <summary>
-        /// A string describing the payment method eg "Cash", "EFTPOS"
+        /// A string describing the payment method eg.. "Cash", "EFTPOS"
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "type")]
