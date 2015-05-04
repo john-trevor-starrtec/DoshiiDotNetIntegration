@@ -7,34 +7,40 @@ using System.Net;
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
     /// <summary>
-    /// the message objec that is used to process all requests to the doshii restful api.
+    /// DO NOT USE, This class is used internally by the SDK and should not be instantiated by the pos.
+    /// the message object that is used to process all requests to the doshii restful API.
     /// </summary>
-    internal class DoshiHttpResponceMessages
+    public class DoshiHttpResponceMessages
     {
         /// <summary>
-        /// the status of the message responce
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// The status of the message response.
         /// </summary>
-        internal HttpStatusCode Status { get; set; }
+        public HttpStatusCode Status { get; set; }
 
         /// <summary>
-        /// the status description of the messae responce
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// The status description of the message response
         /// </summary>
-        internal string StatusDescription { get; set; }
+        public string StatusDescription { get; set; }
 
         /// <summary>
-        /// the data returned in the responce if there is no data returned this may be null
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// The data returned in the response if there is no data returned this may be null
         /// </summary>
-        internal string Data { get; set; }
+        public string Data { get; set; }
 
         /// <summary>
-        /// the error message if the responce was unsuccessfull
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// The error message if the response was unsuccessful
         /// </summary>
-        internal string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; }
 
         /// <summary>
-        /// a message that may be used dring prcessing. 
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// A message that may be used during processing. 
         /// </summary>
-        internal string Message { get; set; }
+        public string Message { get; set; }
 
     }
 }

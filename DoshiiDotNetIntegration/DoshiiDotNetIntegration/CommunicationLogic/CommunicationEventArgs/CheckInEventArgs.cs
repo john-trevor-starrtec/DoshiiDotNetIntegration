@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
     {
         public string CheckIn;
 
-        public string PaypalCustomerId;
+        public string MeerkatCustomerId;
 
         public Uri Uri;
 

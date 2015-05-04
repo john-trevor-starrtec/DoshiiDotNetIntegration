@@ -7,72 +7,84 @@ using Newtonsoft.Json;
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// this is data that is included in the doshii socket messages. all the fields are not used by all the messages 
+    /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+    /// This is data that is included in the doshii socket messages. all the fields are not used by all the messages 
     /// </summary>
     public class SocketMessageData : JsonSerializationBase<SocketMessageData>
     {
         /// <summary>
-        /// the event name
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The event name
         /// </summary>
         [JsonProperty(PropertyName = "event")]
         public string EventName { get; set; }
         
         /// <summary>
-        /// the consumerId associated with the message
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The ConsumerId associated with the message
         /// </summary>
         [JsonProperty(PropertyName = "consumerId")]
         public string ConsumerId { get; set; }
 
         /// <summary>
-        /// the paypalCustomerId associated with the message. 
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The MeerkatCustomerId associated with the message. 
         /// </summary>
-        [JsonProperty(PropertyName = "paypalCustomerId")]
-        public string PaypalCustomerId { get; set; }
+        [JsonProperty(PropertyName = "meerkatConsumerId")]
+        public string meerkatConsumerId { get; set; }
 
         /// <summary>
-        /// the name associated with the message
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The Name associated with the message
         /// </summary>
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         /// <summary>
-        /// the id associated with the message
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The Id associated with the message
         /// </summary>
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
         /// <summary>
-        /// the status associated with the message
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The Status associated with the message
         /// </summary>
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
 
         /// <summary>
-        /// the orderId associated with the message
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The OrderId associated with the message
         /// </summary>
         [JsonProperty(PropertyName = "orderId")]
         public string OrderId { get; set; }
 
         /// <summary>
-        /// the order associated with the message
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The Order associated with the message
         /// </summary>
         [JsonProperty(PropertyName = "order")]
         public string Order { get; set; }
 
         /// <summary>
-        /// the consumer associated with the message
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The Consumer associated with the message
         /// </summary>
         [JsonProperty(PropertyName = "consumer")]
         public string Consumer { get; set; }
 
         /// <summary>
-        /// the checkinId associated with the message
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The CheckInId associated with the message
         /// </summary>
         [JsonProperty(PropertyName = "checkinId")]
         public string CheckinId { get; set; }
 
         /// <summary>
-        /// the url associated with the message. 
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The URL associated with the message. 
         /// </summary>
         [JsonProperty(PropertyName = "uri")]
         public Uri Uri { get; set; }
