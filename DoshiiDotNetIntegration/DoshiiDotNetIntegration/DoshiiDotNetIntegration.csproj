@@ -109,10 +109,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Tests\GenerateObjectsAndStringHelper.cs" />
-    <Compile Include="Tests\HttpCommunicationTests.cs" />
-    <Compile Include="Tests\OperationLogicTest.cs" />
-    <Compile Include="Tests\SocketCommunicationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

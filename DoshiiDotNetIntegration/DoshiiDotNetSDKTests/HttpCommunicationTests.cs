@@ -5,61 +5,64 @@ using System.Text;
 using NUnit.Framework;
 using Rhino.Mocks;
 using System.Net;
+using DoshiiDotNetIntegration;
+using DoshiiDotNetIntegration.Exceptions;
+using Newtonsoft;
 
-namespace DoshiiDotNetIntegration.Tests
+namespace DoshiiDotNetSDKTests
 {
     [TestFixture]
     public class HttpCommunicationTests
     {
         DoshiiOperationLogic operationLogic;
-        Interfaces.iDoshiiOrdering orderingInterface;
-        CommunicationLogic.DoshiiHttpCommunication HttpComs;
-        CommunicationLogic.DoshiiHttpCommunication MockHttpComs;
+        DoshiiDotNetIntegration.Interfaces.iDoshiiOrdering orderingInterface;
+        DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication HttpComs;
+        DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication MockHttpComs;
 
         [SetUp]
         public void Init()
         {
-            orderingInterface = MockRepository.GenerateMock<Interfaces.iDoshiiOrdering>();
+            orderingInterface = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.iDoshiiOrdering>();
             operationLogic = MockRepository.GenerateMock<DoshiiOperationLogic>(orderingInterface);
-            MockHttpComs = MockRepository.GeneratePartialMock<CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
-            HttpComs = new CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
+            MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
+            HttpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Constructor_NoUrl()
         {
-            var httpComs = new CommunicationLogic.DoshiiHttpCommunication("", operationLogic, GenerateObjectsAndStringHelper.TestToken);
+            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication("", operationLogic, GenerateObjectsAndStringHelper.TestToken);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Constructor_OperationLogic()
         {
-            var httpComs = new CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, null, GenerateObjectsAndStringHelper.TestToken);
+            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, null, GenerateObjectsAndStringHelper.TestToken);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException))]
         public void Constructor_NoToken()
         {
-            var httpComs = new CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, "");
+            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, "");
         }
 
         [Test]
         public void Constructor_AllParamatersCorrect()
         {
-            var httpComs = new CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
+            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, operationLogic, GenerateObjectsAndStringHelper.TestToken);
             Assert.AreEqual(httpComs.m_Token, GenerateObjectsAndStringHelper.TestToken);
             Assert.AreEqual(httpComs.m_DoshiiLogic, operationLogic);
             Assert.AreEqual(httpComs.m_DoshiiUrlBase, GenerateObjectsAndStringHelper.TestBaseUrl);
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetConsumer_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
             
             MockHttpComs.GetConsumer(GenerateObjectsAndStringHelper.TestCustomerId);
 
@@ -84,10 +87,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetConsumers_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.GetConsumers();
 
@@ -113,10 +116,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetOrder_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString());
 
@@ -136,10 +139,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
         
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetOrders_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.GetOrders();
 
@@ -162,10 +165,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetTableAllocations_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.GetTableAllocations();
 
@@ -187,10 +190,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void PutTableAllocaiton_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.PutTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName);
 
@@ -220,10 +223,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void PostTableAllocaiton_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.PostTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName);
 
@@ -260,7 +263,7 @@ namespace DoshiiDotNetIntegration.Tests
             builder.AppendFormat("{0}", GenerateObjectsAndStringHelper.TestTableName);
             builder.Append("\"}");
 
-            MockHttpComs.Expect(x => x.GenerateUrl(Enums.EndPointPurposes.AddTableAllocation, GenerateObjectsAndStringHelper.TestCustomerId)).Return(string.Format("/consumers/{0}/table", GenerateObjectsAndStringHelper.TestCustomerId));
+            MockHttpComs.Expect(x => x.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.AddTableAllocation, GenerateObjectsAndStringHelper.TestCustomerId)).Return(string.Format("/consumers/{0}/table", GenerateObjectsAndStringHelper.TestCustomerId));
             MockHttpComs.Expect(x => x.MakeRequest(string.Format("/consumers/{0}/table", GenerateObjectsAndStringHelper.TestCustomerId), "POST", builder.ToString())).Return(GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationSuccess());
 
             MockHttpComs.PostTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName);
@@ -269,12 +272,12 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void DeleteTableAllocationWithCheckInId_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
-            MockHttpComs.DeleteTableAllocationWithCheckInId(GenerateObjectsAndStringHelper.TestCheckinId, Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            MockHttpComs.DeleteTableAllocationWithCheckInId(GenerateObjectsAndStringHelper.TestCheckinId, DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             MockHttpComs.VerifyAllExpectations();
         }
@@ -285,7 +288,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationSuccess();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var success = MockHttpComs.DeleteTableAllocationWithCheckInId(GenerateObjectsAndStringHelper.TestCheckinId, Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            var success = MockHttpComs.DeleteTableAllocationWithCheckInId(GenerateObjectsAndStringHelper.TestCheckinId, DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             Assert.AreEqual(success, true);
         }
@@ -296,7 +299,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationFailure();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var success = MockHttpComs.DeleteTableAllocationWithCheckInId(GenerateObjectsAndStringHelper.TestCheckinId, Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            var success = MockHttpComs.DeleteTableAllocationWithCheckInId(GenerateObjectsAndStringHelper.TestCheckinId, DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             Assert.AreEqual(success, false);
         }
@@ -307,18 +310,18 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationFailure();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
 
-            var success = MockHttpComs.DeleteTableAllocationWithCheckInId(GenerateObjectsAndStringHelper.TestCheckinId, Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            var success = MockHttpComs.DeleteTableAllocationWithCheckInId(GenerateObjectsAndStringHelper.TestCheckinId, DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             Assert.AreEqual(success, false);
         }
         
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void SetSeatingAndOrderConfiguration_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
-            MockHttpComs.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode);
+            MockHttpComs.SetSeatingAndOrderConfiguration(DoshiiDotNetIntegration.Enums.SeatingModes.DoshiiAllocation, DoshiiDotNetIntegration.Enums.OrderModes.BistroMode);
 
             MockHttpComs.VerifyAllExpectations();
         }
@@ -329,7 +332,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationSuccess();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var success = MockHttpComs.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode);
+            var success = MockHttpComs.SetSeatingAndOrderConfiguration(DoshiiDotNetIntegration.Enums.SeatingModes.DoshiiAllocation, DoshiiDotNetIntegration.Enums.OrderModes.BistroMode);
 
             Assert.AreEqual(success, true);
         }
@@ -340,7 +343,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationFailure();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var success = MockHttpComs.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode);
+            var success = MockHttpComs.SetSeatingAndOrderConfiguration(DoshiiDotNetIntegration.Enums.SeatingModes.DoshiiAllocation, DoshiiDotNetIntegration.Enums.OrderModes.BistroMode);
 
             Assert.AreEqual(success, false);
         }
@@ -351,7 +354,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationFailure();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
 
-            var success = MockHttpComs.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode);
+            var success = MockHttpComs.SetSeatingAndOrderConfiguration(DoshiiDotNetIntegration.Enums.SeatingModes.DoshiiAllocation, DoshiiDotNetIntegration.Enums.OrderModes.BistroMode);
 
             Assert.AreEqual(success, false);
         }
@@ -366,10 +369,10 @@ namespace DoshiiDotNetIntegration.Tests
             configString.Append(" \"tableMode\": ");
             configString.Append(" \"selection\" }");
 
-            MockHttpComs.Expect(x => x.GenerateUrl(Enums.EndPointPurposes.SetSeatingAndOrderConfiguration)).Return("/config");
+            MockHttpComs.Expect(x => x.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.SetSeatingAndOrderConfiguration)).Return("/config");
             MockHttpComs.Expect(x => x.MakeRequest("/config", "PUT", configString.ToString())).Return(GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationSuccess());
 
-            MockHttpComs.SetSeatingAndOrderConfiguration(Enums.SeatingModes.DoshiiAllocation, Enums.OrderModes.BistroMode);
+            MockHttpComs.SetSeatingAndOrderConfiguration(DoshiiDotNetIntegration.Enums.SeatingModes.DoshiiAllocation, DoshiiDotNetIntegration.Enums.OrderModes.BistroMode);
 
             MockHttpComs.VerifyAllExpectations();
         }
@@ -383,11 +386,11 @@ namespace DoshiiDotNetIntegration.Tests
             configString.Append(" \"restaurant\",");
             configString.Append(" \"tableMode\": ");
             configString.Append(" \"allocation\" }");
-            
-            MockHttpComs.Expect(x => x.GenerateUrl(Enums.EndPointPurposes.SetSeatingAndOrderConfiguration)).Return("/config");
+
+            MockHttpComs.Expect(x => x.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.SetSeatingAndOrderConfiguration)).Return("/config");
             MockHttpComs.Expect(x => x.MakeRequest("/config", "PUT", configString.ToString())).Return(GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationSuccess());
 
-            MockHttpComs.SetSeatingAndOrderConfiguration(Enums.SeatingModes.PosAllocation, Enums.OrderModes.RestaurantMode);
+            MockHttpComs.SetSeatingAndOrderConfiguration(DoshiiDotNetIntegration.Enums.SeatingModes.PosAllocation, DoshiiDotNetIntegration.Enums.OrderModes.RestaurantMode);
 
             MockHttpComs.VerifyAllExpectations();
         }
@@ -395,7 +398,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SerializeTableDeAllocationRejectionReason_TableDoesNotExist()
         {
-            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons.TableDoesNotExist);
+            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.TableDoesNotExist);
 
             Assert.AreEqual(reasonCodeString, "{\"reasonCode\" : \"1\"}");
             
@@ -404,7 +407,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SerializeTableDeAllocationRejectionReason_TableIsOccupied()
         {
-            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons.TableIsOccupied);
+            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.TableIsOccupied);
 
             Assert.AreEqual(reasonCodeString, "{\"reasonCode\" : \"2\"}");
             
@@ -413,7 +416,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SerializeTableDeAllocationRejectionReason_CheckinWasDeallocatedByPos()
         {
-            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             Assert.AreEqual(reasonCodeString, "{\"reasonCode\" : \"3\"}");
             
@@ -422,7 +425,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SerializeTableDeAllocationRejectionReason_ConcurrencyIssueWithPos()
         {
-            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons.ConcurrencyIssueWithPos);
+            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.ConcurrencyIssueWithPos);
 
             Assert.AreEqual(reasonCodeString, "{\"reasonCode\" : \"4\"}");
             
@@ -431,7 +434,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SerializeTableDeAllocationRejectionReason_tableDoesNotHaveATab()
         {
-            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons.tableDoesNotHaveATab);
+            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.tableDoesNotHaveATab);
 
             Assert.AreEqual(reasonCodeString, "{\"reasonCode\" : \"5\"}");
             
@@ -440,7 +443,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SerializeTableDeAllocationRejectionReason_tableHasBeenPaid()
         {
-            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
+            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.tableHasBeenPaid);
 
             Assert.AreEqual(reasonCodeString, "{\"reasonCode\" : \"6\"}");
             
@@ -449,7 +452,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void SerializeTableDeAllocationRejectionReason_unknownError()
         {
-            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons.unknownError);
+            string reasonCodeString = HttpComs.SerializeTableDeAllocationRejectionReason(DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.unknownError);
 
             Assert.AreEqual(reasonCodeString, "{\"reasonCode\" : \"7\"}");
             
@@ -458,9 +461,9 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void RejectTableAllocation_MakeRequestThrowsException_NoExceptionThrown()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
-            MockHttpComs.RejectTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName, Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            MockHttpComs.RejectTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName, DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             MockHttpComs.VerifyAllExpectations();
         }
@@ -471,7 +474,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationSuccess();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var success = MockHttpComs.RejectTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName, Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            var success = MockHttpComs.RejectTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName, DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             Assert.AreEqual(success, true);
         }
@@ -482,7 +485,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationFailure();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
 
-            var success = MockHttpComs.RejectTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName, Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            var success = MockHttpComs.RejectTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName, DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             Assert.AreEqual(success, false);
         }
@@ -493,16 +496,16 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessagePutTableAllocationFailure();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
 
-            var success = MockHttpComs.RejectTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName, Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
+            var success = MockHttpComs.RejectTableAllocation(GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName, DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos);
 
             Assert.AreEqual(success, false);
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void PutOrder_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.PutOrder(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
@@ -575,7 +578,7 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.NullOrderReturnedException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullOrderReturnedException))]
         public void PutOrder_NullOrderReturned_ExceptionThrown()
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
@@ -595,7 +598,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageOrderSuccess();
             responseMessage.Data = order.ToJsonString();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            MockHttpComs.m_DoshiiLogic.m_DoshiiInterface.Expect(x => x.RecordOrderUpdatedAtTime(Arg<Models.Order>.Matches(y => y.Status == order.Status && y.Id == order.Id))).Repeat.Once();
+            MockHttpComs.m_DoshiiLogic.m_DoshiiInterface.Expect(x => x.RecordOrderUpdatedAtTime(Arg<DoshiiDotNetIntegration.Models.Order>.Matches(y => y.Status == order.Status && y.Id == order.Id))).Repeat.Once();
             
             MockHttpComs.PutOrder(order);
 
@@ -610,7 +613,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageOrderSuccess();
             responseMessage.Data = "";
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            MockHttpComs.m_DoshiiLogic.m_DoshiiInterface.Expect(x => x.RecordOrderUpdatedAtTime(Arg<Models.Order>.Matches(y => y.Status == order.Status && y.Id == order.Id))).Repeat.Never();
+            MockHttpComs.m_DoshiiLogic.m_DoshiiInterface.Expect(x => x.RecordOrderUpdatedAtTime(Arg<DoshiiDotNetIntegration.Models.Order>.Matches(y => y.Status == order.Status && y.Id == order.Id))).Repeat.Never();
 
             MockHttpComs.PutOrder(order);
 
@@ -620,10 +623,10 @@ namespace DoshiiDotNetIntegration.Tests
 
         ///
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void PostOrder_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.PostOrder(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
@@ -696,7 +699,7 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.NullOrderReturnedException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullOrderReturnedException))]
         public void PostOrder_NullOrderReturned_ExceptionThrown()
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
@@ -716,7 +719,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageOrderSuccess();
             responseMessage.Data = order.ToJsonString();
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            MockHttpComs.m_DoshiiLogic.m_DoshiiInterface.Expect(x => x.RecordOrderUpdatedAtTime(Arg<Models.Order>.Matches(y => y.Status == order.Status && y.Id == order.Id))).Repeat.Once();
+            MockHttpComs.m_DoshiiLogic.m_DoshiiInterface.Expect(x => x.RecordOrderUpdatedAtTime(Arg<DoshiiDotNetIntegration.Models.Order>.Matches(y => y.Status == order.Status && y.Id == order.Id))).Repeat.Once();
 
             MockHttpComs.PostOrder(order);
 
@@ -731,7 +734,7 @@ namespace DoshiiDotNetIntegration.Tests
             var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageOrderSuccess();
             responseMessage.Data = "";
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            MockHttpComs.m_DoshiiLogic.m_DoshiiInterface.Expect(x => x.RecordOrderUpdatedAtTime(Arg<Models.Order>.Matches(y => y.Status == order.Status && y.Id == order.Id))).Repeat.Never();
+            MockHttpComs.m_DoshiiLogic.m_DoshiiInterface.Expect(x => x.RecordOrderUpdatedAtTime(Arg<DoshiiDotNetIntegration.Models.Order>.Matches(y => y.Status == order.Status && y.Id == order.Id))).Repeat.Never();
 
             MockHttpComs.PostOrder(order);
 
@@ -740,10 +743,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetDoshiiProducts_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.GetDoshiiProducts();
 
@@ -765,10 +768,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void DeleteDoshiiProduct_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.DeleteProductData(GenerateObjectsAndStringHelper.GenerateProduct1WithOptions().Id);
 
@@ -831,10 +834,10 @@ namespace DoshiiDotNetIntegration.Tests
 
         ///
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void PostProductData_MakeRequestThrowsException_NotNewItem()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.PostProductData(GenerateObjectsAndStringHelper.GenerateProduct1WithOptions(), false);
 
@@ -842,10 +845,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void PostProductData_MakeRequestThrowsException_NewItem()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.PostProductData(GenerateObjectsAndStringHelper.GenerateProduct1WithOptions(), true);
 
@@ -919,10 +922,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
         ///
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void PostProductData_List_MakeRequestThrowsException()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.PostProductData(GenerateObjectsAndStringHelper.GenerateProductList(), false);
 
@@ -992,10 +995,10 @@ namespace DoshiiDotNetIntegration.Tests
         }
         ///
         [Test]
-        [ExpectedException(typeof(Exceptions.RestfulApiErrorResponseException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void PutProductData_MakeRequestThrowsException_NewItem()
         {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
+            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
 
             MockHttpComs.PutProductData(GenerateObjectsAndStringHelper.GenerateProduct1WithOptions());
 
@@ -1038,7 +1041,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_Products()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.Products);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Products);
 
             Assert.AreEqual(string.Format("{0}/products", GenerateObjectsAndStringHelper.TestBaseUrl), urlString);
         }
@@ -1046,7 +1049,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_Product()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.Products, GenerateObjectsAndStringHelper.TestProductId);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Products, GenerateObjectsAndStringHelper.TestProductId);
 
             Assert.AreEqual(string.Format("{0}/products/{1}", GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestProductId), urlString);
         }
@@ -1054,7 +1057,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_Orders()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.Order);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order);
 
             Assert.AreEqual(string.Format("{0}/orders", GenerateObjectsAndStringHelper.TestBaseUrl), urlString);
         }
@@ -1062,7 +1065,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_Order()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString());
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString());
 
             Assert.AreEqual(string.Format("{0}/orders/{1}", GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestOrderId.ToString()), urlString);
         }
@@ -1070,7 +1073,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_TableAllocations()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.GetTableAllocations);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.GetTableAllocations);
 
             Assert.AreEqual(string.Format("{0}/tables", GenerateObjectsAndStringHelper.TestBaseUrl), urlString);
         }
@@ -1078,7 +1081,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_TableAllocation()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.GetTableAllocations, GenerateObjectsAndStringHelper.TestTableAllocationName);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.GetTableAllocations, GenerateObjectsAndStringHelper.TestTableAllocationName);
 
             Assert.AreEqual(string.Format("{0}/tables/{1}", GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestTableAllocationName), urlString);
         }
@@ -1086,7 +1089,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_ConfirmTableAllocation()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.ConfirmTableAllocation, GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.ConfirmTableAllocation, GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName);
 
             Assert.AreEqual(string.Format("{0}/consumers/{1}/table/{2}", GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestCustomerId, GenerateObjectsAndStringHelper.TestTableName), urlString);
         }
@@ -1094,7 +1097,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_Consumer()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.Consumer, GenerateObjectsAndStringHelper.TestCustomerId);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Consumer, GenerateObjectsAndStringHelper.TestCustomerId);
 
             Assert.AreEqual(string.Format("{0}/consumers/{1}", GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestCustomerId), urlString);
         }
@@ -1102,7 +1105,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_DeleteAllocationWithCheckInId()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.DeleteAllocationWithCheckInId, GenerateObjectsAndStringHelper.TestCheckinId);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.DeleteAllocationWithCheckInId, GenerateObjectsAndStringHelper.TestCheckinId);
 
             Assert.AreEqual(string.Format("{0}/tables?checkin={1}", GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestCheckinId), urlString);
         }
@@ -1110,7 +1113,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_AddTableAllocation()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.AddTableAllocation, GenerateObjectsAndStringHelper.TestCustomerId);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.AddTableAllocation, GenerateObjectsAndStringHelper.TestCustomerId);
 
             Assert.AreEqual(string.Format("{0}/consumers/{1}/table", GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestCustomerId), urlString);
         }
@@ -1118,7 +1121,7 @@ namespace DoshiiDotNetIntegration.Tests
         [Test]
         public void GenerateUrl_SetSeatingAndOrderConfiguration()
         {
-            var urlString = HttpComs.GenerateUrl(Enums.EndPointPurposes.SetSeatingAndOrderConfiguration);
+            var urlString = HttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.SetSeatingAndOrderConfiguration);
 
             Assert.AreEqual(string.Format("{0}/config", GenerateObjectsAndStringHelper.TestBaseUrl), urlString);
         }
