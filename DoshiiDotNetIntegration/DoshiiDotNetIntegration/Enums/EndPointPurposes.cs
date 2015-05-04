@@ -6,42 +6,48 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Enums
 {
     /// <summary>
-    /// the possible actions for communication with the doshii restful api
+    /// The possible actions for communication with the doshii restful API over HTTP
     /// </summary>
-    internal enum EndPointPurposes
+    public enum EndPointPurposes
     {
         /// <summary>
-        /// requests about products
+        /// Requests about products
         /// </summary>
         Products = 1,
 
         /// <summary>
-        /// requests about consumers
+        /// Requests about consumers
         /// </summary>
         Consumer = 2,
 
         /// <summary>
-        /// requests about orders
+        /// Requests about orders
         /// </summary>
         Order = 3,
 
         /// <summary>
-        /// getting a table allocation
+        /// Getting a table allocation
         /// </summary>
         GetTableAllocations = 4,
 
         /// <summary>
-        /// confirming a table allocation
+        /// Confirming a table allocation
         /// </summary>
         ConfirmTableAllocation = 5,
 
         /// <summary>
-        /// delete the table allocation with the checkInId
+        /// Delete the table allocation with the checkInId
         /// </summary>
         DeleteAllocationWithCheckInId = 6,
 
+        /// <summary>
+        /// Add a table Allocation
+        /// </summary>
         AddTableAllocation = 7,
 
+        /// <summary>
+        /// Set Seating and ordering configuration. 
+        /// </summary>
         SetSeatingAndOrderConfiguration = 8
 
     }

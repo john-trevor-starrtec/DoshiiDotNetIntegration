@@ -13,39 +13,44 @@ namespace DoshiiDotNetIntegration.Models
     public class Consumer : JsonSerializationBase<Consumer>
     {
         /// <summary>
-        /// the doshii id for the cusomter
+        /// The Doshii id for the consumer.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }
         
         /// <summary>
-        /// the paypalConsumerId used to identify the consumer for all interactions with doshii
+        /// The meerkatConsumerId used to identify the consumer for all interactions with Doshii
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "paypalCustomerId")]
-        public string PaypalCustomerId { get; set; }
+        [JsonProperty(PropertyName = "meerkatConsumerId")]
+        public string MeerkatConsumerId { get; set; }
         
         /// <summary>
-        /// the name of the customer
+        /// The name of the consumer
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
         
         /// <summary>
-        /// the url of the customers photos
+        /// The URL of the consumer photos
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "PhotoUrl")]
         public Uri PhotoUrl { get; set; }
 
         /// <summary>
-        /// the checkinId associated with the customer. 
+        /// The CheckinId associated with the consumer. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "checkInId")]
         public string CheckInId { get; set; }
+
+        public Consumer()
+        {
+
+        }
 
 
     }

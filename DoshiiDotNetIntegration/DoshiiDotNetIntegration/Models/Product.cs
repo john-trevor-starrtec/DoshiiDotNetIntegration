@@ -8,39 +8,61 @@ using System.Runtime.Serialization;
 namespace DoshiiDotNetIntegration.Models
 {
     /// <summary>
-    /// the doshii representation of a product - (an item that can be sold)
+    /// The doshii representation of a product 
+    /// A product is the highest level line item on orders.
     /// </summary>
     [DataContract]
     [Serializable]
     public class Product : JsonSerializationBase<Product>
     {
         /// <summary>
-        /// The Doshii Id of the prduct this will be provided by Doshii
+        /// The Doshii Id of the product.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
         /// <summary>
-        /// The internal Id of the product
+        /// The POS Id of the product
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "pos_id")]
         public string PosId { get; set; }
 
         /// <summary>
-        /// The name of the product that will be displayed to the user on the Doshii application
+        /// The name of the product.
+        /// This name will be displayed to Doshii users on the mobile app.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
+
+        private List<string> _Tags;
+        
         /// <summary>
-        /// A list of the tags the product should be displayed under in the mobile menu
+        /// A list of the groups the product should be displayed under in the doshii mobile app
+        /// This field is optional,
+        /// Products can be added manually to groups in the doshii dashboard,
+        /// If this list is populated the product will be automatically added to the groups included, this will reduce setup time. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "tags")]
-        public List<string> Tags { get; set; }
+        public List<string> Tags 
+        { 
+            get
+            { 
+                if (_Tags == null)
+                {
+                    _Tags = new List<string>();
+                }
+                return _Tags;
+            }
+            set
+            {
+                _Tags = value;
+            }
+        }
 
         /// <summary>
         /// The price the product will be sold for through the mobile app, 
@@ -57,47 +79,59 @@ namespace DoshiiDotNetIntegration.Models
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
+        private List<ProductOptions> _ProductOptions;
+        
         /// <summary>
-        /// a list of varient lists the customer can choose from to modify their product.
+        /// A list of ProductOptions the customer can choose from to modify the product they are ordering.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "product_options")]
-        public List<ProductOptions> ProductOptions { get; set; }
+        public List<ProductOptions> ProductOptions {
+            get
+            {
+                if (_ProductOptions == null)
+                {
+                    _ProductOptions = new List<ProductOptions>();
+                }
+                return _ProductOptions;
+            } 
+            set
+            {
+                _ProductOptions = value;
+            }
+        }
 
         /// <summary>
-        /// additional instructions added by the customer
+        /// Additional instructions added by the customer
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "additional_instructions")]
         public string AdditionalInstructions { get; set; }
 
         /// <summary>
-        /// the reason the product was rejected by the pos
+        /// The reason the product was rejected by the pos
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "rejection_reason")]
         public string RejectionReason { get; set; }
 
         /// <summary>
-        /// the status of the item that is being ordered. 
+        /// The status of the item that is being ordered. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
 
-        public Product()
-        {
-            Tags = new List<string>();
-            ProductOptions = new List<ProductOptions>();
-        }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public Product(){}
 
 
         #region conditional json serialization
-
-
-
+        
         /// <summary>
-        /// determians if the 
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
         /// </summary>
         /// <returns></returns>
         public bool ShouldSerializeAdditionalInstructions()
@@ -107,13 +141,17 @@ namespace DoshiiDotNetIntegration.Models
 
         bool SerializeStatus = true;
 
+        /// <summary>
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// </summary>
+        /// <returns></returns>
         public bool ShouldSerializeStatus()
         {
             return SerializeStatus;
         }
 
         /// <summary>
-        /// this is no longer required to be stored by the pos. 
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
         /// </summary>
         /// <returns></returns>
         public bool ShouldSerializeId()
@@ -121,8 +159,12 @@ namespace DoshiiDotNetIntegration.Models
             return false;
         }
 
-        private bool SerializeRejectionReason = false;
+        public bool SerializeRejectionReason = false;
 
+        /// <summary>
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// </summary>
+        /// <returns></returns>
         public bool ShouldSerializeRejectionReason()
         {
             if (SerializeRejectionReason)
@@ -135,6 +177,10 @@ namespace DoshiiDotNetIntegration.Models
             }
         }
 
+        /// <summary>
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// </summary>
+        /// <returns></returns>
         public string ToJsonStringForOrderConfirmation()
         {
             SerializeRejectionReason = true;
@@ -143,7 +189,11 @@ namespace DoshiiDotNetIntegration.Models
             return base.ToJsonString();
         }
 
-        public string ToJsonSTringForOrder()
+        /// <summary>
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// </summary>
+        /// <returns></returns>
+        public string ToJsonStringForOrder()
         {
             SerializeRejectionReason = false;
             SerializeStatus = true;
@@ -151,7 +201,11 @@ namespace DoshiiDotNetIntegration.Models
             return base.ToJsonString();
         }
 
-        private void SetSerializeForOrderForProductOptions(bool isForOrder)
+        /// <summary>
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// </summary>
+        /// <param name="isForOrder"></param>
+        public void SetSerializeForOrderForProductOptions(bool isForOrder)
         {
             foreach (ProductOptions po in ProductOptions)
             {
@@ -159,6 +213,9 @@ namespace DoshiiDotNetIntegration.Models
             }
         }
 
+        /// <summary>
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// </summary>
         public void SetSerializeSettingsForOrder()
         {
             SerializeRejectionReason = false;
@@ -166,6 +223,10 @@ namespace DoshiiDotNetIntegration.Models
             SetSerializeForOrderForProductOptions(true);
         }
 
+        /// <summary>
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// </summary>
+        /// <returns></returns>
         public string ToJsonStringForProductSync()
         {
             SerializeRejectionReason = false;
