@@ -372,7 +372,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         public virtual void ScoketComsTimeOutValueReached(object sender, EventArgs e)
         {
-            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: the web sockets connection with the doshii server is not currently available.");
+            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'");
             m_DoshiiInterface.DissociateDoshiiChecks();
         }
 
@@ -579,7 +579,10 @@ namespace DoshiiDotNetIntegration
                     }
                     else
                     {
-                        m_DoshiiInterface.RecordPartialCheckPayment(ref order);
+                        if (m_DoshiiInterface.RecordPartialCheckPayment(ref order))
+                        {
+                            m_DoshiiInterface.DissociateDoshiiChecks(order.CheckinId);
+                        }
                     }
                 }
                 else
