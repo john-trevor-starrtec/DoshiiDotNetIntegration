@@ -581,7 +581,7 @@ namespace DoshiiDotNetIntegration
                     {
                         if (m_DoshiiInterface.RecordPartialCheckPayment(ref order))
                         {
-                            m_DoshiiInterface.DissociateDoshiiChecks(order.CheckinId);
+                            m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
                         }
                     }
                 }
@@ -593,7 +593,10 @@ namespace DoshiiDotNetIntegration
                     }
                     else
                     {
-                        m_DoshiiInterface.RecordFullCheckPayment(ref order);
+                        if (m_DoshiiInterface.RecordFullCheckPayment(ref order))
+                        {
+                            m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                        }
                     }
                 }
                 return true;
