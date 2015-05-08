@@ -51,7 +51,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <summary>
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode or if you have switched from restaurant mode to bistro mode when there are opened orders.
         /// The amount that has been paid from doshii is represented in the PayTotal property and is represented in cents. 
-        /// After this method has been called the Order will be closed on Doshii so the tab / check / order should be 
+        /// /// After this method has been called the Order will be closed on Doshii and the SDK will call checkoutConsumerWithCheckInID to dicsaciate the order / tab / check from Doshii 
+        /// If there is an unpaid amount on the check / tab / order at this point it must be dealt with from the pos. 
         /// </summary>
         /// <returns></returns>
         bool RecordPartialCheckPayment(ref Models.Order order);
@@ -59,7 +60,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <summary>
         /// this method should record that a check has been fully paid by doshii. 
         /// The amount that has been paid from doshii is represented in the PayTotal property and is represented in cents. 
-        /// After this method has been called the Order will be closed on Doshii so the table Allocation should be removed from the pos within this method
+        /// After this method has been called the Order will be closed on Doshii and the SDK will call checkoutConsumerWithCheckInID to dicsaciate the order / tab / check from Doshii 
+        /// If there is an unpaid amount on the check / tab / order at this point it must be dealt with from the pos. 
         /// </summary>
         /// <returns></returns>
         bool RecordFullCheckPayment(ref Models.Order order);
@@ -84,13 +86,6 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// This method must dissociate all current doshii checks / tabs / orders from the Doshii integration and convert them to native pos tabs. 
         /// </summary>
         void DissociateDoshiiChecks();
-
-        /// <summary>
-        /// The method will be called when a partial payment is recorded on a Doshii order from the Doshii app
-        /// The order is automatically closed in Doshii so the tab / order / check needs to be dissociated from Doshii in the pos and the payments must be completed on the pos.  
-        /// </summary>
-        /// <param name="checkInId"></param>
-        void DissociateDoshiiChecks(string checkInId);
 
         /// <summary>
         /// This method should check the availability of the requested order. 
