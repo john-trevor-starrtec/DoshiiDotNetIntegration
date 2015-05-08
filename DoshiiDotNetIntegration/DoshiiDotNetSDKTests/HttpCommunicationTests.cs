@@ -87,6 +87,52 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
+        public void GetConsumer_ReturnedConumerDataIsBlank()
+        {
+            var consumerInput = GenerateObjectsAndStringHelper.GenerateConsumer1();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumerSuccess();
+            responseMessage.Data = "";
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Consumer, GenerateObjectsAndStringHelper.TestCustomerId))));
+
+            MockHttpComs.GetConsumer(GenerateObjectsAndStringHelper.TestCustomerId);
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetConsumer_ReturnedConumerDataIsNull()
+        {
+            var consumerInput = GenerateObjectsAndStringHelper.GenerateConsumer1();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumerSuccess();
+            responseMessage.Data = consumerInput.ToJsonString();
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Consumer, GenerateObjectsAndStringHelper.TestCustomerId))));
+
+            MockHttpComs.GetConsumer(GenerateObjectsAndStringHelper.TestCustomerId);
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetConsumer_ReturnedStatusIsNotOk()
+        {
+            var consumerInput = GenerateObjectsAndStringHelper.GenerateConsumer1();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumerSuccess();
+            responseMessage.Data = consumerInput.ToJsonString();
+            responseMessage.Status = HttpStatusCode.Forbidden;
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Consumer, GenerateObjectsAndStringHelper.TestCustomerId))));
+
+            MockHttpComs.GetConsumer(GenerateObjectsAndStringHelper.TestCustomerId);
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
         [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetConsumers_MakeRequestThrowsException()
         {
@@ -116,6 +162,52 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
+        public void GetConsumers_ReturnedConumerDataIsBlank()
+        {
+            var consumerListInput = GenerateObjectsAndStringHelper.GenerateConsumerList();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = "";
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Consumer))));
+
+            MockHttpComs.GetConsumers();
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetConsumers_ReturnedConumerDataIsNull()
+        {
+            var consumerListInput = GenerateObjectsAndStringHelper.GenerateConsumerList();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(consumerListInput);
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Consumer))));
+
+            MockHttpComs.GetConsumers();
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetConsumers_ReturnedStatusIsNotOk()
+        {
+            var consumerListInput = GenerateObjectsAndStringHelper.GenerateConsumerList();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(consumerListInput);
+            responseMessage.Status = HttpStatusCode.Forbidden;
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Consumer))));
+
+            MockHttpComs.GetConsumers();
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
         [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetOrder_MakeRequestThrowsException()
         {
@@ -137,7 +229,53 @@ namespace DoshiiDotNetSDKTests
 
             Assert.AreEqual(orderInput.Id, orderrResponse.Id);
         }
-        
+
+        [Test]
+        public void GetOrder_ReturnedOrderDataIsBlank()
+        {
+            var OrderInput = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = "";
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
+
+            MockHttpComs.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString());
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetOrder_ReturnedOrderDataIsNull()
+        {
+            var OrderInput = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(OrderInput);
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
+
+            MockHttpComs.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString());
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetOrder_ReturnedStatusIsNotOk()
+        {
+            var OrderInput = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(OrderInput);
+            responseMessage.Status = HttpStatusCode.Forbidden;
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order, GenerateObjectsAndStringHelper.TestOrderId.ToString()))));
+
+            MockHttpComs.GetOrder(GenerateObjectsAndStringHelper.TestOrderId.ToString());
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
         [Test]
         [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void GetOrders_MakeRequestThrowsException()
@@ -162,6 +300,53 @@ namespace DoshiiDotNetSDKTests
             Assert.AreEqual(orderListInput[1].Id, orderResponse[1].Id);
             Assert.AreEqual(orderListInput[2].Id, orderResponse[2].Id);
             Assert.AreEqual(orderListInput[3].Id, orderResponse[3].Id);
+        }
+
+        [Test]
+        public void GetOrders_ReturnedOrderDataIsBlank()
+        {
+            var OrderInputList = GenerateObjectsAndStringHelper.GenerateOrderList();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = "";
+            Newtonsoft.Json.JsonConvert.SerializeObject(OrderInputList);
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
+
+            MockHttpComs.GetOrders();
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetOrders_ReturnedOrderDataIsNull()
+        {
+            var OrderInputList = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(OrderInputList);
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
+
+            MockHttpComs.GetOrders();
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetOrders_ReturnedStatusIsNotOk()
+        {
+            var OrderInputList = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponceMessageConsumersSuccess();
+            responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(OrderInputList);
+            responseMessage.Status = HttpStatusCode.Forbidden;
+            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
+            operationLogic.m_DoshiiInterface.Expect(x => x.LogDoshiiMessage(DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.Order))));
+
+            MockHttpComs.GetOrders();
+
+            MockHttpComs.VerifyAllExpectations();
+            operationLogic.m_DoshiiInterface.VerifyAllExpectations();
         }
 
         [Test]

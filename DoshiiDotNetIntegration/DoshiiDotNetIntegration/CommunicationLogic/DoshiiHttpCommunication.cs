@@ -92,7 +92,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    if (responseMessage.Data != null)
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         retreivedConsumer = Models.Consumer.deseralizeFromJson(responseMessage.Data);
                     }
@@ -137,7 +137,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    if (responseMessage.Data != null)
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         retreivedConsumerList = JsonConvert.DeserializeObject<List<Models.Consumer>>(responseMessage.Data);
                     }
@@ -186,7 +186,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    if (responseMessage.Data != null)
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         retreivedOrder = Models.Order.deseralizeFromJson(responseMessage.Data);
                     }
@@ -232,7 +232,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    if (responseMessage.Data != null)
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         retreivedOrderList = JsonConvert.DeserializeObject<List<Models.Order>>(responseMessage.Data);
                     }
