@@ -475,7 +475,10 @@ namespace DoshiiDotNetIntegration
                                             }
                                             else
                                             {
-                                                m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref returnedOrder);
+                                                if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref returnedOrder))
+                                                {
+                                                    m_DoshiiInterface.CheckOutConsumerWithCheckInId(returnedOrder.CheckinId);
+                                                }
                                             }
                                         }
                                     }
@@ -575,7 +578,10 @@ namespace DoshiiDotNetIntegration
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
                         //this should only happen when the mode has changed to bistro mode and there was an amount already paid on the order because it was previously in restaurant mode. 
-                        m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order);
+                        if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order))
+                        {
+                            m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                        }
                     }
                     else
                     {
@@ -589,7 +595,10 @@ namespace DoshiiDotNetIntegration
                 {
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
-                        m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order);
+                        if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order))
+                        {
+                            m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+                        }
                     }
                     else
                     {
