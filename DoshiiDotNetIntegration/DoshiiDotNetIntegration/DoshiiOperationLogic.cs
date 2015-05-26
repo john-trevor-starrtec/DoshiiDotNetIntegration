@@ -414,6 +414,15 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+
+        private void RecordFullCheckPaymentBistroMode(ref Models.Order order)
+        {
+            if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order))
+            {
+                m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
+            }
+        }
+
         /// <summary>
         /// DO NOT USE, this method is for internal use only
         /// Handles a SocketComs_OrderStatusEvent, 
@@ -475,10 +484,7 @@ namespace DoshiiDotNetIntegration
                                             }
                                             else
                                             {
-                                                if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref returnedOrder))
-                                                {
-                                                    m_DoshiiInterface.CheckOutConsumerWithCheckInId(returnedOrder.CheckinId);
-                                                }
+                                                RecordFullCheckPaymentBistroMode(ref returnedOrder);
                                             }
                                         }
                                     }
@@ -578,10 +584,7 @@ namespace DoshiiDotNetIntegration
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
                         //this should only happen when the mode has changed to bistro mode and there was an amount already paid on the order because it was previously in restaurant mode. 
-                        if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order))
-                        {
-                            m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
-                        }
+                        RecordFullCheckPaymentBistroMode(ref order);
                     }
                     else
                     {
@@ -595,10 +598,7 @@ namespace DoshiiDotNetIntegration
                 {
                     if (OrderMode == Enums.OrderModes.BistroMode)
                     {
-                        if (m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order))
-                        {
-                            m_DoshiiInterface.CheckOutConsumerWithCheckInId(order.CheckinId);
-                        }
+                        RecordFullCheckPaymentBistroMode(ref order);
                     }
                     else
                     {
