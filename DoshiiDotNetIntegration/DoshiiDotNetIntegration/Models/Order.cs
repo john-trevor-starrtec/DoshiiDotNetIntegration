@@ -124,6 +124,7 @@ namespace DoshiiDotNetIntegration.Models
         }
 
         private List<Payment> _payments;
+        
         /// <summary>
         /// A list of all payments applied from the pos at an order level. 
         /// </summary>

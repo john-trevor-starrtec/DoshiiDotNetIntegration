@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using DoshiiDotNetIntegration.Exceptions;
 using Newtonsoft.Json;
 
 
@@ -10,6 +11,24 @@ namespace DoshiiDotNetIntegration
 {
     /// <summary>
     /// This class facilitates the operation of the Doshii integration with POS software.
+    /// This class must be instantiated by passing in an implementation of  <see cref="Interfaces.iDoshiiOrdering"/> 
+    /// This class will handle all communication with the Doshii API,
+    /// For ordering operations: creating orders, modifying orders, checking in consumers...
+    /// It will open a web sockets connection with the Doshii API, and react to web socket messages by calling appropriate method on the <see cref="Interfaces.iDoshiiOrdering"/>
+    /// It will make HTTP requests as required and pass the required data to the <see cref="Interfaces.iDoshiiOrdering"/> 
+    /// To update orders from the pos use the following methods. 
+    /// <see cref="UpdateOrder"/>, 
+    /// <see cref="SetTableAllocation"/>, 
+    /// <see cref="GetCheckedInConsumersFromDoshii"/>, 
+    /// <see cref="GetOrder"/>,
+    /// To keep the products on the Doshii products list up to date with the products available on the pos the following 5 methods should be used. 
+    /// <see cref="AddNewProducts"/>, 
+    /// <see cref="UpdateProcuct"/>, 
+    /// <see cref="DeleteProducts"/>, 
+    /// <see cref="DeleteAllProducts"/>, 
+    /// <see cref="GetAllProducts"/>  
+    /// These methods will work as described in their individual documentation and are all that is required to keep the two product lists up to date. 
+    /// NOTE: Anytime an order is received through the DoshiiDotNetSDK the order.UpdatedAt string should be recorded by the POS and used when updating the order from Doshii. 
     /// </summary>
     public class DoshiiManagement 
     {
@@ -62,12 +81,13 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// Constructor
+        /// Constructor,
+        /// After the constructor is called it MUST be followed by a call to <see cref="Initialize"/> to start communication with the Doshii API
         /// </summary>
         /// <param name="doshiiInterface">
         /// An implementation of Interfaces.iDoshiiOrdering
         /// </param>
-        internal DoshiiManagement(Interfaces.iDoshiiOrdering doshiiInterface)
+        public DoshiiManagement(Interfaces.iDoshiiOrdering doshiiInterface)
         {
             
             if (doshiiInterface == null)
@@ -108,7 +128,13 @@ namespace DoshiiDotNetIntegration
         /// There should only be one webSockets connection to Doshii per venue
         /// The webSocket connection is only necessary for the ordering functionality of the Doshii integration and is not necessary for updating the Doshii menu. 
         /// </param>
-        internal virtual void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        /// <param name="timeOutValueSecs">
+        /// This is the amount of this the web sockets connection can be down before the integration assumes the connection has been lost. 
+        /// If this timeout value is reached the DohsiiManagement will call a method on <see cref="Interfaces.iDoshiiOrdering"/> that should disassociate all current doshii tabs and checkout all current doshii consumers, This
+        /// will allow the tabs / orders / checks to be acted on in the pos without messages being sent to doshii to update doshii. After the disassociate occurs the user will no longer be able to access their tab / order on the Doshii app and this value is passed to the Doshii API upon communication initializations so doshii will close tabs when there has been no communication for this period of time. 
+        /// NOTE: This differs from the time that is set on the Doshii back end that indicates how long a tab can be inactive for before a checkout message is sent to the pos indicating that the consumer no longer has a valie Doshii tab / order and any associated tab / order / person registered on the pos should be disassociated from Doshii.  
+        /// </param>
+        public virtual void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Version {5} with; {6} sourceUrl: {0}, {6}token {1}, {6}orderMode {2}, {6}seatingMode: {3},{6}BaseUrl: {4}{6}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase, CurrnetVersion(), Environment.NewLine));
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Version Info: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase));
@@ -633,10 +659,14 @@ namespace DoshiiDotNetIntegration
         #region product sync methods
 
         /// <summary>
-        /// DO NOT USE, this method is for internal use only
-        /// This method will return all the products currently in Doshii, if the request fails the failure message will be logged and the products list will be empty. 
+        /// retrieves all the products from the Doshii product list. 
         /// </summary>
-        /// <returns></returns>
+        /// <exception cref="Exceptions.RestfulApiErrorResponseException">
+        /// Indicates that there was a problem with the request to Doshii, the http error code for the request can be found in the exception. 
+        /// </exception>
+        /// <returns>
+        /// A list of all the products contained in the doshii product list. 
+        /// </returns>
         public virtual List<Models.Product> GetAllProducts()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos requesting all doshii products")); 
@@ -644,10 +674,14 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// DO NOT USE, this method is for internal use only
-        /// Adds a list of products to Doshii
+        /// This method should be used to add new products to Doshii product list
         /// </summary>
-        /// <param name="productList"></param>
+        /// <param name="productList">
+        /// The list of products that should be added to the doshii menu
+        /// </param>
+        /// <exception cref="Exceptions.ProductNotCreatedException">
+        /// indicated that at least one of the products on the list of products provided already exists within Doshii and updateProduct should be called.
+        /// </exception>
         /// <returns></returns>
         public virtual void AddNewProducts(List<Models.Product> productList)
         {
@@ -670,10 +704,14 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// DO NOT USE, this method is for internal use only
-        /// updates a product in doshii.
+        /// This method will update a product in the Dohsii product list.
         /// </summary>
-        /// <param name="productToUpdate"></param>
+        /// <param name="productToUpdate">
+        /// The product that should be updated. 
+        /// </param>
+        /// <exception cref="Exceptions.RestfulApiErrorResponseException">
+        /// If the request to update the product is not successful, the status of the error received from the request can be found in the exception status. 
+        /// </exception>
         /// <returns></returns>
         public virtual void UpdateProcuct(Models.Product productToUpdate)
         {
@@ -689,10 +727,15 @@ namespace DoshiiDotNetIntegration
         }
         
         /// <summary>
-        /// DO NOT USE, this method is for internal use only
-        /// deletes the provided list of products from doshii. 
+        /// This method should be used to delete products from Doshii.
+        /// If a product does not exist in the Doshii list this method will be successful
         /// </summary>
-        /// <param name="productList"></param>
+        /// <param name="productList">
+        /// a list of products that should be delete from the doshii list. 
+        /// </param>
+        /// <exception cref="Exceptions.RestfulApiErrorResponseException">
+        /// If the request to delete the list of products is not successful, the status of the error received from the request can be found in the exception status. 
+        /// </exception>
         /// <returns></returns>
         public virtual void DeleteProducts(List<string> productIdList)
         {
@@ -732,9 +775,11 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// DO NOT USE, this method is for internal use only
-        /// deletes all the products from doshii
+        /// All products will be deleted from the Doshii products list.
         /// </summary>
+        /// <exception cref="Exceptions.RestfulApiErrorResponseException">
+        /// If the request to delete the list of products is not successful, the status of the error received from the request can be found in the exception status. 
+        /// </exception>
         /// <returns></returns>
         public virtual void DeleteAllProducts()
         {
@@ -754,12 +799,13 @@ namespace DoshiiDotNetIntegration
         #region ordering And Payment
 
         /// <summary>
-        /// DO NOT USE, this method is for internal use only
-        /// gets an order from doshii with the provided orderId, if there no order is no order matching the provided orderId on doshii a new order is returned. 
+        /// This method returns an order from Doshii corrosponding to the OrderId
         /// </summary>
-        /// <param name="orderId"></param>
+        /// <param name="orderId">
+        /// The Id of the order that is being requested. 
+        /// </param>
         /// <returns></returns>
-        internal virtual Models.Order GetOrder(string orderId)
+        public virtual Models.Order GetOrder(string orderId)
         {
             try
             {
@@ -774,14 +820,21 @@ namespace DoshiiDotNetIntegration
 
 
         /// <summary>
-        /// adds items to a doshii order
+        /// This method will update the Order on the Doshii API
         /// </summary>
         /// <param name="order">
-        /// The order must contain all the products included in the check as this method overwrites all the items recorded on doshii for this check. 
-        /// not tested
+        /// The order must contain all the products / items,
+        /// All surcharges,
+        /// All discounts,
+        /// included in the check as this method will overwrite the order currently on Doshii 
         /// </param>
+        /// <exception cref="ConflictWithOrderUpdateException">
+        /// Indicates that there was a conflict between the order provided by the pos and the order currently on Doshii, 
+        /// Usually this indicates that the order.updatedAt string is not = to the string on doshii,
+        /// If this occurs you should call <see cref="GetOrder"/> with the Id of this order ensure that it is accurate and that the pos has recorded any pending items on the order and resent any required update to Doshii. 
+        /// </exception>
         /// <returns></returns>
-        internal virtual Models.Order UpdateOrder(Models.Order order)
+        public virtual Models.Order UpdateOrder(Models.Order order)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", order.ToJsonString()));
             if (OrderMode == Enums.OrderModes.BistroMode)
@@ -886,18 +939,19 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// attempts to add a table allocation to doshii
+        /// Adds a table allocation to doshii,
+        /// This method will overwrite any current allocation for the customer that is represented by the doshiiCustomerId.  
         /// </summary>
         /// <param name="customerId">
-        /// the payPayCustomerId for the customer to be allocated. 
+        /// the doshiiCustomerId for the customer being allocated. 
         /// </param>
         /// <param name="tableName">
-        /// the name of the table to be allocated.
+        /// The name of the table the customer will be allocated to.
         /// </param>
         /// <returns></returns>
-        internal virtual void SetTableAllocation(string customerId, string tableName)
+        public virtual void SetTableAllocation(string customerId, string tableName)
         {
-            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos allocating table for customerId - '{0}', table '{1}'", customerId, tableName));
+            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos allocating table for doshiiCustomerId - '{0}', table '{1}'", customerId, tableName));
             try
             {
                 m_HttpComs.PostTableAllocation(customerId, tableName);
@@ -912,15 +966,21 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// Deletes a table Allocation from Doshii
         /// </summary>
-        /// <param name="customerId"></param>
-        /// <param name="tableName"></param>
-        /// <param name="deleteReason"></param>
-        internal virtual void DeleteTableAllocation(string customerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
+        /// <param name="doshiiCustomerId">
+        /// The customer whos table allocation will be deleted
+        /// </param>
+        /// <param name="tableName">
+        /// The tableName of the allocation that will be deleted. 
+        /// </param>
+        /// <param name="deleteReason">
+        /// The reason the allocation has been refused or rejected. 
+        /// </param>
+        public virtual void DeleteTableAllocation(string doshiiCustomerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
         {
-            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for customerId - '{0}', table '{1}'", customerId, tableName));
+            m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for doshiiCustomerId - '{0}', table '{1}'", doshiiCustomerId, tableName));
             try
             {
-                m_HttpComs.RejectTableAllocation(customerId, tableName, deleteReason);
+                m_HttpComs.RejectTableAllocation(doshiiCustomerId, tableName, deleteReason);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -931,10 +991,12 @@ namespace DoshiiDotNetIntegration
         #endregion
 
         /// <summary>
-        /// returns a list of all the consumers currently in doshii. 
+        /// Gets all the consumers currently checked in on Doshii  
         /// </summary>
-        /// <returns></returns>
-        internal virtual List<Models.Consumer> GetCheckedInConsumersFromDoshii()
+        /// <returns>
+        /// A list of checked in consumers currently check in on Doshii
+        /// </returns>
+        public virtual List<Models.Consumer> GetCheckedInConsumersFromDoshii()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos requesting all checked in users"));
             try

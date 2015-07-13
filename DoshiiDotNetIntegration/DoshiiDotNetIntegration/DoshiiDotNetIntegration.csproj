@@ -89,7 +89,6 @@
     <Compile Include="Exceptions\ProductNotCreatedException.cs" />
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Interfaces\iDoshiiOrdering.cs" />
-    <Compile Include="Interfaces\iDoshiiProducts.cs" />
     <Compile Include="Models\Checkin.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\JsonSerializationBase.cs" />
