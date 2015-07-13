@@ -172,7 +172,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="doshiiLogic"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        Models.Order UpdateDoshiiOrder(DoshiiOperationLogic doshiiLogic, Models.Order order);
+        Models.Order UpdateDoshiiOrder(DoshiiManagement doshiiLogic, Models.Order order);
 
         /// <summary>
         /// This method should be used to set a table allocation from the pos when the integration is set to PosAllocation mode. 
@@ -181,7 +181,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="doshiiLogic"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        bool SetTableAllocation(DoshiiOperationLogic doshiiLogic, string customerId, string tableName);
+        bool SetTableAllocation(DoshiiManagement doshiiLogic, string customerId, string tableName);
 
         /// <summary>
         /// This method should be used to get all the checkedInConsumersFromDoshii. 
@@ -189,7 +189,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="doshiiLogic"></param>
         /// <returns></returns>
-        List<Models.Consumer> GetCheckedInConsumersFromDoshii(DoshiiOperationLogic doshiiLogic);
+        List<Models.Consumer> GetCheckedInConsumersFromDoshii(DoshiiManagement doshiiLogic);
 
     }
 }

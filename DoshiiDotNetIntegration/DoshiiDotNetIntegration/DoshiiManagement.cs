@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration
     /// <summary>
     /// This class facilitates the operation of the Doshii integration with POS software.
     /// </summary>
-    public class DoshiiOperationLogic 
+    public class DoshiiManagement 
     {
 
         #region properties, constructors, Initialize, versionCheck
@@ -19,32 +19,32 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// Holds an instance of CommunicationLogic.DoshiiWebSocketsCommunication class for interacting with the Doshii webSocket connection
         /// </summary>
-        public CommunicationLogic.DoshiiWebSocketsCommunication m_SocketComs = null;
+        internal CommunicationLogic.DoshiiWebSocketsCommunication m_SocketComs = null;
 
         /// <summary>
         /// Holds an instance of CommunicationLogic.DoshiiHttpCommunication class for interacting with the Doshii HTTP restful API
         /// </summary>
-        public CommunicationLogic.DoshiiHttpCommunication m_HttpComs = null;
+        internal CommunicationLogic.DoshiiHttpCommunication m_HttpComs = null;
 
         /// <summary>
         /// holds an implementation of Interfaces.iDoshiiOrdering used to facilitate the ordering functionality offered by Doshii. 
         /// </summary>
-        public  Interfaces.iDoshiiOrdering m_DoshiiInterface = null;
+        internal  Interfaces.iDoshiiOrdering m_DoshiiInterface = null;
 
         /// <summary>
         /// The order mode for the venue
         /// </summary>
-        public  Enums.OrderModes OrderMode{ get; set; }
+        internal  Enums.OrderModes OrderMode{ get; set; }
 
         /// <summary>
         /// The seating mode for the venue
         /// </summary>
-        public  Enums.SeatingModes SeatingMode { get; set; }
+        internal  Enums.SeatingModes SeatingMode { get; set; }
         
         /// <summary>
         /// The authentication token for the venue 
         /// </summary>
-        public  string AuthorizeToken { get; set; }
+        internal  string AuthorizeToken { get; set; }
 
         /// <summary>
         /// Gets the current Doshii version information.
@@ -67,7 +67,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="doshiiInterface">
         /// An implementation of Interfaces.iDoshiiOrdering
         /// </param>
-        public DoshiiOperationLogic(Interfaces.iDoshiiOrdering doshiiInterface)
+        internal DoshiiManagement(Interfaces.iDoshiiOrdering doshiiInterface)
         {
             
             if (doshiiInterface == null)
@@ -108,7 +108,7 @@ namespace DoshiiDotNetIntegration
         /// There should only be one webSockets connection to Doshii per venue
         /// The webSocket connection is only necessary for the ordering functionality of the Doshii integration and is not necessary for updating the Doshii menu. 
         /// </param>
-        public virtual void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        internal virtual void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Version {5} with; {6} sourceUrl: {0}, {6}token {1}, {6}orderMode {2}, {6}seatingMode: {3},{6}BaseUrl: {4}{6}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase, CurrnetVersion(), Environment.NewLine));
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Info, string.Format("Doshii: Version Info: {0}, token {1}, orderMode {2}, seatingMode: {3}, BaseUrl: {4}", socketUrl, token, orderMode.ToString(), seatingMode.ToString(), urlBase));
@@ -188,7 +188,7 @@ namespace DoshiiDotNetIntegration
         /// DO NOT USE, this method is for internal use only
         /// Refreshes the current consumer CheckIns, Allocations and Orders. 
         /// </summary>
-        public virtual void RefreshConsumerData()
+        internal virtual void RefreshConsumerData()
         {
             if (m_HttpComs.SetSeatingAndOrderConfiguration(SeatingMode, OrderMode))
             {
@@ -279,7 +279,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="consumerToFind">
         /// The consumer to find in the list</param>
         /// <returns></returns>
-        public virtual bool findCurrentConsumer(List<Models.Consumer> consumersList, Models.Consumer consumerToFind)
+        internal virtual bool findCurrentConsumer(List<Models.Consumer> consumersList, Models.Consumer consumerToFind)
         {
             bool consumerFound = false;
             foreach (Models.Consumer localCon in consumersList)
@@ -343,7 +343,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void SocketComsCheckOutEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs e)
+        internal virtual void SocketComsCheckOutEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received consumer checkout event for consumerId '{0}'", e.MeerkatConsumerId));
             if (!string.IsNullOrWhiteSpace(e.MeerkatConsumerId))
@@ -358,7 +358,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
+        internal virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
             RefreshConsumerData();
@@ -370,7 +370,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void ScoketComsTimeOutValueReached(object sender, EventArgs e)
+        internal virtual void ScoketComsTimeOutValueReached(object sender, EventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, "Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'");
             m_DoshiiInterface.DissociateDoshiiChecks();
@@ -383,7 +383,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void SocketComsTableAllocationEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
+        internal virtual void SocketComsTableAllocationEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs e)
         {
             Models.TableAllocation tableAllocation = e.TableAllocation;
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received table allocation event for consumer '{0}' and table '{1}' checkInId '{2}'", e.TableAllocation.MeerkatConsumerId, e.TableAllocation.Name, e.TableAllocation.Id));
@@ -431,7 +431,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void SocketComsOrderStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
+        internal virtual void SocketComsOrderStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: received order status event with status '{0}', for order '{1}'", e.Order.Status, e.Order.ToJsonString()));
             Models.Order returnedOrder = new Models.Order();
@@ -550,7 +550,7 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// 
         /// </returns>
-        public virtual bool RequestPaymentForOrder(Models.Order order)
+        internal virtual bool RequestPaymentForOrder(Models.Order order)
         {
             Models.Order returnedOrder = new Models.Order();
             order.Status = "waiting for payment";
@@ -622,7 +622,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void SocketComsConsumerCheckinEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
+        internal virtual void SocketComsConsumerCheckinEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.CheckInEventArgs e)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: checkIn event received for consumer - '{0}' with id '{1}'", e.Consumer.Name, e.Consumer.MeerkatConsumerId));
             m_DoshiiInterface.RecordCheckedInUser(ref e.Consumer);
@@ -717,7 +717,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
-        public virtual void DeleteProduct(string productId)
+        internal virtual void DeleteProduct(string productId)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos deleting product from doshii - '{0}'", productId));
             try
@@ -759,7 +759,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        public virtual Models.Order GetOrder(string orderId)
+        internal virtual Models.Order GetOrder(string orderId)
         {
             try
             {
@@ -781,7 +781,7 @@ namespace DoshiiDotNetIntegration
         /// not tested
         /// </param>
         /// <returns></returns>
-        public virtual Models.Order UpdateOrder(Models.Order order)
+        internal virtual Models.Order UpdateOrder(Models.Order order)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", order.ToJsonString()));
             if (OrderMode == Enums.OrderModes.BistroMode)
@@ -873,7 +873,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="meerkatCustomerId"></param>
         /// <returns></returns>
-        public virtual Models.Consumer GetConsumer(string meerkatCustomerId)
+        internal virtual Models.Consumer GetConsumer(string meerkatCustomerId)
         {
             try
             {
@@ -895,7 +895,7 @@ namespace DoshiiDotNetIntegration
         /// the name of the table to be allocated.
         /// </param>
         /// <returns></returns>
-        public virtual void SetTableAllocation(string customerId, string tableName)
+        internal virtual void SetTableAllocation(string customerId, string tableName)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos allocating table for customerId - '{0}', table '{1}'", customerId, tableName));
             try
@@ -915,7 +915,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="customerId"></param>
         /// <param name="tableName"></param>
         /// <param name="deleteReason"></param>
-        public virtual void DeleteTableAllocation(string customerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
+        internal virtual void DeleteTableAllocation(string customerId, string tableName, Enums.TableAllocationRejectionReasons deleteReason)
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for customerId - '{0}', table '{1}'", customerId, tableName));
             try
@@ -934,7 +934,7 @@ namespace DoshiiDotNetIntegration
         /// returns a list of all the consumers currently in doshii. 
         /// </summary>
         /// <returns></returns>
-        public virtual List<Models.Consumer> GetCheckedInConsumersFromDoshii()
+        internal virtual List<Models.Consumer> GetCheckedInConsumersFromDoshii()
         {
             m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: pos requesting all checked in users"));
             try

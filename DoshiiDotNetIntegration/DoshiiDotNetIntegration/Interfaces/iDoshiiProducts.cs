@@ -19,7 +19,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="doshiiLogic"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        void AddNewProducts(DoshiiOperationLogic doshiiLogic, List<Models.Product> productList);
+        void AddNewProducts(DoshiiManagement doshiiLogic, List<Models.Product> productList);
 
         /// <summary>
         /// This method should be used to update a product that already exists on doshii
@@ -28,7 +28,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="doshiiLogic"></param>
         /// <param name="productToUpdate"></param>
         /// <returns></returns>
-        void UpdateProduct(DoshiiOperationLogic doshiiLogic, Models.Product productToUpdate);
+        void UpdateProduct(DoshiiManagement doshiiLogic, Models.Product productToUpdate);
 
         /// <summary>
         /// This method should be used to delete products from Doshii
@@ -37,7 +37,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="doshiiLogic"></param>
         /// <param name="productIdList"></param>
         /// <returns></returns>
-        void DeleteProducts(DoshiiOperationLogic doshiiLogic, List<string> productIdList);
+        void DeleteProducts(DoshiiManagement doshiiLogic, List<string> productIdList);
 
         /// <summary>
         /// This method should be used to delete all products from doshii
@@ -45,13 +45,13 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="doshiiLogic"></param>
         /// <returns></returns>
-        void DeleteAllProducts(DoshiiOperationLogic doshiiLogic);
+        void DeleteAllProducts(DoshiiManagement doshiiLogic);
 
         /// <summary>
         /// This method should be used to retrieve all products from Doshii
         /// When implementing this method doshiiLodic.GetAllProducts MUST be returned
         /// </summary>
         /// <returns></returns>
-        List<Models.Product> GetAllProducts(DoshiiOperationLogic doshiiLogic);
+        List<Models.Product> GetAllProducts(DoshiiManagement doshiiLogic);
     }
 }
