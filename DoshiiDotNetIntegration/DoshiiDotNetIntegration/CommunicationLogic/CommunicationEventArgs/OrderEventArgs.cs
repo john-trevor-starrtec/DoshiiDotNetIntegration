@@ -5,12 +5,12 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
-    public class OrderEventArgs : EventArgs 
+    internal class OrderEventArgs : EventArgs 
     {
-        public string OrderId;
+        internal string OrderId;
 
-        public string Status;
+        internal string Status;
 
-        public Models.Order Order;
+        internal Models.Order Order;
     }
 }

@@ -15,7 +15,7 @@
     <!-- SHFB properties -->
     <FrameworkVersion>.NET Framework 4.0</FrameworkVersion>
     <OutputPath>DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Help\</OutputPath>
-    <HtmlHelpName>Documentation</HtmlHelpName>
+    <HtmlHelpName>Doshii SDK Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <BuildAssemblerVerbosity>AllMessages</BuildAssemblerVerbosity>
     <HelpFileFormat>Website</HelpFileFormat>
@@ -29,7 +29,7 @@
       <DocumentationSource sourceFile="DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Release\DoshiiDotNetIntegration.dll" />
       <DocumentationSource sourceFile="DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Release\DoshiiDotNetIntegration.xml" />
     </DocumentationSources>
-    <VisibleItems>Attributes, ExplicitInterfaceImplementations, Internals</VisibleItems>
+    <VisibleItems>Attributes, ExplicitInterfaceImplementations</VisibleItems>
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
     <MaximumGroupParts>10</MaximumGroupParts>
     <NamespaceGrouping>True</NamespaceGrouping>

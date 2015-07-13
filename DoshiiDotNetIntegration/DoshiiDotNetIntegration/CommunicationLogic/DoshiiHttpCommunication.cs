@@ -11,25 +11,25 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     /// <summary>
     /// DO NOT USE, This class is used internally by the SDK and should not be instantiated by the pos.
     /// </summary>
-    public class DoshiiHttpCommunication 
+    internal class DoshiiHttpCommunication 
     {
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// The base URL for HTTP communication with Doshii
         /// </summary>
-        public  string m_DoshiiUrlBase;
+        internal  string m_DoshiiUrlBase;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Doshii operation logic
         /// </summary>
-        public  DoshiiOperationLogic m_DoshiiLogic;
+        internal  DoshiiManagement m_DoshiiLogic;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// The token used for authentication with doshii
         /// </summary>
-        public  string m_Token;
+        internal  string m_Token;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -38,7 +38,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="urlBase"></param>
         /// <param name="doshiiLogic"></param>
         /// <param name="token"></param>
-        public DoshiiHttpCommunication(string urlBase, DoshiiOperationLogic doshiiLogic, string token)
+        internal DoshiiHttpCommunication(string urlBase, DoshiiManagement doshiiLogic, string token)
         {
             if (doshiiLogic == null)
             {
@@ -63,7 +63,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             m_Token = token;
         }
 
-        #region public  methods 
+        #region internal  methods 
 
         #region CheckIn and allocate methods
 
@@ -73,7 +73,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="meerkatCustomerId"></param>
         /// <returns></returns>
-        public virtual Models.Consumer GetConsumer(string meerkatCustomerId)
+        internal virtual Models.Consumer GetConsumer(string meerkatCustomerId)
         {
                 
             Models.Consumer retreivedConsumer = new Models.Consumer();
@@ -120,7 +120,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Gets all the consumers currently checkedIn with Doshii, if no customers are found en empty list is returned. 
         /// </summary>
         /// <returns></returns>
-        public virtual List<Models.Consumer> GetConsumers()
+        internal virtual List<Models.Consumer> GetConsumers()
         {
 
             List<Models.Consumer> retreivedConsumerList = new List<Models.Consumer>();
@@ -168,7 +168,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        public virtual Models.Order GetOrder(string orderId)
+        internal virtual Models.Order GetOrder(string orderId)
         {
             Models.Order retreivedOrder = new Models.Order();
             DoshiHttpResponceMessages responseMessage;
@@ -214,7 +214,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Gets all the current active orders in Doshii, if there are no active orders an empty list is returned. 
         /// </summary>
         /// <returns></returns>
-        public virtual List<Models.Order> GetOrders()
+        internal virtual List<Models.Order> GetOrders()
         {
             List<Models.Order> retreivedOrderList = new List<Models.Order>();
             DoshiHttpResponceMessages responseMessage;
@@ -260,7 +260,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Gets all the current active table allocations in doshii, if there are no current active table allocations an empty list is returned. 
         /// </summary>
         /// <returns></returns>
-        public virtual List<Models.TableAllocation> GetTableAllocations()
+        internal virtual List<Models.TableAllocation> GetTableAllocations()
         {
             List<Models.TableAllocation> tableAllocationList = new List<Models.TableAllocation>();
             DoshiHttpResponceMessages responseMessage;
@@ -307,7 +307,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="consumerId"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public virtual bool PutTableAllocation(string consumerId, string tableName)
+        internal virtual bool PutTableAllocation(string consumerId, string tableName)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -341,7 +341,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="consumerId"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public virtual bool PostTableAllocation(string consumerId, string tableName)
+        internal virtual bool PostTableAllocation(string consumerId, string tableName)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -378,7 +378,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="tableName"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        public virtual bool DeleteTableAllocationWithCheckInId(string checkInId, Enums.TableAllocationRejectionReasons rejectionReasons)
+        internal virtual bool DeleteTableAllocationWithCheckInId(string checkInId, Enums.TableAllocationRejectionReasons rejectionReasons)
         {
 
             bool success = false;
@@ -421,7 +421,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="tableName"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        public virtual bool SetSeatingAndOrderConfiguration(Enums.SeatingModes seatingMode, Enums.OrderModes orderMode)
+        internal virtual bool SetSeatingAndOrderConfiguration(Enums.SeatingModes seatingMode, Enums.OrderModes orderMode)
         {
 
             bool success = false;
@@ -484,7 +484,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="rejectionReason"></param>
         /// <returns></returns>
-        public virtual string SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons rejectionReason)
+        internal virtual string SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons rejectionReason)
         {
             string reasonCodeString = "";
             switch (rejectionReason)
@@ -522,7 +522,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="tableName"></param>
         /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        public virtual bool RejectTableAllocation(string consumerId, string tableName, Enums.TableAllocationRejectionReasons rejectionReason)
+        internal virtual bool RejectTableAllocation(string consumerId, string tableName, Enums.TableAllocationRejectionReasons rejectionReason)
         {
             
             bool success = false;
@@ -563,7 +563,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="order"></param>
         /// <param name="method"></param>
         /// <returns></returns>
-        public Models.Order PutPostOrder(Models.Order order, string method)
+        internal Models.Order PutPostOrder(Models.Order order, string method)
         {
             if (!(method.Equals("POST") || method.Equals("PUT")))
             {
@@ -654,7 +654,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// If the request is not successful a new order will be returned - you can check the order.Id in the returned order to confirm it is a valid response. 
         /// </returns>
-        public virtual Models.Order PutOrder(Models.Order order)
+        internal virtual Models.Order PutOrder(Models.Order order)
         {
             return PutPostOrder(order, "PUT");
         }
@@ -665,7 +665,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="order"></param>
         /// <returns></returns>
-        public virtual Models.Order PostOrder(Models.Order order)
+        internal virtual Models.Order PostOrder(Models.Order order)
         {
             return PutPostOrder(order, "POST");
         }
@@ -679,7 +679,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Gets all the products currently uploaded to Doshii. 
         /// </summary>
         /// <returns></returns>
-        public virtual List<Models.Product> GetDoshiiProducts()
+        internal virtual List<Models.Product> GetDoshiiProducts()
         {
             DoshiHttpResponceMessages responseMessage;
             try
@@ -729,7 +729,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// This will return true unless there was an exception, 
         /// as the doshii web service will return an error response if we attempt to delete an item that doesn't exist, we should ignore this error. 
         /// </returns>
-        public virtual bool DeleteProductData(string productId = "")
+        internal virtual bool DeleteProductData(string productId = "")
         {
             bool success = true;
             try
@@ -785,7 +785,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="productToPost"></param>
         /// <param name="isNewProduct"></param>
         /// <returns></returns>
-        public virtual bool PostProductData(Models.Product productToPost, bool isNewProduct)
+        internal virtual bool PostProductData(Models.Product productToPost, bool isNewProduct)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -842,7 +842,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="productListToPost"></param>
         /// <param name="clearCurrentMenu"></param>
         /// <returns></returns>
-        public virtual bool PostProductData(List<Models.Product> productListToPost, bool clearCurrentMenu)
+        internal virtual bool PostProductData(List<Models.Product> productListToPost, bool clearCurrentMenu)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -885,7 +885,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="productToPost"></param>
         /// <returns></returns>
-        public virtual bool PutProductData(Models.Product productToPost)
+        internal virtual bool PutProductData(Models.Product productToPost)
         {
             bool success = false;
             DoshiHttpResponceMessages responseMessage;
@@ -932,7 +932,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="purpose"></param>
         /// <param name="identification"></param>
         /// <returns></returns>
-        public virtual string GenerateUrl(Enums.EndPointPurposes purpose, string identification = "", string tableName = "")
+        internal virtual string GenerateUrl(Enums.EndPointPurposes purpose, string identification = "", string tableName = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
             if (string.IsNullOrWhiteSpace(m_DoshiiUrlBase))
@@ -993,7 +993,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="method"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual DoshiHttpResponceMessages MakeRequest(string url, string method, string data = "")
+        internal virtual DoshiHttpResponceMessages MakeRequest(string url, string method, string data = "")
         {
             if (string.IsNullOrWhiteSpace(url))
             {

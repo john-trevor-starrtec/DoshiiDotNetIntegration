@@ -164,32 +164,5 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="order"></param>
         /// <returns></returns>
         string GetOrderUpdatedAtTime(Models.Order order);
-
-        /// <summary>
-        /// This method should be used to update an order on the Doshii service when it has been changed on the pos,
-        /// When implementing this method doshiiLodic.UpdateOrder MUST be called
-        /// </summary>
-        /// <param name="doshiiLogic"></param>
-        /// <param name="order"></param>
-        /// <returns></returns>
-        Models.Order UpdateDoshiiOrder(DoshiiOperationLogic doshiiLogic, Models.Order order);
-
-        /// <summary>
-        /// This method should be used to set a table allocation from the pos when the integration is set to PosAllocation mode. 
-        /// When implementing this method dhoshiiLogic.SetTableAllocation MUST be called. 
-        /// </summary>
-        /// <param name="doshiiLogic"></param>
-        /// <param name="tableAllocation"></param>
-        /// <returns></returns>
-        bool SetTableAllocation(DoshiiOperationLogic doshiiLogic, string customerId, string tableName);
-
-        /// <summary>
-        /// This method should be used to get all the checkedInConsumersFromDoshii. 
-        /// When implementing this method dhoshiiLogic.GetCheckedInConsumersFromDoshii MUST be called. 
-        /// </summary>
-        /// <param name="doshiiLogic"></param>
-        /// <returns></returns>
-        List<Models.Consumer> GetCheckedInConsumersFromDoshii(DoshiiOperationLogic doshiiLogic);
-
     }
 }

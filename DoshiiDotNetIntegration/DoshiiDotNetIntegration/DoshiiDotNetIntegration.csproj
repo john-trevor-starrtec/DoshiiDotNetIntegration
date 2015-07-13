@@ -77,7 +77,7 @@
     <Compile Include="CommunicationLogic\DoshiiHttpCommunication.cs" />
     <Compile Include="CommunicationLogic\DoshiiWebSocketsCommunication.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderEventArgs.cs" />
-    <Compile Include="DoshiiOperationLogic.cs" />
+    <Compile Include="DoshiiManagement.cs" />
     <Compile Include="Enums\DoshiiLogLevels.cs" />
     <Compile Include="Enums\EndPointPurposes.cs" />
     <Compile Include="Enums\OrderModes.cs" />
@@ -89,7 +89,6 @@
     <Compile Include="Exceptions\ProductNotCreatedException.cs" />
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Interfaces\iDoshiiOrdering.cs" />
-    <Compile Include="Interfaces\iDoshiiProducts.cs" />
     <Compile Include="Models\Checkin.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\JsonSerializationBase.cs" />
