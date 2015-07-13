@@ -5,8 +5,8 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
-    public class CheckOutEventArgs : EventArgs
+    internal class CheckOutEventArgs : EventArgs
     {
-        public string MeerkatConsumerId { get; set; }
+        internal string MeerkatConsumerId { get; set; }
     }
 }
