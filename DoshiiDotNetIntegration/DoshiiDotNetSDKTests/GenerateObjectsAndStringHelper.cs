@@ -9,35 +9,35 @@ using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetSDKTests
 {
-    public static class GenerateObjectsAndStringHelper
+    internal static class GenerateObjectsAndStringHelper
     {
 
         #region test fields
 
-        public static string TestBaseUrl = "https://Google.com.au";
-        public static string TestSocketUrl = "wss://google.com.au";
-        public static string TestCustomerId = "TestCustomerId";
-        public static string TestMeerkatConsumerId = "TestPaypalCustomerId";
-        public static string TestTableNumber = "TestTableNumber";
-        public static string TestToken = "TestToken";
-        public static string TestCheckinId = "TestCheckinId";
-        public static string TestTableName = "TestName";
-        public static string TestTableAllocationName = "TestAllocationName";
-        public static string TestTableAllocationStatus = "TableAllocationStatus";
-        public static string TestPaypalTabId = "TestPaypalTabId";
-        public static string TestLocationId = "TestLocationId";
-        public static string TestCheckinStatus = "TestCheckinStatus";
-        public static string TestGratuity = "TestGratuity";
-        public static Uri TestCheckinUrl = new Uri("c:\\impos\\");
-        public static int TestOrderId = 123;
-        public static int TestTimeOutValue = 600;
-        public static string TestProductId = "asd123";
+        internal static string TestBaseUrl = "https://Google.com.au";
+        internal static string TestSocketUrl = "wss://google.com.au";
+        internal static string TestCustomerId = "TestCustomerId";
+        internal static string TestMeerkatConsumerId = "TestPaypalCustomerId";
+        internal static string TestTableNumber = "TestTableNumber";
+        internal static string TestToken = "TestToken";
+        internal static string TestCheckinId = "TestCheckinId";
+        internal static string TestTableName = "TestName";
+        internal static string TestTableAllocationName = "TestAllocationName";
+        internal static string TestTableAllocationStatus = "TableAllocationStatus";
+        internal static string TestPaypalTabId = "TestPaypalTabId";
+        internal static string TestLocationId = "TestLocationId";
+        internal static string TestCheckinStatus = "TestCheckinStatus";
+        internal static string TestGratuity = "TestGratuity";
+        internal static Uri TestCheckinUrl = new Uri("c:\\impos\\");
+        internal static int TestOrderId = 123;
+        internal static int TestTimeOutValue = 600;
+        internal static string TestProductId = "asd123";
 
         #endregion 
 
         #region responceMessages
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumerSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumerSuccess()
         {
             return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
             {
@@ -49,7 +49,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumersSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumersSuccess()
         {
             return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
             {
@@ -61,7 +61,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrderSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrderSuccess()
         {
             return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
             {
@@ -73,7 +73,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrdersSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrdersSuccess()
         {
             return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
             {
@@ -85,7 +85,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageTableAllocationSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageTableAllocationSuccess()
         {
             return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
             {
@@ -97,7 +97,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationSuccess()
         {
             return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
             {
@@ -109,7 +109,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationFailure()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationFailure()
         {
             return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
             {
@@ -121,7 +121,7 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageSuccessfulOrder()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageSuccessfulOrder()
         {
             return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
             {
@@ -137,7 +137,7 @@ namespace DoshiiDotNetSDKTests
 
         #region Generate TestObjects and TestValues
 
-        public static List<DoshiiDotNetIntegration.Models.Product> GenerateProductList()
+        internal static List<DoshiiDotNetIntegration.Models.Product> GenerateProductList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.Product>();
             list.Add(GenerateProduct1WithOptions());
@@ -145,7 +145,7 @@ namespace DoshiiDotNetSDKTests
             return list;
         }
 
-        public static DoshiiDotNetIntegration.Models.Product GenerateProduct1WithOptions()
+        internal static DoshiiDotNetIntegration.Models.Product GenerateProduct1WithOptions()
         {
             var tagsList = new List<string>();
             tagsList.Add("Product1Department");
@@ -167,7 +167,7 @@ namespace DoshiiDotNetSDKTests
         }
 
 
-        public static DoshiiDotNetIntegration.Models.Product GenerateProduct2()
+        internal static DoshiiDotNetIntegration.Models.Product GenerateProduct2()
         {
             var tagsList = new List<string>();
             tagsList.Add("Product2Department");
@@ -187,7 +187,7 @@ namespace DoshiiDotNetSDKTests
             return product;
         }
 
-        public static List<DoshiiDotNetIntegration.Models.Variants> GenerateProductVarientList()
+        internal static List<DoshiiDotNetIntegration.Models.Variants> GenerateProductVarientList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.Variants>();
             list.Add(GenerateProductVarient1());
@@ -195,7 +195,7 @@ namespace DoshiiDotNetSDKTests
             return list;
         }
 
-        public static DoshiiDotNetIntegration.Models.Variants GenerateProductVarient1()
+        internal static DoshiiDotNetIntegration.Models.Variants GenerateProductVarient1()
         {
             var variant = new DoshiiDotNetIntegration.Models.Variants()
             {
@@ -206,7 +206,7 @@ namespace DoshiiDotNetSDKTests
             return variant;
         }
 
-        public static DoshiiDotNetIntegration.Models.Variants GenerateProductVarient2()
+        internal static DoshiiDotNetIntegration.Models.Variants GenerateProductVarient2()
         {
             var variant = new DoshiiDotNetIntegration.Models.Variants()
             {
@@ -217,14 +217,14 @@ namespace DoshiiDotNetSDKTests
             return variant;
         }
 
-        public static List<DoshiiDotNetIntegration.Models.ProductOptions> GenerateProductOptionList()
+        internal static List<DoshiiDotNetIntegration.Models.ProductOptions> GenerateProductOptionList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.ProductOptions>();
             list.Add(GenerateProductOption1());
             return list;
         }
 
-        public static DoshiiDotNetIntegration.Models.ProductOptions GenerateProductOption1()
+        internal static DoshiiDotNetIntegration.Models.ProductOptions GenerateProductOption1()
         {
             var productOption = new DoshiiDotNetIntegration.Models.ProductOptions()
             {
@@ -238,7 +238,7 @@ namespace DoshiiDotNetSDKTests
             return productOption;
         }
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.CheckInEventArgs GenerateCheckinEventArgs()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.CheckInEventArgs GenerateCheckinEventArgs()
         {
             var checkInArgs = new DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
             checkInArgs.Consumer = GenerateConsumer1();
@@ -249,7 +249,7 @@ namespace DoshiiDotNetSDKTests
         }
 
 
-        public static List<DoshiiDotNetIntegration.Models.Order> GenerateOrderList()
+        internal static List<DoshiiDotNetIntegration.Models.Order> GenerateOrderList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.Order>();
             list.Add(GenerateOrderAccepted());
@@ -259,7 +259,7 @@ namespace DoshiiDotNetSDKTests
             return list;
         }
 
-        public static DoshiiDotNetIntegration.Models.Order GenerateOrderAccepted()
+        internal static DoshiiDotNetIntegration.Models.Order GenerateOrderAccepted()
         {
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
@@ -270,7 +270,7 @@ namespace DoshiiDotNetSDKTests
             return order;
         }
 
-        public static DoshiiDotNetIntegration.Models.Order GenerateOrderPaid()
+        internal static DoshiiDotNetIntegration.Models.Order GenerateOrderPaid()
         {
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
@@ -281,7 +281,7 @@ namespace DoshiiDotNetSDKTests
             return order;
         }
 
-        public static DoshiiDotNetIntegration.Models.Order GenerateOrderWaitingForPayment()
+        internal static DoshiiDotNetIntegration.Models.Order GenerateOrderWaitingForPayment()
         {
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
@@ -292,7 +292,7 @@ namespace DoshiiDotNetSDKTests
             return order;
         }
 
-        public static DoshiiDotNetIntegration.Models.Order GenerateOrderPending()
+        internal static DoshiiDotNetIntegration.Models.Order GenerateOrderPending()
         {
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
@@ -303,7 +303,7 @@ namespace DoshiiDotNetSDKTests
             return order;
         }
 
-        public static DoshiiDotNetIntegration.Models.Order GenerateOrderReadyToPay()
+        internal static DoshiiDotNetIntegration.Models.Order GenerateOrderReadyToPay()
         {
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
@@ -314,7 +314,7 @@ namespace DoshiiDotNetSDKTests
             return order;
         }
 
-        public static DoshiiDotNetIntegration.Models.Order GenerateOrderCancelled()
+        internal static DoshiiDotNetIntegration.Models.Order GenerateOrderCancelled()
         {
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
@@ -327,7 +327,7 @@ namespace DoshiiDotNetSDKTests
 
 
 
-        public static DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs GenerateTableAllocationEventArgs()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs GenerateTableAllocationEventArgs()
         {
             var allocationEventArgs = new DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs()
             {
@@ -336,7 +336,7 @@ namespace DoshiiDotNetSDKTests
             return allocationEventArgs;
         }
 
-        public static List<DoshiiDotNetIntegration.Models.TableAllocation> GenerateTableAllocationList()
+        internal static List<DoshiiDotNetIntegration.Models.TableAllocation> GenerateTableAllocationList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.TableAllocation>();
             list.Add(GenerateTableAllocation());
@@ -344,7 +344,7 @@ namespace DoshiiDotNetSDKTests
             return list;
         }
 
-        public static DoshiiDotNetIntegration.Models.TableAllocation GenerateTableAllocation()
+        internal static DoshiiDotNetIntegration.Models.TableAllocation GenerateTableAllocation()
         {
             var tableAllocation = new DoshiiDotNetIntegration.Models.TableAllocation()
             {
@@ -359,7 +359,7 @@ namespace DoshiiDotNetSDKTests
             return tableAllocation;
         }
 
-        public static DoshiiDotNetIntegration.Models.TableAllocation GenerateTableAllocation2()
+        internal static DoshiiDotNetIntegration.Models.TableAllocation GenerateTableAllocation2()
         {
             var tableAllocation = new DoshiiDotNetIntegration.Models.TableAllocation()
             {
@@ -374,7 +374,7 @@ namespace DoshiiDotNetSDKTests
             return tableAllocation;
         }
 
-        public static DoshiiDotNetIntegration.Models.Checkin GenerateCheckin()
+        internal static DoshiiDotNetIntegration.Models.Checkin GenerateCheckin()
         {
             var checkin = new DoshiiDotNetIntegration.Models.Checkin()
             {
@@ -390,7 +390,7 @@ namespace DoshiiDotNetSDKTests
             return checkin;
         }
 
-        public static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer1()
+        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer1()
         {
             var consumer = new DoshiiDotNetIntegration.Models.Consumer();
             consumer.CheckInId = "123";
@@ -401,7 +401,7 @@ namespace DoshiiDotNetSDKTests
             return consumer;
         }
 
-        public static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer2()
+        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer2()
         {
             var consumer = new DoshiiDotNetIntegration.Models.Consumer();
             consumer.CheckInId = "456";
@@ -412,7 +412,7 @@ namespace DoshiiDotNetSDKTests
             return consumer;
         }
 
-        public static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer3()
+        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer3()
         {
             var consumer = new DoshiiDotNetIntegration.Models.Consumer();
             consumer.CheckInId = "789";
@@ -423,7 +423,7 @@ namespace DoshiiDotNetSDKTests
             return consumer;
         }
 
-        public static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer4()
+        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer4()
         {
             var consumer = new DoshiiDotNetIntegration.Models.Consumer();
             consumer.CheckInId = "101";
@@ -434,7 +434,7 @@ namespace DoshiiDotNetSDKTests
             return consumer;
         }
 
-        public static List<DoshiiDotNetIntegration.Models.Consumer> GenerateConsumerList()
+        internal static List<DoshiiDotNetIntegration.Models.Consumer> GenerateConsumerList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.Consumer>();
             list.Add(GenerateConsumer1());
