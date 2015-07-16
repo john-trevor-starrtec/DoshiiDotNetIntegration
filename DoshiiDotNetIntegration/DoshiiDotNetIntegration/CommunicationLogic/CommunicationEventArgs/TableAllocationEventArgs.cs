@@ -5,8 +5,8 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
-    public class TableAllocationEventArgs : EventArgs
+    internal class TableAllocationEventArgs : EventArgs
     {
-        public Models.TableAllocation TableAllocation;
+        internal Models.TableAllocation TableAllocation;
     }
 }

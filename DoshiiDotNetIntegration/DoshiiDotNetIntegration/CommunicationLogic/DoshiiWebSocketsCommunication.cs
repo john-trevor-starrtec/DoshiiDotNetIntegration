@@ -12,7 +12,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     /// DO NOT USE, This class is used internally by the SDK and should not be instantiated by the POS.
     /// facilitates the web sockets communication with the doshii application
     /// </summary>
-    public class DoshiiWebSocketsCommunication 
+    internal class DoshiiWebSocketsCommunication 
     {
 
         #region fields and properties
@@ -21,91 +21,91 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Web socket object that will handle all the communications with doshii
         /// </summary>
-        public  WebSocket m_WebSocketsConnection = null;
+        internal  WebSocket m_WebSocketsConnection = null;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// A doshii logic instance
         /// </summary>
-        public  DoshiiOperationLogic m_DoshiiLogic;
+        internal  DoshiiManagement m_DoshiiLogic;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// A thread to send heartbeat socket message to doshii. 
         /// </summary>
-        public  Thread m_HeartBeatThread = null;
+        internal  Thread m_HeartBeatThread = null;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// This will hold the value for the last connected time so that there are not many connections established after the connection drops out. 
         /// </summary>
-        public  DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
+        internal  DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// this is used to hold the timeout value for the socket connection being unable to connect to the server.
         /// </summary>
-        public  int m_SocketConnectionTimeOutValue;
+        internal  int m_SocketConnectionTimeOutValue;
 
         /// <summary>
         /// this is used to calculate if the last successful socket connection is within the timeOut range. 
         /// </summary>
-        public  DateTime m_LastSuccessfullSocketMessageTime;
+        internal  DateTime m_LastSuccessfullSocketMessageTime;
 
         #endregion
 
-        #region public methods and events
+        #region internal methods and events
 
         #region events
 
-        public  delegate void CreatedOrderEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        internal  delegate void CreatedOrderEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when a new order is created on doshii
         /// </summary>
-        public  event CreatedOrderEventHandler CreateOrderEvent;
+        internal  event CreatedOrderEventHandler CreateOrderEvent;
         
-        public  delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        internal  delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the state of an order has changed through doshii
         /// </summary>
-        public  event OrderStatusEventHandler OrderStatusEvent;
+        internal  event OrderStatusEventHandler OrderStatusEvent;
         
-        public  delegate void ConsumerCheckInEventHandler(object sender, CommunicationEventArgs.CheckInEventArgs e);
+        internal  delegate void ConsumerCheckInEventHandler(object sender, CommunicationEventArgs.CheckInEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when a consumer checks in through doshii
         /// </summary>
-        public  event ConsumerCheckInEventHandler ConsumerCheckinEvent;
+        internal  event ConsumerCheckInEventHandler ConsumerCheckinEvent;
         
-        public  delegate void TableAllocationEventHandler(object sender, CommunicationEventArgs.TableAllocationEventArgs e);
+        internal  delegate void TableAllocationEventHandler(object sender, CommunicationEventArgs.TableAllocationEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when a table allocation event occurs through doshii
         /// </summary>
-        public  event TableAllocationEventHandler TableAllocationEvent;
+        internal  event TableAllocationEventHandler TableAllocationEvent;
         
-        public  delegate void CheckOutEventHandler(object sender, CommunicationEventArgs.CheckOutEventArgs e);
+        internal  delegate void CheckOutEventHandler(object sender, CommunicationEventArgs.CheckOutEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when a consumer is checked out from doshii
         /// </summary>
-        public  event CheckOutEventHandler CheckOutEvent;
+        internal  event CheckOutEventHandler CheckOutEvent;
         
-        public  delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
+        internal  delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the socket communication with doshii are opened. 
         /// </summary>
-        public  event SocketCommunicationEstablishedEventHandler SocketCommunicationEstablishedEvent;
+        internal  event SocketCommunicationEstablishedEventHandler SocketCommunicationEstablishedEvent;
 
-        public  delegate void SocketCommunicationTimeoutReachedEventHandler(object sender, EventArgs e);
+        internal  delegate void SocketCommunicationTimeoutReachedEventHandler(object sender, EventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the socket communication with doshii are opened. 
         /// </summary>
-        public  event SocketCommunicationTimeoutReachedEventHandler SocketCommunicationTimeoutReached;
+        internal  event SocketCommunicationTimeoutReachedEventHandler SocketCommunicationTimeoutReached;
 
         #endregion
 
@@ -115,7 +115,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Closes the socket connection
         /// </summary>
-        public virtual void CloseSocketConnection()
+        internal virtual void CloseSocketConnection()
         {
             m_WebSocketsConnection.Close();
         }
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="webSocketUrl"></param>
         /// <param name="doshii"></param>
-        public DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiOperationLogic doshii, int socketConnectionTimeOutValue)
+        internal DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiManagement doshii, int socketConnectionTimeOutValue)
         {
             if (doshii == null)
             {
@@ -160,7 +160,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Initializes the webScoket communication with doshii
         /// This method should not be called until the events emitted from this class are subscribed to. 
         /// </summary>
-        public virtual void Initialize()
+        internal virtual void Initialize()
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("initializing doshii web-socket connection"));
             Connect();
@@ -170,7 +170,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Starts the heart beat thread to ensure the sockets connection is kept alive. 
         /// </summary>
-        public virtual void StartHeartbeatThread()
+        internal virtual void StartHeartbeatThread()
         {
             if (m_HeartBeatThread == null)
             {
@@ -188,7 +188,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Sets the last time a connection attempt was made. 
         /// </summary>
-        public virtual void SetLastConnectionAttemptTime()
+        internal virtual void SetLastConnectionAttemptTime()
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Setting last connection attempt time: {0}", DateTime.Now.ToString())); 
             m_LastConnectionAttemptTime = DateTime.Now;
@@ -198,7 +198,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Attempts to open a web-sockets connection with doshii
         /// </summary>
-        public virtual void Connect()
+        internal virtual void Connect()
         {
             if (m_WebSocketsConnection != null && !m_WebSocketsConnection.IsAlive)
             {
@@ -229,7 +229,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// This should not be used for anything other than heartbeats as the POS does not communication with Doshii though web sockets. 
         /// </summary>
         /// <param name="message"></param>
-        public virtual void SendMessage(string message)
+        internal virtual void SendMessage(string message)
         {
             try
             {
@@ -250,7 +250,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Sends a heart beat message to doshii every ten seconds. 
         /// </summary>
-        public virtual void HeartBeatChecker()
+        internal virtual void HeartBeatChecker()
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Starting web Socket heartbeat thread"));
             while (true)
@@ -287,7 +287,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
+        internal virtual void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the web-sockets connection to {0} the error was {1}", m_WebSocketsConnection.Url.ToString(), e.Message));
             //StopHeartbeatThread();
@@ -303,7 +303,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
+        internal virtual void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
             DoshiiDotNetIntegration.Models.SocketMessage theMessage = new Models.SocketMessage();
@@ -424,7 +424,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
+        internal virtual void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
         {
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection to {0} closed", m_WebSocketsConnection.Url.ToString()));
         }
@@ -435,7 +435,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public virtual void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
+        internal virtual void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
             m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection successfully open to {0}", m_WebSocketsConnection.Url.ToString()));
@@ -449,7 +449,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Sets the last time there was a successful sockets connection. 
         /// </summary>
-        public virtual void SetLastSuccessfullSocketCommunicationTime()
+        internal virtual void SetLastSuccessfullSocketCommunicationTime()
         {
             m_LastSuccessfullSocketMessageTime = DateTime.Now;
         }
@@ -459,7 +459,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Tests the time out value for the socket connection has not been reached.
         /// </summary>
         /// <returns></returns>
-        public virtual bool TestTimeOutValue()
+        internal virtual bool TestTimeOutValue()
         {
             if (m_LastSuccessfullSocketMessageTime.AddSeconds((double)m_SocketConnectionTimeOutValue) < DateTime.Now)
             {

@@ -5,14 +5,14 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
-    public class CheckInEventArgs : EventArgs 
+    internal class CheckInEventArgs : EventArgs 
     {
-        public string CheckIn;
+        internal string CheckIn;
 
-        public string MeerkatCustomerId;
+        internal string MeerkatCustomerId;
 
-        public Uri Uri;
+        internal Uri Uri;
 
-        public Models.Consumer Consumer;
+        internal Models.Consumer Consumer;
     }
 }
