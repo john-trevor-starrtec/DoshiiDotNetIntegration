@@ -14,18 +14,18 @@ namespace DoshiiDotNetSDKTests
     [TestFixture]
     public class SocketCommunicationTests
     {
-        DoshiiManagement _management;
-        DoshiiDotNetIntegration.Interfaces.iDoshiiOrdering OrderingInterface;
+        DoshiiManager _manager;
+        DoshiiDotNetIntegration.Interfaces.IDoshiiOrdering OrderingInterface;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication SocketComs;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication MockSocketComs;
 
         [SetUp]
         public void Init()
         {
-            OrderingInterface = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.iDoshiiOrdering>();
-            _management = MockRepository.GenerateMock<DoshiiManagement>(OrderingInterface);
-            MockSocketComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TestSocketUrl, _management, GenerateObjectsAndStringHelper.TestTimeOutValue);
-            SocketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, _management, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            OrderingInterface = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IDoshiiOrdering>();
+            _manager = MockRepository.GenerateMock<DoshiiManager>(OrderingInterface);
+            MockSocketComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TestSocketUrl, _manager, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            SocketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, _manager, GenerateObjectsAndStringHelper.TestTimeOutValue);
             
         }
 
@@ -33,7 +33,7 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(NotSupportedException))]
         public void Constructor_NoUrl()
         {
-            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication("", _management, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication("", _manager, GenerateObjectsAndStringHelper.TestTimeOutValue);
         }
 
         [Test]
@@ -53,10 +53,10 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void Constructor_AllParamatersCorrect()
         {
-            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, _management, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, _manager, GenerateObjectsAndStringHelper.TestTimeOutValue);
             Assert.AreEqual(socketComs.m_SocketConnectionTimeOutValue, GenerateObjectsAndStringHelper.TestTimeOutValue);
             Assert.AreEqual(socketComs.m_SocketConnectionTimeOutValue, GenerateObjectsAndStringHelper.TestTimeOutValue);
-            Assert.AreEqual(socketComs.m_DoshiiLogic, _management);
+            Assert.AreEqual(socketComs.m_DoshiiLogic, _manager);
             Assert.AreNotEqual(socketComs.m_WebSocketsConnection, null);
             
         }
