@@ -6,9 +6,18 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Interfaces
 {
     /// <summary>
-    /// This interface allows the pos to implement ALL ordering operations available in the Doshii integration.  
+    /// An interface responsible for ALL ordering operations that results in the order being updated on Doshii.
+    /// To use this interface, implement implement it and pass it as a parameter to the DoshiiManager class. 
+    /// Then use the instance of the DoshiiManager to update orders and products on Doshii.
+    ///   
+    /// This interface also checks status of the following;
+    /// <list type="bullet">
+    ///   <item>table allocation status i.e. table allocation rejected or accepted</item>
+    ///   <item>customer checked in status i.e. still checkedin or has checked out</item>
+    ///   <item>customer payment status i.e. full payment or partial payment</item>
+    /// </list>
     /// </summary>
-    public interface iDoshiiOrdering
+    public interface IDoshiiOrdering
     {
         /// <summary>
         /// This method should return a list of all the current doshii checked in customers registered in the Pos. 
@@ -25,7 +34,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 
         /// <summary>
         /// This method will receive the table allocation object, and should either accept or reject the allocation. 
-        /// if the allocation fails the ReasonCode property on the table allocation object should be set. 
+        /// If the allocation fails the ReasonCode property on the table allocation object should be set. 
         /// </summary>
         /// <param name="tableAllocation"></param>
         /// <returns>
@@ -51,16 +60,16 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <summary>
         /// This method will receive the order that has been paid partially by doshii - this will only get called if you are using restaurant mode or if you have switched from restaurant mode to bistro mode when there are opened orders.
         /// The amount that has been paid from doshii is represented in the PayTotal property and is represented in cents. 
-        /// /// After this method has been called the Order will be closed on Doshii and the SDK will call checkoutConsumerWithCheckInID to dicsaciate the order / tab / check from Doshii 
+        /// After this method has been called the Order will be closed on Doshii and the SDK will call checkoutConsumerWithCheckInID to dissociate the order / tab / check from Doshii 
         /// If there is an unpaid amount on the check / tab / order at this point it must be dealt with from the pos. 
         /// </summary>
         /// <returns></returns>
         bool RecordPartialCheckPayment(ref Models.Order order);
 
         /// <summary>
-        /// this method should record that a check has been fully paid by doshii. 
+        /// This method should record that a check has been fully paid by doshii. 
         /// The amount that has been paid from doshii is represented in the PayTotal property and is represented in cents. 
-        /// After this method has been called the Order will be closed on Doshii and the SDK will call checkoutConsumerWithCheckInID to dicsaciate the order / tab / check from Doshii 
+        /// After this method has been called the Order will be closed on Doshii and the SDK will call checkoutConsumerWithCheckInID to dissociate the order / tab / check from Doshii. 
         /// If there is an unpaid amount on the check / tab / order at this point it must be dealt with from the pos. 
         /// </summary>
         /// <returns></returns>
@@ -107,12 +116,12 @@ namespace DoshiiDotNetIntegration.Interfaces
 
         /// <summary>
         /// This method is used to check the availability of the products that have been ordered.
-        /// The pos must check the prices of the items are correct, 
-        /// The pos must check the products that have been requested are available to be sold. 
+        /// The pos must check the prices of the items are correct and also 
+        /// the pos must check the products that have been requested are available to be sold. 
         /// This method will only be called in restaurant mode.
         /// If a product is rejected a rejection reason should be added to the product on the order and false should be returned. 
-        /// As this is in restaurant mode the order should be formally created on the pos when this order is accepted, payment is expected at the end of the consumers experience at the venue rather than 
-        /// with each order. 
+        /// As this is in restaurant mode the order should be formally created on the pos when this order is accepted.
+        /// In Restaurant mode, payment is expected at the end of the consumers experience at the venue rather than with each item order. 
         /// 
         /// This may be the first time the pos receives the orderId for this order, so the pos needs to check if it already has the order id recorded against the order and if not it should record the order against the order. 
         /// </summary>
@@ -135,8 +144,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         void RecordCheckedInUser(ref Models.Consumer consumer);
 
         /// <summary>
-        /// This method should log Doshii log messages in the pos logger
-        /// This is the method that records all doshii logs, There is no separate file created for Doshii logs they should be logged by the Pos implementing the integration. 
+        /// This method should log Doshii log messages in the pos logger.
+        /// This is the method that records all doshii logs. There is no separate file created for Doshii logs so they should be logged by the Pos implementing the integration. 
         /// Please check Enums.DoshiiLogLevels for the different log levels implemented by doshii. 
         /// </summary>
         /// <param name="logLevel"></param>
@@ -158,7 +167,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         void RecordOrderId(Models.Order order);
 
         /// <summary>
-        /// This method should retrieve the order updatedAt time for the order,
+        /// This method should retrieve the order updatedAt time for the order.
         /// The updated at time is used in all order updates with Doshii to prevent concurrence issue between the pos and the doshii service.
         /// </summary>
         /// <param name="order"></param>

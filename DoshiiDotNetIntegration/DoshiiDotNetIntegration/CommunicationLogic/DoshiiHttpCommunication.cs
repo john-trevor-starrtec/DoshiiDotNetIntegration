@@ -23,7 +23,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Doshii operation logic
         /// </summary>
-        internal  DoshiiManagement m_DoshiiLogic;
+        internal  DoshiiManager m_DoshiiLogic;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -38,7 +38,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="urlBase"></param>
         /// <param name="doshiiLogic"></param>
         /// <param name="token"></param>
-        internal DoshiiHttpCommunication(string urlBase, DoshiiManagement doshiiLogic, string token)
+        internal DoshiiHttpCommunication(string urlBase, DoshiiManager doshiiLogic, string token)
         {
             if (doshiiLogic == null)
             {

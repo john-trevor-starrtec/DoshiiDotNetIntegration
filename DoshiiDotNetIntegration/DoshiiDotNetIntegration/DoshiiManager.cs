@@ -4,33 +4,45 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using DoshiiDotNetIntegration.Exceptions;
+using DoshiiDotNetIntegration.Interfaces;
 using Newtonsoft.Json;
 
 
 namespace DoshiiDotNetIntegration
 {
     /// <summary>
-    /// This class facilitates the operation of the Doshii integration with POS software.
-    /// This class must be instantiated by passing in an implementation of  <see cref="Interfaces.iDoshiiOrdering"/> 
-    /// This class will handle all communication with the Doshii API,
-    /// For ordering operations: creating orders, modifying orders, checking in consumers...
-    /// It will open a web sockets connection with the Doshii API, and react to web socket messages by calling appropriate method on the <see cref="Interfaces.iDoshiiOrdering"/>
-    /// It will make HTTP requests as required and pass the required data to the <see cref="Interfaces.iDoshiiOrdering"/> 
-    /// To update orders from the pos use the following methods. 
+    /// This class manages network operations (requests and responses) between Doshii and the Point of sale (POS) software.
+    /// This class supports ordering and product operations including the following;
+    /// <list type="bullet">
+    ///   <item>Creating orders</item>
+    ///   <item>Modifying existing orders</item>
+    ///   <item>Setting the status of a consumer to a “checked-in” status</item>
+    ///   <item>Creating products</item>
+    ///   <item>Modifying existing products</item>
+    ///   <item>Deleting the products</item>
+    /// </list>
+    /// The DoshiiManager class must be instantiated by passing in an implementation of <see cref="IDoshiiOrdering"/>.
+    /// To update orders on Doshii use the following methods;
     /// <see cref="UpdateOrder"/>, 
     /// <see cref="SetTableAllocation"/>, 
     /// <see cref="GetCheckedInConsumersFromDoshii"/>, 
-    /// <see cref="GetOrder"/>,
+    /// <see cref="GetOrder"/>.
     /// To keep the products on the Doshii products list up to date with the products available on the pos the following 5 methods should be used. 
     /// <see cref="AddNewProducts"/>, 
     /// <see cref="UpdateProcuct"/>, 
     /// <see cref="DeleteProducts"/>, 
     /// <see cref="DeleteAllProducts"/>, 
-    /// <see cref="GetAllProducts"/>  
-    /// These methods will work as described in their individual documentation and are all that is required to keep the two product lists up to date. 
+    /// <see cref="GetAllProducts"/>.  
     /// NOTE: Anytime an order is received through the DoshiiDotNetSDK the order.UpdatedAt string should be recorded by the POS and used when updating the order from Doshii. 
     /// </summary>
-    public class DoshiiManagement 
+    /// <remarks>
+    /// The DoshiiManager supports two communication protocols HTTP and Websockets. 
+    /// The websockets protocol is used to open a websocket connection with the DoshiiAPI and once it is open, 
+    /// the DoshiiManager receives the notification events messages from DoshiiAPI. Events include when a user 
+    /// changes an order event e.t.c. The HTTP protocol is used for all other operations including creating orders, 
+    /// update orders, creating products e.t.c.)
+    /// </remarks>
+    public class DoshiiManager 
     {
 
         #region properties, constructors, Initialize, versionCheck
@@ -46,9 +58,9 @@ namespace DoshiiDotNetIntegration
         internal CommunicationLogic.DoshiiHttpCommunication m_HttpComs = null;
 
         /// <summary>
-        /// holds an implementation of Interfaces.iDoshiiOrdering used to facilitate the ordering functionality offered by Doshii. 
+        /// holds an implementation of Interfaces.IDoshiiOrdering used to facilitate the ordering functionality offered by Doshii. 
         /// </summary>
-        internal  Interfaces.iDoshiiOrdering m_DoshiiInterface = null;
+        internal  Interfaces.IDoshiiOrdering m_DoshiiInterface = null;
 
         /// <summary>
         /// The order mode for the venue
@@ -85,9 +97,9 @@ namespace DoshiiDotNetIntegration
         /// After the constructor is called it MUST be followed by a call to <see cref="Initialize"/> to start communication with the Doshii API
         /// </summary>
         /// <param name="doshiiInterface">
-        /// An implementation of Interfaces.iDoshiiOrdering
+        /// An implementation of Interfaces.IDoshiiOrdering
         /// </param>
-        public DoshiiManagement(Interfaces.iDoshiiOrdering doshiiInterface)
+        public DoshiiManager(Interfaces.IDoshiiOrdering doshiiInterface)
         {
             
             if (doshiiInterface == null)
@@ -130,7 +142,7 @@ namespace DoshiiDotNetIntegration
         /// </param>
         /// <param name="timeOutValueSecs">
         /// This is the amount of this the web sockets connection can be down before the integration assumes the connection has been lost. 
-        /// If this timeout value is reached the DohsiiManagement will call a method on <see cref="Interfaces.iDoshiiOrdering"/> that should disassociate all current doshii tabs and checkout all current doshii consumers, This
+        /// If this timeout value is reached the DohsiiManagement will call a method on <see cref="IDoshiiOrdering"/> that should disassociate all current doshii tabs and checkout all current doshii consumers, This
         /// will allow the tabs / orders / checks to be acted on in the pos without messages being sent to doshii to update doshii. After the disassociate occurs the user will no longer be able to access their tab / order on the Doshii app and this value is passed to the Doshii API upon communication initializations so doshii will close tabs when there has been no communication for this period of time. 
         /// NOTE: This differs from the time that is set on the Doshii back end that indicates how long a tab can be inactive for before a checkout message is sent to the pos indicating that the consumer no longer has a valie Doshii tab / order and any associated tab / order / person registered on the pos should be disassociated from Doshii.  
         /// </param>
