@@ -22,7 +22,7 @@ namespace DoshiiDotNetIntegration.Enums
         TableIsOccupied = 2,
 
         /// <summary>
-        /// The Pos has deallocation the checkin from the table allocation,
+        /// The Pos has deallocated the checkin from the table allocation,
         /// This might happen when the checkin is moved to a different table on the pos
         /// </summary>
         CheckinWasDeallocatedByPos = 3,

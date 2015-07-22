@@ -27,7 +27,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// A doshii logic instance
         /// </summary>
-        internal  DoshiiManagement m_DoshiiLogic;
+        internal  DoshiiManager m_DoshiiLogic;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -127,7 +127,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="webSocketUrl"></param>
         /// <param name="doshii"></param>
-        internal DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiManagement doshii, int socketConnectionTimeOutValue)
+        internal DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiManager doshii, int socketConnectionTimeOutValue)
         {
             if (doshii == null)
             {
