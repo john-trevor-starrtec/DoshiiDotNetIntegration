@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+</head>
+<body>
+<div class="wsd" wsd_style="modern-blue">
+<pre>
+
+title Get product from Doshii
+
+participant POS
+participant DoshiiHttp
+	POS->DoshiiHttp: get products from Doshii. \n GET ../products/:pos_id
+	DoshiiHttp->POS: response will contain the requested product from Doshii if it exists. 
+	alt error response
+		POS->POS: handle http error as required.		
+	end
+
+</pre>
+</div>
+<script type="text/javascript" src="http://www.websequencediagrams.com/service.js"></script>
+</body>
+</html>

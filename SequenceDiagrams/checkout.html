@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+</head>
+<body>
+<div class="wsd" wsd_style="modern-blue">
+<pre>
+
+title consumer_Checkout Notification
+
+participant POS
+participant DoshiiSockets
+
+DoshiiSockets->POS: Checkout Notification. \n the checkout contains a meerketConsumerId 
+POS->POS: process consumer checkout: \n To process a checkout event all tabs / orders / checks \n associated with the consumer with the meerkatConsumerId \n should be disassociated from Doshii and \n become native POS tabs / orders / checks 
+
+</pre>
+</div>
+<script type="text/javascript" src="http://www.websequencediagrams.com/service.js"></script>
+</body>
+</html>

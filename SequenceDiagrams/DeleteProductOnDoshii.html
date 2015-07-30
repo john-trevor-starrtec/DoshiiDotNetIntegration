@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+</head>
+<body>
+<div class="wsd" wsd_style="modern-blue">
+<pre>
+
+title Delete Product on Doshii
+
+participant POS
+participant DoshiiHttp
+	POS->DoshiiHttp: Delete product on Doshii. \n DELETE ../products/:productId
+	DoshiiHttp->POS: response to delete request. 
+	alt error response
+		POS->POS: handle http error as required.		
+	end
+
+</pre>
+</div>
+<script type="text/javascript" src="http://www.websequencediagrams.com/service.js"></script>
+</body>
+</html>

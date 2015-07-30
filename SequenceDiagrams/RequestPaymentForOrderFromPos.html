@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+</head>
+<body>
+<div class="wsd" wsd_style="modern-blue">
+<pre>
+
+title Request payment from Doshii
+
+participant POS
+participant DoshiiHttp
+
+POS->POS: update order with status = waiting for payment
+POS->DoshiiHttp: request payment for the order. \n PUT ../orders/:id \n order status = waitingForPayment
+DoshiiHttp->POS: response from put request
+alt successful Response
+	POS->POS: record the new UpdateAt time on the returned order
+	POS->POS: record the payment for the order.  
+else unsuccessful Response
+	alt response is 404
+		POS->POS: disassociate the tab / order / check from Doshii and make it a native pos tab
+		POS->POS: checkout the consumer associated with the order from the pos. 
+	alt response is 409 - this is caused bacause the updated at string used by the POS \n did not match the updateAt string on Dohsii. 
+		POS->DoshiiHttp: get order. \n Get ../orders/:id
+		POS->POS: record order UpdateAt string
+		POS->POS: process the order retrieved.
+		POS->DoshiiHttp: request payment for the order. \n PUT ../orders/:id \n order status = waitingForPayment
+	alt other failed response 
+		POS->POS: handle the http response error as usual, this may include reattempting the message. 
+end
+ 
+
+</pre>
+</div>
+<script type="text/javascript" src="http://www.websequencediagrams.com/service.js"></script>
+</body>
+</html>
