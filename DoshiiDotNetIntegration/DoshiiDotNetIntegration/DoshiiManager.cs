@@ -125,10 +125,29 @@ namespace DoshiiDotNetIntegration
         /// <param name="orderMode">
         /// 1 = Restaurant mode, 
         /// 2 = Bistro mode
+        /// this value can be OrderModes.RestaurantMode or OrderModes.BistroMode,
+        /// OrderModes.RestaurantMode: This enables the end user to complete their whole dining experience before paying for their order 
+        /// eg.. it will allow the user to orders drinks, have the drinks brought to the table, 
+        /// then order the entrée – have the entrée brought to the table, 
+        /// and make subsequent orders as desired then at the end of the dining experience pay for the entire order through Doshii. 
+        /// OrderModes.BistroMode: This forces the user to pay for each order as they are made, the user will order drinks and entrees 
+        /// and pay for the drinks and entrees before they are confirmed and ordered on the pos. 
+        /// The user will then have to log back into an application (the Doshii PayPal app) to order mains or anything else they require for their table 
+        /// – this mode ensures that everything that is ordered is paid for before it is ordered or delivered to the user.  
         /// </param>
         /// <param name="seatingMode">
         /// 1 = POS Allocation, 
         /// 2 = Doshii Allocation
+        /// NOTE: some thrid party apps require the consumer to be allocated to a table before they can create an order. 
+        /// SeatingModes.PosAllocation: in this mode the POS is responsible for allocating the checkIn/Consumer 
+        /// the user will be shown a modal on the app directing them to talk to a waiter to be allocated, 
+        /// in this mode the POS must send the allocate message to Doshii. 
+        /// SeatingModes.DoshiiAllocation: in the mode the app is responsible for the initial allocation of table to consumer. 
+        /// The POS can change this allocation after has been initially made by the consumer on the app. In the third party App 
+        /// The consumer will be shown a modal asking them to input a table number after they CheckIn to a venue and before they can order.
+        /// NOTE: currently there is no mapping between Doshii and the POS with relation to tables 
+        /// – it would be expected that the venue will display the table numbers on the tables the consumers will be sitting at. 
+        /// The POS will reject attempted allocations where an incorrect / unavailable table is entered by the user.  
         /// </param>
         /// <param name="urlBase">
         /// The base URL for communication with the Doshii restful API 
@@ -137,14 +156,17 @@ namespace DoshiiDotNetIntegration
         /// </param>
         /// <param name="startWebSocketConnection">
         /// Should this instance of the class start the webSocket connection with doshii
-        /// There should only be one webSockets connection to Doshii per venue
-        /// The webSocket connection is only necessary for the ordering functionality of the Doshii integration and is not necessary for updating the Doshii menu. 
+        /// this setting directs the SDK to start the websockets connection for the venue in this instance. 
+        /// NOTE: There MUST ONLY BE ONE socket connection per venue. 
+        /// This gives the POS the ability to create other instances of the  DoshiiManager on the POS system but not start the sockets connection for the venue.  
         /// </param>
         /// <param name="timeOutValueSecs">
-        /// This is the amount of this the web sockets connection can be down before the integration assumes the connection has been lost. 
+        /// This value governs how long the socket connection can be inactive before the SDK assumes there is a network issue and acts on the orders. 
+        /// The SDK will attempt to reconnect the sockets connection when it falls over but in the event that the connection cannot be reconnected 
+        /// within the time defined in this parameter the SDK will call Disassociate Check and the POS is expected to disassociate all the Doshii orders
+        /// and make them native orders allowing the POS to act on them without trying to update Doshii. 
         /// If this timeout value is reached the DohsiiManagement will call a method on <see cref="IDoshiiOrdering"/> that should disassociate all current doshii tabs and checkout all current doshii consumers, This
-        /// will allow the tabs / orders / checks to be acted on in the pos without messages being sent to doshii to update doshii. After the disassociate occurs the user will no longer be able to access their tab / order on the Doshii app and this value is passed to the Doshii API upon communication initializations so doshii will close tabs when there has been no communication for this period of time. 
-        /// NOTE: This differs from the time that is set on the Doshii back end that indicates how long a tab can be inactive for before a checkout message is sent to the pos indicating that the consumer no longer has a valie Doshii tab / order and any associated tab / order / person registered on the pos should be disassociated from Doshii.  
+        /// will allow the tabs / orders / checks to be acted on in the pos without messages being sent to doshii to update doshii. 
         /// </param>
         public virtual void Initialize(string socketUrl, string token, Enums.OrderModes orderMode, Enums.SeatingModes seatingMode, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
