@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace DoshiiDotNetIntegration.Models
+namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
     /// A base class to make available json.net serialization functions. 
     /// </summary>
     /// <typeparam name="TSelf"></typeparam>
-    public abstract class JsonSerializationBase<TSelf> 
+    internal abstract class JsonSerializationBase<TSelf> 
     {
         /// <summary>
         /// Deserializes a json string into the derived class

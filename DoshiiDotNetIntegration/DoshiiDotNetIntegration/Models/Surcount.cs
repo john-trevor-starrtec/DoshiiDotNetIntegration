@@ -13,23 +13,33 @@ namespace DoshiiDotNetIntegration.Models
     /// Surcharges should have a positive price.
     /// Discounts should have a negative price. 
     /// </summary>
-    [DataContract]
-    [Serializable]
     public class Surcount
     {
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		public Surcount()
+		{
+			Clear();
+		}
+
+		/// <summary>
+		/// Resets all property values to default settings.
+		/// </summary>
+		public void Clear()
+		{
+			Name = String.Empty;
+			Price = 0.0M;
+		}
+
         /// <summary>
         /// The Name of the surcount
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
-
 
         /// <summary>
         /// The Price / value of the surcount in cents. 
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "price")]
-        public string Price { get; set; }
+        public decimal Price { get; set; }
     }
 }

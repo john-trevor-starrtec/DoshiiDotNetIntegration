@@ -51,6 +51,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=4.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.4.1.1\lib\net40\AutoMapper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -78,7 +82,19 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO, Version=2.6.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.IO.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime, Version=2.6.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Threading.Tasks, Version=2.6.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.Threading.Tasks.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -89,37 +105,44 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommunicationLogic\CommunicationEventArgs\CheckInEventArgs.cs" />
-    <Compile Include="CommunicationLogic\CommunicationEventArgs\CheckOutEventArgs.cs" />
-    <Compile Include="CommunicationLogic\CommunicationEventArgs\TableAllocationEventArgs.cs" />
-    <Compile Include="CommunicationLogic\DoshiHttpResponceMessages.cs" />
+    <Compile Include="CommunicationLogic\DoshiHttpResponseMessage.cs" />
     <Compile Include="CommunicationLogic\DoshiiHttpCommunication.cs" />
     <Compile Include="CommunicationLogic\DoshiiWebSocketsCommunication.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderEventArgs.cs" />
+    <Compile Include="DoshiiLogManager.cs" />
     <Compile Include="DoshiiManager.cs" />
     <Compile Include="Enums\DoshiiLogLevels.cs" />
     <Compile Include="Enums\EndPointPurposes.cs" />
-    <Compile Include="Enums\OrderModes.cs" />
-    <Compile Include="Enums\SeatingModes.cs" />
     <Compile Include="Enums\TableAllocationRejectionReasons.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
     <Compile Include="Exceptions\NullOrderReturnedException.cs" />
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
-    <Compile Include="Exceptions\ProductNotCreatedException.cs" />
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
-    <Compile Include="Interfaces\IDoshiiOrdering.cs" />
-    <Compile Include="Models\Checkin.cs" />
-    <Compile Include="Models\Consumer.cs" />
-    <Compile Include="Models\JsonSerializationBase.cs" />
+    <Compile Include="Helpers\AutoMapperConfigurator.cs" />
+    <Compile Include="Interfaces\IDoshiiLogger.cs" />
+    <Compile Include="Interfaces\IPaymentModuleManager.cs" />
+    <Compile Include="Models\Configuration.cs" />
+    <Compile Include="Models\Json\JsonConfiguration.cs" />
+    <Compile Include="Models\Json\JsonOrder.cs" />
+    <Compile Include="Models\Json\JsonOrderToPut.cs" />
+    <Compile Include="Models\Json\JsonPayment.cs" />
+    <Compile Include="Models\Json\JsonProduct.cs" />
+    <Compile Include="Models\Json\JsonProductOptions.cs" />
+    <Compile Include="Models\Json\JsonSerializationBase.cs" />
+    <Compile Include="Models\Json\JsonSurcount.cs" />
+    <Compile Include="Models\Json\JsonTableAllocation.cs" />
+    <Compile Include="Models\Json\JsonTableOrder.cs" />
+    <Compile Include="Models\Json\JsonVariants.cs" />
+    <Compile Include="Models\Json\SocketMessage.cs" />
+    <Compile Include="Models\Json\SocketMessageData.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderToPut.cs" />
     <Compile Include="Models\Payment.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductOptions.cs" />
-    <Compile Include="Models\SocketMessage.cs" />
-    <Compile Include="Models\SocketMessageData.cs" />
     <Compile Include="Models\Surcount.cs" />
     <Compile Include="Models\TableAllocation.cs" />
+    <Compile Include="Models\TableOrder.cs" />
     <Compile Include="Models\Variants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -138,7 +161,13 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
+    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

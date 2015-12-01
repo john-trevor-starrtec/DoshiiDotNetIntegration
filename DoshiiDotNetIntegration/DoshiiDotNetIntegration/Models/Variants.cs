@@ -15,29 +15,45 @@ namespace DoshiiDotNetIntegration.Models
     /// or sides eg 'chips, veg, salad'
     /// each variant can have a price attached to it.
     /// </summary>
-    [DataContract]
-    [Serializable]
-    public class Variants : JsonSerializationBase<Variants>
+    public class Variants 
     {
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		public Variants()
+		{
+			Clear();
+		}
+
+		/// <summary>
+		/// Resets all property values to default settings.
+		/// </summary>
+		public void Clear()
+		{
+			Name = String.Empty;
+			Price = 0.0M;
+			PosId = String.Empty;
+			SelectedOptionalVariant = false;
+		}
+
         /// <summary>
         /// The name of the variant that will be displayed on the mobile app
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         /// <summary>
         /// The price of the variant in cents
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "price")]
-        public string Price { get; set; }
+        public decimal Price { get; set; }
 
         /// <summary>
         /// The POS Id of the variant.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "pos_id")]
         public string PosId { get; set; }
+
+		/// <summary>
+		/// This field will be true if the variant has been selected.
+		/// </summary>
+		public bool SelectedOptionalVariant { get; set; }
     }
 }

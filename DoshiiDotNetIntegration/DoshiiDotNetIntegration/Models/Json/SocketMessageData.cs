@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace DoshiiDotNetIntegration.Models
+namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
     /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
     /// This is data that is included in the doshii socket messages. all the fields are not used by all the messages 
     /// </summary>
-    public class SocketMessageData : JsonSerializationBase<SocketMessageData>
+    internal class SocketMessageData : JsonSerializationBase<SocketMessageData>
     {
         /// <summary>
         /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
