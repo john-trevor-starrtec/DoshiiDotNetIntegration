@@ -5,9 +5,14 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.Models
 {
+	/// <summary>
+	/// This model class is a container that represents the order being placed with a table allocation.
+	/// </summary>
 	public class TableOrder
 	{
-
+		/// <summary>
+		/// Constructor.
+		/// </summary>
 		public TableOrder()
 		{
 			Table = new TableAllocation();
@@ -15,21 +20,27 @@ namespace DoshiiDotNetIntegration.Models
 			Clear();
 		}
 
-
+		/// <summary>
+		/// Resets all property values to default settings.
+		/// </summary>
 		public void Clear()
 		{
 			Table.Clear();
 			Order.Clear();
 		}
 
-
+		/// <summary>
+		/// The table allocation for the order.
+		/// </summary>
 		public TableAllocation Table
 		{
 			get;
 			private set;
 		}
 
-
+		/// <summary>
+		/// The details of the order.
+		/// </summary>
 		public Order Order
 		{
 			get;

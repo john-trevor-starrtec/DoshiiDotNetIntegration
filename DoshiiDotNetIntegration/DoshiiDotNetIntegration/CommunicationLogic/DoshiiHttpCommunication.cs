@@ -455,7 +455,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 			return null;
 		}
 
-
+		/// <summary>
+		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+		/// This method uploads the supplied <paramref name="config"/> to Doshii.
+		/// </summary>
+		/// <param name="config">The configuration to be uploaded to Doshii.</param>
+		/// <returns>True on successful upload; false otherwise.</returns>
 		internal bool PutConfiguration(Configuration config)
 		{
 			bool result = false;
@@ -507,7 +512,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="purpose"></param>
         /// <param name="identification"></param>
         /// <returns></returns>
-        internal virtual string GenerateUrl(EndPointPurposes purpose, string identification = "", string tableName = "")
+        private string GenerateUrl(EndPointPurposes purpose, string identification = "", string tableName = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
 
