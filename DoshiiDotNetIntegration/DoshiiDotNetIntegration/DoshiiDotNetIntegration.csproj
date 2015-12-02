@@ -105,6 +105,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommunicationLogic\CommunicationEventArgs\TransactionEventArgs.cs" />
     <Compile Include="CommunicationLogic\DoshiHttpResponseMessage.cs" />
     <Compile Include="CommunicationLogic\DoshiiHttpCommunication.cs" />
     <Compile Include="CommunicationLogic\DoshiiWebSocketsCommunication.cs" />
@@ -125,7 +126,7 @@
     <Compile Include="Models\Json\JsonConfiguration.cs" />
     <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonOrderToPut.cs" />
-    <Compile Include="Models\Json\JsonPayment.cs" />
+    <Compile Include="Models\Json\JsonTransaction.cs" />
     <Compile Include="Models\Json\JsonProduct.cs" />
     <Compile Include="Models\Json\JsonProductOptions.cs" />
     <Compile Include="Models\Json\JsonSerializationBase.cs" />
@@ -137,7 +138,7 @@
     <Compile Include="Models\Json\SocketMessageData.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderToPut.cs" />
-    <Compile Include="Models\Payment.cs" />
+    <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductOptions.cs" />
     <Compile Include="Models\Surcount.cs" />

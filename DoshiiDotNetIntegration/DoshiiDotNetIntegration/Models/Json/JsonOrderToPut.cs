@@ -29,7 +29,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// <summary>
 		/// Private placeholder for the payments in the order.
 		/// </summary>
-		private List<JsonPayment> mPayments;
+		private List<JsonTransaction> mPayments;
 
         /// <summary>
         /// The order status
@@ -88,12 +88,12 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "payments")]
-		public List<JsonPayment> Payments 
+		public List<JsonTransaction> Payments 
 		{
 			get
 			{
 				if (mPayments == null)
-					mPayments = new List<JsonPayment>();
+					mPayments = new List<JsonTransaction>();
 				return mPayments;
 			}
 			set

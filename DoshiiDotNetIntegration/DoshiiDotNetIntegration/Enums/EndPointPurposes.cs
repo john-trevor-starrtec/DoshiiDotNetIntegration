@@ -28,6 +28,11 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// Delete the table allocation with the checkInId
         /// </summary>
-        DeleteAllocationWithCheckInId = 3
+        DeleteAllocationWithCheckInId = 3,
+
+        /// <summary>
+        /// request to get a transaction
+        /// </summary>
+        Transaction = 4
     }
 }
