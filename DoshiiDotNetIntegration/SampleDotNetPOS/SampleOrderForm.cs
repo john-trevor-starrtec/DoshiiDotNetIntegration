@@ -29,7 +29,7 @@ namespace SampleDotNetPOS
 		public SampleOrderForm()
 		{
 			InitializeComponent();
-			lblUpdatedAt.Text = String.Empty;
+			lblVersion.Text = String.Empty;
 			lblUri.Text = String.Empty;
 		}
 

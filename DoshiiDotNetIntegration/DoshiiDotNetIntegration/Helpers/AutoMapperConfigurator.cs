@@ -105,13 +105,11 @@ namespace DoshiiDotNetIntegration.Helpers
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)))
 				.ForMember(dest => dest.ProductOptions, opt => opt.MapFrom(src => src.ProductOptions.ToList<ProductOptions>()))
 				.ForMember(dest => dest.SerializeRejectionReason, opt => opt.Ignore())
-				.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
+				.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()));
 
 			// src = JsonProduct, dest = Product
 			Mapper.CreateMap<JsonProduct, Product>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.MapDateTime(src.UpdatedAt)));
+				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
 
 		/// <summary>

@@ -377,7 +377,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             var returnOrder = new Order();
             DoshiHttpResponseMessage responseMessage;
             OrderToPut orderToPut = new OrderToPut();
-            orderToPut.UpdatedAt = DateTime.Now.ToUniversalTime();
 
             if (order.Status == "accepted")
             {

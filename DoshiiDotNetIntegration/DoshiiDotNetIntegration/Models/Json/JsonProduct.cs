@@ -95,11 +95,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
 		/// <summary>
-		/// The date and time of the last update on the product.
+		/// The version of the product in Doshii.
 		/// </summary>
 		[DataMember]
-		[JsonProperty(PropertyName = "updatedAt")]
-		public string UpdatedAt { get; set; }
+		[JsonProperty(PropertyName = "version")]
+		public string Version { get; set; }
 
 		/// <summary>
 		/// The POS Id of the product
