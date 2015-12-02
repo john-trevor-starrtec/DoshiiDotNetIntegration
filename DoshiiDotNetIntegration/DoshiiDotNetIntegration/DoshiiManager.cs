@@ -293,7 +293,6 @@ namespace DoshiiDotNetIntegration
             switch (returnedOrder.Status)
             {
                 case "ready_to_pay":
-					returnedOrder.UpdatedAt = DateTime.Now.ToUniversalTime();
                     try
                     {
 						returnedOrder = mPaymentManager.ReadyToPay(e.Order.Id);
@@ -426,7 +425,7 @@ namespace DoshiiDotNetIntegration
             if (order.Id == "0")
             {
 				// new order
-                order.UpdatedAt = DateTime.Now;
+                
                 try
                 {
                     returnedOrder = m_HttpComs.PutOrder(order);

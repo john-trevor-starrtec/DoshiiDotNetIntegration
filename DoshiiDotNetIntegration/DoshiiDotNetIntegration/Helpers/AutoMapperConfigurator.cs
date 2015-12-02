@@ -151,12 +151,10 @@ namespace DoshiiDotNetIntegration.Helpers
 		private static void MapTableAllocationObjects()
 		{
 			// src = TableAllocation, dest = JsonTableAllocation
-			Mapper.CreateMap<TableAllocation, JsonTableAllocation>()
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
+			Mapper.CreateMap<TableAllocation, JsonTableAllocation>();
 
 			// src = JsonTableAllocation, dest = TableAllocation
-			Mapper.CreateMap<JsonTableAllocation, TableAllocation>()
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.MapDateTime(src.UpdatedAt)));
+			Mapper.CreateMap<JsonTableAllocation, TableAllocation>();
 		}
 
 		/// <summary>
@@ -172,15 +170,13 @@ namespace DoshiiDotNetIntegration.Helpers
 				.ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments.ToList<Payment>()))
 				.ForMember(dest => dest.PayTotal, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.PayTotal)))
 				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()))
-				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Tip)))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
+				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Tip)));
 
 			// src = JsonOrder, dest = Order
 			Mapper.CreateMap<JsonOrder, Order>()
 				.ForMember(dest => dest.NotPayingTotal, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.NotPayingTotal)))
 				.ForMember(dest => dest.PayTotal, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.PayTotal)))
-				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Tip)))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.MapDateTime(src.UpdatedAt)));
+				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Tip)));
 
 
 			// src = OrderToPut, dest = JsonOrderToPut

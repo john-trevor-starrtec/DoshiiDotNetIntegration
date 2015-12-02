@@ -33,10 +33,10 @@ namespace DoshiiDotNetIntegration.Models.Json
 		public string Status { get; set; }
 
 		/// <summary>
-		/// The last update date/time.
+		/// An obfuscated string representation of the table version in Doshii.
 		/// </summary>
 		[DataMember]
-		[JsonProperty(PropertyName = "updatedAt")]
-		public string UpdatedAt { get; set; }
+		[JsonProperty(PropertyName = "version")]
+		public string Version { get; set; }
 	}
 }
