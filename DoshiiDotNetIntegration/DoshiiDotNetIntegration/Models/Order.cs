@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
 using System.Runtime.Serialization;
 
 namespace DoshiiDotNetIntegration.Models
@@ -10,87 +9,150 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// A Doshii order
     /// </summary>
-    [DataContract]
-    [Serializable]
-    public class Order : JsonSerializationBase<Order>
+    public class Order
     {
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		public Order()
+		{
+			_payments = new List<Payment>();
+			_surcounts = new List<Surcount>();
+			_items = new List<Product>();
+			Clear();
+		}
+
+		/// <summary>
+		/// Resets all property values to default settings.
+		/// </summary>
+		public void Clear()
+		{
+			Id = String.Empty;
+			Status = String.Empty;
+			InvoiceId = String.Empty;
+			TransactionId = String.Empty;
+			CheckinId = String.Empty;
+			LocationId = String.Empty;
+			_payments.Clear();
+			_surcounts.Clear();
+			Tip = 0.0M;
+			PaySplits = 0;
+			SplitWays = 0;
+			PayTotal = 0.0M;
+			NotPayingTotal = 0.0M;
+			UpdatedAt = DateTime.MinValue;
+			OrderUri = String.Empty;
+			_items.Clear();
+		}
+
         /// <summary>
         /// Order id
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
         
         /// <summary>
         /// Order status
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
         
         /// <summary>
-        /// PayPal invoice Id
+        /// Unique identifier for the invoice once the order is paid for.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "invoiceId")]
         public string InvoiceId{ get; set; }
         
         /// <summary>
-        /// PayPal transaction id
+        /// Unique transaction identifier for the order.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "transactionId")]
         public string TransactionId { get; set; }
         
         /// <summary>
         /// The CheckinId the order is associated with
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "checkinId")]
         public string CheckinId { get; set; }
+
+		/// <summary>
+		/// The Id of the location that the order was created in.
+		/// </summary>
+		public string LocationId { get; set; }
+
+		private List<Payment> _payments;
+
+		/// <summary>
+		/// A list of all payments applied from the pos at an order level. 
+		/// </summary>
+		public IEnumerable<Payment> Payments
+		{
+			get
+			{
+				if (_payments == null)
+				{
+					_payments = new List<Payment>();
+				}
+				return _payments;
+			}
+			set { _payments = value.ToList<Payment>(); }
+		}
+
+		private List<Surcount> _surcounts;
+
+		/// <summary>
+		/// A list of all surcounts applied at and order level
+		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
+		/// </summary>
+		public IEnumerable<Surcount> Surcounts
+		{
+			get
+			{
+				if (_surcounts == null)
+				{
+					_surcounts = new List<Surcount>();
+				}
+				return _surcounts;
+			}
+			set { _surcounts = value.ToList<Surcount>(); }
+		}
         
         /// <summary>
-        /// Any tips associated with the order
+        /// Total tip amount in cents associated with the order.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "tip")]
-        public string Tip { get; set; }
+        public decimal Tip { get; set; }
 
         /// <summary>
-        /// This is used by Doshii when splitting the bill - should not be changed on the pos
+        /// This is used by Doshii when splitting the bill - should not be changed on the pos.
         /// </summary>
-        [JsonProperty(PropertyName = "paySplits")]
-        public string PaySplits { get; set; }
+        public int PaySplits { get; set; }
 
         /// <summary>
-        /// This is used by Doshii when splitting the bill - should not be changed on the pos
+        /// This is used by Doshii when splitting the bill - should not be changed on the pos.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "splitWays")]
-        public string SplitWays { get; set; }
+        public int SplitWays { get; set; }
 
         /// <summary>
-        /// The amount that is being paid when a payment is made from Doshii.
+        /// The amount that is being paid in cents when a payment is made from Doshii.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "payTotal")]
-        public string PayTotal { get; set; }
+        public decimal PayTotal { get; set; }
 
         /// <summary>
-        /// The amount that has not been paid 
+        /// The amount that has not been paid (in cents).
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "notPayingTotal")]
-        public string NotPayingTotal { get; set; }
+        public decimal NotPayingTotal { get; set; }
+
+		/// <summary>
+		/// The last time the order was updated on Doshii
+		/// </summary>
+		public DateTime UpdatedAt { get; set; }
+
+		/// <summary>
+		/// The URI of the order
+		/// </summary>
+		public string OrderUri { get; set; }
 
         private List<Product> _items;
         
         /// <summary>
         /// A list of all the items included in the order. 
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "items")]
-        public List<Product> Items {
+        public IEnumerable<Product> Items {
             get
             {
                 if (_items == null)
@@ -99,54 +161,7 @@ namespace DoshiiDotNetIntegration.Models
                 }
                 return _items;
             }
-            set { _items = value; } 
+            set { _items = value.ToList<Product>(); } 
         }
-
-        private List<Surcount> _surcounts;
-
-        /// <summary>
-        /// A list of all surcounts applied at and order level
-        /// Surcounts are discounts and surcharges / discounts should have a negative value. 
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "surcounts")]
-        public List<Surcount> Surcounts
-        {
-            get
-            {
-                if (_surcounts == null)
-                {
-                    _surcounts = new List<Surcount>();
-                }
-                return _surcounts;
-            }
-            set { _surcounts = value; }
-        }
-
-        private List<Payment> _payments;
-        
-        /// <summary>
-        /// A list of all payments applied from the pos at an order level. 
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "payments")]
-        public List<Payment> Payments {
-            get
-            {
-                if (_payments == null)
-                {
-                    _payments = new List<Payment>();
-                }
-                return _payments;
-            }
-            set { _payments = value; }
-        }
-
-        /// <summary>
-        /// The last time the order was updated on Doshii
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "updatedAt")]
-        public string UpdatedAt { get; set; }
     }
 }

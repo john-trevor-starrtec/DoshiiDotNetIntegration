@@ -1,11 +1,7 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
-using DoshiiDotNetIntegration;
-using DoshiiDotNetIntegration.CommunicationLogic;
-using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetSDKTests
 {
@@ -29,7 +25,7 @@ namespace DoshiiDotNetSDKTests
         internal static string TestCheckinStatus = "TestCheckinStatus";
         internal static string TestGratuity = "TestGratuity";
         internal static Uri TestCheckinUrl = new Uri("c:\\impos\\");
-        internal static int TestOrderId = 123;
+        internal static string TestOrderId = "123";
         internal static int TestTimeOutValue = 600;
         internal static string TestProductId = "asd123";
 
@@ -37,69 +33,49 @@ namespace DoshiiDotNetSDKTests
 
         #region responceMessages
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumerSuccess()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageOrderSuccess()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			var order = GenerateOrderAccepted();
+			var jsonOrder = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(order);
+			string json = jsonOrder.ToJsonString();
+
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = GenerateConsumer1().ToJsonString(),
+                Data = json,
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumersSuccess()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageOrdersSuccess()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateConsumerList()),
+                Data = Newtonsoft.Json.JsonConvert.SerializeObject(Mapper.Map<List<DoshiiDotNetIntegration.Models.Json.JsonOrder>>(GenerateOrderList())),
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrderSuccess()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTableAllocationSuccess()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = GenerateOrderAccepted().ToJsonString(),
+                Data = Newtonsoft.Json.JsonConvert.SerializeObject(Mapper.Map<List<DoshiiDotNetIntegration.Models.Json.JsonTableAllocation>>(GenerateTableAllocationList())),
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrdersSuccess()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessagePutTableAllocationSuccess()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
-            {
-                Status = HttpStatusCode.OK,
-                StatusDescription = "OK",
-                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateOrderList()),
-                ErrorMessage = "",
-                Message = ""
-            };
-        }
-
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageTableAllocationSuccess()
-        {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
-            {
-                Status = HttpStatusCode.OK,
-                StatusDescription = "OK",
-                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateTableAllocationList()),
-                ErrorMessage = "",
-                Message = ""
-            };
-        }
-
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationSuccess()
-        {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
@@ -109,9 +85,9 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationFailure()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessagePutTableAllocationFailure()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.InternalServerError,
                 StatusDescription = "Internal Service Error",
@@ -121,13 +97,17 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageSuccessfulOrder()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageSuccessfulOrder()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			var order = GenerateOrderAccepted();
+			var jsonOrder = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(order);
+			string json = jsonOrder.ToJsonString();
+
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = GenerateOrderAccepted().ToJsonString(),
+                Data = json,
                 ErrorMessage = "",
                 Message = ""
             };
@@ -156,11 +136,9 @@ namespace DoshiiDotNetSDKTests
                 PosId = "1",
                 Name = "Product1",
                 Tags = tagsList,
-                Price = "100",
+                Price = 1.0M,
                 Description = "The first Product",
                 ProductOptions = GenerateProductOptionList(),
-                AdditionalInstructions = "No aditional instructions",
-                RejectionReason = "",
                 Status = "pending"    
             };
             return product;
@@ -177,11 +155,9 @@ namespace DoshiiDotNetSDKTests
                 PosId = "2",
                 Name = "Product2",
                 Tags = tagsList,
-                Price = "100",
+                Price = 1.0M,
                 Description = "The first Product",
                 ProductOptions = null,
-                AdditionalInstructions = "No aditional instructions",
-                RejectionReason = "",
                 Status = "pending"    
             };
             return product;
@@ -200,7 +176,7 @@ namespace DoshiiDotNetSDKTests
             var variant = new DoshiiDotNetIntegration.Models.Variants()
             {
                 Name = "variant1",
-                Price = "10",
+                Price = 0.1M,
                 PosId = "var1"
             };
             return variant;
@@ -211,7 +187,7 @@ namespace DoshiiDotNetSDKTests
             var variant = new DoshiiDotNetIntegration.Models.Variants()
             {
                 Name = "variant2",
-                Price = "10",
+                Price = 0.1M,
                 PosId = "var2"
             };
             return variant;
@@ -237,17 +213,6 @@ namespace DoshiiDotNetSDKTests
             };
             return productOption;
         }
-
-        internal static DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.CheckInEventArgs GenerateCheckinEventArgs()
-        {
-            var checkInArgs = new DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
-            checkInArgs.Consumer = GenerateConsumer1();
-            checkInArgs.CheckIn = checkInArgs.Consumer.CheckInId;
-            checkInArgs.MeerkatCustomerId = checkInArgs.Consumer.MeerkatConsumerId;
-            checkInArgs.Uri = TestCheckinUrl;
-            return checkInArgs;
-        }
-
 
         internal static List<DoshiiDotNetIntegration.Models.Order> GenerateOrderList()
         {
@@ -287,7 +252,7 @@ namespace DoshiiDotNetSDKTests
             {
                 Id = TestOrderId,
                 CheckinId = TestCheckinId,
-                Status = "waiting for payment"
+                Status = "waiting_for_payment"
             };
             return order;
         }
@@ -325,17 +290,6 @@ namespace DoshiiDotNetSDKTests
             return order;
         }
 
-
-
-        internal static DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs GenerateTableAllocationEventArgs()
-        {
-            var allocationEventArgs = new DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs()
-            {
-                TableAllocation = GenerateTableAllocation()
-            };
-            return allocationEventArgs;
-        }
-
         internal static List<DoshiiDotNetIntegration.Models.TableAllocation> GenerateTableAllocationList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.TableAllocation>();
@@ -350,11 +304,7 @@ namespace DoshiiDotNetSDKTests
             {
                 Id = TestTableName,
                 Name = TestTableAllocationName,
-                CustomerId = TestCustomerId,
-                MeerkatConsumerId = TestCustomerId,
-                Status = TestTableAllocationStatus,
-                Checkin = GenerateCheckin(),
-                rejectionReason = DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.TableDoesNotExist
+                Status = TestTableAllocationStatus
             };
             return tableAllocation;
         }
@@ -365,84 +315,11 @@ namespace DoshiiDotNetSDKTests
             {
                 Id = string.Format("{0}2",TestTableName),
                 Name = string.Format("{0}2",TestTableAllocationName),
-                CustomerId = string.Format("{0}2",TestCustomerId),
-                MeerkatConsumerId = string.Format("{0}2",TestCustomerId),
-                Status = TestTableAllocationStatus,
-                Checkin = GenerateCheckin(),
-                rejectionReason = DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.TableDoesNotExist
+                Status = TestTableAllocationStatus
             };
             return tableAllocation;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Checkin GenerateCheckin()
-        {
-            var checkin = new DoshiiDotNetIntegration.Models.Checkin()
-            {
-                Id = TestCheckinId,
-                ConsumerId = TestCustomerId,
-                LocationId = TestLocationId,
-                Status = TestCheckinStatus,
-                ExpirationDate = DateTime.Now,
-                Gratuity = TestGratuity,
-                UpdatedAt = DateTime.Now,
-                MeerkatConsumerId = TestMeerkatConsumerId
-            };
-            return checkin;
-        }
-
-        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer1()
-        {
-            var consumer = new DoshiiDotNetIntegration.Models.Consumer();
-            consumer.CheckInId = "123";
-            consumer.Id = 1;
-            consumer.Name = "John Doe";
-            consumer.MeerkatConsumerId = "NC123NV";
-            consumer.PhotoUrl = new Uri("http://www.google.com");
-            return consumer;
-        }
-
-        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer2()
-        {
-            var consumer = new DoshiiDotNetIntegration.Models.Consumer();
-            consumer.CheckInId = "456";
-            consumer.Id = 2;
-            consumer.Name = "Jayne Doe";
-            consumer.MeerkatConsumerId = "ACB123AB";
-            consumer.PhotoUrl = new Uri("http://www.google.com");
-            return consumer;
-        }
-
-        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer3()
-        {
-            var consumer = new DoshiiDotNetIntegration.Models.Consumer();
-            consumer.CheckInId = "789";
-            consumer.Id = 3;
-            consumer.Name = "Bulkan e";
-            consumer.MeerkatConsumerId = "axy765xa";
-            consumer.PhotoUrl = new Uri("http://www.google.com");
-            return consumer;
-        }
-
-        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer4()
-        {
-            var consumer = new DoshiiDotNetIntegration.Models.Consumer();
-            consumer.CheckInId = "101";
-            consumer.Id = 4;
-            consumer.Name = "Mary Jane";
-            consumer.MeerkatConsumerId = "bgr531gb";
-            consumer.PhotoUrl = new Uri("http://www.google.com");
-            return consumer;
-        }
-
-        internal static List<DoshiiDotNetIntegration.Models.Consumer> GenerateConsumerList()
-        {
-            var list = new List<DoshiiDotNetIntegration.Models.Consumer>();
-            list.Add(GenerateConsumer1());
-            list.Add(GenerateConsumer2());
-            list.Add(GenerateConsumer3());
-            list.Add(GenerateConsumer4());
-            return list;
-        }
         #endregion
     }
 }

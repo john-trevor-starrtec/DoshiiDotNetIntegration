@@ -53,8 +53,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DoshiiDotNetIntegration">
-      <HintPath>..\DoshiiDotNetIntegration\bin\Release\DoshiiDotNetIntegration.dll</HintPath>
+    <Reference Include="AutoMapper, Version=4.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.4.1.1\lib\net45\AutoMapper.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -84,6 +85,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AutoMapperConfiguratorTest.cs" />
     <Compile Include="GenerateObjectsAndStringHelper.cs" />
     <Compile Include="HttpCommunicationTests.cs" />
     <Compile Include="OperationLogicTest.cs" />
@@ -93,6 +95,12 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DoshiiDotNetIntegration\DoshiiDotNetIntegration.csproj">
+      <Project>{c415ea93-1d45-4678-8cd4-f810b9521143}</Project>
+      <Name>DoshiiDotNetIntegration</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

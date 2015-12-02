@@ -10,7 +10,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     /// DO NOT USE, This class is used internally by the SDK and should not be instantiated by the pos.
     /// the message object that is used to process all requests to the doshii restful API.
     /// </summary>
-    internal class DoshiHttpResponceMessages
+    internal class DoshiHttpResponseMessage
     {
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
