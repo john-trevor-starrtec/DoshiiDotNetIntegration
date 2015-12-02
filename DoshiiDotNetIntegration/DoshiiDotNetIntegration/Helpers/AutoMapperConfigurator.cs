@@ -183,12 +183,10 @@ namespace DoshiiDotNetIntegration.Helpers
 			Mapper.CreateMap<OrderToPut, JsonOrderToPut>()
 				.ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
 				.ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments.ToList<Payment>()))
-				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
+				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 
 			// src = JsonOrderToPut, dest = OrderToPut
-			Mapper.CreateMap<JsonOrderToPut, OrderToPut>()
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.MapDateTime(src.UpdatedAt)));
+			Mapper.CreateMap<JsonOrderToPut, OrderToPut>();
 
 			// src = TableOrder, dest = JsonTableOrder
 			Mapper.CreateMap<TableOrder, JsonTableOrder>();
