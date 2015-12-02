@@ -16,7 +16,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public Order()
 		{
-			_payments = new List<Payment>();
+			_payments = new List<Transaction>();
 			_surcounts = new List<Surcount>();
 			_items = new List<Product>();
 			Clear();
@@ -75,22 +75,22 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public string LocationId { get; set; }
 
-		private List<Payment> _payments;
+		private List<Transaction> _payments;
 
 		/// <summary>
 		/// A list of all payments applied from the pos at an order level. 
 		/// </summary>
-		public IEnumerable<Payment> Payments
+		public IEnumerable<Transaction> Payments
 		{
 			get
 			{
 				if (_payments == null)
 				{
-					_payments = new List<Payment>();
+					_payments = new List<Transaction>();
 				}
 				return _payments;
 			}
-			set { _payments = value.ToList<Payment>(); }
+			set { _payments = value.ToList<Transaction>(); }
 		}
 
 		private List<Surcount> _surcounts;

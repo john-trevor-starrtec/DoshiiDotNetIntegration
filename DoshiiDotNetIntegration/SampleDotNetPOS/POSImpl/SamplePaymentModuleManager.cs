@@ -50,9 +50,12 @@ namespace SampleDotNetPOS.POSImpl
 		/// </summary>
 		/// <param name="orderId"></param>
 		/// <returns></returns>
-		public Order ReadyToPay(string orderId)
+		public Transaction ReadyToPay(Transaction transaction)
 		{
-			return UpdateOrder(orderId, "waiting_for_payment");
+		    transaction.Status = "waiting";
+            transaction.AcceptLess = true;
+		    transaction.PaymentAmount = 240M;
+            return transaction;
 		}
 
 		/// <summary>
@@ -60,9 +63,9 @@ namespace SampleDotNetPOS.POSImpl
 		/// </summary>
 		/// <param name="orderId"></param>
 		/// <returns></returns>
-		public Order CancelPayment(string orderId)
+		public void CancelPayment(Transaction transaction)
 		{
-			return UpdateOrder(orderId, "accepted");
+			//cancel the payment on the pos
 		}
 
 		/// <summary>
@@ -70,16 +73,15 @@ namespace SampleDotNetPOS.POSImpl
 		/// </summary>
 		/// <param name="orderId"></param>
 		/// <returns></returns>
-		public Order AcceptPayment(string orderId, decimal paymentAmount)
+		public void AcceptPayment(Transaction transaction)
 		{
-			var order = UpdateOrder(orderId, "paid");
-			var payment = new Payment();
-			payment.PaymentType = "TEST PAYMENT TYPE";
-			payment.PaymentAmount = paymentAmount;
-			var payments = order.Payments.ToList<Payment>();
+			var order = UpdateOrder(transaction.OrderId, "paid");
+			var payment = new Transaction();
+			payment.Reference = "TEST PAYMENT TYPE";
+			payment.PaymentAmount = transaction.PaymentAmount;
+			var payments = order.Payments.ToList<Transaction>();
 			payments.Add(payment);
 			order.Payments = payments;
-			return order;
 		}
 
 		#endregion

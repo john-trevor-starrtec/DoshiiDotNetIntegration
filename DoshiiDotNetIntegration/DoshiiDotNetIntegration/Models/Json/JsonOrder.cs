@@ -55,20 +55,20 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "locationId")]
 		public string LocationId { get; set; }
 
-		private List<JsonPayment> _payments;
+		private List<JsonTransaction> _payments;
 
 		/// <summary>
 		/// A list of all payments applied from the pos at an order level. 
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "payments")]
-		public List<JsonPayment> Payments
+		public List<JsonTransaction> Payments
 		{
 			get
 			{
 				if (_payments == null)
 				{
-					_payments = new List<JsonPayment>();
+					_payments = new List<JsonTransaction>();
 				}
 				return _payments;
 			}

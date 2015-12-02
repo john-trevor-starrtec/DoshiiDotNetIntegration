@@ -88,5 +88,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// </summary>
         [JsonProperty(PropertyName = "uri")]
         public Uri Uri { get; set; }
+
+        [JsonProperty(PropertyName = "transactionId")]
+        public string TransactionId { get; set; }
+
+
     }
 }

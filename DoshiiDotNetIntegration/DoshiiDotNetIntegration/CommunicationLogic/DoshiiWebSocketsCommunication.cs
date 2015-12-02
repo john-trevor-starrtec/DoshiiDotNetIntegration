@@ -2,6 +2,7 @@
 using DoshiiDotNetIntegration.Models.Json;
 using System;
 using System.Threading;
+using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using WebSocketSharp;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
@@ -74,7 +75,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Event will be raised when the state of an order has changed through doshii
         /// </summary>
         internal event OrderStatusEventHandler OrderStatusEvent;
-        
+
+        internal delegate void TransactionStatusEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// Event will be raised when the state of an order has changed through doshii
+        /// </summary>
+        internal event TransactionStatusEventHandler TransactionStatusEvent;
+
         internal delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -347,6 +355,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             messageData.Status = (string)dynamicSocketMessageData.status;
             messageData.Name = (string)dynamicSocketMessageData.name;
             messageData.Id = (string)dynamicSocketMessageData.id;
+            messageData.TransactionId = (string)dynamicSocketMessageData.transactionId;
             
             string uriString = (string)dynamicSocketMessageData.uri;
             if (!string.IsNullOrWhiteSpace(uriString))
@@ -358,11 +367,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 case "order_status":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    orderStatusEventArgs.Order = Mapper.Map<JsonOrder>(m_DoshiiLogic.GetOrder(messageData.OrderId));
+                    orderStatusEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
                     orderStatusEventArgs.OrderId = messageData.OrderId;
                     orderStatusEventArgs.Status = messageData.Status;    
                 
                     OrderStatusEvent(this, orderStatusEventArgs);
+                    break;
+                case "transaction_created":
+                case "transaction_status":
+                    CommunicationEventArgs.TransactionEventArgs transactionStatusEventArgs = new TransactionEventArgs();
+                    transactionStatusEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.TransactionId);
+                    transactionStatusEventArgs.TransactionId = messageData.TransactionId;
+                    transactionStatusEventArgs.Status = messageData.Status;
+
+                    TransactionStatusEvent(this, transactionStatusEventArgs);
                     break;
                 default:
 					mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));

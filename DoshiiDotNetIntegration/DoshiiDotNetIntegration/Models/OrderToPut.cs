@@ -27,7 +27,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// <summary>
 		/// Private placeholder for the payments in the order.
 		/// </summary>
-		private List<Payment> mPayments;
+		private List<Transaction> mPayments;
 
 		/// <summary>
 		/// Constructor.
@@ -36,7 +36,7 @@ namespace DoshiiDotNetIntegration.Models
 		{
 			mItems = new List<Product>();
 			mSurcounts = new List<Surcount>();
-			mPayments = new List<Payment>();
+			mPayments = new List<Transaction>();
 			Clear();
 		}
 
@@ -99,17 +99,17 @@ namespace DoshiiDotNetIntegration.Models
 		/// <summary>
 		/// A list of all payments applied at the order level
 		/// </summary>
-		public IEnumerable<Payment> Payments
+		public IEnumerable<Transaction> Payments
 		{
 			get
 			{
 				if (mPayments == null)
-					mPayments = new List<Payment>();
+					mPayments = new List<Transaction>();
 				return mPayments;
 			}
 			set
 			{
-				mPayments = value.ToList<Payment>();
+				mPayments = value.ToList<Transaction>();
 			}
 		}
 	}
