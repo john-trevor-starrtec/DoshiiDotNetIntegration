@@ -505,7 +505,7 @@
 			// 
 			// colPaymentType
 			// 
-			this.colPaymentType.HeaderText = "Payment Type";
+			this.colPaymentType.HeaderText = "Transaction Type";
 			this.colPaymentType.Name = "colPaymentType";
 			// 
 			// colPaymentAmount

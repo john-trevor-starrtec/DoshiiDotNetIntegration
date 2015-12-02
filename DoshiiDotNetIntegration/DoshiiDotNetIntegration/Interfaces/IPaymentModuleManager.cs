@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DoshiiDotNetIntegration.Exceptions;
+using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.Interfaces
 {
@@ -16,20 +18,22 @@ namespace DoshiiDotNetIntegration.Interfaces
 	/// At this point, the POS should place the corresponding order into a "locked" state and send back the final
 	/// details of the order to ensure that the order is current in Doshii. Once the partner captures the funds
 	/// to pay off the order, the Doshii API emits a 
-	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string, DoshiiDotNetIntegration.Models.Payment)"/>
-	/// call to finalise the payment.
+	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string, Transaction)"/>
+	/// call to finalize the payment.
 	/// </remarks>
 	public interface IPaymentModuleManager
 	{
 		/// <summary>
 		/// The Doshii SDK will call this function to indicate that the partner is ready to accept a payment against the order
-		/// with the supplied <paramref name="orderId"/>. The POS is required to respond with the current details of the order
+		/// with the supplied <paramref name="transaction.OrderId"/>. The POS is required to respond with a transaction containing the current amount owing for the 
+		/// order in the transaction.PaymentAmount property, and if the payment can be below the total amount owing in the transaction.AcceptLess property 
 		/// and it is recommended that the POS places this order into a state that cannot be edited from the POS.
+        /// If the referenced order does not exist on the pos the pos should throw a <exception cref="OrderDoesNotExistOnPosException"></exception> 
 		/// </summary>
-		/// <param name="orderId">The identifier for the order being paid.</param>
-		/// <returns>The current POS-side state of the order with the corresponding <paramref name="orderId"/>; 
-		/// or <c>null</c> if not found.</returns>
-		DoshiiDotNetIntegration.Models.Order ReadyToPay(string orderId);
+        /// <param name="transaction">The transaction that has been initiated by the partner</param>
+		/// <returns>A transaction detailing the current amount owing on the check>; 
+		/// or <c>null</c> if the pos does not want the transaction from the partner to be processed for any reason.</returns>
+		DoshiiDotNetIntegration.Models.Transaction ReadyToPay(Transaction transaction);
 
 		/// <summary>
 		/// The Doshii SDK will call this function to indicate that the partner has failed to claim payment for an order that
@@ -39,8 +43,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// once more from the POS.
 		/// </summary>
 		/// <param name="orderId">The identifier for the order previously being paid.</param>
-		/// <returns>The current POS-side state of the order with the corresponding <paramref name="orderId"/>.</returns>
-		DoshiiDotNetIntegration.Models.Order CancelPayment(string orderId);
+		void CancelPayment(Transaction transaction);
 
 		/// <summary>
 		/// The Doshii SDK will call this function after payment has been captured for an order with the supplied <paramref name="orderId"/>.
@@ -48,7 +51,6 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </summary>
 		/// <param name="orderId">The identifier for the order being paid.</param>
 		/// <param name="paymentAmount">The amount paid.</param>
-		/// <returns>The current POS-side state of the order with the corresponding <paramref name="orderId"/>.</returns>
-		DoshiiDotNetIntegration.Models.Order AcceptPayment(string orderId, decimal paymentAmount);
+		void AcceptPayment(Transaction transaction);
 	}
 }

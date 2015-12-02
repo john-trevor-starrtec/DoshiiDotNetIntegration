@@ -101,7 +101,7 @@ namespace DoshiiDotNetIntegration
         /// Constructor.
         /// After the constructor is called it MUST be followed by a call to <see cref="Initialize"/> to start communication with the Doshii API
         /// </summary>
-		/// <param name="paymentManager">The Payment API callback mechanism.</param>
+		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
 		/// <param name="logger">The logging mechanism callback to the POS.</param>
         public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger)
         {
@@ -235,6 +235,7 @@ namespace DoshiiDotNetIntegration
                 UnsubscribeFromSocketEvents();
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: Subscribing to socket events");
 				m_SocketComs.OrderStatusEvent += new DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComsOrderStatusEventHandler);
+                m_SocketComs.TransactionStatusEvent += new DoshiiWebSocketsCommunication.TransactionStatusEventHandler(SocketComsTransactionStatusEventHandler);
 				m_SocketComs.SocketCommunicationEstablishedEvent += new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
                 m_SocketComs.SocketCommunicationTimeoutReached += new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
             }
@@ -248,6 +249,7 @@ namespace DoshiiDotNetIntegration
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: Unsubscribing from socket events");
             m_SocketComs.OrderStatusEvent -= new DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComsOrderStatusEventHandler);
+            m_SocketComs.TransactionStatusEvent += new DoshiiWebSocketsCommunication.TransactionStatusEventHandler(SocketComsTransactionStatusEventHandler);
             m_SocketComs.SocketCommunicationEstablishedEvent -= new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
             m_SocketComs.SocketCommunicationTimeoutReached -= new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
         }
@@ -288,30 +290,45 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsOrderStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received order status event with status '{0}', for order '{1}'", e.Order.Status, e.Order.ToJsonString()));
-            Order returnedOrder = Mapper.Map<Order>(e.Order);
-            switch (returnedOrder.Status)
+			//this method is not implemented for Pay@table, we will need to implement it for orderAhead but it is now currently necessary. 
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// DO NOT USE, this method is for internal use only
+        /// Handles a SocketComs_TransactionStatusEvent, 
+        /// Calls the appropriate method on the PaymentInterface to act on the transaction depending on the transaction status. 
+        /// <exception cref="NotSupportedException">When a partial payment is attempted during Bistro Mode.</exception>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        internal virtual void SocketComsTransactionStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
+        {
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
+            Transaction transactionFromPos = null;
+            switch (transactionFromPos.Status)
             {
-                case "ready_to_pay":
-					returnedOrder.UpdatedAt = DateTime.Now.ToUniversalTime();
-                    try
+                case "pending":
+					try
                     {
-						returnedOrder = mPaymentManager.ReadyToPay(e.Order.Id);
+                        transactionFromPos = mPaymentManager.ReadyToPay(e.Transaction);
                     }
                     catch(OrderDoesNotExistOnPosException)
                     {
-						mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The order with orderId = {0} does not exist on the pos", e.Order.Id));
+						mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API that does not exist on the system, orderid {0}", e.Transaction.OrderId));
                         break;
                     }
-
-                    RequestPaymentForOrder(returnedOrder);
-					break;
+                    if (transactionFromPos != null)
+                    {
+                        RequestPaymentForOrder(transactionFromPos);
+                    }
+                    break;
                 default:
-					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: unknown order status - '{0}'", e.Order.ToJsonString())); 
-                    throw new NotSupportedException(e.Order.Status);
+					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: unknown / unsupported transaction status from the Doshii API - '{0}'", e.Transaction.Status)); 
+                    throw new NotSupportedException(string.Format("cannot process transaction with state {0} from the API",e.Transaction.Status));
             }
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: SocketComsOrderStatusEventHandler has returned"));
-        }
+		}
+        
 
         /// <summary>
         /// DO NOT USE, this method is for internal use only
@@ -329,14 +346,14 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// True on successful payment; false otherwise.
         /// </returns>
-        private bool RequestPaymentForOrder(Order order)
+        private bool RequestPaymentForOrder(Transaction transaction)
         {
-            var returnedOrder = new Order();
-            order.Status = "waiting_for_payment";
+            var returnedTransaction = new Transaction();
+            transaction.Status = "waiting";
 
             try
             {
-                returnedOrder = m_HttpComs.PutOrder(order);
+                returnedTransaction = m_HttpComs.PostTransaction(transaction);
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -347,39 +364,40 @@ namespace DoshiiDotNetIntegration
 				else if (rex.StatusCode == HttpStatusCode.PaymentRequired)
 				{
 					// this just means that the partner failed to claim payment when requested
-					mPaymentManager.CancelPayment(order.Id);
-					return true; // Question: should this return false??
+                    mPaymentManager.CancelPayment(transaction);
+					return false; // Question: should this return false?? - the only call to this method doesn't listen to the result - I think if we ever need the result this should be false. 
 				}
             }
             catch (NullOrderReturnedException)
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", transaction.OrderId));
             }
             catch (Exception ex)
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0} : {1}", order.Id, ex));
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for order.Id {0} : {1}", transaction.OrderId, ex));
             }
 
-            if (returnedOrder.Id == order.Id)
+            if (returnedTransaction != null && returnedTransaction.Id == transaction.Id && returnedTransaction.Status == "complete")
             {
-				var jsonOrder = Mapper.Map<JsonOrder>(order);
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: order put for payment - '{0}'", jsonOrder.ToJsonString()));
-                
-				mPaymentManager.AcceptPayment(order.Id, order.PayTotal);
+				var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
+
+                mPaymentManager.AcceptPayment(returnedTransaction);
                 return true;
             }
             else
             {
+                mPaymentManager.CancelPayment(transaction);
                 return false;
             }
         }
 
         #endregion
 
-        #region ordering And Payment
+        #region ordering And Transaction
 
         /// <summary>
-        /// This method returns an order from Doshii corrosponding to the OrderId
+        /// This method returns an order from Doshii corresponding to the OrderId
         /// </summary>
         /// <param name="orderId">
         /// The Id of the order that is being requested. 
@@ -396,6 +414,25 @@ namespace DoshiiDotNetIntegration
 				throw rex;
 			}
 		}
+
+        /// <summary>
+        /// This method returns an transaction from Doshii corresponding to the transactionId
+        /// </summary>
+        /// <param name="orderId">
+        /// The Id of the order that is being requested. 
+        /// </param>
+        /// <returns></returns>
+        public virtual Transaction GetTransaction(string transactionId)
+        {
+            try
+            {
+                return m_HttpComs.GetTransaction(transactionId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
 
         /// <summary>
         /// This method will update the Order on the Doshii API

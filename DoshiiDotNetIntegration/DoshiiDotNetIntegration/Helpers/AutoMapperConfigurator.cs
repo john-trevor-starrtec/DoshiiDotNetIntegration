@@ -48,7 +48,7 @@ namespace DoshiiDotNetIntegration.Helpers
 				AutoMapperConfigurator.MapVariantsObjects();
 				AutoMapperConfigurator.MapProductObjects();
 				AutoMapperConfigurator.MapSurcountObjects();
-				AutoMapperConfigurator.MapPaymentObjects();
+				AutoMapperConfigurator.MapTransactionObjects();
 				AutoMapperConfigurator.MapTableAllocationObjects();
 				AutoMapperConfigurator.MapOrderObjects();
 
@@ -130,17 +130,17 @@ namespace DoshiiDotNetIntegration.Helpers
 		}
 
 		/// <summary>
-		/// This function creates a bi-directional object mapping between the Payment model objects and their
+		/// This function creates a bi-directional object mapping between the Transaction model objects and their
 		/// JSON equivalent data transfer objects.
 		/// </summary>
-		private static void MapPaymentObjects()
+		private static void MapTransactionObjects()
 		{
-			// src = Payment, dest = JsonPayment
-			Mapper.CreateMap<Payment, JsonPayment>()
+			// src = Transaction, dest = JsonTransaction
+			Mapper.CreateMap<Transaction, JsonTransaction>()
 				.ForMember(dest => dest.PaymentAmount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.PaymentAmount)));
 
-			// src = JsonPayment, dest = Payment
-			Mapper.CreateMap<JsonPayment, Payment>()
+			// src = JsonTransaction, dest = Transaction
+			Mapper.CreateMap<JsonTransaction, Transaction>()
 				.ForMember(dest => dest.PaymentAmount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.PaymentAmount)));
 		}
 
@@ -169,7 +169,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			Mapper.CreateMap<Order, JsonOrder>()
 				.ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
 				.ForMember(dest => dest.NotPayingTotal, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.NotPayingTotal)))
-				.ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments.ToList<Payment>()))
+				.ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments.ToList<Transaction>()))
 				.ForMember(dest => dest.PayTotal, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.PayTotal)))
 				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()))
 				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Tip)))
@@ -186,7 +186,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = OrderToPut, dest = JsonOrderToPut
 			Mapper.CreateMap<OrderToPut, JsonOrderToPut>()
 				.ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
-				.ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments.ToList<Payment>()))
+				.ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments.ToList<Transaction>()))
 				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()))
 				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
 
