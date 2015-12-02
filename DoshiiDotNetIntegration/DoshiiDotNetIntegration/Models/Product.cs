@@ -79,9 +79,9 @@ namespace DoshiiDotNetIntegration.Models
         }
 
 		/// <summary>
-		/// The date and time of the last update on the product.
+		/// The obfuscated string representation of the version for the product.
 		/// </summary>
-		public DateTime UpdatedAt { get; set; }
+		public string Version { get; set; }
 
 		/// <summary>
 		/// The POS Id of the product
@@ -119,7 +119,7 @@ namespace DoshiiDotNetIntegration.Models
 			Price = 0.0M;
 			_Tags.Clear();
 			_ProductOptions.Clear();
-			UpdatedAt = DateTime.MinValue;
+			Version = String.Empty;
 			PosId = String.Empty;
 			Image = String.Empty;
 			Status = String.Empty;

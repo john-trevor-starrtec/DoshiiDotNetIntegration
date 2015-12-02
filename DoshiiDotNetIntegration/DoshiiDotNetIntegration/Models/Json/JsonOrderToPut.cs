@@ -39,11 +39,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Status { get; set; }
         
         /// <summary>
-        /// The last time the order was updated. 
+        /// The version number of the order in Doshii. 
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "updatedAt")]
-        public string UpdatedAt { get; set; }
+        [JsonProperty(PropertyName = "version")]
+        public string Version { get; set; }
         
         /// <summary>
         /// All the items included in the order. 

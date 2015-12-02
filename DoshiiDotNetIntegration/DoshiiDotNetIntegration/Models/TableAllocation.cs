@@ -25,9 +25,9 @@ namespace DoshiiDotNetIntegration.Models
 		public string Status { get; set; }
 
 		/// <summary>
-		/// Last date/time that the table allocation was updated.
+		/// An obfuscated string representation of the table version in Doshii.
 		/// </summary>
-		public DateTime UpdatedAt { get; set; }
+		public string Version { get; set; }
 
 		/// <summary>
 		/// Constructor. 
@@ -45,7 +45,7 @@ namespace DoshiiDotNetIntegration.Models
 			Id = String.Empty;
 			Name = String.Empty;
 			Status = String.Empty;
-			UpdatedAt = DateTime.MinValue;
+			Version = String.Empty;
 		}
 	}
 }

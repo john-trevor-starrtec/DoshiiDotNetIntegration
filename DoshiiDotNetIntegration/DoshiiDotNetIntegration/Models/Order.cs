@@ -40,7 +40,7 @@ namespace DoshiiDotNetIntegration.Models
 			SplitWays = 0;
 			PayTotal = 0.0M;
 			NotPayingTotal = 0.0M;
-			UpdatedAt = DateTime.MinValue;
+			Version = String.Empty;
 			OrderUri = String.Empty;
 			_items.Clear();
 		}
@@ -138,9 +138,9 @@ namespace DoshiiDotNetIntegration.Models
         public decimal NotPayingTotal { get; set; }
 
 		/// <summary>
-		/// The last time the order was updated on Doshii
+		/// An obfuscated string representation of the version for the order in Doshii.
 		/// </summary>
-		public DateTime UpdatedAt { get; set; }
+		public string Version { get; set; }
 
 		/// <summary>
 		/// The URI of the order

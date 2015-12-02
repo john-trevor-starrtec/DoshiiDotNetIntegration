@@ -131,11 +131,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string NotPayingTotal { get; set; }
 
 		/// <summary>
-		/// The last time the order was updated on Doshii
+		/// An obfuscated string representation of the version of the order in Doshii.
 		/// </summary>
 		[DataMember]
-		[JsonProperty(PropertyName = "updatedAt")]
-		public string UpdatedAt { get; set; }
+		[JsonProperty(PropertyName = "version")]
+		public string Version { get; set; }
 
 		/// <summary>
 		/// The URI of the order

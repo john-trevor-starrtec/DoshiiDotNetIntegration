@@ -105,13 +105,11 @@ namespace DoshiiDotNetIntegration.Helpers
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)))
 				.ForMember(dest => dest.ProductOptions, opt => opt.MapFrom(src => src.ProductOptions.ToList<ProductOptions>()))
 				.ForMember(dest => dest.SerializeRejectionReason, opt => opt.Ignore())
-				.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
+				.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()));
 
 			// src = JsonProduct, dest = Product
 			Mapper.CreateMap<JsonProduct, Product>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.MapDateTime(src.UpdatedAt)));
+				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
 
 		/// <summary>
@@ -151,12 +149,10 @@ namespace DoshiiDotNetIntegration.Helpers
 		private static void MapTableAllocationObjects()
 		{
 			// src = TableAllocation, dest = JsonTableAllocation
-			Mapper.CreateMap<TableAllocation, JsonTableAllocation>()
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
+			Mapper.CreateMap<TableAllocation, JsonTableAllocation>();
 
 			// src = JsonTableAllocation, dest = TableAllocation
-			Mapper.CreateMap<JsonTableAllocation, TableAllocation>()
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.MapDateTime(src.UpdatedAt)));
+			Mapper.CreateMap<JsonTableAllocation, TableAllocation>();
 		}
 
 		/// <summary>
@@ -172,27 +168,23 @@ namespace DoshiiDotNetIntegration.Helpers
 				.ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments.ToList<Transaction>()))
 				.ForMember(dest => dest.PayTotal, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.PayTotal)))
 				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()))
-				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Tip)))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
+				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Tip)));
 
 			// src = JsonOrder, dest = Order
 			Mapper.CreateMap<JsonOrder, Order>()
 				.ForMember(dest => dest.NotPayingTotal, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.NotPayingTotal)))
 				.ForMember(dest => dest.PayTotal, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.PayTotal)))
-				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Tip)))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.MapDateTime(src.UpdatedAt)));
+				.ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Tip)));
 
 
 			// src = OrderToPut, dest = JsonOrderToPut
 			Mapper.CreateMap<OrderToPut, JsonOrderToPut>()
 				.ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
 				.ForMember(dest => dest.Payments, opt => opt.MapFrom(src => src.Payments.ToList<Transaction>()))
-				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()))
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt.ToString(AutoMapperConfigurator.DateTimeFormat)));
+				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 
 			// src = JsonOrderToPut, dest = OrderToPut
-			Mapper.CreateMap<JsonOrderToPut, OrderToPut>()
-				.ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.MapDateTime(src.UpdatedAt)));
+			Mapper.CreateMap<JsonOrderToPut, OrderToPut>();
 
 			// src = TableOrder, dest = JsonTableOrder
 			Mapper.CreateMap<TableOrder, JsonTableOrder>();

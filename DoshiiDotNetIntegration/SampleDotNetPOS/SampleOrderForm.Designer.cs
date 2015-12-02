@@ -31,8 +31,8 @@
 			this.gbxGeneral = new System.Windows.Forms.GroupBox();
 			this.lblUri = new System.Windows.Forms.LinkLabel();
 			this.lblUriCaption = new System.Windows.Forms.Label();
-			this.lblUpdatedAt = new System.Windows.Forms.Label();
-			this.lblUpdatedAtCaption = new System.Windows.Forms.Label();
+			this.lblVersion = new System.Windows.Forms.Label();
+			this.lblVersionCaption = new System.Windows.Forms.Label();
 			this.nudNotPayingTotal = new System.Windows.Forms.NumericUpDown();
 			this.lblNotPayingTotal = new System.Windows.Forms.Label();
 			this.nudPayTotal = new System.Windows.Forms.NumericUpDown();
@@ -57,25 +57,24 @@
 			this.tbxOrderId = new System.Windows.Forms.TextBox();
 			this.lblOrderId = new System.Windows.Forms.Label();
 			this.gbxItems = new System.Windows.Forms.GroupBox();
-			this.gbxSurcounts = new System.Windows.Forms.GroupBox();
-			this.gbxPayments = new System.Windows.Forms.GroupBox();
 			this.dgvItems = new System.Windows.Forms.DataGridView();
+			this.gbxSurcounts = new System.Windows.Forms.GroupBox();
+			this.dgvSurcounts = new System.Windows.Forms.DataGridView();
+			this.colSurcountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.colSurcountPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.gbxPayments = new System.Windows.Forms.GroupBox();
+			this.dgvPayments = new System.Windows.Forms.DataGridView();
+			this.colPaymentType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.colPaymentAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.colPaymentStatus = new System.Windows.Forms.DataGridViewComboBoxColumn();
 			this.colItemId = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.colItemName = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.colItemDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.colItemPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.colItemTags = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.colItemUpdatedAt = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.colItemPosId = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.colItemImageUrl = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.colItemStatus = new System.Windows.Forms.DataGridViewComboBoxColumn();
-			this.dgvSurcounts = new System.Windows.Forms.DataGridView();
-			this.colSurcountName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.colSurcountPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.dgvPayments = new System.Windows.Forms.DataGridView();
-			this.colPaymentType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.colPaymentAmount = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.colPaymentStatus = new System.Windows.Forms.DataGridViewComboBoxColumn();
 			this.gbxGeneral.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudNotPayingTotal)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPayTotal)).BeginInit();
@@ -83,10 +82,10 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudPaySplits)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudTip)).BeginInit();
 			this.gbxItems.SuspendLayout();
-			this.gbxSurcounts.SuspendLayout();
-			this.gbxPayments.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
+			this.gbxSurcounts.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvSurcounts)).BeginInit();
+			this.gbxPayments.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.dgvPayments)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -94,8 +93,8 @@
 			// 
 			this.gbxGeneral.Controls.Add(this.lblUri);
 			this.gbxGeneral.Controls.Add(this.lblUriCaption);
-			this.gbxGeneral.Controls.Add(this.lblUpdatedAt);
-			this.gbxGeneral.Controls.Add(this.lblUpdatedAtCaption);
+			this.gbxGeneral.Controls.Add(this.lblVersion);
+			this.gbxGeneral.Controls.Add(this.lblVersionCaption);
 			this.gbxGeneral.Controls.Add(this.nudNotPayingTotal);
 			this.gbxGeneral.Controls.Add(this.lblNotPayingTotal);
 			this.gbxGeneral.Controls.Add(this.nudPayTotal);
@@ -146,23 +145,23 @@
 			this.lblUriCaption.TabIndex = 52;
 			this.lblUriCaption.Text = "URI:";
 			// 
-			// lblUpdatedAt
+			// lblVersion
 			// 
-			this.lblUpdatedAt.AutoSize = true;
-			this.lblUpdatedAt.Location = new System.Drawing.Point(103, 334);
-			this.lblUpdatedAt.Name = "lblUpdatedAt";
-			this.lblUpdatedAt.Size = new System.Drawing.Size(138, 13);
-			this.lblUpdatedAt.TabIndex = 51;
-			this.lblUpdatedAt.Text = "2015-10-25T08:15:02.192Z";
+			this.lblVersion.AutoSize = true;
+			this.lblVersion.Location = new System.Drawing.Point(103, 334);
+			this.lblVersion.Name = "lblVersion";
+			this.lblVersion.Size = new System.Drawing.Size(73, 13);
+			this.lblVersion.TabIndex = 51;
+			this.lblVersion.Text = "kJkdhNW334";
 			// 
-			// lblUpdatedAtCaption
+			// lblVersionCaption
 			// 
-			this.lblUpdatedAtCaption.AutoSize = true;
-			this.lblUpdatedAtCaption.Location = new System.Drawing.Point(6, 334);
-			this.lblUpdatedAtCaption.Name = "lblUpdatedAtCaption";
-			this.lblUpdatedAtCaption.Size = new System.Drawing.Size(64, 13);
-			this.lblUpdatedAtCaption.TabIndex = 50;
-			this.lblUpdatedAtCaption.Text = "Updated At:";
+			this.lblVersionCaption.AutoSize = true;
+			this.lblVersionCaption.Location = new System.Drawing.Point(6, 334);
+			this.lblVersionCaption.Name = "lblVersionCaption";
+			this.lblVersionCaption.Size = new System.Drawing.Size(45, 13);
+			this.lblVersionCaption.TabIndex = 50;
+			this.lblVersionCaption.Text = "Version:";
 			// 
 			// nudNotPayingTotal
 			// 
@@ -378,6 +377,24 @@
 			this.gbxItems.TabStop = false;
 			this.gbxItems.Text = "Items";
 			// 
+			// dgvItems
+			// 
+			this.dgvItems.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.dgvItems.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colItemId,
+            this.colItemName,
+            this.colItemDescription,
+            this.colItemPrice,
+            this.colItemTags,
+            this.colItemPosId,
+            this.colItemImageUrl,
+            this.colItemStatus});
+			this.dgvItems.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dgvItems.Location = new System.Drawing.Point(3, 16);
+			this.dgvItems.Name = "dgvItems";
+			this.dgvItems.Size = new System.Drawing.Size(457, 273);
+			this.dgvItems.TabIndex = 0;
+			// 
 			// gbxSurcounts
 			// 
 			this.gbxSurcounts.Controls.Add(this.dgvSurcounts);
@@ -388,85 +405,6 @@
 			this.gbxSurcounts.TabIndex = 2;
 			this.gbxSurcounts.TabStop = false;
 			this.gbxSurcounts.Text = "Surcounts";
-			// 
-			// gbxPayments
-			// 
-			this.gbxPayments.Controls.Add(this.dgvPayments);
-			this.gbxPayments.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.gbxPayments.Location = new System.Drawing.Point(0, 392);
-			this.gbxPayments.Name = "gbxPayments";
-			this.gbxPayments.Size = new System.Drawing.Size(784, 170);
-			this.gbxPayments.TabIndex = 3;
-			this.gbxPayments.TabStop = false;
-			this.gbxPayments.Text = "Payments";
-			// 
-			// dgvItems
-			// 
-			this.dgvItems.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvItems.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colItemId,
-            this.colItemName,
-            this.colItemDescription,
-            this.colItemPrice,
-            this.colItemTags,
-            this.colItemUpdatedAt,
-            this.colItemPosId,
-            this.colItemImageUrl,
-            this.colItemStatus});
-			this.dgvItems.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.dgvItems.Location = new System.Drawing.Point(3, 16);
-			this.dgvItems.Name = "dgvItems";
-			this.dgvItems.Size = new System.Drawing.Size(457, 273);
-			this.dgvItems.TabIndex = 0;
-			// 
-			// colItemId
-			// 
-			this.colItemId.HeaderText = "Id";
-			this.colItemId.Name = "colItemId";
-			// 
-			// colItemName
-			// 
-			this.colItemName.HeaderText = "Name";
-			this.colItemName.Name = "colItemName";
-			// 
-			// colItemDescription
-			// 
-			this.colItemDescription.HeaderText = "Description";
-			this.colItemDescription.Name = "colItemDescription";
-			// 
-			// colItemPrice
-			// 
-			this.colItemPrice.HeaderText = "Price";
-			this.colItemPrice.Name = "colItemPrice";
-			// 
-			// colItemTags
-			// 
-			this.colItemTags.HeaderText = "Tags";
-			this.colItemTags.Name = "colItemTags";
-			// 
-			// colItemUpdatedAt
-			// 
-			this.colItemUpdatedAt.HeaderText = "Updated At";
-			this.colItemUpdatedAt.Name = "colItemUpdatedAt";
-			this.colItemUpdatedAt.ReadOnly = true;
-			// 
-			// colItemPosId
-			// 
-			this.colItemPosId.HeaderText = "POS Id";
-			this.colItemPosId.Name = "colItemPosId";
-			// 
-			// colItemImageUrl
-			// 
-			this.colItemImageUrl.HeaderText = "Image URL";
-			this.colItemImageUrl.Name = "colItemImageUrl";
-			// 
-			// colItemStatus
-			// 
-			this.colItemStatus.HeaderText = "Status";
-			this.colItemStatus.Items.AddRange(new object[] {
-            "pending",
-            "accepted"});
-			this.colItemStatus.Name = "colItemStatus";
 			// 
 			// dgvSurcounts
 			// 
@@ -489,6 +427,17 @@
 			// 
 			this.colSurcountPrice.HeaderText = "Price";
 			this.colSurcountPrice.Name = "colSurcountPrice";
+			// 
+			// gbxPayments
+			// 
+			this.gbxPayments.Controls.Add(this.dgvPayments);
+			this.gbxPayments.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.gbxPayments.Location = new System.Drawing.Point(0, 392);
+			this.gbxPayments.Name = "gbxPayments";
+			this.gbxPayments.Size = new System.Drawing.Size(784, 170);
+			this.gbxPayments.TabIndex = 3;
+			this.gbxPayments.TabStop = false;
+			this.gbxPayments.Text = "Payments";
 			// 
 			// dgvPayments
 			// 
@@ -521,6 +470,49 @@
             "accepted"});
 			this.colPaymentStatus.Name = "colPaymentStatus";
 			// 
+			// colItemId
+			// 
+			this.colItemId.HeaderText = "Id";
+			this.colItemId.Name = "colItemId";
+			// 
+			// colItemName
+			// 
+			this.colItemName.HeaderText = "Name";
+			this.colItemName.Name = "colItemName";
+			// 
+			// colItemDescription
+			// 
+			this.colItemDescription.HeaderText = "Description";
+			this.colItemDescription.Name = "colItemDescription";
+			// 
+			// colItemPrice
+			// 
+			this.colItemPrice.HeaderText = "Price";
+			this.colItemPrice.Name = "colItemPrice";
+			// 
+			// colItemTags
+			// 
+			this.colItemTags.HeaderText = "Tags";
+			this.colItemTags.Name = "colItemTags";
+			// 
+			// colItemPosId
+			// 
+			this.colItemPosId.HeaderText = "POS Id";
+			this.colItemPosId.Name = "colItemPosId";
+			// 
+			// colItemImageUrl
+			// 
+			this.colItemImageUrl.HeaderText = "Image URL";
+			this.colItemImageUrl.Name = "colItemImageUrl";
+			// 
+			// colItemStatus
+			// 
+			this.colItemStatus.HeaderText = "Status";
+			this.colItemStatus.Items.AddRange(new object[] {
+            "pending",
+            "accepted"});
+			this.colItemStatus.Name = "colItemStatus";
+			// 
 			// SampleOrderForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -541,10 +533,10 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudPaySplits)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudTip)).EndInit();
 			this.gbxItems.ResumeLayout(false);
-			this.gbxSurcounts.ResumeLayout(false);
-			this.gbxPayments.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvItems)).EndInit();
+			this.gbxSurcounts.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvSurcounts)).EndInit();
+			this.gbxPayments.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.dgvPayments)).EndInit();
 			this.ResumeLayout(false);
 
@@ -555,8 +547,8 @@
 		private System.Windows.Forms.GroupBox gbxGeneral;
 		private System.Windows.Forms.LinkLabel lblUri;
 		private System.Windows.Forms.Label lblUriCaption;
-		private System.Windows.Forms.Label lblUpdatedAt;
-		private System.Windows.Forms.Label lblUpdatedAtCaption;
+		private System.Windows.Forms.Label lblVersion;
+		private System.Windows.Forms.Label lblVersionCaption;
 		private System.Windows.Forms.NumericUpDown nudNotPayingTotal;
 		private System.Windows.Forms.Label lblNotPayingTotal;
 		private System.Windows.Forms.NumericUpDown nudPayTotal;
@@ -584,15 +576,6 @@
 		private System.Windows.Forms.GroupBox gbxSurcounts;
 		private System.Windows.Forms.GroupBox gbxPayments;
 		private System.Windows.Forms.DataGridView dgvItems;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colItemId;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colItemName;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colItemDescription;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colItemPrice;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colItemTags;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colItemUpdatedAt;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colItemPosId;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colItemImageUrl;
-		private System.Windows.Forms.DataGridViewComboBoxColumn colItemStatus;
 		private System.Windows.Forms.DataGridView dgvSurcounts;
 		private System.Windows.Forms.DataGridViewTextBoxColumn colSurcountName;
 		private System.Windows.Forms.DataGridViewTextBoxColumn colSurcountPrice;
@@ -600,6 +583,14 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn colPaymentType;
 		private System.Windows.Forms.DataGridViewTextBoxColumn colPaymentAmount;
 		private System.Windows.Forms.DataGridViewComboBoxColumn colPaymentStatus;
+		private System.Windows.Forms.DataGridViewTextBoxColumn colItemId;
+		private System.Windows.Forms.DataGridViewTextBoxColumn colItemName;
+		private System.Windows.Forms.DataGridViewTextBoxColumn colItemDescription;
+		private System.Windows.Forms.DataGridViewTextBoxColumn colItemPrice;
+		private System.Windows.Forms.DataGridViewTextBoxColumn colItemTags;
+		private System.Windows.Forms.DataGridViewTextBoxColumn colItemPosId;
+		private System.Windows.Forms.DataGridViewTextBoxColumn colItemImageUrl;
+		private System.Windows.Forms.DataGridViewComboBoxColumn colItemStatus;
 
 	}
 }

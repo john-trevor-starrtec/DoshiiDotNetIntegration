@@ -103,7 +103,6 @@ namespace SampleDotNetPOS.POSImpl
 			else			
 				result.Id = orderId;
 
-			result.UpdatedAt = DateTime.Now.ToUniversalTime();
 			result.Status = status;
 			return result;
 		}

@@ -46,7 +46,7 @@ namespace DoshiiDotNetIntegration.Models
 		public void Clear()
 		{
 			Status = String.Empty;
-			UpdatedAt = DateTime.MinValue;
+			Version = String.Empty;
 			mItems.Clear();
 			mSurcounts.Clear();
 			mPayments.Clear();
@@ -58,9 +58,9 @@ namespace DoshiiDotNetIntegration.Models
 		public string Status { get; set; }
 
 		/// <summary>
-		/// The last time the order was updated. 
+		/// The obfuscated string version number for the order in Doshii.
 		/// </summary>
-		public DateTime UpdatedAt { get; set; }
+		public string Version { get; set; }
 
 		/// <summary>
 		/// All the items included in the order. 
