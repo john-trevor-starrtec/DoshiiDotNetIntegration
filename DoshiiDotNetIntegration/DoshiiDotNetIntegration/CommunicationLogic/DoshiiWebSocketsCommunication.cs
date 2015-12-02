@@ -59,7 +59,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// <summary>
 		/// Ping message to send during heartbeat checks.
 		/// </summary>
-		private const string PingMessage = "primus::pong::";
+		private const string PingMessage = "primus::ping::";
+        private const string PongMessage = "primus::pong::";
 
         #endregion
 
@@ -317,7 +318,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 string messageString = e.Data.ToString();
                 // drop heart beat response
-                if (messageString.Contains(String.Format("{0}<", DoshiiWebSocketsCommunication.PingMessage)))
+                if (messageString.Contains(String.Format("{0}<", DoshiiWebSocketsCommunication.PongMessage)))
                 {
 					mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Received web-sockets message '{0}' from {1}", messageString, m_WebSocketsConnection.Url.ToString()));
                     return;
@@ -333,7 +334,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 string messageString = e.RawData.ToString();
                 // drop heartbeat message
-                if (messageString.Contains(String.Format("{0}<", DoshiiWebSocketsCommunication.PingMessage)))
+                if (messageString.Contains(String.Format("{0}<", DoshiiWebSocketsCommunication.PongMessage)))
                 {
                     return;
                 }
