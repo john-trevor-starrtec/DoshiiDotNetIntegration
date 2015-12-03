@@ -439,7 +439,7 @@ namespace DoshiiDotNetIntegration
             // at the moment it's will only be requesting a payment from a payment system that is already associated with the order in the doshii API
             if (orderToPay == null)
             {
-                throw new TransactionRequestNotProcessedException("orderToPay is null");
+                throw new ArgumentNullException("orderToPay");
             }
             if (string.IsNullOrWhiteSpace(orderToPay.Id))
             {
