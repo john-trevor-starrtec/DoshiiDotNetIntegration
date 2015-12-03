@@ -13,7 +13,7 @@ namespace DoshiiDotNetIntegration.Models
     /// Surcharges should have a positive price.
     /// Discounts should have a negative price. 
     /// </summary>
-    public class Surcount
+    public class Surcount : ICloneable
     {
 		/// <summary>
 		/// Constructor.
@@ -41,5 +41,18 @@ namespace DoshiiDotNetIntegration.Models
         /// The Price / value of the surcount in cents. 
         /// </summary>
         public decimal Price { get; set; }
-    }
+
+		#region ICloneable Members
+
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the instance.</returns>
+		public object Clone()
+		{
+			return this.MemberwiseClone();
+		}
+
+		#endregion
+	}
 }

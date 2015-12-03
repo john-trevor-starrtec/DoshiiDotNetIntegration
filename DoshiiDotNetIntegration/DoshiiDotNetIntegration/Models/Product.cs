@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models
     /// The doshii representation of a product 
     /// A product is the highest level line item on orders.
     /// </summary>
-    public class Product
+    public class Product : ICloneable
     {
         /// <summary>
         /// The Doshii Id of the product.
@@ -124,5 +124,30 @@ namespace DoshiiDotNetIntegration.Models
 			Image = String.Empty;
 			Status = String.Empty;
 		}
-    }
+
+		#region ICloneable Members
+
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the instance.</returns>
+		public object Clone()
+		{
+			var product = (Product)this.MemberwiseClone();
+
+			var tags = new List<string>();
+			foreach (string tag in this.Tags)
+				tags.Add(tag);
+			product.Tags = tags;
+
+			var options = new List<ProductOptions>();
+			foreach (var option in this.ProductOptions)
+				options.Add((ProductOptions)option.Clone());
+			product.ProductOptions = options;
+
+			return product;
+		}
+
+		#endregion
+	}
 }

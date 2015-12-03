@@ -452,7 +452,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// The purpose of this function is to provide a consistent manner of parsing the response to the <c>PUT /orders/:pos_id</c> call in the 
 		/// API, regardless of the actual model object we are dealing with for the action taken.
 		/// </remarks>
-		/// <typeparam name="T">The type of model object to be returned by this call.</typeparam>
+		/// <typeparam name="T">The type of model object to be returned by this call. This should be a member of the <c>DoshiiDotNetIntegration.Models</c>
+		/// namespace that is mapped to the <typeparamref name="DTO"/> type via the <see cref="DoshiiDotNetIntegration.Helpers.AutoMapperConfigurator"/>
+		/// helper class.</typeparam>
 		/// <typeparam name="DTO">The corresponding data type object used by the communication with the API for the action.</typeparam>
 		/// <param name="orderId">The POS identifier for the order.</param>
 		/// <param name="responseMessage">The current response message to be parsed.</param>
@@ -495,9 +497,36 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 				throw new NullOrderReturnedException();
 			}
 
+			UpdateOrderVersion<T>(returnObj);
+
 			return returnObj;
 		}
 
+		/// <summary>
+		/// A call to this function updates the order version in the POS. The generic nature of this function is due to the fact that
+		/// we might be dealing with different actual model objects. This function can be used to update the POS version of the order
+		/// regardless of the actual type used.
+		/// </summary>
+		/// <remarks>
+		/// NOTE: The SDK implementer must update this call for any new model types that make use of the order version.
+		/// </remarks>
+		/// <typeparam name="T">The type of model object being updated. In this case, the type should be a derivative of an
+		/// <see cref="DoshiiDotNetIntegration.Models.Order"/> or a class that contains a reference to an order.</typeparam>
+		/// <param name="orderDetails">The details of the order.</param>
+		private void UpdateOrderVersion<T>(T orderDetails)
+		{
+			if (orderDetails != null)
+			{
+				Order order = null;
+				if (orderDetails is Order)
+					order = orderDetails as Order;
+				else if (orderDetails is TableOrder)
+					order = (orderDetails as TableOrder).Order;
+
+				if (order != null)
+					m_DoshiiLogic.RecordOrderVersion(order.Id, order.Version);
+			}
+		}
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.

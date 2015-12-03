@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// A Doshii order
     /// </summary>
-    public class Order
+    public class Order : ICloneable
     {
 		/// <summary>
 		/// Constructor.
@@ -163,5 +163,38 @@ namespace DoshiiDotNetIntegration.Models
             }
             set { _items = value.ToList<Product>(); } 
         }
-    }
+
+		#region ICloneable Members
+
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the calling instance.</returns>
+		public object Clone()
+		{
+			var order = (Order)this.MemberwiseClone();
+
+			// Memberwise clone doesn't handle recursive cloning of internal properties such as lists
+			// here I am overwriting the list with cloned copies of the list items
+			var payments = new List<Transaction>();
+			foreach (var payment in this.Payments)
+			{
+				payments.Add((Transaction)payment.Clone());
+			}
+			order.Payments = payments;
+
+			var surcounts = new List<Surcount>();
+			foreach (var surcount in this.Surcounts)
+			{
+				surcounts.Add((Surcount)surcount.Clone());
+			}
+			order.Surcounts = surcounts;
+
+
+
+			return order;
+		}
+
+		#endregion
+	}
 }

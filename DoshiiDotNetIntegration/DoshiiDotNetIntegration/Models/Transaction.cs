@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// Payments that are made on the Doshii check
     /// </summary>
-    public class Transaction
+    public class Transaction : ICloneable
     {
 		/// <summary>
 		/// Constructor.
@@ -82,5 +82,18 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string Status { get; set; }
 
-    }
+
+		#region ICloneable Members
+
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the instance.</returns>
+		public object Clone()
+		{
+			return this.MemberwiseClone();
+		}
+
+		#endregion
+	}
 }

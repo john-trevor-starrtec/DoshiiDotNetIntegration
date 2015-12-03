@@ -68,9 +68,14 @@ namespace DoshiiDotNetIntegration
         private DoshiiHttpCommunication m_HttpComs = null;
 
 		/// <summary>
-		/// The payment module manager is the core module manager for the Doshii platform.
+		/// The payment module manager is a core module manager for the Doshii platform.
 		/// </summary>
 		private IPaymentModuleManager mPaymentManager;
+
+        /// <summary>
+        /// The basic ordering manager is a core module manager for the Doshii platform.
+        /// </summary>
+        private IOrderingManager mOrderingManager;
 
 		/// <summary>
 		/// The logging manager for the Doshii SDK.
@@ -105,13 +110,15 @@ namespace DoshiiDotNetIntegration
         /// </summary>
 		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
 		/// <param name="logger">The logging mechanism callback to the POS.</param>
-        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger)
+        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager)
         {
 			if (paymentManager == null)
 				throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
-
+            if (orderingManager == null)
+                throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
 			mPaymentManager = paymentManager;
-			mLog = new DoshiiLogManager(logger);
+            mOrderingManager = orderingManager;
+            mLog = new DoshiiLogManager(logger);
         }
         
         /// This method MUST be called immediately after this class is instantiated to initialize communication with doshii.
@@ -306,6 +313,8 @@ namespace DoshiiDotNetIntegration
         {
 			//this method is not implemented for Pay@table, we will need to implement it for orderAhead but it is now currently necessary. 
             throw new NotImplementedException();
+            //when this method is reintroducted the following call must be included every time a order is received from Doshii 
+            // m_DoshiiLogic.RecordOrderVersion(e.Order.Id, e.Order.Version);
         }
 
         /// <summary>
@@ -410,6 +419,23 @@ namespace DoshiiDotNetIntegration
 
         #region ordering And Transaction
 
+
+        internal void RecordOrderVersion(string posOrderId, string version)
+        {
+            try
+            {
+                mOrderingManager.RecordOrderVersion(posOrderId, version);
+            }
+            catch (OrderDoesNotExistOnPosException nex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, string.Format("Doshii: Attempted to update an order version that does not exist on the Pos, OrderId - {0}, version - {1}", posOrderId, version));
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, string.Format("Doshii: Exception while attempting to update an order verison on the pos, OrderId - {0}, version - {1}, {2}", posOrderId, version, ex.ToString()));
+            }
+        }
+        
         /// <summary>
         /// This method returns an order from Doshii corresponding to the OrderId
         /// </summary>
@@ -594,16 +620,46 @@ namespace DoshiiDotNetIntegration
         #region tableAllocation and consumers
 
 		/// <summary>
-		/// Called by POS to add a table allocation with an order attached.
+		/// Called by POS to add a table allocation to an order.
 		/// </summary>
+		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
 		/// <param name="table">The table to add in Doshii.</param>
 		/// <returns>The current order details in Doshii after upload.</returns>
-		public TableOrder AddTableAllocation(TableOrder table)
+		public TableOrder AddTableAllocation(string posOrderId, TableAllocation table)
 		{
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for table '{0}'", table.Table.Name));
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", table.Name, posOrderId));
+
+			Order order = null;
 			try
 			{
-				return m_HttpComs.CreateOrderWithTableAllocation(table);
+				order = mOrderingManager.RetrieveOrder(posOrderId);
+			}
+			catch (OrderDoesNotExistOnPosException dne)
+			{
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during table allocation");
+				return null;
+			}
+			catch (RestfulApiErrorResponseException api)
+			{
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Error occurred retrieving order from POS during table allocation", api);
+				return null;
+			}
+
+			if (order == null)
+			{
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
+				throw new NullOrderReturnedException();
+			}
+
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now", table.Name, posOrderId));
+
+			var tableOrder = new TableOrder();
+			tableOrder.Order = (Order)order.Clone(); // I was thinking clone should be used here to limit order to this scope, but on second thought it probably isn't necessary
+			tableOrder.Table = table; // so I haven't worried about cloning the table object here
+
+			try
+			{
+				return m_HttpComs.CreateOrderWithTableAllocation(tableOrder);
 			}
 			catch (RestfulApiErrorResponseException rex)
 			{

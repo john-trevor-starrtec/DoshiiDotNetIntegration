@@ -35,7 +35,7 @@ namespace DoshiiDotNetIntegration.Models
 		public TableAllocation Table
 		{
 			get;
-			private set;
+			set;
 		}
 
 		/// <summary>
@@ -44,7 +44,7 @@ namespace DoshiiDotNetIntegration.Models
 		public Order Order
 		{
 			get;
-			private set;
+			set;
 		}
 	}
 }
