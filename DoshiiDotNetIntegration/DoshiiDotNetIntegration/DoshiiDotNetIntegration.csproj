@@ -122,6 +122,7 @@
     <Compile Include="Exceptions\TransactionRequestNotProcessedException.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
     <Compile Include="Interfaces\IDoshiiLogger.cs" />
+    <Compile Include="Interfaces\IOrderingManager.cs" />
     <Compile Include="Interfaces\IPaymentModuleManager.cs" />
     <Compile Include="Models\Configuration.cs" />
     <Compile Include="Models\Json\JsonConfiguration.cs" />
