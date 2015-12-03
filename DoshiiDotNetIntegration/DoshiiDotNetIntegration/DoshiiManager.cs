@@ -82,6 +82,8 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         private string AuthorizeToken { get; set; }
 
+        private Configuration mConfiguration { get; set; }
+
         /// <summary>
         /// Gets the current Doshii version information.
         /// This method is automatically called and the results logged when this class in instantiated. 
@@ -140,7 +142,10 @@ namespace DoshiiDotNetIntegration
         /// will allow the tabs / orders / checks to be acted on in the pos without messages being sent to doshii to update doshii. After the disassociate occurs the user will no longer be able to access their tab / order on the Doshii app and this value is passed to the Doshii API upon communication initializations so doshii will close tabs when there has been no communication for this period of time. 
         /// NOTE: This differs from the time that is set on the Doshii back end that indicates how long a tab can be inactive for before a checkout message is sent to the pos indicating that the consumer no longer has a valie Doshii tab / order and any associated tab / order / person registered on the pos should be disassociated from Doshii.  
         /// </param>
-        public virtual void Initialize(string socketUrl, string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        /// <param name="configuration">
+        /// this is the configuration that configures the behaviour of the Doshii API while interacting with this pos. <see cref="Configuration"/> for details about the available settings. 
+        /// </param>
+        public virtual void Initialize(string socketUrl, string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs, Configuration configuration)
         {
 			// TODO: Remove socketUrl parameter and build it here based on urlBase?
 
@@ -177,7 +182,14 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
+            if (configuration == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - configuration was null");
+                throw new ArgumentNullException("configuration");
+            }
+
             AuthorizeToken = token;
+            mConfiguration = configuration;
             string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
 			InitializeProcess(socketUrlWithToken, urlBase, startWebSocketConnection, timeout);
         }
@@ -266,6 +278,8 @@ namespace DoshiiDotNetIntegration
         internal virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
+            SendConfigurationUpdate();
+            //send configuration
         }
 
         /// <summary>
@@ -645,16 +659,21 @@ namespace DoshiiDotNetIntegration
 		/// <returns>True on successful update; false otherwise.</returns>
 		public bool UpdateConfiguration(Configuration configuration)
 		{
-			try
-			{
-				return m_HttpComs.PutConfiguration(configuration);
-			}
-			catch (RestfulApiErrorResponseException rex)
-			{
-				throw rex;
-			}
+		    mConfiguration = configuration;
+		    return SendConfigurationUpdate();
 		}
 
+        private bool SendConfigurationUpdate()
+        {
+            try
+            {
+                return m_HttpComs.PutConfiguration(mConfiguration);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
 		#endregion
 	}
 }

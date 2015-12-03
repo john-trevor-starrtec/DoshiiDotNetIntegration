@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetSDKTests
 {
@@ -117,6 +118,15 @@ namespace DoshiiDotNetSDKTests
 
         #region Generate TestObjects and TestValues
 
+        internal static Configuration GenerateConfiguration(bool checkoutOnPaid, bool deallocateTableOnPaid)
+        {
+            var configuration = new Configuration();
+            configuration.DeallocateTableOnPaid = deallocateTableOnPaid;
+            configuration.CheckoutOnPaid = checkoutOnPaid;
+
+            return configuration;
+        }
+        
         internal static List<DoshiiDotNetIntegration.Models.Product> GenerateProductList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.Product>();

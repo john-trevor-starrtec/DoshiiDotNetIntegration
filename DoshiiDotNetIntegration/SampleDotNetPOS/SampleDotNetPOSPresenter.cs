@@ -83,7 +83,7 @@ namespace SampleDotNetPOS
 		public void Initialise(string apiAddress, string locationToken)
 		{
 			string wss = String.Format("{0}/socket", apiAddress.Replace("http", "ws"));
-			mManager.Initialize(wss, SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0);
+			mManager.Initialize(wss, SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0, new Configuration(true, true));
 		}
 
 		#endregion
