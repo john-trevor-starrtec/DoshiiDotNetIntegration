@@ -12,12 +12,12 @@ namespace DoshiiDotNetIntegration.Interfaces
 	/// The POS should implement this interface in order to accept payment requests from the Doshii workflow.
 	/// </summary>
 	/// <remarks>
-	/// The <c>IPaymentModuleManager</c> is the core interface of the Doshii API.
-	/// When a partner wishes to make a payment via Doshii, the API emits a 
+	/// The <c>IPaymentModuleManager</c> is the core interface of the Doshii SDK.
+	/// When a partner wishes to make a payment via Doshii, the SDK emits a 
 	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string)"/> call.
 	/// At this point, the POS should place the corresponding order into a "locked" state and send back the final
 	/// details of the order to ensure that the order is current in Doshii. Once the partner captures the funds
-	/// to pay off the order, the Doshii API emits a 
+	/// to pay off the order, the Doshii SDK emits a 
 	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string, Transaction)"/>
 	/// call to finalize the payment.
 	/// </remarks>
