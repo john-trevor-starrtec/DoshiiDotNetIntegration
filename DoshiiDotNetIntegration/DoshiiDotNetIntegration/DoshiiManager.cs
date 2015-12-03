@@ -19,7 +19,7 @@ namespace DoshiiDotNetIntegration
     ///   <item>Creating orders</item>
     ///   <item>Modifying existing orders</item>
     ///   <item>Setting the status of a consumer to a “checked-in” status</item>
-    ///   <item>Creating products</item>
+    ///   <item>Creating products</item>re
     ///   <item>Modifying existing products</item>
     ///   <item>Deleting the products</item>
     /// </list>
@@ -414,6 +414,51 @@ namespace DoshiiDotNetIntegration
 				throw rex;
 			}
 		}
+
+        /// <summary>
+        /// This method will request payment for an order from the partner associated with the order. 
+        /// This method will only request a payment for an order that is already associated with a partner on the Doshii Api.
+        /// NOTE: it is not necessary to act on the return from this method it it's true - when true <see cref="IPaymentModuleManger.AcceptPayment"/> will be called
+        /// if the payment request fails  <see cref="IPaymentModuleManger.CancelPayment"/> will be called. If the pos wishes to retry at this point the pos should react to the false return. 
+        /// This method will throw a <exception cref="TransactionNotProcessecException"></exception> if the transaction could not be created and requested from Doshii
+        /// </summary>
+        /// <param name="orderToPay">The order the pos wishes to request payment for</param>
+        /// <param name="amountToPay">The amount the pos is requesting payment for</param>
+        /// <param name="requestFullPayment">If true, the pos will only accept a payment that is equal to the amountToPay
+        /// If false, the pos will accept any amount upto and including the amountToPay</param>
+        /// <returns>
+        /// True - if the payment request was successful
+        /// false - if the payment request was not successful 
+        ///  </returns>
+        public virtual bool RequestPaymentForOrder(Order orderToPay, decimal amountToPay, bool requestFullPayment)
+        {
+            //This method is not useful for pay@table as the pay@table system will always be initiating the payment.
+            // This may be useful for order ahead if the partner does not pay automatically when making the order.
+            // It will be more useful for tab systems like Clipp, OneTab, that have created an order on the system that is expectecd to be paid later. 
+            // It may also be useful for integrated eftpos - but at that point it will need to be modified to accept the partner that the pos wishes to collect the payment from
+            // at the moment it's will only be requesting a payment from a payment system that is already associated with the order in the doshii API
+            if (orderToPay == null)
+            {
+                throw new ArgumentNullException("orderToPay");
+            }
+            if (string.IsNullOrWhiteSpace(orderToPay.Id))
+            {
+                throw new TransactionRequestNotProcessedException("orderToPay.Id is not valid");
+            }
+            if (amountToPay <= 0)
+            {
+                throw new TransactionRequestNotProcessedException("you cannot request a payment for an amount below $0");
+            }
+            var transaction = new Transaction();
+            transaction.OrderId = orderToPay.Id;
+            transaction.AcceptLess = !requestFullPayment;
+            transaction.PartnerInitiated = false;
+            transaction.PaymentAmount = amountToPay;
+            transaction.Status = "waiting";
+            return RequestPaymentForOrder(transaction);
+        } 
+
+
 
         /// <summary>
         /// This method returns an transaction from Doshii corresponding to the transactionId
