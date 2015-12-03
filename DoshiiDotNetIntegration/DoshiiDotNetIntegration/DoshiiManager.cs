@@ -593,6 +593,24 @@ namespace DoshiiDotNetIntegration
 
         #region tableAllocation and consumers
 
+		/// <summary>
+		/// Called by POS to add a table allocation with an order attached.
+		/// </summary>
+		/// <param name="table">The table to add in Doshii.</param>
+		/// <returns>The current order details in Doshii after upload.</returns>
+		public TableOrder AddTableAllocation(TableOrder table)
+		{
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for table '{0}'", table.Table.Name));
+			try
+			{
+				return m_HttpComs.CreateOrderWithTableAllocation(table);
+			}
+			catch (RestfulApiErrorResponseException rex)
+			{
+				throw rex;
+			}
+		}
+
         /// <summary>
         /// Deletes a table Allocation from Doshii
         /// </summary>

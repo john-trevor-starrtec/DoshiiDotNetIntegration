@@ -278,6 +278,34 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return tableAllocationList;
 
         }
+
+		/// <summary>
+		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+		/// Creates an order in Doshii including the allocation of the table.
+		/// </summary>
+		/// <param name="tableOrder">The details of the order and table allocation to present to Doshii.</param>
+		/// <returns>The table order details as uploaded to Doshii API.</returns>
+		internal virtual TableOrder CreateOrderWithTableAllocation(TableOrder tableOrder)
+		{
+			var returnedTableOrder = new TableOrder();
+			DoshiHttpResponseMessage responseMessage;
+			string orderIdentifier = tableOrder.Order.Id;
+
+			try
+			{
+				var jsonTableOrder = Mapper.Map<JsonTableOrder>(tableOrder);
+				responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order, orderIdentifier), WebRequestMethods.Http.Put, jsonTableOrder.ToJsonString());
+			}
+			catch (RestfulApiErrorResponseException rex)
+			{
+				throw rex;
+			}
+
+			var dto = new JsonTableOrder();
+			returnedTableOrder = HandleOrderResponse<TableOrder, JsonTableOrder>(orderIdentifier, responseMessage, out dto);
+
+			return returnedTableOrder;
+		}
         
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -408,40 +436,67 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 throw rex;
             }
 
-            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message has been returned to the put order function"));
-
-            if (responseMessage != null)
-            {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response order data was not null"));
-                        var jsonOrder = JsonConvert.DeserializeObject<JsonOrder>(responseMessage.Data);
-                        returnOrder = Mapper.Map<Order>(jsonOrder);
-                    }
-                    else
-                    {
-                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
-                    }
-
-                }
-                else
-                {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
-                }
-            }
-            else
-            {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, order.Id.ToString())));
-                throw new NullOrderReturnedException();
-            }
+			var dto = new JsonOrder();
+			returnOrder = HandleOrderResponse<Order, JsonOrder>(order.Id, responseMessage, out dto);
 
             return returnOrder;
         }
+
+		/// <summary>
+		/// This function takes the supplied <paramref name="responseMessage"/> received from the RESTful Doshii API and translates it
+		/// into some sort of order object. It utilises the mapping between a model object (<typeparamref name="T"/>) and its corresponding 
+		/// JSON data transfer object (<typeparamref name="DTO"/>). The data transfer object type should be an extension of the 
+		/// <see cref="DoshiiDotNetIntegration.Models.Json.JsonSerializationBase<TSelf>"/> class.
+		/// </summary>
+		/// <remarks>
+		/// The purpose of this function is to provide a consistent manner of parsing the response to the <c>PUT /orders/:pos_id</c> call in the 
+		/// API, regardless of the actual model object we are dealing with for the action taken.
+		/// </remarks>
+		/// <typeparam name="T">The type of model object to be returned by this call.</typeparam>
+		/// <typeparam name="DTO">The corresponding data type object used by the communication with the API for the action.</typeparam>
+		/// <param name="orderId">The POS identifier for the order.</param>
+		/// <param name="responseMessage">The current response message to be parsed.</param>
+		/// <param name="jsonDto">When this function returns, this output parameter will be the data transfer object used in communication with the API.</param>
+		/// <returns>The details of the order in the Doshii API.</returns>
+		private T HandleOrderResponse<T, DTO>(string orderId, DoshiHttpResponseMessage responseMessage, out DTO jsonDto)
+		{
+			jsonDto = default(DTO); // null since its an object
+			T returnObj = default(T); // null since its an object
+
+			mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message has been returned to the put order function"));
+
+			if (responseMessage != null)
+			{
+				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+				if (responseMessage.Status == HttpStatusCode.OK)
+				{
+					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+					if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+					{
+						mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response order data was not null"));
+						jsonDto = JsonConvert.DeserializeObject<DTO>(responseMessage.Data);
+						returnObj = Mapper.Map<T>(jsonDto);
+					}
+					else
+					{
+						mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+					}
+
+				}
+				else
+				{
+					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+				}
+			}
+			else
+			{
+				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+				throw new NullOrderReturnedException();
+			}
+
+			return returnObj;
+		}
 
 
         /// <summary>
