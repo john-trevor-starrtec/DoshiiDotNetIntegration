@@ -619,6 +619,54 @@ namespace DoshiiDotNetIntegration
 
         #region tableAllocation and consumers
 
+		/// <summary>
+		/// Called by POS to add a table allocation to an order.
+		/// </summary>
+		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
+		/// <param name="table">The table to add in Doshii.</param>
+		/// <returns>The current order details in Doshii after upload.</returns>
+		public TableOrder AddTableAllocation(string posOrderId, TableAllocation table)
+		{
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", table.Name, posOrderId));
+
+			Order order = null;
+			try
+			{
+				order = mOrderingManager.RetrieveOrder(posOrderId);
+			}
+			catch (OrderDoesNotExistOnPosException dne)
+			{
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during table allocation");
+				return null;
+			}
+			catch (RestfulApiErrorResponseException api)
+			{
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Error occurred retrieving order from POS during table allocation", api);
+				return null;
+			}
+
+			if (order == null)
+			{
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
+				throw new NullOrderReturnedException();
+			}
+
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now", table.Name, posOrderId));
+
+			var tableOrder = new TableOrder();
+			tableOrder.Order = (Order)order.Clone(); // I was thinking clone should be used here to limit order to this scope, but on second thought it probably isn't necessary
+			tableOrder.Table = table; // so I haven't worried about cloning the table object here
+
+			try
+			{
+				return m_HttpComs.CreateOrderWithTableAllocation(tableOrder);
+			}
+			catch (RestfulApiErrorResponseException rex)
+			{
+				throw rex;
+			}
+		}
+
         /// <summary>
         /// Deletes a table Allocation from Doshii
         /// </summary>

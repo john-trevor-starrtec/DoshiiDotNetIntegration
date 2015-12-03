@@ -10,7 +10,7 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// Product options are lists of product variants that can be selected from to modify products.
     /// </summary>
-    public class ProductOptions
+    public class ProductOptions : ICloneable
     {
 		/// <summary>
 		/// Constructor.
@@ -18,6 +18,7 @@ namespace DoshiiDotNetIntegration.Models
 		public ProductOptions()
 		{
 			_Variants = new List<Variants>();
+			_Selected = new List<Variants>();
 			Clear();
 		}
 
@@ -96,5 +97,34 @@ namespace DoshiiDotNetIntegration.Models
             }
 
         }
-    }
+
+		#region ICloneable Members
+
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the instance.</returns>
+		public object Clone()
+		{
+			var options = (ProductOptions)this.MemberwiseClone();
+
+			var variants = new List<Variants>();
+			foreach (var variant in this.Variants)
+			{
+				variants.Add((Variants)variant.Clone());
+			}
+			options.Variants = variants;
+
+			var selectedVariants = new List<Variants>();
+			foreach (var variant in this.Selected)
+			{
+				selectedVariants.Add((Variants)variant.Clone());
+			}
+			options.Selected = selectedVariants;
+
+			return options;
+		}
+
+		#endregion
+	}
 }

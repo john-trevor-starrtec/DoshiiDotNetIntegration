@@ -15,7 +15,7 @@ namespace DoshiiDotNetIntegration.Models
     /// or sides eg 'chips, veg, salad'
     /// each variant can have a price attached to it.
     /// </summary>
-    public class Variants 
+    public class Variants : ICloneable
     {
 		/// <summary>
 		/// Constructor.
@@ -55,5 +55,18 @@ namespace DoshiiDotNetIntegration.Models
 		/// This field will be true if the variant has been selected.
 		/// </summary>
 		public bool SelectedOptionalVariant { get; set; }
-    }
+
+		#region ICloneable Members
+
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the instance.</returns>
+		public object Clone()
+		{
+			return this.MemberwiseClone();
+		}
+
+		#endregion
+	}
 }
