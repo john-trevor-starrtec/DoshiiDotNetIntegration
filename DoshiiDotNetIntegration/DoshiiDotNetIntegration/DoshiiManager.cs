@@ -8,7 +8,6 @@ using DoshiiDotNetIntegration.Models.Json;
 using System;
 using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace DoshiiDotNetIntegration
@@ -421,6 +420,7 @@ namespace DoshiiDotNetIntegration
         /// This method will only request a payment for an order that is already associated with a partner on the Doshii Api.
         /// NOTE: it is not necessary to act on the return from this method it it's true - when true <see cref="IPaymentModuleManger.AcceptPayment"/> will be called
         /// if the payment request fails  <see cref="IPaymentModuleManger.CancelPayment"/> will be called. If the pos wishes to retry at this point the pos should react to the false return. 
+        /// This method will throw a <exception cref="TransactionNotProcessecException"></exception> if the transaction could not be created and requested from Doshii
         /// </summary>
         /// <param name="orderToPay">The order the pos wishes to request payment for</param>
         /// <param name="amountToPay">The amount the pos is requesting payment for</param>
@@ -437,6 +437,18 @@ namespace DoshiiDotNetIntegration
             // It will be more useful for tab systems like Clipp, OneTab, that have created an order on the system that is expectecd to be paid later. 
             // It may also be useful for integrated eftpos - but at that point it will need to be modified to accept the partner that the pos wishes to collect the payment from
             // at the moment it's will only be requesting a payment from a payment system that is already associated with the order in the doshii API
+            if (orderToPay == null)
+            {
+                throw new TransactionRequestNotProcessedException("orderToPay is null");
+            }
+            if (string.IsNullOrWhiteSpace(orderToPay.Id))
+            {
+                throw new TransactionRequestNotProcessedException("orderToPay.Id is not valid");
+            }
+            if (amountToPay <= 0)
+            {
+                throw new TransactionRequestNotProcessedException("you cannot request a payment for an amount below $0");
+            }
             var transaction = new Transaction();
             transaction.OrderId = orderToPay.Id;
             transaction.AcceptLess = !requestFullPayment;
