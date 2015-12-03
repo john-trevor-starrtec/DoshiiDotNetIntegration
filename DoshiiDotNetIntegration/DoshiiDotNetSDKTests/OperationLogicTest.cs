@@ -46,28 +46,28 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoSocketUrl()
         {
-            _manager.Initialize("",token, urlBase, startWebSocketsConnection, socketTimeOutSecs);
+            _manager.Initialize("", token, urlBase, startWebSocketsConnection, socketTimeOutSecs, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoUrlBase()
         {
-            _manager.Initialize(socketUrl, token, "", startWebSocketsConnection, socketTimeOutSecs);
+            _manager.Initialize(socketUrl, token, "", startWebSocketsConnection, socketTimeOutSecs, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoSocketTimeOutValue()
         {
-            _manager.Initialize(socketUrl, token, urlBase, startWebSocketsConnection, -1);
+            _manager.Initialize(socketUrl, token, urlBase, startWebSocketsConnection, -1, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoToken()
         {
-            _manager.Initialize(socketUrl, "", urlBase, startWebSocketsConnection, socketTimeOutSecs);
+            _manager.Initialize(socketUrl, "", urlBase, startWebSocketsConnection, socketTimeOutSecs, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
         }
     }
 }

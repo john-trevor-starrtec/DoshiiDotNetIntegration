@@ -18,6 +18,12 @@ namespace DoshiiDotNetIntegration.Models
 			Clear();
 		}
 
+	    public Configuration(bool checkoutOnPaid, bool deallocateTableOnPaid)
+	    {
+	        CheckoutOnPaid = checkoutOnPaid;
+	        DeallocateTableOnPaid = deallocateTableOnPaid;
+	    }
+
 		/// <summary>
 		/// Resets all property values to default settings.
 		/// </summary>
