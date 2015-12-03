@@ -10,6 +10,7 @@ namespace DoshiiDotNetSDKTests
     public class OperationLogicTest
     {
 		IPaymentModuleManager paymentManager;
+        IOrderingManager orderingManager;
 		IDoshiiLogger logger;
         DoshiiManager _manager;
         string socketUrl = "";
@@ -24,9 +25,10 @@ namespace DoshiiDotNetSDKTests
         public void Init()
         {
 			paymentManager = MockRepository.GenerateMock<IPaymentModuleManager>();
+            orderingManager = MockRepository.GenerateMock<IOrderingManager>();
 			logger = MockRepository.GenerateMock<IDoshiiLogger>();
-			_manager = new DoshiiManager(paymentManager, logger);
-            _mockManager = MockRepository.GeneratePartialMock<DoshiiManager>(paymentManager, logger);
+            _manager = new DoshiiManager(paymentManager, logger, orderingManager);
+            _mockManager = MockRepository.GeneratePartialMock<DoshiiManager>(paymentManager, logger, orderingManager);
 
             socketUrl = "wss://alpha.corp.doshii.co/pos/api/v1/socket";
             token = "QGkXTui42O5VdfSFid_nrFZ4u7A";
@@ -37,10 +39,17 @@ namespace DoshiiDotNetSDKTests
 
 		[Test]
 		[ExpectedException(typeof(ArgumentNullException))]
-		public void ContructNullPaymentManager()
+		public void ContsuctNullPaymentManager()
 		{
-			var man = new DoshiiManager(null, logger);
+			var man = new DoshiiManager(null, logger, orderingManager);
 		}
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ContsuctNullOrderManager()
+        {
+            var man = new DoshiiManager(paymentManager, logger, null);
+        }
         
         [Test]
         [ExpectedException(typeof(ArgumentException))]

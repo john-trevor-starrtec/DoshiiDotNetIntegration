@@ -40,6 +40,11 @@ namespace SampleDotNetPOS
 		/// </summary>
 		private SamplePaymentModuleManager mPaymentManager;
 
+        /// <summary>
+        /// The sample payment manager for the SampleDotNetPOS application.
+        /// </summary>
+        private SampleOrderingManager mOrderingManager;
+
 		/// <summary>
 		/// The doshii logic manager.
 		/// </summary>
@@ -61,7 +66,8 @@ namespace SampleDotNetPOS
 			mView = view;
 			mLog = new SampleDoshiiLogger(this);
 			mPaymentManager = new SamplePaymentModuleManager();
-			mManager = new DoshiiManager(mPaymentManager, mLog);
+            mOrderingManager = new SampleOrderingManager(this);
+			mManager = new DoshiiManager(mPaymentManager, mLog, mOrderingManager);
 		}
 
 		/// <summary>

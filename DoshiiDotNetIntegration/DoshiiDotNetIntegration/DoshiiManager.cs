@@ -68,9 +68,14 @@ namespace DoshiiDotNetIntegration
         private DoshiiHttpCommunication m_HttpComs = null;
 
 		/// <summary>
-		/// The payment module manager is the core module manager for the Doshii platform.
+		/// The payment module manager is a core module manager for the Doshii platform.
 		/// </summary>
 		private IPaymentModuleManager mPaymentManager;
+
+        /// <summary>
+        /// The basic ordering manager is a core module manager for the Doshii platform.
+        /// </summary>
+        private IOrderingManager mOrderingManager;
 
 		/// <summary>
 		/// The logging manager for the Doshii SDK.
@@ -103,13 +108,15 @@ namespace DoshiiDotNetIntegration
         /// </summary>
 		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
 		/// <param name="logger">The logging mechanism callback to the POS.</param>
-        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger)
+        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager)
         {
 			if (paymentManager == null)
 				throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
-
+            if (orderingManager == null)
+                throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
 			mPaymentManager = paymentManager;
-			mLog = new DoshiiLogManager(logger);
+            mOrderingManager = orderingManager;
+            mLog = new DoshiiLogManager(logger);
         }
         
         /// This method MUST be called immediately after this class is instantiated to initialize communication with doshii.
@@ -292,6 +299,8 @@ namespace DoshiiDotNetIntegration
         {
 			//this method is not implemented for Pay@table, we will need to implement it for orderAhead but it is now currently necessary. 
             throw new NotImplementedException();
+            //when this method is reintroducted the following call must be included every time a order is received from Doshii 
+            // m_DoshiiLogic.RecordOrderVersion(e.Order.Id, e.Order.Version);
         }
 
         /// <summary>
@@ -396,6 +405,23 @@ namespace DoshiiDotNetIntegration
 
         #region ordering And Transaction
 
+
+        internal void RecordOrderVersion(string posOrderId, string version)
+        {
+            try
+            {
+                mOrderingManager.RecordOrderVersion(posOrderId, version);
+            }
+            catch (OrderDoesNotExistOnPosException nex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, string.Format("Doshii: Attempted to update an order version that does not exist on the Pos, OrderId - {0}, version - {1}", posOrderId, version));
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, string.Format("Doshii: Exception while attempting to update an order verison on the pos, OrderId - {0}, version - {1}, {2}", posOrderId, version, ex.ToString()));
+            }
+        }
+        
         /// <summary>
         /// This method returns an order from Doshii corresponding to the OrderId
         /// </summary>
