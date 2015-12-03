@@ -422,6 +422,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response order data was not null"));
                         var jsonOrder = JsonConvert.DeserializeObject<JsonOrder>(responseMessage.Data);
                         returnOrder = Mapper.Map<Order>(jsonOrder);
+                        m_DoshiiLogic.RecordOrderVersion(returnOrder.Id, returnOrder.Version);
                     }
                     else
                     {
