@@ -21,6 +21,7 @@ namespace DoshiiDotNetSDKTests
 		DoshiiDotNetIntegration.Interfaces.IDoshiiLogger Logger;
 		DoshiiDotNetIntegration.DoshiiLogManager LogManager;
 		DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager PaymentManager;
+        DoshiiDotNetIntegration.Interfaces.IOrderingManager OrderingManager;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication HttpComs;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication MockHttpComs;
 
@@ -31,7 +32,8 @@ namespace DoshiiDotNetSDKTests
 			Logger = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IDoshiiLogger>();
 			LogManager = new DoshiiLogManager(Logger);
 			PaymentManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager>();
-			_manager = MockRepository.GenerateMock<DoshiiManager>(PaymentManager, Logger);
+            OrderingManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IOrderingManager>();
+            _manager = MockRepository.GenerateMock<DoshiiManager>(PaymentManager, Logger, OrderingManager);
             MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             HttpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
         }

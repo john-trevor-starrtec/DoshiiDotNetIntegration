@@ -7,7 +7,7 @@ using System;
 namespace DoshiiDotNetSDKTests
 {
     [TestFixture]
-    public class OperationLogicTest
+    public class DoshiiManagerTests
     {
 		IPaymentModuleManager paymentManager;
         IOrderingManager orderingManager;
