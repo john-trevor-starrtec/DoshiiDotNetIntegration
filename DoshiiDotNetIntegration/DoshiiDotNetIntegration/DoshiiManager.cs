@@ -460,7 +460,6 @@ namespace DoshiiDotNetIntegration
         /// This method will only request a payment for an order that is already associated with a partner on the Doshii Api.
         /// NOTE: it is not necessary to act on the return from this method it it's true - when true <see cref="IPaymentModuleManger.AcceptPayment"/> will be called
         /// if the payment request fails  <see cref="IPaymentModuleManger.CancelPayment"/> will be called. If the pos wishes to retry at this point the pos should react to the false return. 
-        /// This method will throw a <exception cref="TransactionNotProcessecException"></exception> if the transaction could not be created and requested from Doshii
         /// </summary>
         /// <param name="orderToPay">The order the pos wishes to request payment for</param>
         /// <param name="amountToPay">The amount the pos is requesting payment for</param>
@@ -470,6 +469,7 @@ namespace DoshiiDotNetIntegration
         /// True - if the payment request was successful
         /// false - if the payment request was not successful 
         ///  </returns>
+        /// <exception cref="TransactionNotProcessecException">If the transaction could not be created and requested from Doshii</exception> 
         public virtual bool RequestPaymentForOrder(Order orderToPay, decimal amountToPay, bool requestFullPayment)
         {
             //This method is not useful for pay@table as the pay@table system will always be initiating the payment.
@@ -679,12 +679,20 @@ namespace DoshiiDotNetIntegration
         /// <param name="deleteReason">
         /// The reason the allocation has been refused or rejected. 
         /// </param>
-        public virtual void DeleteTableAllocation(string doshiiCustomerId, string tableName, TableAllocationRejectionReasons deleteReason)
+        /// <exception cref="RestfulApiErrorResponseException">Is thrown when any of the following responses are received.
+        /// <item> HttpStatusCode.BadRequest </item> 
+        /// <item> HttpStatusCode.Unauthorized </item> 
+        /// <item> HttpStatusCode.Forbidden </item>
+        /// <item> HttpStatusCode.InternalServerError </item>
+        /// <item> HttpStatusCode.NotFound </item> 
+        /// <item> HttpStatusCode.Conflict </item>
+        /// </exception>
+        public virtual void DeleteTableAllocation(string posOrderId)
         {
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for doshiiCustomerId - '{0}', table '{1}'", doshiiCustomerId, tableName));
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for Order Id - '{0}'",posOrderId));
             try
             {
-                m_HttpComs.DeleteTableAllocationWithCheckInId(doshiiCustomerId, deleteReason);
+                m_HttpComs.DeleteTableAllocation(posOrderId);
             }
             catch (RestfulApiErrorResponseException rex)
             {

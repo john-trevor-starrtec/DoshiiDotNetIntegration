@@ -231,54 +231,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedOrderList;
         }
 
-        /// <summary>
-        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Gets all the current active table allocations in doshii, if there are no current active table allocations an empty list is returned. 
-        /// </summary>
-        /// <returns></returns>
-        internal virtual List<TableAllocation> GetTableAllocations()
-        {
-            var tableAllocationList = new List<TableAllocation>();
-            DoshiHttpResponseMessage responseMessage;
-
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.GetTableAllocations), WebRequestMethods.Http.Get);
-            }
-            catch (RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (responseMessage.Data != null)
-                    {
-						var jsonList = JsonConvert.DeserializeObject<List<JsonTableAllocation>>(responseMessage.Data);
-						tableAllocationList = Mapper.Map<List<TableAllocation>>(jsonList);
-                    }
-                    else
-                    {
-						mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
-                    }
-
-                }
-                else
-                {
-					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
-                }
-            }
-            else
-            {
-				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
-            }
-
-            return tableAllocationList;
-
-        }
-
+        
 		/// <summary>
 		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
 		/// Creates an order in Doshii including the allocation of the table.
@@ -306,84 +259,43 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
 			return returnedTableOrder;
 		}
+
         
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Rejects a table allocation doshii has sent for approval. 
+        /// Deletes a table allocaiton from doshii for the provided order Id. 
         /// </summary>
-        /// <param name="consumerId"></param>
-        /// <param name="tableName"></param>
-        /// <param name="tableAllocation"></param>
         /// <returns></returns>
-        internal virtual bool DeleteTableAllocationWithCheckInId(string checkInId, TableAllocationRejectionReasons rejectionReasons)
+        internal virtual bool DeleteTableAllocation(string posOrderId)
         {
-
-            bool success = false;
-            
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.DeleteAllocationWithCheckInId, checkInId), 
-					DoshiiHttpCommunication.DeleteMethod, SerializeTableDeAllocationRejectionReason(rejectionReasons));
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.DeleteAllocationFromOrder, posOrderId), DeleteMethod);
             }
-            catch (RestfulApiErrorResponseException rex)
+            catch (Exceptions.RestfulApiErrorResponseException rex)
             {
                 throw rex;
             }
-            
+
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    success = true;
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: A 'DELETE' request to {0} was successful. Allocations have been removed", GenerateUrl(EndPointPurposes.DeleteAllocationFromOrder, posOrderId)));
+                    return true;
                 }
                 else
                 {
-                    success = false;
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.DeleteAllocationFromOrder, posOrderId)));
                 }
             }
             else
             {
-                success = false;
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' to URL '{0}'", GenerateUrl(EndPointPurposes.DeleteAllocationFromOrder, posOrderId)));
             }
 
-            return success;
-        }
-
-        /// <summary>
-        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Serializes the table allocation rejection reason into the required string to pass to Doshii. 
-        /// </summary>
-        /// <param name="rejectionReason"></param>
-        /// <returns></returns>
-        internal virtual string SerializeTableDeAllocationRejectionReason(Enums.TableAllocationRejectionReasons rejectionReason)
-        {
-            string reasonCodeString = "";
-            switch (rejectionReason)
-            {
-                case Enums.TableAllocationRejectionReasons.TableDoesNotExist:
-                    reasonCodeString = "{\"reasonCode\" : \"1\"}";
-                    break;
-                case Enums.TableAllocationRejectionReasons.TableIsOccupied:
-                    reasonCodeString = "{\"reasonCode\" : \"2\"}";
-                    break;
-                case Enums.TableAllocationRejectionReasons.CheckinWasDeallocatedByPos:
-                    reasonCodeString = "{\"reasonCode\" : \"3\"}";
-                    break;
-                case Enums.TableAllocationRejectionReasons.ConcurrencyIssueWithPos:
-                    reasonCodeString = "{\"reasonCode\" : \"4\"}";
-                    break;
-                case Enums.TableAllocationRejectionReasons.tableDoesNotHaveATab:
-                    reasonCodeString = "{\"reasonCode\" : \"5\"}";
-                    break;
-                case Enums.TableAllocationRejectionReasons.tableHasBeenPaid:
-                    reasonCodeString = "{\"reasonCode\" : \"6\"}";
-                    break;
-                case Enums.TableAllocationRejectionReasons.unknownError:
-                    reasonCodeString = "{\"reasonCode\" : \"7\"}";
-                    break;
-            }
-            return reasonCodeString;
+            return false;
         }
 
         /// <summary>
@@ -697,7 +609,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="purpose"></param>
         /// <param name="identification"></param>
         /// <returns></returns>
-        private string GenerateUrl(EndPointPurposes purpose, string identification = "", string tableName = "")
+        private string GenerateUrl(EndPointPurposes purpose, string identification = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
 
@@ -727,8 +639,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
-                case EndPointPurposes.DeleteAllocationWithCheckInId:
-                    newUrlbuilder.AppendFormat("/tables?checkin={0}", identification);
+                case EndPointPurposes.DeleteAllocationFromOrder:
+                    newUrlbuilder.AppendFormat("/orders/:{0}/tables", identification);
                     break;
                 case EndPointPurposes.Transaction:
                     newUrlbuilder.AppendFormat("/transactions/:{0}", identification);
@@ -748,6 +660,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="method"></param>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// <exception cref="RestfulApiErrorResponseException">Is thrown when any of the following responses are received.
+        /// <item> HttpStatusCode.BadRequest </item> 
+        /// <item> HttpStatusCode.Unauthorized </item> 
+        /// <item> HttpStatusCode.Forbidden </item>
+        /// <item> HttpStatusCode.InternalServerError </item>
+        /// <item> HttpStatusCode.NotFound </item> 
+        /// <item> HttpStatusCode.Conflict </item>
+        /// This must be handled where a conflict needs special treatment - this is especially important when order are being updated by both the pos and the partner. 
+        /// </exception>
         internal virtual DoshiHttpResponseMessage MakeRequest(string url, string method, string data = "")
         {
             if (string.IsNullOrWhiteSpace(url))
