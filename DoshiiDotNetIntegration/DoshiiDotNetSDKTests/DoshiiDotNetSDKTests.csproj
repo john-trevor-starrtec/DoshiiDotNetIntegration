@@ -88,7 +88,7 @@
     <Compile Include="AutoMapperConfiguratorTest.cs" />
     <Compile Include="GenerateObjectsAndStringHelper.cs" />
     <Compile Include="HttpCommunicationTests.cs" />
-    <Compile Include="OperationLogicTest.cs" />
+    <Compile Include="DoshiiManagerTests.cs" />
     <Compile Include="SocketCommunicationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
