@@ -731,7 +731,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             request.KeepAlive = false;
             request.Headers.Add("authorization", m_Token);
 
-            if (method.Equals(WebRequestMethods.Http.Get) || method.Equals(WebRequestMethods.Http.Put) || method.Equals(DoshiiHttpCommunication.DeleteMethod))
+            if (method.Equals(WebRequestMethods.Http.Get) || 
+				method.Equals(WebRequestMethods.Http.Put) || 
+				method.Equals(WebRequestMethods.Http.Post) || 
+				method.Equals(DoshiiHttpCommunication.DeleteMethod))
             {
                 request.Method = method;
             }
