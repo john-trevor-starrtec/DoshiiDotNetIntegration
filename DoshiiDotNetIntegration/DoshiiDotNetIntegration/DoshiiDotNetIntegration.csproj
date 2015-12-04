@@ -114,7 +114,6 @@
     <Compile Include="DoshiiManager.cs" />
     <Compile Include="Enums\DoshiiLogLevels.cs" />
     <Compile Include="Enums\EndPointPurposes.cs" />
-    <Compile Include="Enums\TableAllocationRejectionReasons.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
     <Compile Include="Exceptions\NullOrderReturnedException.cs" />
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
