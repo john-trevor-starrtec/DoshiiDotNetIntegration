@@ -2,6 +2,7 @@
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
+using DoshiiDotNetIntegration.Helpers;
 using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.Json;
@@ -119,6 +120,7 @@ namespace DoshiiDotNetIntegration
 			mPaymentManager = paymentManager;
             mOrderingManager = orderingManager;
             mLog = new DoshiiLogManager(logger);
+			AutoMapperConfigurator.Configure();
         }
         
         /// This method MUST be called immediately after this class is instantiated to initialize communication with doshii.
@@ -329,7 +331,7 @@ namespace DoshiiDotNetIntegration
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
             Transaction transactionFromPos = null;
-            switch (transactionFromPos.Status)
+			switch (e.Transaction.Status)
             {
                 case "pending":
 					try
@@ -341,6 +343,7 @@ namespace DoshiiDotNetIntegration
 						mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API that does not exist on the system, orderid {0}", e.Transaction.OrderId));
                         break;
                     }
+
                     if (transactionFromPos != null)
                     {
                         RequestPaymentForOrder(transactionFromPos);
@@ -419,7 +422,6 @@ namespace DoshiiDotNetIntegration
 
         #region ordering And Transaction
 
-
         internal void RecordOrderVersion(string posOrderId, string version)
         {
             try
@@ -448,6 +450,38 @@ namespace DoshiiDotNetIntegration
 			try
 			{
 				return m_HttpComs.GetOrder(orderId);
+			}
+			catch (Exceptions.RestfulApiErrorResponseException rex)
+			{
+				throw rex;
+			}
+		}
+
+		/// <summary>
+		/// Retrieves the current order list from Doshii.
+		/// </summary>
+		/// <returns>The current list of orders available in Doshii.</returns>
+		public virtual System.Collections.Generic.IEnumerable<Order> GetOrders()
+		{
+			try
+			{
+				return m_HttpComs.GetOrders();
+			}
+			catch (Exceptions.RestfulApiErrorResponseException rex)
+			{
+				throw rex;
+			}
+		}
+
+		/// <summary>
+		/// Retrieves the list of payments from Doshii.
+		/// </summary>
+		/// <returns>The current list of Doshii payments.</returns>
+		public virtual System.Collections.Generic.IEnumerable<Transaction> GetTransactions()
+		{
+			try
+			{
+				return m_HttpComs.GetTransactions();
 			}
 			catch (Exceptions.RestfulApiErrorResponseException rex)
 			{
@@ -745,6 +779,10 @@ namespace DoshiiDotNetIntegration
 		    return SendConfigurationUpdate();
 		}
 
+		/// <summary>
+		/// Sends the configuration update to the Doshii API.
+		/// </summary>
+		/// <returns>True on successful update; false otherwise.</returns>
         private bool SendConfigurationUpdate()
         {
             try

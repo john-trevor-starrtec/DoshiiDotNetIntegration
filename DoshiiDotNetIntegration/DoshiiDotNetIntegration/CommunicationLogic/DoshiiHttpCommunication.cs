@@ -231,6 +231,51 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedOrderList;
         }
 
+		/// <summary>
+		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+		/// Gets all the current active transactions in Doshii, if there are no active transactions an empty list is returned. 
+		/// </summary>
+		/// <returns></returns>
+		internal virtual IEnumerable<Transaction> GetTransactions()
+		{
+			var retreivedTransactionList = new List<Transaction>();
+			DoshiHttpResponseMessage responseMessage;
+			try
+			{
+				responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Transaction), WebRequestMethods.Http.Get);
+			}
+			catch (Exceptions.RestfulApiErrorResponseException rex)
+			{
+				throw rex;
+			}
+
+			if (responseMessage != null)
+			{
+				if (responseMessage.Status == HttpStatusCode.OK)
+				{
+					if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+					{
+						var jsonList = JsonConvert.DeserializeObject<List<JsonTransaction>>(responseMessage.Data);
+						retreivedTransactionList = Mapper.Map<List<Transaction>>(jsonList);
+					}
+					else
+					{
+						mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Transaction)));
+					}
+
+				}
+				else
+				{
+					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Transaction)));
+				}
+			}
+			else
+			{
+				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Transaction)));
+			}
+
+			return retreivedTransactionList;
+		}
         
 		/// <summary>
 		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -640,10 +685,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     break;
                 case EndPointPurposes.DeleteAllocationFromOrder:
-                    newUrlbuilder.AppendFormat("/orders/:{0}/tables", identification);
+                    newUrlbuilder.AppendFormat("/orders/{0}/tables", identification);
                     break;
                 case EndPointPurposes.Transaction:
-                    newUrlbuilder.AppendFormat("/transactions/:{0}", identification);
+                    newUrlbuilder.Append("/transactions");
+					if (!String.IsNullOrWhiteSpace(identification))
+					{
+						newUrlbuilder.AppendFormat("/{0}", identification);
+					}
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());

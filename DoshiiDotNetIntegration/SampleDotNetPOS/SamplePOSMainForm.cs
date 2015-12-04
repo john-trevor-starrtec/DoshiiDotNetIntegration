@@ -56,9 +56,9 @@ namespace SampleDotNetPOS
 			lblCopyright.Text = String.Format("\u00a9 Copyright {0:yyyy} Doshii Pty Ltd. All Rights Reserved.", DateTime.Today);
 
 			cbxApiAddress.SelectedIndex = 0;
-#if DEBUG
 			LocationToken = "Z3S-Y4hEaO6Qt7klNyQFPhr2r8w";
-#endif
+
+			EnableDisableControls(true);
 		}
 
 		/// <summary>
@@ -239,10 +239,25 @@ namespace SampleDotNetPOS
 
 				mPresenter.Initialise(SelectedPosApiUrl, LocationToken);
 
-				cbxApiAddress.Enabled = false;
-				tbxLocationToken.Enabled = false;
-				btnInitialise.Enabled = false;
+				EnableDisableControls(false);
 			}
+		}
+
+		/// <summary>
+		/// Enables or disables the controls on the form based on whether the initialise step has occurred.
+		/// </summary>
+		/// <param name="enableInitialiseControls">True indicates that initialisation is required; false otherwise.</param>
+		private void EnableDisableControls(bool enableInitialiseControls)
+		{
+			bool enableNonInitialisationControls = !enableInitialiseControls;
+
+			cbxApiAddress.Enabled = enableInitialiseControls;
+			tbxLocationToken.Enabled = enableInitialiseControls;
+			btnInitialise.Enabled = enableInitialiseControls;
+
+			btnGetConfig.Enabled = enableNonInitialisationControls;
+			btnPutConfig.Enabled = enableNonInitialisationControls;
+
 		}
 
 		/// <summary>
