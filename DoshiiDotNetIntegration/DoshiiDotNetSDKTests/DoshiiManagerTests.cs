@@ -78,5 +78,7 @@ namespace DoshiiDotNetSDKTests
         {
             _manager.Initialize(socketUrl, "", urlBase, startWebSocketsConnection, socketTimeOutSecs, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
         }
+
+
     }
 }
