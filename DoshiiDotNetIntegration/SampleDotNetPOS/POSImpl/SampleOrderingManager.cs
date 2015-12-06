@@ -50,9 +50,7 @@ namespace SampleDotNetPOS.POSImpl
 			{
 				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Retrieving order {0} from POS", posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
-				var order = new Order();
-				order.Id = posOrderId;
-				return order;
+				return mPresenter.RetrieveOrder(posOrderId);
 			}
 
 			throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
@@ -69,9 +67,11 @@ namespace SampleDotNetPOS.POSImpl
 			{
 				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Setting order {0} to version {1} in POS", posOrderId, version), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
-				var order = new Order();
-				order.Id = posOrderId;
-				order.Version = version;
+				var order = RetrieveOrder(posOrderId);
+				if (order == null)
+					throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
+				else
+					order.Version = version;
 			}
 
 			throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
@@ -88,7 +88,11 @@ namespace SampleDotNetPOS.POSImpl
 			{
 				mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Retrieving version for order {0} from POS", posOrderId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
-				return "XYZ1234";
+				var order = RetrieveOrder(posOrderId);
+				if (order == null)
+					throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
+				else
+					return order.Version;
 			}
 
 			throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
