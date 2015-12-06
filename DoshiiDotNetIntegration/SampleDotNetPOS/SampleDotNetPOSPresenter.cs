@@ -50,6 +50,16 @@ namespace SampleDotNetPOS
 		/// </summary>
 		private DoshiiManager mManager;
 
+		/// <summary>
+		/// Current list of orders in Doshii.
+		/// </summary>
+		private List<Order> mOrders;
+
+		/// <summary>
+		/// Current list of payments in Doshii.
+		/// </summary>
+		private List<Transaction> mPayments;
+
 		#endregion
 
 		#region Initialisation
@@ -68,6 +78,8 @@ namespace SampleDotNetPOS
 			mPaymentManager = new SamplePaymentModuleManager();
             mOrderingManager = new SampleOrderingManager(this);
 			mManager = new DoshiiManager(mPaymentManager, mLog, mOrderingManager);
+			mOrders = new List<Order>();
+			mPayments = new List<Transaction>();
 		}
 
 		/// <summary>
@@ -90,6 +102,8 @@ namespace SampleDotNetPOS
 		{
 			string wss = String.Format("{0}/socket", apiAddress.Replace("http", "ws"));
 			mManager.Initialize(wss, SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0, new Configuration(true, true));
+			mOrders = mManager.GetOrders().ToList<Order>();
+			mPayments = mManager.GetTransactions().ToList<Transaction>();
 		}
 
 		#endregion
@@ -146,20 +160,13 @@ namespace SampleDotNetPOS
 		#region Ordering
 
 		/// <summary>
-		/// Retrieves an order from the Doshii Manager.
+		/// Retrieves an order from the current list of orders by <paramref name="orderId"/>.
 		/// </summary>
 		/// <param name="orderId">The ID of the order to be retrieved.</param>
 		/// <returns>The order if available; or <c>null</c> otherwise.</returns>
 		public Order RetrieveOrder(string orderId)
 		{
-			try
-			{
-				return mManager.GetOrder(orderId);
-			}
-			catch (Exception)
-			{
-				return null;
-			}
+			return mOrders.FirstOrDefault(o => o.Id == orderId);
 		}
 
 		/// <summary>
@@ -171,9 +178,36 @@ namespace SampleDotNetPOS
 			var order = GenerateOrder();
 
 			if (order != null)
+			{
 				order = mManager.UpdateOrder(order);
+				AddOrUpdateOrder(order);
+			}
 
 			return order;
+		}
+
+		/// <summary>
+		/// Adds the order if it doesn't already exist, otherwise updates it.
+		/// </summary>
+		/// <param name="order">The order to be added or updated.</param>
+		public void AddOrUpdateOrder(Order order)
+		{
+			int index = mOrders.IndexOf(order);
+			if (index < 0)
+				mOrders.Add(order);
+			else
+				mOrders[index] = order;
+		}
+
+		/// <summary>
+		/// Removes the order from the list.
+		/// </summary>
+		/// <param name="orderId">The Id of the order.</param>
+		public void RemoveOrder(string orderId)
+		{
+			var order = RetrieveOrder(orderId);
+			if (order != null)
+				mOrders.Remove(order);
 		}
 
 		/// <summary>
@@ -201,6 +235,31 @@ namespace SampleDotNetPOS
 			}
 
 			return null;
+		}
+
+		#endregion
+
+		#region Transactions
+
+		/// <summary>
+		/// Retrieves the transaction with corresponding <paramref name="transactionId"/> from the current list.
+		/// </summary>
+		/// <param name="transactionId">The Id of the transaction being requested from the current list.</param>
+		/// <returns></returns>
+		public Transaction RetrieveTransaction(string transactionId)
+		{
+			return mPayments.FirstOrDefault(o => o.Id == transactionId);
+		}
+
+		/// <summary>
+		/// Removes a transaction from the list.
+		/// </summary>
+		/// <param name="transactionId">The Id of the payment to be removed.</param>
+		public void RemoveTransaction(string transactionId)
+		{
+			var payment = RetrieveTransaction(transactionId);
+			if (payment != null)
+				mPayments.Remove(payment);
 		}
 
 		#endregion

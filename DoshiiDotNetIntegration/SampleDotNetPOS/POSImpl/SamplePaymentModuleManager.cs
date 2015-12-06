@@ -46,33 +46,50 @@ namespace SampleDotNetPOS.POSImpl
 		#region IPaymentModuleManager Members
 
 		/// <summary>
-		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string)"/> for details of this call.
+		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(Transaction)"/> for details of this call.
 		/// </summary>
-		/// <param name="orderId"></param>
+		/// <param name="transaction"></param>
 		/// <returns></returns>
 		public Transaction ReadyToPay(Transaction transaction)
 		{
-		    transaction.Status = "waiting";
-            transaction.AcceptLess = true;
-		    transaction.PaymentAmount = 240M;
-            return transaction;
+			transaction.Status = "waiting";
+			transaction.AcceptLess = true;
+
+			if (String.IsNullOrWhiteSpace(transaction.OrderId))
+			{
+				transaction.PaymentAmount = 240M;
+			}
+			else
+			{
+				var order = mPresenter.RetrieveOrder(transaction.OrderId);
+				if (order == null)
+				{
+					transaction.PaymentAmount = 240M;
+				}
+				else
+				{
+					transaction.PaymentAmount = order.PayTotal;
+				}
+			}
+
+			return transaction;
 		}
 
 		/// <summary>
-		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.CancelPayment(string)"/> for details of this call.
+		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.CancelPayment(Transaction)"/> for details of this call.
 		/// </summary>
-		/// <param name="orderId"></param>
-		/// <returns></returns>
+		/// <param name="transaction"></param>
 		public void CancelPayment(Transaction transaction)
 		{
 			//cancel the payment on the pos
+			if (mPresenter != null)
+				mPresenter.RemoveTransaction(transaction.Id);
 		}
 
 		/// <summary>
-		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.AcceptPayment(string, decimal)"/> for details of this call.
+		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.AcceptPayment(Transaction)"/> for details of this call.
 		/// </summary>
-		/// <param name="orderId"></param>
-		/// <returns></returns>
+		/// <param name="transaction"></param>
 		public void AcceptPayment(Transaction transaction)
 		{
 			var order = UpdateOrder(transaction.OrderId, "paid");
