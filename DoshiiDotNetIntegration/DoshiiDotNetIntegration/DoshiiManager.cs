@@ -81,7 +81,7 @@ namespace DoshiiDotNetIntegration
 		/// <summary>
 		/// The logging manager for the Doshii SDK.
 		/// </summary>
-		private DoshiiLogManager mLog;
+		internal DoshiiLogManager mLog;
 
         /// <summary>
         /// The authentication token for the venue 
@@ -659,7 +659,7 @@ namespace DoshiiDotNetIntegration
 		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
 		/// <param name="table">The table to add in Doshii.</param>
 		/// <returns>The current order details in Doshii after upload.</returns>
-		public TableOrder AddTableAllocation(string posOrderId, TableAllocation table)
+		public bool AddTableAllocation(string posOrderId, TableAllocation table)
 		{
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", table.Name, posOrderId));
 
@@ -671,12 +671,12 @@ namespace DoshiiDotNetIntegration
 			catch (OrderDoesNotExistOnPosException dne)
 			{
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during table allocation");
-				return null;
+			    return false;
 			}
 			catch (RestfulApiErrorResponseException api)
 			{
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Error occurred retrieving order from POS during table allocation", api);
-				return null;
+				return false;
 			}
 
 			if (order == null)
@@ -693,7 +693,7 @@ namespace DoshiiDotNetIntegration
 
 			try
 			{
-				return m_HttpComs.CreateOrderWithTableAllocation(tableOrder);
+				return m_HttpComs.PutOrderWithTableAllocation(tableOrder);
 			}
 			catch (RestfulApiErrorResponseException rex)
 			{

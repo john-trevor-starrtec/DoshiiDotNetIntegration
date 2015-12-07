@@ -29,12 +29,88 @@ namespace DoshiiDotNetSDKTests
         internal static string TestOrderId = "123";
         internal static int TestTimeOutValue = 600;
         internal static string TestProductId = "asd123";
-
+        internal static string TestTransactionId = "tran1234";
         #endregion 
 
         #region responceMessages
 
-		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageOrderSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageSuccessNoData()
+        {
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = "",
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+        
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageConfig()
+        {
+            var configuration = GenerateConfiguration(true, true);
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonConfiguration>(configuration);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionPending()
+        {
+            var transaction = GenerateTransactionPending();
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonTransaction>(transaction);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionComplete()
+        {
+            var transaction = GenerateTransactionComplete();
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonTransaction>(transaction);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionWaiting()
+        {
+            var transaction = GenerateTransactionWaiting();
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(transaction);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageOrderSuccess()
         {
 			var order = GenerateOrderAccepted();
 			var jsonOrder = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(order);
@@ -114,6 +190,15 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
+        internal static TableOrder GenerateTableOrder()
+        {
+            var tableOrder = new TableOrder()
+            {
+                Order = GenerateOrderAccepted(),
+                Table = GenerateTableAllocation()
+            };
+            return tableOrder;
+        }
         #endregion
 
         #region Generate TestObjects and TestValues
@@ -328,6 +413,67 @@ namespace DoshiiDotNetSDKTests
                 Status = TestTableAllocationStatus
             };
             return tableAllocation;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Transaction GenerateTransactionPending()
+        {
+            var transaction = new DoshiiDotNetIntegration.Models.Transaction()
+            {
+                Id = TestTransactionId,
+                OrderId = "1",
+                Reference = "TestTransaction",
+                Invoice = "1",
+                PaymentAmount = 10.0M,
+                AcceptLess = false,
+                PartnerInitiated = false,
+                Partner = "1",
+                Status = "pending"
+            };
+            return transaction;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Transaction GenerateTransactionWaiting()
+        {
+            var transaction = new DoshiiDotNetIntegration.Models.Transaction()
+            {
+                Id = TestTransactionId,
+                OrderId = "1",
+                Reference = "TestTransaction",
+                Invoice = "",
+                PaymentAmount = 10.0M,
+                AcceptLess = false,
+                PartnerInitiated = false,
+                Partner = "1",
+                Status = "waiting"
+            };
+            return transaction;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Transaction GenerateTransactionComplete()
+        {
+            var transaction = new DoshiiDotNetIntegration.Models.Transaction()
+            {
+                Id = TestTransactionId,
+                OrderId = "1",
+                Reference = "TestTransaction",
+                Invoice = "1",
+                PaymentAmount = 10.0M,
+                AcceptLess = false,
+                PartnerInitiated = false,
+                Partner = "1",
+                Status = "complete"
+            };
+            return transaction;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Configuration GenerateConfig()
+        {
+            var configuration = new DoshiiDotNetIntegration.Models.Configuration()
+            {
+                CheckoutOnPaid = true,
+                DeallocateTableOnPaid = true
+            };
+            return configuration;
         }
 
         #endregion
