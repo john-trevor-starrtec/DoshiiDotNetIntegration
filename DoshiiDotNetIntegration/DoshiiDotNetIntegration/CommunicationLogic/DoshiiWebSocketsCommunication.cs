@@ -3,6 +3,7 @@ using DoshiiDotNetIntegration.Models.Json;
 using System;
 using System.Threading;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
+using Microsoft.CSharp.RuntimeBinder;
 using WebSocketSharp;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
@@ -38,7 +39,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// This will hold the value for the last connected time so that there are not many connections established after the connection drops out. 
         /// </summary>
-        private DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
+        internal DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -345,23 +346,92 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 
             }
 			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("WebScoket message received - '{0}'", theMessage.ToString()));
+            ProcessSocketMessage(theMessage);
+
+        }
+
+
+        internal virtual void ProcessSocketMessage(SocketMessage theMessage)
+        {
             dynamic dynamicSocketMessageData = theMessage.Emit[1];
 
             SocketMessageData messageData = new SocketMessageData();
-
-            messageData.EventName = (string)theMessage.Emit[0];
-            messageData.CheckinId = (string)dynamicSocketMessageData.checkinId;
-            messageData.OrderId = (string)dynamicSocketMessageData.orderId;
-            messageData.meerkatConsumerId = (string)dynamicSocketMessageData.meerkatConsumerId;
-            messageData.Status = (string)dynamicSocketMessageData.status;
-            messageData.Name = (string)dynamicSocketMessageData.name;
-            messageData.Id = (string)dynamicSocketMessageData.id;
-            messageData.TransactionId = (string)dynamicSocketMessageData.transactionId;
-            
-            string uriString = (string)dynamicSocketMessageData.uri;
-            if (!string.IsNullOrWhiteSpace(uriString))
+            try
             {
-                messageData.Uri = new Uri((string)dynamicSocketMessageData.uri);
+                messageData.EventName = (string)theMessage.Emit[0];
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "Event Name does not exist on socket message");
+                return;
+            }
+            try
+            {
+                messageData.CheckinId = (string)dynamicSocketMessageData.checkinId;
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "CheckinId does not exist on socket message");
+            }
+            try
+            {
+                messageData.OrderId = (string)dynamicSocketMessageData.orderId;
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "OrderId does not exist on socket message");
+            }
+            try
+            {
+                messageData.meerkatConsumerId = (string)dynamicSocketMessageData.meerkatConsumerId;
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "meerkatConsumerId does not exist on socket message");
+            }
+            try
+            {
+                messageData.Status = (string)dynamicSocketMessageData.status;
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "status does not exist on socket message");
+            }
+            try
+            {
+                messageData.Name = (string)dynamicSocketMessageData.name;
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "name does not exist on socket message");
+            }
+            try
+            {
+                messageData.Id = (string)dynamicSocketMessageData.id;
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "id does not exist on socket message");
+            }
+            try
+            {
+                messageData.TransactionId = (string)dynamicSocketMessageData.transactionId;
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "transactionId does not exist on socket message");
+            }
+            try
+            {
+                string uriString = (string)dynamicSocketMessageData.uri;
+                if (!string.IsNullOrWhiteSpace(uriString))
+                {
+                    messageData.Uri = new Uri((string)dynamicSocketMessageData.uri);
+                }
+            }
+            catch (RuntimeBinderException)
+            {
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "uri does not exist on socket message");
             }
             
             switch (messageData.EventName)
@@ -370,8 +440,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
                     orderStatusEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
                     orderStatusEventArgs.OrderId = messageData.OrderId;
-                    orderStatusEventArgs.Status = messageData.Status;    
-                
+                    orderStatusEventArgs.Status = messageData.Status;
+
                     OrderStatusEvent(this, orderStatusEventArgs);
                     break;
                 case "transaction_created":
@@ -384,10 +454,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     TransactionStatusEvent(this, transactionStatusEventArgs);
                     break;
                 default:
-					mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
+                    mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
                     break;
             }
-            
         }
 
         /// <summary>

@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.Json;
 
 namespace DoshiiDotNetSDKTests
 {
@@ -474,6 +476,93 @@ namespace DoshiiDotNetSDKTests
                 DeallocateTableOnPaid = true
             };
             return configuration;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_OrderStatus()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            testSocketMessageData.Order = Mapper.Map<JsonOrder>(GenerateOrderPending()).ToJsonString();
+            testSocketMessageData.EventName = "order_status";
+            testSocketMessageData.OrderId = TestOrderId;
+            testSocketMessageData.Status = "pending";
+            testSocketMessageData.Uri = new Uri("http://www.TestDoshiiUri.com");
+            return testSocketMessageData;
+
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateBlankSocketMessage()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = new SocketMessage();
+            if (testSocketMessage.Emit == null)
+            {
+                testSocketMessage.Emit = new List<object>();
+            }
+            return testSocketMessage;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_OrderStatus()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            
+            testSocketMessage.Emit.Add("order_status");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_OrderStatus());
+            return testSocketMessage;
+        }
+
+        internal static OrderEventArgs GenerateOrderEventArgs_pending()
+        {
+            OrderEventArgs testOrderEventArgs = new OrderEventArgs();
+            testOrderEventArgs.Order = GenerateOrderPending();
+            testOrderEventArgs.OrderId = TestOrderId;
+            testOrderEventArgs.Status = "pending";
+            return testOrderEventArgs;
+        }
+
+        internal static TransactionEventArgs GenerateTransactionEventArgs_pending()
+        {
+            TransactionEventArgs testtransactionEventArgs = new TransactionEventArgs();
+            testtransactionEventArgs.Transaction = GenerateTransactionPending();
+            testtransactionEventArgs.Status = "pending";
+            testtransactionEventArgs.TransactionId = TestTransactionId;
+            return testtransactionEventArgs;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_TransactionCreated()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            testSocketMessageData.Order = Mapper.Map<JsonTransaction>(GenerateTransactionPending()).ToJsonString();
+            testSocketMessageData.EventName = "transaction_created";
+            testSocketMessageData.TransactionId = TestTransactionId;
+            testSocketMessageData.Status = "pending";
+            testSocketMessageData.Uri = new Uri("http://www.TestDoshiiUri.com");
+            return testSocketMessageData;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_TransactionCreated()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            testSocketMessage.Emit.Add("transaction_created");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_TransactionCreated());
+            return testSocketMessage;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_TransactionStatus()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            testSocketMessageData.Order = Mapper.Map<JsonTransaction>(GenerateTransactionPending()).ToJsonString();
+            testSocketMessageData.EventName = "transaction_status";
+            testSocketMessageData.TransactionId = TestTransactionId;
+            testSocketMessageData.Status = "pending";
+            testSocketMessageData.Uri = new Uri("http://www.TestDoshiiUri.com");
+            return testSocketMessageData;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_TransactionStatus()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            testSocketMessage.Emit.Add("transaction_status");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_TransactionStatus());
+            return testSocketMessage;
         }
 
         #endregion

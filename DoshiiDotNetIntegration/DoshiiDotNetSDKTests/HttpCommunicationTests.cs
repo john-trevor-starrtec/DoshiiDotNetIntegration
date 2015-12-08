@@ -166,7 +166,6 @@ namespace DoshiiDotNetSDKTests
 
             MockHttpComs.PutOrder(order);
 
-            MockHttpComs.VerifyAllExpectations();
         }
 
         [Test]

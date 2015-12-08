@@ -63,6 +63,21 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         private DoshiiWebSocketsCommunication m_SocketComs = null;
 
+        internal DoshiiWebSocketsCommunication SocketComs
+        {
+            get { return m_SocketComs; }
+            set
+            {
+                if (m_SocketComs != null)
+                {
+                    UnsubscribeFromSocketEvents();
+                }
+                m_SocketComs = value;
+                SubscribeToSocketEvents();
+                m_SocketComs.Initialize();
+            }
+        }
+
         /// <summary>
         /// Holds an instance of CommunicationLogic.DoshiiHttpCommunication class for interacting with the Doshii HTTP restful API
         /// </summary>
