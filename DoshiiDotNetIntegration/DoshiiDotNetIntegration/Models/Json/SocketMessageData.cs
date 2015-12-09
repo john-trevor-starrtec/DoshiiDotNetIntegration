@@ -30,8 +30,8 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
         /// The MeerkatCustomerId associated with the message. 
         /// </summary>
-        [JsonProperty(PropertyName = "meerkatConsumerId")]
-        public string meerkatConsumerId { get; set; }
+        [JsonProperty(PropertyName = "MeerkatConsumerId")]
+        public string MeerkatConsumerId { get; set; }
 
         /// <summary>
         /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.

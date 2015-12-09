@@ -518,10 +518,10 @@ namespace DoshiiDotNetSDKTests
             return testOrderEventArgs;
         }
 
-        internal static TransactionEventArgs GenerateTransactionEventArgs_pending()
+        internal static TransactionEventArgs GenerateTransactionEventArgs_pending(Transaction pendingTransaction)
         {
             TransactionEventArgs testtransactionEventArgs = new TransactionEventArgs();
-            testtransactionEventArgs.Transaction = GenerateTransactionPending();
+            testtransactionEventArgs.Transaction = pendingTransaction;
             testtransactionEventArgs.Status = "pending";
             testtransactionEventArgs.TransactionId = TestTransactionId;
             return testtransactionEventArgs;
@@ -562,6 +562,46 @@ namespace DoshiiDotNetSDKTests
             DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
             testSocketMessage.Emit.Add("transaction_status");
             testSocketMessage.Emit.Add(GenerateSocketMessageData_TransactionStatus());
+            return testSocketMessage;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_Empty()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            return testSocketMessageData;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_Empty()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            testSocketMessage.Emit.Add("not_supported");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_Empty());
+            return testSocketMessage;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_AllData()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            testSocketMessageData.Order = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(GenerateOrderAccepted()).ToJsonString() ;
+            testSocketMessageData.CheckinId = TestCheckinId;
+            testSocketMessageData.Consumer = "Test Consumer";
+            testSocketMessageData.ConsumerId = TestCustomerId;
+            testSocketMessageData.EventName = "not_supported";
+            testSocketMessageData.Id = TestCheckinId;
+            testSocketMessageData.MeerkatConsumerId = TestMeerkatConsumerId;
+            testSocketMessageData.Name = TestTableName;
+            testSocketMessageData.OrderId = TestOrderId;
+            testSocketMessageData.Status = "pending";
+            testSocketMessageData.TransactionId = TestTransactionId;
+            testSocketMessageData.Uri = TestCheckinUrl;
+            return testSocketMessageData;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_AllData()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            testSocketMessage.Emit.Add("not_supported");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_Empty());
             return testSocketMessage;
         }
 

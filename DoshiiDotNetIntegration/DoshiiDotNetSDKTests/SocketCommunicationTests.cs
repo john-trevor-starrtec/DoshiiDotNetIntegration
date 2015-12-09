@@ -2,6 +2,11 @@
 using NUnit.Framework;
 using Rhino.Mocks;
 using System;
+using System.ComponentModel.Design;
+using DoshiiDotNetIntegration.CommunicationLogic;
+using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
+using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.Json;
 using WebSocketSharp;
 
@@ -17,6 +22,7 @@ namespace DoshiiDotNetSDKTests
         DoshiiDotNetIntegration.Interfaces.IOrderingManager OrderingManager;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication SocketComs;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication MockSocketComs;
+        DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication MockHttpComs;
 
         [SetUp]
         public void Init()
@@ -26,9 +32,12 @@ namespace DoshiiDotNetSDKTests
 			PaymentManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager>();
             OrderingManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IOrderingManager>();
             _manager = MockRepository.GeneratePartialMock<DoshiiManager>(PaymentManager, Logger, OrderingManager);
+            MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             MockSocketComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
             SocketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
+            _manager.m_HttpComs = MockHttpComs;
             _manager.SocketComs = MockSocketComs;
+            
         }
 
         [Test]
@@ -107,10 +116,13 @@ namespace DoshiiDotNetSDKTests
         {
             DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage =
                 GenerateObjectsAndStringHelper.GenerateSocketMessage_TransactionCreated();
-
-            _manager.Stub(x => x.GetTransaction(Arg<String>.Is.Anything)).IgnoreArguments().Return(GenerateObjectsAndStringHelper.GenerateTransactionPending());
+            DoshiiDotNetIntegration.Models.Transaction pendingTransaction =
+                GenerateObjectsAndStringHelper.GenerateTransactionPending();
+            _manager.Stub(x => x.GetTransaction(Arg<String>.Is.Anything)).IgnoreArguments().Return(pendingTransaction);
             //adding ignore arguments here feels like a little bit of a cheat - i'll have to try and make it work without it. 
-            _manager.Expect(x => x.SocketComsTransactionStatusEventHandler(MockSocketComs, GenerateObjectsAndStringHelper.GenerateTransactionEventArgs_pending())).IgnoreArguments();
+            _manager.Expect(
+                x =>
+                    x.SocketComsTransactionStatusEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs), Arg<TransactionEventArgs>.Matches(t => t.TransactionId == pendingTransaction.Id && t.Status == pendingTransaction.Status && t.Transaction.PaymentAmount == pendingTransaction.PaymentAmount)));
             MockSocketComs.ProcessSocketMessage(testSocketMessage);
             _manager.VerifyAllExpectations();
         }
@@ -120,12 +132,138 @@ namespace DoshiiDotNetSDKTests
         {
             DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage =
                 GenerateObjectsAndStringHelper.GenerateSocketMessage_TransactionStatus();
-
-            _manager.Stub(x => x.GetTransaction(Arg<String>.Is.Anything)).IgnoreArguments().Return(GenerateObjectsAndStringHelper.GenerateTransactionPending());
+            DoshiiDotNetIntegration.Models.Transaction pendingTransaction =
+                GenerateObjectsAndStringHelper.GenerateTransactionPending();
+            _manager.Stub(x => x.GetTransaction(Arg<String>.Is.Anything)).IgnoreArguments().Return(pendingTransaction);
             //adding ignore arguments here feels like a little bit of a cheat - i'll have to try and make it work without it. 
-            _manager.Expect(x => x.SocketComsTransactionStatusEventHandler(MockSocketComs, GenerateObjectsAndStringHelper.GenerateTransactionEventArgs_pending())).IgnoreArguments();
+            _manager.Expect(x => x.SocketComsTransactionStatusEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs), Arg<TransactionEventArgs>.Matches(t => t.TransactionId == pendingTransaction.Id && t.Status == pendingTransaction.Status && t.Transaction.PaymentAmount == pendingTransaction.PaymentAmount)));
             MockSocketComs.ProcessSocketMessage(testSocketMessage);
             _manager.VerifyAllExpectations();
         }
+
+        [Test]
+        public void ProcessSocketMessage_SocketMessageNotSupported_EmptyMessage()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage =
+                GenerateObjectsAndStringHelper.GenerateSocketMessage_Empty();
+
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "Event Name does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "CheckinId does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "OrderId does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "MeerkatConsumerId does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "status does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "name does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "id does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "transactionId does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "uri does not exist on socket message"));
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", "not_supported")));
+            MockSocketComs.ProcessSocketMessage(testSocketMessage);
+            _manager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void ProcessSocketMessage_FullSocketMessage_AllDataExists()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateObjectsAndStringHelper.GenerateSocketMessage_AllData();
+                //GenerateObjectsAndStringHelper.GenerateSocketMessage_Empty();
+
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "Event Name does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "CheckinId does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "OrderId does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "MeerkatConsumerId does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "status does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "name does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "id does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "transactionId does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Debug, "uri does not exist on socket message")).Repeat.Never();
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", "not_supported"))); 
+            MockSocketComs.ProcessSocketMessage(testSocketMessage);
+            _manager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void TestLastSocketMessageTime_notReached()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateObjectsAndStringHelper.GenerateSocketMessage_AllData();
+            MockSocketComs.m_LastSuccessfullSocketMessageTime = DateTime.MinValue;
+            MockSocketComs.m_SocketConnectionTimeOutValue = 600;
+            bool result = MockSocketComs.TestTimeOutValue();
+            Assert.AreEqual(false, result);
+        }
+
+        [Test]
+        public void TestLastSocketMessageTime_beenReached()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateObjectsAndStringHelper.GenerateSocketMessage_AllData();
+            MockSocketComs.m_LastSuccessfullSocketMessageTime = DateTime.Now;
+            MockSocketComs.m_SocketConnectionTimeOutValue = 600;
+            bool result = MockSocketComs.TestTimeOutValue();
+            Assert.AreEqual(true, result);
+        }
+
+        [Test]
+        public void HanleOpenWebSocketsEvent()
+        {
+            MockSocketComs.Expect(x => x.SetLastSuccessfullSocketCommunicationTime());
+            MockSocketComs.Expect(x => x.StartHeartbeatThread());
+            _manager.Expect(
+                x =>
+                    x.SocketComsConnectionEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs),
+                        Arg<EventArgs>.Is.Anything)).IgnoreArguments();
+
+            _manager.Stub(x => x.SendConfigurationUpdate()).IgnoreArguments().Return(true);
+
+            MockSocketComs.WebSocketsConnectionOnOpenEventHandler(this, new EventArgs());
+            MockSocketComs.VerifyAllExpectations();
+            _manager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void StartHeartBeatThread()
+        {
+            MockSocketComs.m_HeartBeatThread = null;
+            MockSocketComs.StartHeartbeatThread();
+
+            Assert.AreEqual(MockSocketComs.m_HeartBeatThread == null, false);
+            
+        }
+
+        [Test]
+        public void Connect_WhenWebSocketsConnectionIsNull_ShouldLog()
+        {
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the was object")));
+            
+            MockSocketComs.m_WebSocketsConnection = null;
+            MockSocketComs.Connect();
+
+            _manager.VerifyAllExpectations();
+
+        }
+
+        [Test]
+        public void Connect_ExceptionWhileConnecting_ShouldLog()
+        {
+
+            MockSocketComs.Stub(x => x.SetLastConnectionAttemptTime()).Throw(new Exception());
+            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error initializing the web sockets connection to Doshii"), new Exception()));
+            
+            MockSocketComs.m_WebSocketsConnection = null;
+            MockSocketComs.Connect();
+
+            _manager.VerifyAllExpectations();
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotFiniteNumberException))]
+        public void HeartBeatChecker_SocketReachedTimeOutValue()
+        {
+            MockSocketComs.Stub(x => x.TestTimeOutValue()).Return(false);
+            _manager.Expect(x => x.SocketComsTimeOutValueReached(Arg<object>.Is.Anything, Arg<EventArgs>.Is.Anything)).Throw(new NotFiniteNumberException());
+            MockSocketComs.HeartBeatChecker();
+            _manager.VerifyAllExpectations();
+        }
+
+        
     }
 }

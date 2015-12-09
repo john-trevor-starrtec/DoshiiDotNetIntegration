@@ -21,7 +21,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Web socket object that will handle all the communications with doshii
         /// </summary>
-		internal WebSocket m_WebSocketsConnection { get; private set; }
+		internal WebSocket m_WebSocketsConnection { get; set; }
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -33,7 +33,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// A thread to send heartbeat socket message to doshii. 
         /// </summary>
-        private Thread m_HeartBeatThread = null;
+        internal Thread m_HeartBeatThread = null;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
@@ -45,12 +45,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// this is used to hold the timeout value for the socket connection being unable to connect to the server.
         /// </summary>
-        internal int m_SocketConnectionTimeOutValue { get; private set; }
+        internal int m_SocketConnectionTimeOutValue { get; set; }
 
         /// <summary>
         /// this is used to calculate if the last successful socket connection is within the timeOut range. 
         /// </summary>
-        internal DateTime m_LastSuccessfullSocketMessageTime { get; private set; }
+        internal DateTime m_LastSuccessfullSocketMessageTime { get; set; }
 
 		/// <summary>
 		/// Callback to the POS logging mechanism.
@@ -83,7 +83,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the state of an order has changed through doshii
         /// </summary>
-        internal event TransactionStatusEventHandler TransactionStatusEvent;
+        internal virtual event TransactionStatusEventHandler TransactionStatusEvent;
 
         internal delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
         /// <summary>
@@ -367,7 +367,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             try
             {
-                messageData.CheckinId = (string)dynamicSocketMessageData.checkinId;
+                messageData.CheckinId = (string)dynamicSocketMessageData.CheckinId;
             }
             catch (RuntimeBinderException)
             {
@@ -375,7 +375,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             try
             {
-                messageData.OrderId = (string)dynamicSocketMessageData.orderId;
+                messageData.OrderId = (string)dynamicSocketMessageData.OrderId;
             }
             catch (RuntimeBinderException)
             {
@@ -383,15 +383,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             try
             {
-                messageData.meerkatConsumerId = (string)dynamicSocketMessageData.meerkatConsumerId;
+                messageData.MeerkatConsumerId = (string)dynamicSocketMessageData.MeerkatConsumerId;
             }
             catch (RuntimeBinderException)
             {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "meerkatConsumerId does not exist on socket message");
+                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "MeerkatConsumerId does not exist on socket message");
             }
             try
             {
-                messageData.Status = (string)dynamicSocketMessageData.status;
+                messageData.Status = (string)dynamicSocketMessageData.Status;
             }
             catch (RuntimeBinderException)
             {
@@ -399,7 +399,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             try
             {
-                messageData.Name = (string)dynamicSocketMessageData.name;
+                messageData.Name = (string)dynamicSocketMessageData.Name;
             }
             catch (RuntimeBinderException)
             {
@@ -407,7 +407,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             try
             {
-                messageData.Id = (string)dynamicSocketMessageData.id;
+                messageData.Id = (string)dynamicSocketMessageData.Id;
             }
             catch (RuntimeBinderException)
             {
@@ -415,7 +415,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             try
             {
-                messageData.TransactionId = (string)dynamicSocketMessageData.transactionId;
+                messageData.TransactionId = (string)dynamicSocketMessageData.TransactionId;
             }
             catch (RuntimeBinderException)
             {
@@ -423,7 +423,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             try
             {
-                string uriString = (string)dynamicSocketMessageData.uri;
+                string uriString = (string)dynamicSocketMessageData.Uri;
                 if (!string.IsNullOrWhiteSpace(uriString))
                 {
                     messageData.Uri = new Uri((string)dynamicSocketMessageData.uri);

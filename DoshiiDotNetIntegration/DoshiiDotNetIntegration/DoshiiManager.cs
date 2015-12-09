@@ -81,7 +81,7 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// Holds an instance of CommunicationLogic.DoshiiHttpCommunication class for interacting with the Doshii HTTP restful API
         /// </summary>
-        private DoshiiHttpCommunication m_HttpComs = null;
+        internal DoshiiHttpCommunication m_HttpComs = null;
 
 		/// <summary>
 		/// The payment module manager is a core module manager for the Doshii platform.
@@ -103,7 +103,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         private string AuthorizeToken { get; set; }
 
-        private Configuration mConfiguration { get; set; }
+        internal Configuration mConfiguration { get; set; }
 
         /// <summary>
         /// Gets the current Doshii version information.
@@ -798,7 +798,7 @@ namespace DoshiiDotNetIntegration
 		/// Sends the configuration update to the Doshii API.
 		/// </summary>
 		/// <returns>True on successful update; false otherwise.</returns>
-        private bool SendConfigurationUpdate()
+        internal virtual bool SendConfigurationUpdate()
         {
             try
             {
