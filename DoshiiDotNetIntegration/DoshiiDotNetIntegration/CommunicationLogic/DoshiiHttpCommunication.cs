@@ -500,7 +500,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="method"></param>
         /// <returns></returns>
         /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
-        internal Transaction PostTransaction(Transaction transaction)
+        internal virtual Transaction PostTransaction(Transaction transaction)
         {
             DoshiHttpResponseMessage responseMessage;
             Transaction returnedTransaction = null;
@@ -610,7 +610,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// </summary>
 		/// <param name="config">The configuration to be uploaded to Doshii.</param>
 		/// <returns>True on successful upload; false otherwise.</returns>
-		internal bool PutConfiguration(Configuration config)
+		internal virtual bool PutConfiguration(Configuration config)
 		{
 			bool result = false;
 			DoshiHttpResponseMessage responseMessage;

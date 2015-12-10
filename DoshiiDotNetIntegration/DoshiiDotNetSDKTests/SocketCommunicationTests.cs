@@ -16,7 +16,7 @@ namespace DoshiiDotNetSDKTests
     public class SocketCommunicationTests
     {
         DoshiiManager _manager;
-		DoshiiDotNetIntegration.Interfaces.IDoshiiLogger Logger;
+		DoshiiDotNetIntegration.Interfaces.IDoshiiLogger _Logger;
 		DoshiiDotNetIntegration.DoshiiLogManager LogManager;
 		DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager PaymentManager;
         DoshiiDotNetIntegration.Interfaces.IOrderingManager OrderingManager;
@@ -27,11 +27,11 @@ namespace DoshiiDotNetSDKTests
         [SetUp]
         public void Init()
         {
-			Logger = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IDoshiiLogger>();
-			LogManager = new DoshiiLogManager(Logger);
+			_Logger = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IDoshiiLogger>();
+			LogManager = new DoshiiLogManager(_Logger);
 			PaymentManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager>();
             OrderingManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IOrderingManager>();
-            _manager = MockRepository.GeneratePartialMock<DoshiiManager>(PaymentManager, Logger, OrderingManager);
+            _manager = MockRepository.GeneratePartialMock<DoshiiManager>(PaymentManager, _Logger, OrderingManager);
             MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             MockSocketComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
             SocketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
@@ -261,8 +261,7 @@ namespace DoshiiDotNetSDKTests
             MockSocketComs.Stub(x => x.TestTimeOutValue()).Return(false);
             _manager.Expect(x => x.SocketComsTimeOutValueReached(Arg<object>.Is.Anything, Arg<EventArgs>.Is.Anything)).Throw(new NotFiniteNumberException());
             MockSocketComs.HeartBeatChecker();
-            _manager.VerifyAllExpectations();
-        }
+         }
 
         
     }

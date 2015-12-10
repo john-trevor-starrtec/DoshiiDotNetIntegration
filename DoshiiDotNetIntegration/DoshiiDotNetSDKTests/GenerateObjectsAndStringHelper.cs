@@ -32,6 +32,7 @@ namespace DoshiiDotNetSDKTests
         internal static int TestTimeOutValue = 600;
         internal static string TestProductId = "asd123";
         internal static string TestTransactionId = "tran1234";
+        internal static string TestVersion = "asdfre";
         #endregion 
 
         #region responceMessages
@@ -440,7 +441,7 @@ namespace DoshiiDotNetSDKTests
             {
                 Id = TestTransactionId,
                 OrderId = "1",
-                Reference = "TestTransaction",
+                Reference = "waiting",
                 Invoice = "",
                 PaymentAmount = 10.0M,
                 AcceptLess = false,
