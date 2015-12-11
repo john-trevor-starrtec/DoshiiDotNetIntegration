@@ -563,7 +563,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// This method is used to retrieve the Doshii Configuration
 		/// </summary>
 		/// <returns>The current configuration in Doshii.</returns>
-		internal Configuration GetConfig()
+		internal virtual Configuration GetConfig()
 		{
 			DoshiHttpResponseMessage responseMessage;
 

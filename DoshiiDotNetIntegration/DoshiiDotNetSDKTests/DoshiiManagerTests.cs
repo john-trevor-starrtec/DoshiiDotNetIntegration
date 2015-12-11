@@ -474,7 +474,6 @@ namespace DoshiiDotNetSDKTests
 
             _mockManager.GetOrder(GenerateObjectsAndStringHelper.TestOrderId);
 
-            paymentManager.VerifyAllExpectations();
         }
 
         [Test]
@@ -503,7 +502,6 @@ namespace DoshiiDotNetSDKTests
 
             _mockManager.GetTransaction(GenerateObjectsAndStringHelper.TestTransactionId);
 
-            paymentManager.VerifyAllExpectations();
         }
         
         [Test]
@@ -518,11 +516,333 @@ namespace DoshiiDotNetSDKTests
 
             _mockManager.GetTransactions();
 
-            paymentManager.VerifyAllExpectations();
         }
 
-        
+        [Test]
+        [ExpectedException(typeof (ArgumentNullException))]
+        public void RequestPaymentForOrder_OrderToPayIsNull()
+        {
+            _mockManager.RequestPaymentForOrder(null, 10M, true);
+        }
 
+        [Test]
+        [ExpectedException(typeof(TransactionRequestNotProcessedException))]
+        public void RequestPaymentForOrder_OrderToPayId_isnotValid()
+        {
+            Order orderToPay = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
+            orderToPay.Id = "";
+            _mockManager.RequestPaymentForOrder(orderToPay, 10M, true);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(TransactionRequestNotProcessedException))]
+        public void RequestPaymentForOrder_AmountToPay_isZero()
+        {
+            Order orderToPay = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
+            _mockManager.RequestPaymentForOrder(orderToPay, 0M, true);
+
+        }
+
+        [Test]
+        public void RequestPaymentForOrder_Calls_RequestPaymentForOrder()
+        {
+            _mockManager.Expect((x => x.RequestPaymentForOrder(Arg<Transaction>.Is.Anything))).Return(true);
+            
+            Order orderToPay = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
+            _mockManager.RequestPaymentForOrder(orderToPay, 10M, true);
+
+            _mockManager.VerifyAllExpectations();
+
+        }
+
+        [Test]
+        public void UpdateOrder_Calls_PutOrder()
+        {
+            Order orderToUpdate = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            
+            MockHttpComs.Expect(
+                x => x.PutOrder(Arg<Order>.Matches(o => o.Id == orderToUpdate.Id && o.Status == orderToUpdate.Status)))
+                .Return(orderToUpdate);
+
+            Order returnedOrder = _mockManager.UpdateOrder(orderToUpdate);
+            Assert.AreEqual(orderToUpdate, returnedOrder);
+            
+            _mockManager.VerifyAllExpectations();
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void UpdateOrder_PutOrder_ReturnsOrderId_EqualZero()
+        {
+            Order orderToUpdate = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            Order orderToReturn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            orderToReturn.Id = "0";
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(
+                x => x.PutOrder(Arg<Order>.Matches(o => o.Id == orderToUpdate.Id && o.Status == orderToUpdate.Status)))
+                .Return(orderToReturn);
+
+            _mockManager.UpdateOrder(orderToUpdate);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConflictWithOrderUpdateException))]
+        public void UpdateOrder_PutOrder_Conflict()
+        {
+            Order orderToUpdate = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(
+                x => x.PutOrder(Arg<Order>.Matches(o => o.Id == orderToUpdate.Id && o.Status == orderToUpdate.Status)))
+                .Throw(new RestfulApiErrorResponseException(HttpStatusCode.Conflict));
+
+            _mockManager.UpdateOrder(orderToUpdate);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void UpdateOrder_PutOrder_RestfulApiErrorResponseException_OtherThanConflict()
+        {
+            Order orderToUpdate = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(
+                x => x.PutOrder(Arg<Order>.Matches(o => o.Id == orderToUpdate.Id && o.Status == orderToUpdate.Status)))
+                .Throw(new RestfulApiErrorResponseException(HttpStatusCode.BadRequest));
+
+            _mockManager.UpdateOrder(orderToUpdate);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void UpdateOrder_PutOrder_NullOrderReturnedException()
+        {
+            Order orderToUpdate = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(
+                x => x.PutOrder(Arg<Order>.Matches(o => o.Id == orderToUpdate.Id && o.Status == orderToUpdate.Status)))
+                .Throw(new NullOrderReturnedException());
+
+            _mockManager.UpdateOrder(orderToUpdate);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void UpdateOrder_PutOrder_GeneralException()
+        {
+            Order orderToUpdate = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(
+                x => x.PutOrder(Arg<Order>.Matches(o => o.Id == orderToUpdate.Id && o.Status == orderToUpdate.Status)))
+                .Throw(new Exception());
+
+            _mockManager.UpdateOrder(orderToUpdate);
+        }
+
+        [Test] 
+        public void AddTableAllocaiton_Successful()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Expect(x => x.PutOrderWithTableAllocation(Arg<TableOrder>.Is.Anything))
+                .Return(true);
+            orderingManager.Expect(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
+                .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
+            
+
+            bool success = _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+        
+            Assert.AreEqual(success, true);
+            orderingManager.VerifyAllExpectations();
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderDoesNotExistOnPosException))]
+        public void AddTableAllocaiton_OrderDoesNotExistOnPos()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
+                .Throw(new OrderDoesNotExistOnPosException());
+
+
+            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderDoesNotExistOnPosException))]
+        public void AddTableAllocaiton_OrderReturnedFromPosIsNull()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
+                .Return(null);
+
+
+            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConflictWithOrderUpdateException))]
+        public void AddTableAllocaiton_PutOrderWithTableAllocationConflict()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(x => x.PutOrderWithTableAllocation(Arg<TableOrder>.Is.Anything))
+                .Throw(new RestfulApiErrorResponseException(HttpStatusCode.Conflict));
+            orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
+                .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
+
+            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void AddTableAllocaiton_PutOrderWithTableAllocationException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(x => x.PutOrderWithTableAllocation(Arg<TableOrder>.Is.Anything))
+                .Throw(new Exception());
+            orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
+                .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
+
+            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+        }
+
+        [Test]
+        public void DeleteTableAllocaiton_Successful()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Expect(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
+                .Return(true);
+
+            bool success = _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
+
+            MockHttpComs.VerifyAllExpectations();
+            Assert.AreEqual(success, true);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConflictWithOrderUpdateException))]
+        public void DeleteTableAllocaiton_Conflict()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
+                .Throw(new RestfulApiErrorResponseException(HttpStatusCode.Conflict));
+
+            _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void DeleteTableAllocaiton_RestfulApiErrorResponseException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
+                .Throw(new RestfulApiErrorResponseException(HttpStatusCode.BadRequest));
+
+            _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void DeleteTableAllocaiton_Exception()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
+                .Throw(new Exception());
+
+            _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
+        }
+
+        [Test]
+        public void GetConfig_Success()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Expect(x => x.GetConfig()).Return(new Configuration(true, true));
+                
+            Configuration testConfig = _mockManager.GetConfiguration();
+            Assert.AreEqual(testConfig.CheckoutOnPaid, true);
+            Assert.AreEqual(testConfig.DeallocateTableOnPaid, true);
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void GetConfig_RestfulApiErrorResponseException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Stub(x => x.GetConfig()).Throw(new RestfulApiErrorResponseException(HttpStatusCode.BadRequest));
+
+            _mockManager.GetConfiguration();
+        }
+
+        [Test]
+        public void UpdateConfiguration_Success()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Expect(
+                x =>
+                    x.PutConfiguration(
+                        Arg<Configuration>.Matches(c => c.CheckoutOnPaid == true && c.DeallocateTableOnPaid == true))).Return(true);
+
+            
+            _mockManager.mConfiguration = new Configuration(false, false);
+            Assert.AreEqual(_mockManager.mConfiguration.CheckoutOnPaid, false);
+            Assert.AreEqual(_mockManager.mConfiguration.DeallocateTableOnPaid, false);
+            _mockManager.UpdateConfiguration(new Configuration(true, true));
+
+            Assert.AreEqual(_mockManager.mConfiguration.CheckoutOnPaid, true);
+            Assert.AreEqual(_mockManager.mConfiguration.DeallocateTableOnPaid, true);
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void UpdateConfiguration_RestfulApiErrorResponseException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+
+            MockHttpComs.Expect(
+                x =>
+                    x.PutConfiguration(
+                        Arg<Configuration>.Matches(c => c.CheckoutOnPaid == true && c.DeallocateTableOnPaid == true)))
+                .Throw(new RestfulApiErrorResponseException(HttpStatusCode.BadRequest));
+            _mockManager.UpdateConfiguration(new Configuration(true, true));
+        }
 
 
 
