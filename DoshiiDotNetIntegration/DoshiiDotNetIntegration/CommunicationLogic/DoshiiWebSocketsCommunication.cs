@@ -356,83 +356,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             dynamic dynamicSocketMessageData = theMessage.Emit[1];
 
             SocketMessageData messageData = new SocketMessageData();
-            try
-            {
-                messageData.EventName = (string)theMessage.Emit[0];
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "Event Name does not exist on socket message");
-                return;
-            }
-            try
-            {
-                messageData.CheckinId = (string)dynamicSocketMessageData.CheckinId;
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "CheckinId does not exist on socket message");
-            }
-            try
-            {
-                messageData.OrderId = (string)dynamicSocketMessageData.OrderId;
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "OrderId does not exist on socket message");
-            }
-            try
-            {
-                messageData.MeerkatConsumerId = (string)dynamicSocketMessageData.MeerkatConsumerId;
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "MeerkatConsumerId does not exist on socket message");
-            }
-            try
-            {
-                messageData.Status = (string)dynamicSocketMessageData.Status;
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "status does not exist on socket message");
-            }
-            try
-            {
-                messageData.Name = (string)dynamicSocketMessageData.Name;
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "name does not exist on socket message");
-            }
-            try
-            {
-                messageData.Id = (string)dynamicSocketMessageData.Id;
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "id does not exist on socket message");
-            }
-            try
-            {
-                messageData.TransactionId = (string)dynamicSocketMessageData.TransactionId;
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "transactionId does not exist on socket message");
-            }
-            try
-            {
-                string uriString = (string)dynamicSocketMessageData.Uri;
-                if (!string.IsNullOrWhiteSpace(uriString))
-                {
-                    messageData.Uri = new Uri((string)dynamicSocketMessageData.uri);
-                }
-            }
-            catch (RuntimeBinderException)
-            {
-                mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, "uri does not exist on socket message");
-            }
+            messageData.EventName = (string)theMessage.Emit[0];
+            messageData.CheckinId = (string)dynamicSocketMessageData.CheckinId;
+            messageData.OrderId = (string)dynamicSocketMessageData.OrderId;
+            messageData.MeerkatConsumerId = (string)dynamicSocketMessageData.MeerkatConsumerId;
+            messageData.Status = (string)dynamicSocketMessageData.Status;
+            messageData.Name = (string)dynamicSocketMessageData.Name;
+            messageData.Id = (string)dynamicSocketMessageData.Id;
+            messageData.TransactionId = (string)dynamicSocketMessageData.TransactionId;
+            messageData.Uri = (Uri)dynamicSocketMessageData.Uri;
             
             switch (messageData.EventName)
             {
