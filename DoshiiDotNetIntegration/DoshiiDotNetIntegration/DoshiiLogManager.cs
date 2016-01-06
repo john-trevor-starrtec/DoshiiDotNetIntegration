@@ -13,7 +13,7 @@ namespace DoshiiDotNetIntegration
 		/// <summary>
 		/// A reference to the callback mechanism for message logging in the application.
 		/// </summary>
-		private IDoshiiLogger mLog;
+		internal IDoshiiLogger mLog;
 
 		/// <summary>
 		/// Constructor.

@@ -10,6 +10,7 @@ using System;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using NUnit.Framework;
 
 namespace DoshiiDotNetIntegration
 {
@@ -52,7 +53,7 @@ namespace DoshiiDotNetIntegration
 		/// <summary>
 		/// Default timeout (in seconds) for the connection to the Doshii API -- 30.
 		/// </summary>
-		private const int DefaultTimeout = 30;
+		internal const int DefaultTimeout = 30;
 
 		#endregion
 
@@ -63,10 +64,28 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         private DoshiiWebSocketsCommunication m_SocketComs = null;
 
+        internal DoshiiWebSocketsCommunication SocketComs
+        {
+            get { return m_SocketComs; }
+            set
+            {
+                if (m_SocketComs != null)
+                {
+                    UnsubscribeFromSocketEvents();
+                }
+                m_SocketComs = value;
+                if (m_SocketComs != null)
+                {
+                    SubscribeToSocketEvents();
+                    m_SocketComs.Initialize();
+                }
+            }
+        }
+
         /// <summary>
         /// Holds an instance of CommunicationLogic.DoshiiHttpCommunication class for interacting with the Doshii HTTP restful API
         /// </summary>
-        private DoshiiHttpCommunication m_HttpComs = null;
+        internal DoshiiHttpCommunication m_HttpComs = null;
 
 		/// <summary>
 		/// The payment module manager is a core module manager for the Doshii platform.
@@ -81,14 +100,14 @@ namespace DoshiiDotNetIntegration
 		/// <summary>
 		/// The logging manager for the Doshii SDK.
 		/// </summary>
-		private DoshiiLogManager mLog;
+		internal DoshiiLogManager mLog;
 
         /// <summary>
         /// The authentication token for the venue 
         /// </summary>
-        private string AuthorizeToken { get; set; }
+        internal string AuthorizeToken { get; set; }
 
-        private Configuration mConfiguration { get; set; }
+        internal Configuration mConfiguration { get; set; }
 
         /// <summary>
         /// Gets the current Doshii version information.
@@ -210,7 +229,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="UrlBase"></param>
         /// <param name="StartWebSocketConnection"></param>
         /// <returns></returns>
-        private bool InitializeProcess(string socketUrl, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
+        internal virtual bool InitializeProcess(string socketUrl, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: Initializing Doshii");
 
@@ -233,7 +252,7 @@ namespace DoshiiDotNetIntegration
                 }
                 catch (Exception ex)
                 {
-					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format(string.Format("Initializing Doshii failed, there was an exception that was {0}", ex.ToString())));
+					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Initializing Doshii failed, there was an exception that was {0}", ex.ToString()));
                 }
             }
 
@@ -244,7 +263,7 @@ namespace DoshiiDotNetIntegration
         /// DO NOT USE, this method is for internal use only
         /// Subscribes to the socket communication events 
         /// </summary>
-        private void SubscribeToSocketEvents()
+        internal virtual void SubscribeToSocketEvents()
         {
             if (m_SocketComs == null)
             {
@@ -266,11 +285,11 @@ namespace DoshiiDotNetIntegration
         /// DO NOT USE, this method is for internal use only
         /// Unsubscribes to the socket communication events 
         /// </summary>
-        private void UnsubscribeFromSocketEvents()
+        internal virtual void UnsubscribeFromSocketEvents()
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: Unsubscribing from socket events");
             m_SocketComs.OrderStatusEvent -= new DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComsOrderStatusEventHandler);
-            m_SocketComs.TransactionStatusEvent += new DoshiiWebSocketsCommunication.TransactionStatusEventHandler(SocketComsTransactionStatusEventHandler);
+            m_SocketComs.TransactionStatusEvent -= new DoshiiWebSocketsCommunication.TransactionStatusEventHandler(SocketComsTransactionStatusEventHandler);
             m_SocketComs.SocketCommunicationEstablishedEvent -= new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
             m_SocketComs.SocketCommunicationTimeoutReached -= new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
         }
@@ -372,7 +391,7 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// True on successful payment; false otherwise.
         /// </returns>
-        private bool RequestPaymentForOrder(Transaction transaction)
+        internal virtual bool RequestPaymentForOrder(Transaction transaction)
         {
             var returnedTransaction = new Transaction();
             transaction.Status = "waiting";
@@ -385,22 +404,29 @@ namespace DoshiiDotNetIntegration
             {
                 if (rex.StatusCode == HttpStatusCode.NotFound)
                 {
-                    
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the order for order.Id{0}", transaction.OrderId));
+                    mPaymentManager.CancelPayment(transaction);
+                    return false;
                 }
 				else if (rex.StatusCode == HttpStatusCode.PaymentRequired)
 				{
 					// this just means that the partner failed to claim payment when requested
-                    mPaymentManager.CancelPayment(transaction);
-					return false; // Question: should this return false?? - the only call to this method doesn't listen to the result - I think if we ever need the result this should be false. 
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not claim the payment for for order.Id{0}", transaction.OrderId));
+					mPaymentManager.CancelPayment(transaction);
+                    return false; // Question: should this return false?? - the only call to this method doesn't listen to the result - I think if we ever need the result this should be false. 
 				}
             }
             catch (NullOrderReturnedException)
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", transaction.OrderId));
+                mPaymentManager.CancelPayment(transaction);
+                return false;
             }
             catch (Exception ex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a postTransaction for order.Id {0} : {1}", transaction.OrderId, ex));
+                mPaymentManager.CancelPayment(transaction);
+                return false;
             }
 
             if (returnedTransaction != null && returnedTransaction.Id == transaction.Id && returnedTransaction.Status == "complete")
@@ -434,7 +460,7 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, string.Format("Doshii: Exception while attempting to update an order verison on the pos, OrderId - {0}, version - {1}, {2}", posOrderId, version, ex.ToString()));
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update an order verison on the pos, OrderId - {0}, version - {1}, {2}", posOrderId, version, ex.ToString()));
             }
         }
         
@@ -472,6 +498,25 @@ namespace DoshiiDotNetIntegration
 				throw rex;
 			}
 		}
+
+        /// <summary>
+        /// This method returns an transaction from Doshii corresponding to the transactionId
+        /// </summary>
+        /// <param name="orderId">
+        /// The Id of the order that is being requested. 
+        /// </param>
+        /// <returns></returns>
+        public virtual Transaction GetTransaction(string transactionId)
+        {
+            try
+            {
+                return m_HttpComs.GetTransaction(transactionId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
 
 		/// <summary>
 		/// Retrieves the list of payments from Doshii.
@@ -535,25 +580,6 @@ namespace DoshiiDotNetIntegration
 
 
         /// <summary>
-        /// This method returns an transaction from Doshii corresponding to the transactionId
-        /// </summary>
-        /// <param name="orderId">
-        /// The Id of the order that is being requested. 
-        /// </param>
-        /// <returns></returns>
-        public virtual Transaction GetTransaction(string transactionId)
-        {
-            try
-            {
-                return m_HttpComs.GetTransaction(transactionId);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-        }
-
-        /// <summary>
         /// This method will update the Order on the Doshii API
         /// </summary>
         /// <param name="order">
@@ -579,72 +605,36 @@ namespace DoshiiDotNetIntegration
             }
 
             var returnedOrder = new Order();
-            if (order.Id == "0")
+            
+            try
             {
-				// new order
-                
-                try
+                returnedOrder = m_HttpComs.PutOrder(order);
+                if (returnedOrder.Id == "0")
                 {
-                    returnedOrder = m_HttpComs.PutOrder(order);
-                    if (returnedOrder.Id == "0")
-                    {
-						mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
-                    }
-                }
-                catch (RestfulApiErrorResponseException rex)
-                {
-                    if (rex.StatusCode == HttpStatusCode.Conflict)
-                    {
-                        throw new ConflictWithOrderUpdateException(string.Format("There was a conflict updating order.id {0}", order.Id));
-                    }
-                    else if (rex.StatusCode == HttpStatusCode.NotFound)
-                    {
-
-                    }
-
-                    throw rex;
-                }
-                catch (NullOrderReturnedException)
-                {
-					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a PostOrder for order.CheckinId {0}", order.CheckinId));
-                }
-                catch (Exception ex)
-                {
-					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for order.CheckinId {0} : {1}", order.CheckinId, ex));
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId while updating order with id {0}", order.Id));
+                    throw new OrderUpdateException(string.Format("Doshii: order was returned from doshii without an orderId while updating order with id {0}", order.Id));
                 }
             }
-            else
+            catch (RestfulApiErrorResponseException rex)
             {
-                try
+                if (rex.StatusCode == HttpStatusCode.Conflict)
                 {
-                    returnedOrder = m_HttpComs.PutOrder(order);
-                    if (returnedOrder.Id == "0")
-                    {
-						mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId"));
-                    }
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("There was a conflict updating order.id {0}", order.Id.ToString()));
+                    throw new ConflictWithOrderUpdateException(string.Format("There was a conflict updating order.id {0}", order.Id.ToString()));
                 }
-                catch (RestfulApiErrorResponseException rex)
-                {
-                    if (rex.StatusCode == HttpStatusCode.Conflict)
-                    {
-                        throw new ConflictWithOrderUpdateException(string.Format("There was a conflict updating order.id {0}", order.Id.ToString()));
-                    }
-                    else if (rex.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        
-                    }
-
-                    throw rex;
-                }
-                catch (NullOrderReturnedException)
-                {
-					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
-                }
-                catch (Exception ex)
-                {
-					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0} : {1}", order.Id, ex));
-                }
+                throw new OrderUpdateException("Update order not successful", rex);
             }
+            catch (NullOrderReturnedException Nex)
+            {
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
+                throw new OrderUpdateException(string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id), Nex);
+            }
+            catch (Exception ex)
+            {
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0} : {1}", order.Id, ex));
+                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0}", order.Id), ex);
+            }
+            
 
             return returnedOrder;
         }
@@ -659,7 +649,7 @@ namespace DoshiiDotNetIntegration
 		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
 		/// <param name="table">The table to add in Doshii.</param>
 		/// <returns>The current order details in Doshii after upload.</returns>
-		public TableOrder AddTableAllocation(string posOrderId, TableAllocation table)
+		public bool AddTableAllocation(string posOrderId, TableAllocation table)
 		{
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", table.Name, posOrderId));
 
@@ -671,19 +661,14 @@ namespace DoshiiDotNetIntegration
 			catch (OrderDoesNotExistOnPosException dne)
 			{
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during table allocation");
-				return null;
+			    throw dne;
 			}
-			catch (RestfulApiErrorResponseException api)
-			{
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Error occurred retrieving order from POS during table allocation", api);
-				return null;
-			}
-
+			
 			if (order == null)
 			{
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
-				throw new NullOrderReturnedException();
-			}
+				throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during table allocation", new NullOrderReturnedException());
+            }
 
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now", table.Name, posOrderId));
 
@@ -693,12 +678,22 @@ namespace DoshiiDotNetIntegration
 
 			try
 			{
-				return m_HttpComs.CreateOrderWithTableAllocation(tableOrder);
+				return m_HttpComs.PutOrderWithTableAllocation(tableOrder);
 			}
 			catch (RestfulApiErrorResponseException rex)
 			{
-				throw rex;
+                if (rex.StatusCode == HttpStatusCode.Conflict)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("There was a conflict updating order.id {0} during table allocaiton", order.Id.ToString()));
+                    throw new ConflictWithOrderUpdateException(string.Format("There was a conflict updating order.id {0} during table Allocation", order.Id.ToString()));
+                }
+                throw new OrderUpdateException("Update order with table allocaiton not successful", rex);
 			}
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation order.Id{0} : {1}", order.Id, ex));
+                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for order.Id{0}", order.Id), ex);
+            }
 		}
 
         /// <summary>
@@ -721,16 +716,26 @@ namespace DoshiiDotNetIntegration
         /// <item> HttpStatusCode.NotFound </item> 
         /// <item> HttpStatusCode.Conflict </item>
         /// </exception>
-        public virtual void DeleteTableAllocation(string posOrderId)
+        public virtual bool DeleteTableAllocation(string posOrderId)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for Order Id - '{0}'",posOrderId));
             try
             {
-                m_HttpComs.DeleteTableAllocation(posOrderId);
+                return m_HttpComs.DeleteTableAllocation(posOrderId);
             }
             catch (RestfulApiErrorResponseException rex)
             {
-                throw rex;
+                if (rex.StatusCode == HttpStatusCode.Conflict)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("There was a conflict updating order.id {0} deleting a table allocaiton", posOrderId));
+                    throw new ConflictWithOrderUpdateException(string.Format("There was a conflict updating order.id {0} deleting a table Allocation", posOrderId));
+                }
+                throw new OrderUpdateException("Update order with table allocaiton not successful", rex);
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to delete a table allocation order.Id{0} : {1}", posOrderId, ex));
+                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting to delete a table allocaiton for order.Id{0}", posOrderId), ex);
             }
         }
 
@@ -756,7 +761,7 @@ namespace DoshiiDotNetIntegration
 		/// Retrieves the current configuration from Doshii.
 		/// </summary>
 		/// <returns>The current configuration from Doshii.</returns>
-		public Configuration GetConfiguration()
+		public virtual Configuration GetConfiguration()
 		{
 			try
 			{
@@ -783,7 +788,7 @@ namespace DoshiiDotNetIntegration
 		/// Sends the configuration update to the Doshii API.
 		/// </summary>
 		/// <returns>True on successful update; false otherwise.</returns>
-        private bool SendConfigurationUpdate()
+        internal virtual bool SendConfigurationUpdate()
         {
             try
             {

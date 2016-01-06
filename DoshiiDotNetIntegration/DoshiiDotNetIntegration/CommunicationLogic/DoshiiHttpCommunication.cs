@@ -283,9 +283,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// </summary>
 		/// <param name="tableOrder">The details of the order and table allocation to present to Doshii.</param>
 		/// <returns>The table order details as uploaded to Doshii API.</returns>
-		internal virtual TableOrder CreateOrderWithTableAllocation(TableOrder tableOrder)
+		internal virtual bool PutOrderWithTableAllocation(TableOrder tableOrder)
 		{
-			var returnedTableOrder = new TableOrder();
+			var returnedTableOrder = new Order();
 			DoshiHttpResponseMessage responseMessage;
 			string orderIdentifier = tableOrder.Order.Id;
 
@@ -299,10 +299,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 				throw rex;
 			}
 
-			var dto = new JsonTableOrder();
-			returnedTableOrder = HandleOrderResponse<TableOrder, JsonTableOrder>(orderIdentifier, responseMessage, out dto);
-
-			return returnedTableOrder;
+			var dto = new JsonOrder();
+            //this call need to exist to record the Order.version
+			returnedTableOrder = HandleOrderResponse<Order, JsonOrder>(orderIdentifier, responseMessage, out dto);
+		    if (responseMessage.Status == HttpStatusCode.OK)
+		    {
+		        return true;
+		    }
+		    else
+		    {
+		        return false;
+		    }
 		}
 
         
@@ -493,7 +500,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="method"></param>
         /// <returns></returns>
         /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
-        internal Transaction PostTransaction(Transaction transaction)
+        internal virtual Transaction PostTransaction(Transaction transaction)
         {
             DoshiHttpResponseMessage responseMessage;
             Transaction returnedTransaction = null;
@@ -556,7 +563,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// This method is used to retrieve the Doshii Configuration
 		/// </summary>
 		/// <returns>The current configuration in Doshii.</returns>
-		internal Configuration GetConfig()
+		internal virtual Configuration GetConfig()
 		{
 			DoshiHttpResponseMessage responseMessage;
 
@@ -603,7 +610,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// </summary>
 		/// <param name="config">The configuration to be uploaded to Doshii.</param>
 		/// <returns>True on successful upload; false otherwise.</returns>
-		internal bool PutConfiguration(Configuration config)
+		internal virtual bool PutConfiguration(Configuration config)
 		{
 			bool result = false;
 			DoshiHttpResponseMessage responseMessage;
@@ -654,7 +661,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="purpose"></param>
         /// <param name="identification"></param>
         /// <returns></returns>
-        private string GenerateUrl(EndPointPurposes purpose, string identification = "")
+        internal string GenerateUrl(EndPointPurposes purpose, string identification = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
 
