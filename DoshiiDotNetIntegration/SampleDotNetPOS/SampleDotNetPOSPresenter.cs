@@ -100,8 +100,7 @@ namespace SampleDotNetPOS
 		/// <param name="locationToken">The entered location token in the view.</param>
 		public void Initialise(string apiAddress, string locationToken)
 		{
-			string wss = String.Format("{0}/socket", apiAddress.Replace("http", "ws"));
-			mManager.Initialize(wss, SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0, new Configuration(true, true));
+			mManager.Initialize(SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0, new Configuration(true, true));
 			mOrders = mManager.GetOrders().ToList<Order>();
 			mPayments = mManager.GetTransactions().ToList<Transaction>();
 		}
