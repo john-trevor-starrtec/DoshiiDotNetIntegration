@@ -173,18 +173,12 @@ namespace DoshiiDotNetIntegration
         /// <param name="configuration">
         /// this is the configuration that configures the behaviour of the Doshii API while interacting with this pos. <see cref="Configuration"/> for details about the available settings. 
         /// </param>
-        public virtual void Initialize(string socketUrl, string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs, Configuration configuration)
+        public virtual void Initialize(string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs, Configuration configuration)
         {
 			// TODO: Remove socketUrl parameter and build it here based on urlBase?
 
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {3} with; {4} sourceUrl: {0}, {4}token {1}, {4}BaseUrl: {2}", socketUrl, token, urlBase, CurrentVersion(), Environment.NewLine));
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}token {0}, {3}BaseUrl: {1}", token, urlBase, CurrentVersion(), Environment.NewLine));
 			
-            if (string.IsNullOrWhiteSpace(socketUrl))
-            {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - required sockerUrl");
-                throw new ArgumentException("empty socketUrl");
-            }
-
             if (string.IsNullOrWhiteSpace(urlBase))
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - required urlBase");
@@ -215,7 +209,7 @@ namespace DoshiiDotNetIntegration
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - configuration was null");
                 throw new ArgumentNullException("configuration");
             }
-
+            string socketUrl = String.Format("{0}/socket", urlBase.Replace("http", "ws"));
             AuthorizeToken = token;
             mConfiguration = configuration;
             string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
