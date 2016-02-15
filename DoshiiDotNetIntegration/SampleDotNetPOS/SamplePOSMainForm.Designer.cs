@@ -154,26 +154,6 @@
 			this.btnInitialise.UseVisualStyleBackColor = true;
 			this.btnInitialise.Click += new System.EventHandler(this.btnInitialise_Click);
 			// 
-			// btnGetConfig
-			// 
-			this.btnGetConfig.Location = new System.Drawing.Point(12, 36);
-			this.btnGetConfig.Name = "btnGetConfig";
-			this.btnGetConfig.Size = new System.Drawing.Size(75, 23);
-			this.btnGetConfig.TabIndex = 1;
-			this.btnGetConfig.Text = "GET Config";
-			this.btnGetConfig.UseVisualStyleBackColor = true;
-			this.btnGetConfig.Click += new System.EventHandler(this.btnGetConfig_Click);
-			// 
-			// btnPutConfig
-			// 
-			this.btnPutConfig.Location = new System.Drawing.Point(12, 65);
-			this.btnPutConfig.Name = "btnPutConfig";
-			this.btnPutConfig.Size = new System.Drawing.Size(75, 23);
-			this.btnPutConfig.TabIndex = 2;
-			this.btnPutConfig.Text = "PUT Config";
-			this.btnPutConfig.UseVisualStyleBackColor = true;
-			this.btnPutConfig.Click += new System.EventHandler(this.btnPutConfig_Click);
-			// 
 			// SamplePOSMainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

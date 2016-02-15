@@ -49,22 +49,6 @@ namespace DoshiiDotNetSDKTests
             };
         }
         
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageConfig()
-        {
-            var configuration = GenerateConfiguration(true, true);
-            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonConfiguration>(configuration);
-            string json = jsonTransaction.ToJsonString();
-
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
-            {
-                Status = HttpStatusCode.OK,
-                StatusDescription = "OK",
-                Data = json,
-                ErrorMessage = "",
-                Message = ""
-            };
-        }
-
         internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionPending()
         {
             var transaction = GenerateTransactionPending();
@@ -205,15 +189,6 @@ namespace DoshiiDotNetSDKTests
         #endregion
 
         #region Generate TestObjects and TestValues
-
-        internal static Configuration GenerateConfiguration(bool checkoutOnPaid, bool deallocateTableOnPaid)
-        {
-            var configuration = new Configuration();
-            configuration.DeallocateTableOnPaid = deallocateTableOnPaid;
-            configuration.CheckoutOnPaid = checkoutOnPaid;
-
-            return configuration;
-        }
         
         internal static List<DoshiiDotNetIntegration.Models.Product> GenerateProductList()
         {
@@ -467,16 +442,6 @@ namespace DoshiiDotNetSDKTests
                 Status = "complete"
             };
             return transaction;
-        }
-
-        internal static DoshiiDotNetIntegration.Models.Configuration GenerateConfig()
-        {
-            var configuration = new DoshiiDotNetIntegration.Models.Configuration()
-            {
-                CheckoutOnPaid = true,
-                DeallocateTableOnPaid = true
-            };
-            return configuration;
         }
 
         internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_OrderStatus()

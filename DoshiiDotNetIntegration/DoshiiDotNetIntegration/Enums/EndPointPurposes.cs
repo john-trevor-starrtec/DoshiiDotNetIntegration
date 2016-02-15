@@ -11,11 +11,6 @@ namespace DoshiiDotNetIntegration.Enums
     public enum EndPointPurposes
     {
 		/// <summary>
-		/// Requests about configuration
-		/// </summary>
-		Configuration = 0,
-
-        /// <summary>
         /// Requests about orders
         /// </summary>
         Order = 1,
