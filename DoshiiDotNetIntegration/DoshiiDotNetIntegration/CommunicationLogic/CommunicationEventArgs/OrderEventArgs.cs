@@ -14,5 +14,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 		internal string Status { get; set; }
 
 		internal Order Order { get; set; }
+
+        internal List<Transaction> TransactionList { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.Json;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -326,10 +327,19 @@ namespace DoshiiDotNetIntegration
         /// <param name="e"></param>
         internal virtual void SocketComsOrderStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
-			//this method is not implemented for Pay@table, we will need to implement it for orderAhead but it is now currently necessary. 
-            throw new NotImplementedException();
+			//check if the order has a posId, 
+                //if yes record the orderVersion
+                //process the order updated - currently unnecessary as updating orders is not implemented in order ahead
+            //else
+                //check if there are transactions on the order
+                    //if yes confirm the order and the transactions
+                        //record order updated at
+                        //if success send order update with newOrderId
+                        //send payemnt waiting.
+                    //if no update the order with rejected.
+
             //when this method is reintroducted the following call must be included every time a order is received from Doshii 
-            // m_DoshiiLogic.RecordOrderVersion(e.Order.Id, e.Order.Version);
+            RecordOrderVersion(e.Order.Id, e.Order.Version);
         }
 
         /// <summary>
@@ -477,6 +487,25 @@ namespace DoshiiDotNetIntegration
 			}
 		}
 
+        /// <summary>
+        /// This method returns an order from Doshii corresponding to the OrderId
+        /// </summary>
+        /// <param name="orderId">
+        /// The Id of the order that is being requested. 
+        /// </param>
+        /// <returns></returns>
+        public virtual Order GetOrderFromDoshiiOrderId(string orderId)
+        {
+            try
+            {
+                return m_HttpComs.GetOrder(orderId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
 		/// <summary>
 		/// Retrieves the current order list from Doshii.
 		/// </summary>
@@ -505,6 +534,25 @@ namespace DoshiiDotNetIntegration
             try
             {
                 return m_HttpComs.GetTransaction(transactionId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        /// <summary>
+        /// This method returns an transaction from Doshii corresponding to the transactionId
+        /// </summary>
+        /// <param name="orderId">
+        /// The Id of the order that is being requested. 
+        /// </param>
+        /// <returns></returns>
+        public virtual List<Transaction> GetTransactionFromDoshiiOrderId(string orderId)
+        {
+            try
+            {
+                return m_HttpComs.GetTransactionFromDoshiiOrderId(orderId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
