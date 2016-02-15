@@ -366,7 +366,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Stub(x => x.PostTransaction(Arg<Transaction>.Is.Anything))
                 .Return(GenerateObjectsAndStringHelper.GenerateTransactionComplete());
 
-            paymentManager.Expect(x => x.AcceptPayment(Arg<Transaction>.Matches(
+            paymentManager.Expect(x => x.RecordPayment(Arg<Transaction>.Matches(
                 t =>
                     t.Id == GenerateObjectsAndStringHelper.GenerateTransactionComplete().Id &&
                     t.Status == GenerateObjectsAndStringHelper.GenerateTransactionComplete().Status &&
