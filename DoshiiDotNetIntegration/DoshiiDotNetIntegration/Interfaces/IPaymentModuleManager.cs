@@ -47,7 +47,8 @@ namespace DoshiiDotNetIntegration.Interfaces
 
 		/// <summary>
 		/// The Doshii SDK will call this function after payment has been captured for an order with the supplied <paramref name="orderId"/>.
-		/// The POS is required to respond with the current details of the order after the payment has been applied.
+		/// At this point the POS cannot reject the payment and must record the payment received. If the pos did not want to receive the payment the POS needed to reject the 
+		/// <see cref="ReadyToPay"/> message, or reject the order when the order was received with a full payment if <see cref="IOrderingManager"/> has been implemented. 
 		/// </summary>
 		/// <param name="orderId">The identifier for the order being paid.</param>
 		/// <param name="paymentAmount">The amount paid.</param>
