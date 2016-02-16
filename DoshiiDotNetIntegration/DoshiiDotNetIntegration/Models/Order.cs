@@ -42,7 +42,7 @@ namespace DoshiiDotNetIntegration.Models
 			PayTotal = 0.0M;
 			NotPayingTotal = 0.0M;
 			Version = String.Empty;
-			OrderUri = String.Empty;
+			Uri = String.Empty;
 			_items.Clear();
 		}
 
@@ -151,7 +151,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// <summary>
 		/// The URI of the order
 		/// </summary>
-		public string OrderUri { get; set; }
+		public string Uri { get; set; }
 
         private List<Product> _items;
         

@@ -150,7 +150,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "uri")]
-		public string OrderUri { get; set; }
+		public string Uri { get; set; }
 
         private List<JsonProduct> _items;
         

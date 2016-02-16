@@ -54,7 +54,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </remarks>
 		/// <param name="posOrderId">The unique identifier of the order being updated in the POS.</param>
 		/// <param name="version">The current version of the order in Doshii.</param>
-		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistException">This exception 
+		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
 		/// should be thrown when there is no order in the POS with the corresponding 
 		/// <paramref name="posOrderId"/>.</exception>
 		void RecordOrderVersion(string posOrderId, string version);
@@ -65,7 +65,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </summary>
 		/// <param name="posOrderId">The unique identifier of the order being queried on the POS.</param>
 		/// <returns>The current version of the order in the POS.</returns>
-		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistException">This exception 
+		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
 		/// should be thrown when there is no order in the POS with the corresponding 
 		/// <paramref name="posOrderId"/>.</exception>
 		string RetrieveOrderVersion(string posOrderId);
