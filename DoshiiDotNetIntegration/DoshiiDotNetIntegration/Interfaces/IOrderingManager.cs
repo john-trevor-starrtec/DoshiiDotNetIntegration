@@ -86,7 +86,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// A List of <see cref="Transaction"/> to be approved
         /// </param>
         /// <returns></returns>
-	    Order ConfirmNewOrderWithFullPayment(Order order, List<Transaction> transactionList);
+	    Order ConfirmNewOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList);
 
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 

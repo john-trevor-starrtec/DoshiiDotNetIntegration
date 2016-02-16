@@ -111,7 +111,7 @@ namespace SampleDotNetPOS.POSImpl
             return null;
         }
 
-        public Order ConfirmNewOrderWithFullPayment(Order order, List<Transaction> transactionList)
+        public Order ConfirmNewOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList)
         {
             if (mPresenter != null)
             {
