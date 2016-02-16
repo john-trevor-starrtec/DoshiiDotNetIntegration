@@ -25,18 +25,12 @@ namespace DoshiiDotNetIntegration.Models
 		private List<Surcount> mSurcounts;
 
 		/// <summary>
-		/// Private placeholder for the payments in the order.
-		/// </summary>
-		private List<Transaction> mPayments;
-
-		/// <summary>
 		/// Constructor.
 		/// </summary>
 		public OrderToPut()
 		{
 			mItems = new List<Product>();
 			mSurcounts = new List<Surcount>();
-			mPayments = new List<Transaction>();
 			Clear();
 		}
 
@@ -49,7 +43,6 @@ namespace DoshiiDotNetIntegration.Models
 			Version = String.Empty;
 			mItems.Clear();
 			mSurcounts.Clear();
-			mPayments.Clear();
 		}
 
 		/// <summary>
@@ -96,21 +89,5 @@ namespace DoshiiDotNetIntegration.Models
 			}
 		}
 
-		/// <summary>
-		/// A list of all payments applied at the order level
-		/// </summary>
-		public IEnumerable<Transaction> Payments
-		{
-			get
-			{
-				if (mPayments == null)
-					mPayments = new List<Transaction>();
-				return mPayments;
-			}
-			set
-			{
-				mPayments = value.ToList<Transaction>();
-			}
-		}
 	}
 }

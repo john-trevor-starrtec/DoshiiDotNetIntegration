@@ -68,7 +68,7 @@ namespace SampleDotNetPOS.POSImpl
 				}
 				else
 				{
-					transaction.PaymentAmount = order.PayTotal;
+				    transaction.PaymentAmount = 240M;
 				}
 			}
 
@@ -96,9 +96,6 @@ namespace SampleDotNetPOS.POSImpl
 			var payment = new Transaction();
 			payment.Reference = "TEST PAYMENT TYPE";
 			payment.PaymentAmount = transaction.PaymentAmount;
-			var payments = order.Payments.ToList<Transaction>();
-			payments.Add(payment);
-			order.Payments = payments;
 		}
 
 	    public void RecordTransactionVersion(string transactionId, string version)

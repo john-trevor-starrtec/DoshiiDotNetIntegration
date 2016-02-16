@@ -16,7 +16,6 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public Order()
 		{
-			_payments = new List<Transaction>();
 			_surcounts = new List<Surcount>();
 			_items = new List<Product>();
 			Clear();
@@ -34,13 +33,7 @@ namespace DoshiiDotNetIntegration.Models
 			TransactionId = String.Empty;
 			CheckinId = String.Empty;
 			LocationId = String.Empty;
-			_payments.Clear();
 			_surcounts.Clear();
-			Tip = 0.0M;
-			PaySplits = 0;
-			SplitWays = 0;
-			PayTotal = 0.0M;
-			NotPayingTotal = 0.0M;
 			Version = String.Empty;
 			Uri = String.Empty;
 			_items.Clear();
@@ -81,24 +74,6 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public string LocationId { get; set; }
 
-		private List<Transaction> _payments;
-
-		/// <summary>
-		/// A list of all payments applied from the pos at an order level. 
-		/// </summary>
-		public IEnumerable<Transaction> Payments
-		{
-			get
-			{
-				if (_payments == null)
-				{
-					_payments = new List<Transaction>();
-				}
-				return _payments;
-			}
-			set { _payments = value.ToList<Transaction>(); }
-		}
-
 		private List<Surcount> _surcounts;
 
 		/// <summary>
@@ -119,31 +94,6 @@ namespace DoshiiDotNetIntegration.Models
 		}
         
         /// <summary>
-        /// Total tip amount in cents associated with the order.
-        /// </summary>
-        public decimal Tip { get; set; }
-
-        /// <summary>
-        /// This is used by Doshii when splitting the bill - should not be changed on the pos.
-        /// </summary>
-        public int PaySplits { get; set; }
-
-        /// <summary>
-        /// This is used by Doshii when splitting the bill - should not be changed on the pos.
-        /// </summary>
-        public int SplitWays { get; set; }
-
-        /// <summary>
-        /// The amount that is being paid in cents when a payment is made from Doshii.
-        /// </summary>
-        public decimal PayTotal { get; set; }
-
-        /// <summary>
-        /// The amount that has not been paid (in cents).
-        /// </summary>
-        public decimal NotPayingTotal { get; set; }
-
-		/// <summary>
 		/// An obfuscated string representation of the version for the order in Doshii.
 		/// </summary>
 		public string Version { get; set; }
@@ -183,22 +133,13 @@ namespace DoshiiDotNetIntegration.Models
 			// Memberwise clone doesn't handle recursive cloning of internal properties such as lists
 			// here I am overwriting the list with cloned copies of the list items
 			var payments = new List<Transaction>();
-			foreach (var payment in this.Payments)
-			{
-				payments.Add((Transaction)payment.Clone());
-			}
-			order.Payments = payments;
-
 			var surcounts = new List<Surcount>();
 			foreach (var surcount in this.Surcounts)
 			{
 				surcounts.Add((Surcount)surcount.Clone());
 			}
 			order.Surcounts = surcounts;
-
-
-
-			return order;
+            return order;
 		}
 
 		#endregion

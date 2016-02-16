@@ -43,13 +43,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string InvoiceId{ get; set; }
         
         /// <summary>
-        /// Unique transaction identifier for the order.
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "transactionId")]
-        public string TransactionId { get; set; }
-        
-        /// <summary>
         /// The CheckinId the order is associated with
         /// </summary>
         [DataMember]
@@ -62,26 +55,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[DataMember]
 		[JsonProperty(PropertyName = "locationId")]
 		public string LocationId { get; set; }
-
-		private List<JsonTransaction> _payments;
-
-		/// <summary>
-		/// A list of all payments applied from the pos at an order level. 
-		/// </summary>
-		[DataMember]
-		[JsonProperty(PropertyName = "payments")]
-		public List<JsonTransaction> Payments
-		{
-			get
-			{
-				if (_payments == null)
-				{
-					_payments = new List<JsonTransaction>();
-				}
-				return _payments;
-			}
-			set { _payments = value; }
-		}
 
 		private List<JsonSurcount> _surcounts;
 
@@ -105,40 +78,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 		}
         
         /// <summary>
-        /// Total tip amount in cents associated with the order.
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "tip")]
-        public string Tip { get; set; }
-
-        /// <summary>
-        /// This is used by Doshii when splitting the bill - should not be changed on the pos.
-        /// </summary>
-        [JsonProperty(PropertyName = "paySplits")]
-        public int PaySplits { get; set; }
-
-        /// <summary>
-        /// This is used by Doshii when splitting the bill - should not be changed on the pos.
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "splitWays")]
-        public int SplitWays { get; set; }
-
-        /// <summary>
-        /// The amount that is being paid in cents when a payment is made from Doshii.
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "payTotal")]
-        public string PayTotal { get; set; }
-
-        /// <summary>
-        /// The amount that has not been paid (in cents).
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "notPayingTotal")]
-        public string NotPayingTotal { get; set; }
-
-		/// <summary>
 		/// An obfuscated string representation of the version of the order in Doshii.
 		/// </summary>
 		[DataMember]

@@ -483,7 +483,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             orderToPut.Items = order.Items;
             orderToPut.Surcounts = order.Surcounts;
-            orderToPut.Payments = order.Payments;
             try
             {
                 var jsonOrderToPut = Mapper.Map<JsonOrderToPut>(orderToPut);
