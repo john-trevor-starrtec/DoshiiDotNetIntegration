@@ -8,6 +8,7 @@ using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -304,9 +305,26 @@ namespace DoshiiDotNetIntegration
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
             SendConfigurationUpdate();
+            RefreshAllOrders();
             //send configuration
         }
 
+        /// <summary>
+        /// checks all orders on the doshii system, if there are any pending orders deals with them as if it received a socket message alerting to a pending order. 
+        /// currently this method does not check the transactions as there should be no unlinked transactions for already created orders, order ahead only allows for 
+        /// partners to make payments when they create an order else the payment is expected to be made by the customer on receipt of the order. 
+        /// </summary>
+        internal void RefreshAllOrders()
+        {
+            //check unassigned orders
+            IEnumerable<Order> unassignedOrderList = GetUnlinkedOrders();
+            foreach (var order in unassignedOrderList)
+            {
+                IEnumerable<Transaction> transactionListForOrder = GetTransactionFromDoshiiOrderId(order.DoshiiId);
+                HandleOrderCreated(order, transactionListForOrder.ToList());
+            }
+        }
+        
         /// <summary>
         /// DO NOT USE, this method is for internal use only
         /// Handles a socket communication timeOut event - this is when there has not been successful communication with doshii within the specified timeout period. 
@@ -334,29 +352,34 @@ namespace DoshiiDotNetIntegration
                 mLog.LogMessage(this.GetType(),DoshiiLogLevels.Fatal, "A preexisting order was passed to the order created event handler.");
                 throw new NotSupportedException("Developer Error, An order with a posId was passed to the CreatedOrderEventHandler");
             }
+            HandleOrderCreated(e.Order, e.TransactionList.ToList());
 
+        }
+
+        internal virtual void HandleOrderCreated(Order order, List<Transaction> transactionList)
+        {
             Order orderReturnedFromPos = null;
-            if (e.TransactionList.Count > 0)
+            if (transactionList.Count > 0)
             {
-                orderReturnedFromPos = mOrderingManager.ConfirmNewOrderWithFullPayment(e.Order, e.TransactionList);
+                orderReturnedFromPos = mOrderingManager.ConfirmNewOrderWithFullPayment(order, transactionList);
             }
             else
             {
-                orderReturnedFromPos = mOrderingManager.ConfirmNewOrder(e.Order);
+                orderReturnedFromPos = mOrderingManager.ConfirmNewOrder(order);
             }
             if (orderReturnedFromPos == null)
             {
                 //set order status to rejected post to doshii
-                e.Order.Status = "rejected";
+                order.Status = "rejected";
                 try
                 {
-                    UpdateOrder(e.Order);
+                    UpdateOrder(order);
                 }
                 catch (Exception ex)
                 {
                     //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
                 }
-                foreach(Transaction tran in e.TransactionList)
+                foreach (Transaction tran in transactionList)
                 {
                     tran.Status = "rejected";
                     try
@@ -375,7 +398,7 @@ namespace DoshiiDotNetIntegration
                 orderReturnedFromPos.Status = "accepted";
                 try
                 {
-                    UpdateOrder(e.Order);
+                    UpdateOrder(order);
                 }
                 catch (Exception ex)
                 {
@@ -383,7 +406,7 @@ namespace DoshiiDotNetIntegration
                     //if we get an error response at this point we should prob cancel the order on the pos and not continue and cancel the payments. 
                 }
                 //If there are transactions set to waiting and get response - should call request payment
-                foreach(Transaction tran in e.TransactionList)
+                foreach (Transaction tran in transactionList)
                 {
                     RecordTransactionVersion(tran.Id, tran.Version);
                     tran.Status = "waiting";
@@ -396,10 +419,8 @@ namespace DoshiiDotNetIntegration
                         //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
                     }
                 }
-                
-                
             }
-        }
+        } 
 
         /// <summary>
         /// DO NOT USE, this method is for internal use only
@@ -684,7 +705,7 @@ namespace DoshiiDotNetIntegration
 		/// Retrieves the current order list from Doshii.
 		/// </summary>
 		/// <returns>The current list of orders available in Doshii.</returns>
-		public virtual System.Collections.Generic.IEnumerable<Order> GetOrders()
+		public virtual IEnumerable<Order> GetOrders()
 		{
 			try
 			{
@@ -695,6 +716,22 @@ namespace DoshiiDotNetIntegration
 				throw rex;
 			}
 		}
+
+        /// <summary>
+        /// Retrieves the current unlinked order list from Doshii.
+        /// </summary>
+        /// <returns>The current list of orders available in Doshii.</returns>
+        public virtual IEnumerable<Order> GetUnlinkedOrders()
+        {
+            try
+            {
+                return m_HttpComs.GetUnlinkedOrders();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
 
         /// <summary>
         /// This method returns an transaction from Doshii corresponding to the transactionId
@@ -722,7 +759,7 @@ namespace DoshiiDotNetIntegration
         /// The Id of the order that is being requested. 
         /// </param>
         /// <returns></returns>
-        public virtual List<Transaction> GetTransactionFromDoshiiOrderId(string orderId)
+        public virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string orderId)
         {
             try
             {
@@ -738,7 +775,7 @@ namespace DoshiiDotNetIntegration
 		/// Retrieves the list of payments from Doshii.
 		/// </summary>
 		/// <returns>The current list of Doshii payments.</returns>
-		public virtual System.Collections.Generic.IEnumerable<Transaction> GetTransactions()
+		public virtual IEnumerable<Transaction> GetTransactions()
 		{
 			try
 			{

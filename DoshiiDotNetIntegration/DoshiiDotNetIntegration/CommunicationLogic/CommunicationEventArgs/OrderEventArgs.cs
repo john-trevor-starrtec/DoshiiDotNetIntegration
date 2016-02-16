@@ -15,6 +15,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 
 		internal Order Order { get; set; }
 
-        internal List<Transaction> TransactionList { get; set; }
+        internal IEnumerable<Transaction> TransactionList { get; set; }
     }
 }

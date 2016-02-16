@@ -136,7 +136,6 @@
     <Compile Include="Models\Json\JsonSurcount.cs" />
     <Compile Include="Models\Json\JsonTableAllocation.cs" />
     <Compile Include="Models\Json\JsonTableOrder.cs" />
-    <Compile Include="Models\Json\JsonTransactionList.cs" />
     <Compile Include="Models\Json\JsonVariants.cs" />
     <Compile Include="Models\Json\SocketMessage.cs" />
     <Compile Include="Models\Json\SocketMessageData.cs" />

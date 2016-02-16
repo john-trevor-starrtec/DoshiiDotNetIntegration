@@ -191,7 +191,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        internal virtual List<Transaction> GetTransactionFromDoshiiOrderId(string orderId)
+        internal virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string orderId)
         {
             var retreivedTransactionList = new List<Transaction>();
             DoshiHttpResponseMessage responseMessage;
@@ -210,12 +210,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonTransactionList = JsonTransactionList.deseralizeFromJson(responseMessage.Data);
-                        foreach(JsonTransaction tran in jsonTransactionList.transactionList)
-                        {
-                            var newTran = Mapper.Map<Transaction>(tran);
-                            retreivedTransactionList.Add(newTran);
-                        }
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonTransaction>>(responseMessage.Data);
+                        retreivedTransactionList = Mapper.Map<List<Transaction>>(jsonList);
                     }
                     else
                     {
@@ -325,6 +321,52 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
 				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
+            }
+
+            return retreivedOrderList;
+        }
+
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// Gets all the current active orders in Doshii, if there are no active orders an empty list is returned. 
+        /// </summary>
+        /// <returns></returns>
+        internal virtual IEnumerable<Order> GetUnlinkedOrders()
+        {
+            var retreivedOrderList = new List<Order>();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrder>>(responseMessage.Data);
+                        retreivedOrderList = Mapper.Map<List<Order>>(jsonList);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
             }
 
             return retreivedOrderList;
