@@ -66,7 +66,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="version">The current version of the transaction in Doshii.</param>
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException">This exception 
         /// should be thrown when there is no transaction in the POS with the corresponding id
-        void RecordOrderVersion(string transactionId, string version);
+        void RecordTransactionVersion(string transactionId, string version);
 
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to request the current
@@ -77,6 +77,6 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException">This exception 
         /// should be thrown when there is no order in the POS with the corresponding 
         /// <paramref name="posOrderId"/>.</exception>
-        string RetrieveOrderVersion(string transactionId);
+        string RetrieveTransactionVersion(string transactionId);
 	}
 }

@@ -626,6 +626,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         var jsonTransaction = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
                         returnedTransaction = Mapper.Map<Transaction>(jsonTransaction);
+                        if (returnedTransaction != null)
+                        {
+                            m_DoshiiLogic.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
+                        }
                     }
                     else
                     {
@@ -680,6 +684,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         var jsonTransaction = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
                         returnedTransaction = Mapper.Map<Transaction>(jsonTransaction);
+                        if (returnedTransaction != null)
+                        {
+                            m_DoshiiLogic.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
+                        }
                     }
                     else
                     {
