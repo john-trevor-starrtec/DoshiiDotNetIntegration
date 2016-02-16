@@ -71,12 +71,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
 		// TODO: [BC]: Consider making the following events public to expose them to the POS implementation.
         
-        internal delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        internal delegate void OrderCreatedEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the state of an order has changed through doshii
         /// </summary>
-        internal event OrderStatusEventHandler OrderStatusEvent;
+        internal event OrderCreatedEventHandler OrderCreatedEvent;
 
         internal delegate void TransactionStatusEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
         /// <summary>
@@ -375,7 +375,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     orderStatusEventArgs.OrderId = messageData.OrderId;
                     orderStatusEventArgs.Status = messageData.Status;
 
-                    OrderStatusEvent(this, orderStatusEventArgs);
+                    OrderCreatedEvent(this, orderStatusEventArgs);
                     break;
                 case "transaction_created":
                 case "transaction_status":

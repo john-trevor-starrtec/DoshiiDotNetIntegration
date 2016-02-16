@@ -19,7 +19,15 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
+
+        /// <summary>
+        /// Order id
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "doshiiId")]
+        public string DoshiiId { get; set; }
         
+
         /// <summary>
         /// Order status
         /// </summary>

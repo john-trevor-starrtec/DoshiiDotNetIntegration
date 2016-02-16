@@ -28,6 +28,7 @@ namespace DoshiiDotNetIntegration.Models
 		public void Clear()
 		{
 			Id = String.Empty;
+		    DoshiiId = String.Empty;
 			Status = String.Empty;
 			InvoiceId = String.Empty;
 			TransactionId = String.Empty;
@@ -49,7 +50,12 @@ namespace DoshiiDotNetIntegration.Models
         /// Order id
         /// </summary>
         public string Id { get; set; }
-        
+
+        /// <summary>
+        /// The Doshii Id for the order, this is used to get unlinked orders
+        /// </summary>
+        public string DoshiiId { get; set; }
+
         /// <summary>
         /// Order status
         /// </summary>

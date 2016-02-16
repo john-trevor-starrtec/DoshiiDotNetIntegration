@@ -100,18 +100,6 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        [ExpectedException(typeof(NotImplementedException))]
-        public void ProcessSocketMessage_OrderStatusMessage()
-        {
-            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage =
-                GenerateObjectsAndStringHelper.GenerateSocketMessage_OrderStatus();
-            _manager.Stub(x => x.GetOrder(Arg<String>.Is.Anything)).IgnoreArguments().Return(GenerateObjectsAndStringHelper.GenerateOrderPending());
-            _manager.Expect(x => x.SocketComsOrderStatusEventHandler(MockSocketComs, GenerateObjectsAndStringHelper.GenerateOrderEventArgs_pending()));
-
-            MockSocketComs.ProcessSocketMessage(testSocketMessage);
-        }
-
-        [Test]
         public void ProcessSocketMessage_TransactionCreatedMessage()
         {
             DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage =

@@ -204,7 +204,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 throw rex;
             }
 
-
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -465,7 +464,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 throw new NotSupportedException("Method Not Supported");
             }
 
-            string orderIdentifier = order.Id;
             var returnOrder = new Order();
             DoshiHttpResponseMessage responseMessage;
             OrderToPut orderToPut = new OrderToPut();
@@ -474,13 +472,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 orderToPut.Status = "accepted";
             }
-            else if (order.Status == "paid")
+            else if (order.Status == "complete")
             {
-                orderToPut.Status = "paid";
-            }
-            else if (order.Status == "waiting_for_payment")
-            {
-                orderToPut.Status = "waiting_for_payment";
+                orderToPut.Status = "complete";
             }
             else
             {
@@ -493,7 +487,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             try
             {
                 var jsonOrderToPut = Mapper.Map<JsonOrderToPut>(orderToPut);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order, orderIdentifier), method, jsonOrderToPut.ToJsonStringForOrder());
+                if (String.IsNullOrEmpty(order.Id))
+                {
+                    responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders, order.DoshiiId), method, jsonOrderToPut.ToJsonStringForOrder());
+                }
+                else
+                {
+                    responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order, order.Id), method, jsonOrderToPut.ToJsonStringForOrder());
+                }
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -506,7 +507,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return returnOrder;
         }
 
-		/// <summary>
+        /// <summary>
 		/// This function takes the supplied <paramref name="responseMessage"/> received from the RESTful Doshii API and translates it
 		/// into some sort of order object. It utilises the mapping between a model object (<typeparamref name="T"/>) and its corresponding 
 		/// JSON data transfer object (<typeparamref name="DTO"/>). The data transfer object type should be an extension of the 
@@ -587,7 +588,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 				else if (orderDetails is TableOrder)
 					order = (orderDetails as TableOrder).Order;
 
-				if (order != null)
+				if (order != null && !String.IsNullOrEmpty(order.Id))
 					m_DoshiiLogic.RecordOrderVersion(order.Id, order.Version);
 			}
 		}
@@ -645,6 +646,61 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             return returnedTransaction;
         }
+
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// completes the Put request to update a transaction, the transaction but be existing 
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
+        internal virtual Transaction PutTransaction(Transaction transaction)
+        {
+            DoshiHttpResponseMessage responseMessage;
+            Transaction returnedTransaction = null;
+            try
+            {
+                var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Transaction, transaction.Id), WebRequestMethods.Http.Put, jsonTransaction.ToJsonString());
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonTransaction = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
+                        returnedTransaction = Mapper.Map<Transaction>(jsonTransaction);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
+                throw new NullOrderReturnedException();
+            }
+
+            return returnedTransaction;
+        }
+        
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// This method is used to confirm or reject or update an order when the order has an OrderId
@@ -658,7 +714,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return PutPostOrder(order, WebRequestMethods.Http.Put);
         }
 
-		/// <summary>
+        /// <summary>
 		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
 		/// This method is used to retrieve the Doshii Configuration
 		/// </summary>
