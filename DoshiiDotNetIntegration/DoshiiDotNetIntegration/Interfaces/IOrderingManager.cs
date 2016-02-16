@@ -76,7 +76,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// The pos cannot modify the <see cref="Transaction"/> objects in the transaction list, during this process as the amount has already been confirmed with the consumer.
         /// If the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and return the order, and the
         /// order should be made on the pos. The transaction should not be recorded on the POS during this method. The
-        /// he Pos will receive a call to <see cref="IPaymentModuleManager.AcceptPayment"/> to record the transaction
+        /// he Pos will receive a call to <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> to record the transaction
         /// If the <see cref="Order"/> or the <see cref="Transaction"/> is rejected the pos should return Null.
         /// </summary>
         /// <param name="order">

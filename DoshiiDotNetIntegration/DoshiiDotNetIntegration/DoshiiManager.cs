@@ -494,7 +494,8 @@ namespace DoshiiDotNetIntegration
 				var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
 
-                mPaymentManager.AcceptPayment(returnedTransaction);
+                mPaymentManager.RecordSuccessfulPayment(returnedTransaction);
+                mPaymentManager.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
                 return true;
             }
             else

@@ -51,7 +51,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </summary>
 		/// <param name="orderId">The identifier for the order being paid.</param>
 		/// <param name="paymentAmount">The amount paid.</param>
-		void AcceptPayment(Transaction transaction);
+		void RecordSuccessfulPayment(Transaction transaction);
 
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the point of

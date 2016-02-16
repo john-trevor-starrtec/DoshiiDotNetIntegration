@@ -87,10 +87,10 @@ namespace SampleDotNetPOS.POSImpl
 		}
 
 		/// <summary>
-		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.AcceptPayment(Transaction)"/> for details of this call.
+		/// See <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> for details of this call.
 		/// </summary>
 		/// <param name="transaction"></param>
-		public void AcceptPayment(Transaction transaction)
+		public void RecordSuccessfulPayment(Transaction transaction)
 		{
 			var order = UpdateOrder(transaction.OrderId, "paid");
 			var payment = new Transaction();
@@ -100,6 +100,16 @@ namespace SampleDotNetPOS.POSImpl
 			payments.Add(payment);
 			order.Payments = payments;
 		}
+
+	    public void RecordTransactionVersion(string transactionId, string version)
+	    {
+	        throw new NotImplementedException();
+	    }
+
+	    public string RetrieveTransactionVersion(string transactionId)
+	    {
+	        throw new NotImplementedException();
+	    }
 
 		#endregion
 
