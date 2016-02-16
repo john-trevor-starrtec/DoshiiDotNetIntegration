@@ -194,44 +194,6 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        public void TransactionStatusEventHandler_StatusPending_throwsDoesNotExistOnPos()
-        {
-            paymentManager.Expect(
-                x =>
-                    x.ReadyToPay(
-                        Arg<Transaction>.Matches(
-                            t => t.Id == GenerateObjectsAndStringHelper.GenerateTransactionPending().Id && t.Status == GenerateObjectsAndStringHelper.GenerateTransactionPending().Status && t.PaymentAmount == GenerateObjectsAndStringHelper.GenerateTransactionPending().PaymentAmount))).Throw(new OrderDoesNotExistOnPosException());
-            _Logger.Expect(
-                x =>
-                    x.LogDoshiiMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API that does not exist on the system, orderid {0}", GenerateObjectsAndStringHelper.GenerateTransactionPending().OrderId)));
-
-            _mockManager.SocketComsTransactionStatusEventHandler(this,
-                GenerateObjectsAndStringHelper.GenerateTransactionEventArgs_pending(GenerateObjectsAndStringHelper.GenerateTransactionPending()));
-
-            _Logger.VerifyAllExpectations();
-            paymentManager.VerifyAllExpectations();
-        }
-
-        [Test]
-        [ExpectedException(typeof(NotSupportedException))]
-        public void TransactionStatusEventHandler_StatusPending_TransactionOtherStatusThanPending()
-        {
-            paymentManager.Stub(
-                x =>
-                    x.ReadyToPay(
-                        Arg<Transaction>.Matches(
-                            t =>
-                                t.Id == GenerateObjectsAndStringHelper.GenerateTransactionPending().Id &&
-                                t.Status == GenerateObjectsAndStringHelper.GenerateTransactionPending().Status &&
-                                t.PaymentAmount ==
-                                GenerateObjectsAndStringHelper.GenerateTransactionPending().PaymentAmount)))
-                .Return(GenerateObjectsAndStringHelper.GenerateTransactionComplete());
-            _mockManager.SocketComsTransactionStatusEventHandler(this,
-                GenerateObjectsAndStringHelper.GenerateTransactionEventArgs_pending(GenerateObjectsAndStringHelper.GenerateTransactionComplete()));
-        }
-
-        
-        [Test]
         public void RecordOrderVersion_ThrowsOrderDoesNotExistOnPosException()
         {
             orderingManager.Expect(
