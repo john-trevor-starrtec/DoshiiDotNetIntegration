@@ -875,12 +875,21 @@ namespace DoshiiDotNetIntegration
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now", table.Name, posOrderId));
 
 			var tableOrder = new TableOrder();
-			tableOrder.Order = (Order)order.Clone(); // I was thinking clone should be used here to limit order to this scope, but on second thought it probably isn't necessary
-			tableOrder.Table = table; // so I haven't worried about cloning the table object here
+			tableOrder.Order = order; 
+			tableOrder.Table = table; 
 
 			try
 			{
-				return m_HttpComs.PutOrderWithTableAllocation(tableOrder);
+				Order returnedOrder = m_HttpComs.PutOrderWithTableAllocation(tableOrder);
+			    if (returnedOrder != null)
+			    {
+			        RecordOrderCheckinId(returnedOrder);
+			        return true;
+			    }
+			    else
+			    {
+			        return false;
+			    }
 			}
 			catch (RestfulApiErrorResponseException rex)
 			{
@@ -897,6 +906,11 @@ namespace DoshiiDotNetIntegration
                 throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for order.Id{0}", order.Id), ex);
             }
 		}
+
+        internal virtual void RecordOrderCheckinId(Order order)
+        {
+            mOrderingManager.RecordCheckinForOrder(order.Id, order.CheckinId);
+        }
 
         /// <summary>
         /// Deletes a table Allocation from Doshii
@@ -923,7 +937,8 @@ namespace DoshiiDotNetIntegration
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for Order Id - '{0}'",posOrderId));
             try
             {
-                return m_HttpComs.DeleteTableAllocation(posOrderId);
+                string checkinId = mOrderingManager.RetrieveCheckinIdForOrder(posOrderId);
+                return m_HttpComs.DeleteTableAllocation(checkinId);
             }
             catch (RestfulApiErrorResponseException rex)
             {

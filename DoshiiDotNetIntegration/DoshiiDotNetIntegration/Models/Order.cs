@@ -65,7 +65,8 @@ namespace DoshiiDotNetIntegration.Models
         public string TransactionId { get; set; }
         
         /// <summary>
-        /// The CheckinId the order is associated with
+        /// The CheckinId the order is associated with, the doshii system uses this checkinId to relate tables to orders, to delete a table allocation you must have the
+        /// order checkIn Id. 
         /// </summary>
         public string CheckinId { get; set; }
 

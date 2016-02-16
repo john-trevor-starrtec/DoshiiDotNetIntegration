@@ -71,6 +71,31 @@ namespace DoshiiDotNetIntegration.Interfaces
 		string RetrieveOrderVersion(string posOrderId);
 
         /// <summary>
+        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the point of
+        /// sale that the checkin associated with an order has been changed. The <paramref name="checkinId"/> string must be persisted in
+        /// the POS against the order - the checkinId is the link between orders and tables in the doshii api. 
+        /// </summary>
+        /// <remarks>
+        ///  </remarks>
+        /// <param name="posOrderId">The unique identifier of the order being updated in the POS.</param>
+        /// <param name="checkinId">The current checkinId related to the order in Doshii.</param>
+        /// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
+        /// should be thrown when there is no order in the POS with the corresponding 
+        /// <paramref name="posOrderId"/>.</exception>
+        void RecordCheckinForOrder(string posOrderId, string checkinId);
+
+        /// <summary>
+        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to request the current
+        /// checkinId associated with an order.
+        /// </summary>
+        /// <param name="posOrderId">The unique identifier of the order being queried on the POS.</param>
+        /// <returns>The current version of the order in the POS.</returns>
+        /// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
+        /// should be thrown when there is no order in the POS with the corresponding 
+        /// <paramref name="posOrderId"/>.</exception>
+        string RetrieveCheckinIdForOrder(string posOrderId);
+
+        /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
         /// The pos must check that the order can be made on the pos, and that the transactions total the correct amount for payment of the order in full
         /// The pos cannot modify the <see cref="Transaction"/> objects in the transaction list, during this process as the amount has already been confirmed with the consumer.

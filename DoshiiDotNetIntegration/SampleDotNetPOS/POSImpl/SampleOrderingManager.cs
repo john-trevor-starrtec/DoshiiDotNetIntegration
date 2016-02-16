@@ -39,6 +39,16 @@ namespace SampleDotNetPOS.POSImpl
 
 		#region IOrderingManager Members
 
+
+	    public void RecordCheckinForOrder(string posOrderId, string checkinId)
+	    {
+	        throw new NotImplementedException();
+	    }
+
+	    public string RetrieveCheckinIdForOrder(string posOrderId)
+	    {
+	        throw new NotImplementedException();
+	    }
 		/// <summary>
 		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IOrderingManager.RetrieveOrder(string)"/> for details on this call.
 		/// </summary>

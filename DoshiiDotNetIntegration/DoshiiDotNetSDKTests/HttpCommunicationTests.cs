@@ -601,19 +601,6 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        public void DeleteTableAllocation_Successful()
-        {
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessNoData();
-            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiHttpCommunication), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was successful. Allocations have been removed", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.DeleteAllocationFromOrder, GenerateObjectsAndStringHelper.TestOrderId))));
-
-            MockHttpComs.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
-
-            MockHttpComs.VerifyAllExpectations();
-            _manager.mLog.VerifyAllExpectations();
-        }
-
-        [Test]
         [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
         public void DeleteTableAllocation_ThrowsException()
         {
@@ -621,30 +608,5 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
         }
 
-        [Test]
-        public void DeleteTableAllocation_ReturnedTransactionDataIsNull()
-        {
-            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
-            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiHttpCommunication), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' to URL '{0}'", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.DeleteAllocationFromOrder, GenerateObjectsAndStringHelper.TestOrderId))));
-
-            MockHttpComs.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
-
-            MockHttpComs.VerifyAllExpectations();
-            _manager.mLog.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void DeleteTableAllocation_ReturnedTransactionIsNotOk()
-        {
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessNoData();
-            responseMessage.Status = HttpStatusCode.Forbidden;
-            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiHttpCommunication), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", MockHttpComs.GenerateUrl(DoshiiDotNetIntegration.Enums.EndPointPurposes.DeleteAllocationFromOrder, GenerateObjectsAndStringHelper.TestOrderId))));
-
-            MockHttpComs.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
-
-            MockHttpComs.VerifyAllExpectations();
-            _manager.mLog.VerifyAllExpectations();
-        }
     }
 }

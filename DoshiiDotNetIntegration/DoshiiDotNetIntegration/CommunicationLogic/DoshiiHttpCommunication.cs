@@ -424,7 +424,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		/// </summary>
 		/// <param name="tableOrder">The details of the order and table allocation to present to Doshii.</param>
 		/// <returns>The table order details as uploaded to Doshii API.</returns>
-		internal virtual bool PutOrderWithTableAllocation(TableOrder tableOrder)
+		internal virtual Order PutOrderWithTableAllocation(TableOrder tableOrder)
 		{
 			var returnedTableOrder = new Order();
 			DoshiHttpResponseMessage responseMessage;
@@ -442,15 +442,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
 			var dto = new JsonOrder();
             //this call need to exist to record the Order.version
-			returnedTableOrder = HandleOrderResponse<Order, JsonOrder>(orderIdentifier, responseMessage, out dto);
-		    if (responseMessage.Status == HttpStatusCode.OK)
-		    {
-		        return true;
-		    }
-		    else
-		    {
-		        return false;
-		    }
+			return HandleOrderResponse<Order, JsonOrder>(orderIdentifier, responseMessage, out dto);
 		}
 
         
@@ -459,12 +451,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// Deletes a table allocaiton from doshii for the provided order Id. 
         /// </summary>
         /// <returns></returns>
-        internal virtual bool DeleteTableAllocation(string posOrderId)
+        internal virtual bool DeleteTableAllocation(string checkinId)
         {
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.DeleteAllocationFromOrder, posOrderId), DeleteMethod);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, checkinId), DeleteMethod);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -475,17 +467,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: A 'DELETE' request to {0} was successful. Allocations have been removed", GenerateUrl(EndPointPurposes.DeleteAllocationFromOrder, posOrderId)));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: A 'DELETE' request to {0} was successful. Allocations have been removed", GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, checkinId)));
                     return true;
                 }
                 else
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.DeleteAllocationFromOrder, posOrderId)));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, checkinId)));
                 }
             }
             else
             {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' to URL '{0}'", GenerateUrl(EndPointPurposes.DeleteAllocationFromOrder, posOrderId)));
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' to URL '{0}'", GenerateUrl(EndPointPurposes.DeleteAllocationFromCheckin, checkinId)));
             }
 
             return false;
@@ -604,6 +596,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 			}
 
 			UpdateOrderVersion<T>(returnObj);
+            
 
 			return returnObj;
 		}
@@ -896,8 +889,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
-                case EndPointPurposes.DeleteAllocationFromOrder:
-                    newUrlbuilder.AppendFormat("/orders/{0}/tables", identification);
+                case EndPointPurposes.DeleteAllocationFromCheckin:
+                    newUrlbuilder.AppendFormat("/tables?checkin={0}", identification);
                     break;
                 case EndPointPurposes.Transaction:
                     newUrlbuilder.Append("/transactions");
