@@ -49,6 +49,7 @@ namespace DoshiiDotNetIntegration.Helpers
 				AutoMapperConfigurator.MapSurcountObjects();
 				AutoMapperConfigurator.MapTransactionObjects();
 				AutoMapperConfigurator.MapTableAllocationObjects();
+			    AutoMapperConfigurator.MapConsumerObjects();
 				AutoMapperConfigurator.MapOrderObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
@@ -140,6 +141,15 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = JsonTableAllocation, dest = TableAllocation
 			Mapper.CreateMap<JsonTableAllocation, TableAllocation>();
 		}
+
+	    private static void MapConsumerObjects()
+	    {
+            // src = Consumer, dest = JsonConsumer
+            Mapper.CreateMap<Consumer, JsonConsumer>();
+
+            // src = JsonConsumer, dest = Consumer
+            Mapper.CreateMap<JsonConsumer, Consumer>();
+	    }
 
 		/// <summary>
 		/// This function creates a bi-directional object mapping between the Order model objects and their
