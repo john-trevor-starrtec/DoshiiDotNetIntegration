@@ -85,8 +85,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             m_Token = token;
         }
 
-        #region internal  methods 
-
         #region order methods
 
         /// <summary>
@@ -755,15 +753,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         {
             return PutPostOrder(order, WebRequestMethods.Http.Put);
         }
-
-        /// <summary>
-		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-		/// This method is used to retrieve the Doshii Configuration
-		/// </summary>
-		/// <returns>The current configuration in Doshii.</returns>
-		internal virtual Configuration GetConfig()
-		{
-			DoshiHttpResponseMessage responseMessage;
 
         #endregion
 
