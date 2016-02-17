@@ -52,7 +52,12 @@ namespace DoshiiDotNetIntegration.Models
         /// Order status
         /// </summary>
         public string Status { get; set; }
-        
+
+        /// <summary>
+        /// type of order 'delivery' or 'pickup'
+        /// </summary>
+        public string Type { get; set; }
+
         /// <summary>
         /// Unique identifier for the invoice once the order is paid for.
         /// </summary>

@@ -291,7 +291,7 @@ namespace DoshiiDotNetSDKTests
         {
             var list = new List<DoshiiDotNetIntegration.Models.Order>();
             list.Add(GenerateOrderAccepted());
-            list.Add(GenerateOrderPending());
+            list.Add(GenerateDeliveryOrderPending());
             list.Add(GenerateOrderReadyToPay());
             list.Add(GenerateOrderCancelled());
             return list;
@@ -333,14 +333,28 @@ namespace DoshiiDotNetSDKTests
             return order;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Order GenerateOrderPending()
+        internal static DoshiiDotNetIntegration.Models.Order GenerateDeliveryOrderPending()
         {
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId + 1,
                 DoshiiId = TestOrderId,
                 CheckinId = string.Format("{0}2",TestCheckinId),
-                Status = "pending"
+                Status = "pending",
+                Type = "delivery"
+            };
+            return order;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Order GeneratePickupOrderPending()
+        {
+            var order = new DoshiiDotNetIntegration.Models.Order()
+            {
+                Id = TestOrderId + 1,
+                DoshiiId = TestOrderId,
+                CheckinId = string.Format("{0}2", TestCheckinId),
+                Status = "pending",
+                Type = "pickup"
             };
             return order;
         }
@@ -462,7 +476,7 @@ namespace DoshiiDotNetSDKTests
         internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_OrderStatus()
         {
             DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
-            testSocketMessageData.Order = Mapper.Map<JsonOrder>(GenerateOrderPending()).ToJsonString();
+            testSocketMessageData.Order = Mapper.Map<JsonOrder>(GenerateDeliveryOrderPending()).ToJsonString();
             testSocketMessageData.EventName = "order_status";
             testSocketMessageData.OrderId = TestOrderId;
             testSocketMessageData.Status = "pending";
@@ -493,7 +507,7 @@ namespace DoshiiDotNetSDKTests
         internal static OrderEventArgs GenerateOrderEventArgs_pending()
         {
             OrderEventArgs testOrderEventArgs = new OrderEventArgs();
-            testOrderEventArgs.Order = GenerateOrderPending();
+            testOrderEventArgs.Order = GenerateDeliveryOrderPending();
             testOrderEventArgs.OrderId = TestOrderId;
             testOrderEventArgs.Status = "pending";
             return testOrderEventArgs;
