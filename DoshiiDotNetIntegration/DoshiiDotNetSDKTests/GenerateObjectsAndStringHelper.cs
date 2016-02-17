@@ -302,6 +302,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId,
+                DoshiiId = TestOrderId,
                 CheckinId = TestCheckinId,
                 Status = "accepted"
             };
@@ -313,6 +314,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId,
+                DoshiiId = TestOrderId,
                 CheckinId = TestCheckinId,
                 Status = "paid"
             };
@@ -324,6 +326,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId,
+                DoshiiId = TestOrderId,
                 CheckinId = TestCheckinId,
                 Status = "waiting_for_payment"
             };
@@ -335,6 +338,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId + 1,
+                DoshiiId = TestOrderId,
                 CheckinId = string.Format("{0}2",TestCheckinId),
                 Status = "pending"
             };
@@ -346,6 +350,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId + 2,
+                DoshiiId = TestOrderId,
                 CheckinId = string.Format("{0}3", TestCheckinId),
                 Status = "pending"
             };
@@ -357,6 +362,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId + 3,
+                DoshiiId = TestOrderId,
                 CheckinId = string.Format("{0}4", TestCheckinId),
                 Status = "cancelled"
             };
@@ -391,6 +397,15 @@ namespace DoshiiDotNetSDKTests
                 Status = TestTableAllocationStatus
             };
             return tableAllocation;
+        }
+
+        internal static List<DoshiiDotNetIntegration.Models.Transaction> GenerateTransactionList()
+        {
+            List<Transaction> transactionList = new List<Transaction>();
+            transactionList.Add(GenerateTransactionComplete());
+            transactionList.Add(GenerateTransactionPending());
+            transactionList.Add(GenerateTransactionWaiting());
+            return transactionList;
         }
 
         internal static DoshiiDotNetIntegration.Models.Transaction GenerateTransactionPending()

@@ -30,7 +30,6 @@ namespace DoshiiDotNetIntegration.Models
 		    DoshiiId = String.Empty;
 			Status = String.Empty;
 			InvoiceId = String.Empty;
-			TransactionId = String.Empty;
 			CheckinId = String.Empty;
 			LocationId = String.Empty;
 			_surcounts.Clear();
@@ -58,11 +57,6 @@ namespace DoshiiDotNetIntegration.Models
         /// Unique identifier for the invoice once the order is paid for.
         /// </summary>
         public string InvoiceId{ get; set; }
-        
-        /// <summary>
-        /// Unique transaction identifier for the order.
-        /// </summary>
-        public string TransactionId { get; set; }
         
         /// <summary>
         /// The CheckinId the order is associated with, the doshii system uses this checkinId to relate tables to orders, to delete a table allocation you must have the
