@@ -52,6 +52,32 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </summary>
 		/// <param name="orderId">The identifier for the order being paid.</param>
 		/// <param name="paymentAmount">The amount paid.</param>
-		void RecordPayment(Transaction transaction);
+		void RecordSuccessfulPayment(Transaction transaction);
+
+        /// <summary>
+        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the point of
+        /// sale that an transaction version has been updated. The <paramref name="version"/> string must be persisted in
+        /// the POS and passed back when the POS updates a transaction. 
+        /// </summary>
+        /// <remarks>
+        /// The current <paramref name="version"/> is used by Doshii for conflict resolution, but the POS is 
+        /// the final arbiter on the state of an order.
+        /// </remarks>
+        /// <param name="transactionId">The unique doshii identifier of the transaction being updated in the POS.</param>
+        /// <param name="version">The current version of the transaction in Doshii.</param>
+        /// <exception cref="DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException">This exception 
+        /// should be thrown when there is no transaction in the POS with the corresponding id
+        void RecordTransactionVersion(string transactionId, string version);
+
+        /// <summary>
+        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to request the current
+        /// version of a transaction in the POS.
+        /// </summary>
+        /// <param name="transactionId">The unique doshii identifier of the transaction being queried on the POS.</param>
+        /// <returns>The current version of the transaction in the POS.</returns>
+        /// <exception cref="DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException">This exception 
+        /// should be thrown when there is no order in the POS with the corresponding 
+        /// <paramref name="posOrderId"/>.</exception>
+        string RetrieveTransactionVersion(string transactionId);
 	}
 }

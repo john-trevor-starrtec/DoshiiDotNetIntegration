@@ -7,6 +7,8 @@ using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -260,8 +262,9 @@ namespace DoshiiDotNetIntegration
             {
                 UnsubscribeFromSocketEvents();
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: Subscribing to socket events");
-				m_SocketComs.OrderStatusEvent += new DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComsOrderStatusEventHandler);
-                m_SocketComs.TransactionStatusEvent += new DoshiiWebSocketsCommunication.TransactionStatusEventHandler(SocketComsTransactionStatusEventHandler);
+                m_SocketComs.OrderCreatedEvent += new DoshiiWebSocketsCommunication.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
+                m_SocketComs.TransactionCreatedEvent += new DoshiiWebSocketsCommunication.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
+                m_SocketComs.TransactionUpdatedEvent += new DoshiiWebSocketsCommunication.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
 				m_SocketComs.SocketCommunicationEstablishedEvent += new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
                 m_SocketComs.SocketCommunicationTimeoutReached += new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
             }
@@ -274,8 +277,9 @@ namespace DoshiiDotNetIntegration
         internal virtual void UnsubscribeFromSocketEvents()
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: Unsubscribing from socket events");
-            m_SocketComs.OrderStatusEvent -= new DoshiiWebSocketsCommunication.OrderStatusEventHandler(SocketComsOrderStatusEventHandler);
-            m_SocketComs.TransactionStatusEvent -= new DoshiiWebSocketsCommunication.TransactionStatusEventHandler(SocketComsTransactionStatusEventHandler);
+            m_SocketComs.OrderCreatedEvent -= new DoshiiWebSocketsCommunication.OrderCreatedEventHandler(SocketComsOrderCreatedEventHandler);
+            m_SocketComs.TransactionCreatedEvent -= new DoshiiWebSocketsCommunication.TransactionCreatedEventHandler(SocketComsTransactionCreatedEventHandler);
+            m_SocketComs.TransactionUpdatedEvent -= new DoshiiWebSocketsCommunication.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
             m_SocketComs.SocketCommunicationEstablishedEvent -= new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
             m_SocketComs.SocketCommunicationTimeoutReached -= new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
         }
@@ -292,9 +296,26 @@ namespace DoshiiDotNetIntegration
         internal virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
+            RefreshAllOrders();
             //send configuration
         }
 
+        /// <summary>
+        /// checks all orders on the doshii system, if there are any pending orders deals with them as if it received a socket message alerting to a pending order. 
+        /// currently this method does not check the transactions as there should be no unlinked transactions for already created orders, order ahead only allows for 
+        /// partners to make payments when they create an order else the payment is expected to be made by the customer on receipt of the order. 
+        /// </summary>
+        internal void RefreshAllOrders()
+        {
+            //check unassigned orders
+            IEnumerable<Order> unassignedOrderList = GetUnlinkedOrders();
+            foreach (var order in unassignedOrderList)
+            {
+                IEnumerable<Transaction> transactionListForOrder = GetTransactionFromDoshiiOrderId(order.DoshiiId);
+                HandleOrderCreated(order, transactionListForOrder.ToList());
+            }
+        }
+        
         /// <summary>
         /// DO NOT USE, this method is for internal use only
         /// Handles a socket communication timeOut event - this is when there has not been successful communication with doshii within the specified timeout period. 
@@ -315,51 +336,163 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        internal virtual void SocketComsOrderStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
+        internal virtual void SocketComsOrderCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
         {
-			//this method is not implemented for Pay@table, we will need to implement it for orderAhead but it is now currently necessary. 
-            throw new NotImplementedException();
-            //when this method is reintroducted the following call must be included every time a order is received from Doshii 
-            // m_DoshiiLogic.RecordOrderVersion(e.Order.Id, e.Order.Version);
+			if (!String.IsNullOrEmpty(e.Order.Id))
+            {
+                mLog.LogMessage(this.GetType(),DoshiiLogLevels.Fatal, "A preexisting order was passed to the order created event handler.");
+                throw new NotSupportedException("Developer Error, An order with a posId was passed to the CreatedOrderEventHandler");
+            }
+            HandleOrderCreated(e.Order, e.TransactionList.ToList());
+
         }
+
+        internal virtual void HandleOrderCreated(Order order, List<Transaction> transactionList)
+        {
+            Order orderReturnedFromPos = null;
+            if (transactionList.Count > 0)
+            {
+                orderReturnedFromPos = mOrderingManager.ConfirmNewOrderWithFullPayment(order, transactionList);
+            }
+            else
+            {
+                orderReturnedFromPos = mOrderingManager.ConfirmNewOrder(order);
+            }
+            if (orderReturnedFromPos == null)
+            {
+                //set order status to rejected post to doshii
+                order.Status = "rejected";
+                try
+                {
+                    UpdateOrder(order);
+                }
+                catch (Exception ex)
+                {
+                    //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
+                }
+                foreach (Transaction tran in transactionList)
+                {
+                    tran.Status = "rejected";
+                    try
+                    {
+                        RejectPaymentForOrder(tran);
+                    }
+                    catch (Exception ex)
+                    {
+                        //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
+                    }
+                }
+            }
+            else
+            {
+                //set order status to accepted post to doshii
+                orderReturnedFromPos.Status = "accepted";
+                try
+                {
+                    UpdateOrder(order);
+                }
+                catch (Exception ex)
+                {
+                    //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
+                    //if we get an error response at this point we should prob cancel the order on the pos and not continue and cancel the payments. 
+                }
+                //If there are transactions set to waiting and get response - should call request payment
+                foreach (Transaction tran in transactionList)
+                {
+                    RecordTransactionVersion(tran.Id, tran.Version);
+                    tran.Status = "waiting";
+                    try
+                    {
+                        RequestPaymentForOrderExistingTransaction(tran);
+                    }
+                    catch (Exception ex)
+                    {
+                        //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
+                    }
+                }
+            }
+        } 
 
         /// <summary>
         /// DO NOT USE, this method is for internal use only
-        /// Handles a SocketComs_TransactionStatusEvent, 
+        /// Handles a SocketComs_TransactionCreatedEvent, 
         /// Calls the appropriate method on the PaymentInterface to act on the transaction depending on the transaction status. 
         /// <exception cref="NotSupportedException">When a partial payment is attempted during Bistro Mode.</exception>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        internal virtual void SocketComsTransactionStatusEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
+        internal virtual void SocketComsTransactionCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
             Transaction transactionFromPos = null;
 			switch (e.Transaction.Status)
             {
                 case "pending":
-					try
-                    {
-                        transactionFromPos = mPaymentManager.ReadyToPay(e.Transaction);
-                    }
-                    catch(OrderDoesNotExistOnPosException)
-                    {
-						mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API that does not exist on the system, orderid {0}", e.Transaction.OrderId));
-                        break;
-                    }
-
-                    if (transactionFromPos != null)
-                    {
-                        RequestPaymentForOrder(transactionFromPos);
-                    }
+                    HandelPendingTransactionReceived(e.Transaction);
                     break;
                 default:
-					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: unknown / unsupported transaction status from the Doshii API - '{0}'", e.Transaction.Status)); 
+					mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status)); 
                     throw new NotSupportedException(string.Format("cannot process transaction with state {0} from the API",e.Transaction.Status));
             }
 		}
-        
 
+        /// <summary>
+        /// DO NOT USE, this method is for internal use only
+        /// Handles a SocketComs_TransactionCreatedEvent, 
+        /// Calls the appropriate method on the PaymentInterface to act on the transaction depending on the transaction status. 
+        /// <exception cref="NotSupportedException">When a partial payment is attempted during Bistro Mode.</exception>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        internal virtual void SocketComsTransactionUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
+            
+            switch (e.Transaction.Status)
+            {
+                case "pending":
+                    HandelPendingTransactionReceived(e.Transaction);
+                    break;
+                case "cancelled":
+                    mPaymentManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
+                    mPaymentManager.CancelPayment(e.Transaction);
+                    break;
+                case "complete":
+                    mPaymentManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
+                    mPaymentManager.RecordSuccessfulPayment(e.Transaction);
+                    break;
+                default:
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status));
+                    throw new NotSupportedException(string.Format("cannot process transaction with state {0} from the API", e.Transaction.Status));
+            }
+        }
+
+        internal void HandelPendingTransactionReceived(Transaction receivedTransaction)
+        {
+            Transaction transactionFromPos = null;
+            try
+            {
+                transactionFromPos = mPaymentManager.ReadyToPay(receivedTransaction);
+            }
+            catch (OrderDoesNotExistOnPosException)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: A transaction was initiated on the Doshii API for an order that does not exist on the system, orderid {0}", receivedTransaction.OrderId));
+                receivedTransaction.Status = "rejected";
+                RejectPaymentForOrder(receivedTransaction);
+                return;
+            }
+
+            if (transactionFromPos != null)
+            {
+                mPaymentManager.RecordTransactionVersion(receivedTransaction.Id, receivedTransaction.Version);
+                RequestPaymentForOrderExistingTransaction(transactionFromPos);
+            }
+            else
+            {
+                receivedTransaction.Status = "rejected";
+                RejectPaymentForOrder(receivedTransaction);
+            }
+        }
         /// <summary>
         /// DO NOT USE, this method is for internal use only
         /// This method requests a payment from Doshii
@@ -376,20 +509,21 @@ namespace DoshiiDotNetIntegration
         /// <returns>
         /// True on successful payment; false otherwise.
         /// </returns>
-        internal virtual bool RequestPaymentForOrder(Transaction transaction)
+        internal virtual bool RequestPaymentForOrderExistingTransaction(Transaction transaction)
         {
             var returnedTransaction = new Transaction();
             transaction.Status = "waiting";
 
             try
             {
-                returnedTransaction = m_HttpComs.PostTransaction(transaction);
+                transaction.Version = mPaymentManager.RetrieveTransactionVersion(transaction.Id);
+                returnedTransaction = m_HttpComs.PutTransaction(transaction);
             }
             catch (RestfulApiErrorResponseException rex)
             {
                 if (rex.StatusCode == HttpStatusCode.NotFound)
                 {
-                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the order for order.Id{0}", transaction.OrderId));
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for order.Id{0}", transaction.OrderId));
                     mPaymentManager.CancelPayment(transaction);
                     return false;
                 }
@@ -419,12 +553,67 @@ namespace DoshiiDotNetIntegration
 				var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
 
-                mPaymentManager.RecordPayment(returnedTransaction);
+                mPaymentManager.RecordSuccessfulPayment(returnedTransaction);
+                mPaymentManager.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
                 return true;
             }
             else
             {
                 mPaymentManager.CancelPayment(transaction);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// DO NOT USE, this method is for internal use only
+        /// This method requests a payment from Doshii
+        /// calls <see cref="m_DoshiiInterface.CheckOutConsumerWithCheckInId"/> when order update was reject by doshii for a reason that means it should not be retired. 
+        /// calls <see cref="m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order) "/> 
+        /// or <see cref="m_DoshiiInterface.RecordPartialCheckPayment(ref order) "/> 
+        /// or <see cref="m_DoshiiInterface.RecordFullCheckPayment(ref order)"/>
+        /// to record the payment in the pos. 
+        /// It is currently not supported to request a payment from doshii from the pos without first receiving an order with a 'ready to pay' status so this method should not be called directly from the POS
+        /// </summary>
+        /// <param name="order">
+        /// The order that should be paid
+        /// </param>
+        /// <returns>
+        /// True on successful payment; false otherwise.
+        /// </returns>
+        internal virtual bool RejectPaymentForOrder(Transaction transaction)
+        {
+            var returnedTransaction = new Transaction();
+            transaction.Status = "rejected";
+
+            try
+            {
+                returnedTransaction = m_HttpComs.PutTransaction(transaction);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The partner could not locate the transaction for transaction.Id{0}", transaction.OrderId));
+                return false;
+                
+            }
+            catch (NullOrderReturnedException)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putTransaction for transaction.Id{0}", transaction.OrderId));
+                return false;
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putTransaction for transaction.Id {0} : {1}", transaction.OrderId, ex));
+                return false;
+            }
+
+            if (returnedTransaction != null && returnedTransaction.Id == transaction.Id && returnedTransaction.Status == "complete")
+            {
+                var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: transaction put for payment - '{0}'", jsonTransaction.ToJsonString()));
+                return true;
+            }
+            else
+            {
                 return false;
             }
         }
@@ -445,7 +634,23 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update an order verison on the pos, OrderId - {0}, version - {1}, {2}", posOrderId, version, ex.ToString()));
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update an order version on the pos, OrderId - {0}, version - {1}, {2}", posOrderId, version, ex.ToString()));
+            }
+        }
+
+        internal void RecordTransactionVersion(string transactionId, string version)
+        {
+            try
+            {
+                mPaymentManager.RecordTransactionVersion(transactionId, version);
+            }
+            catch (TransactionDoesNotExistOnPosException nex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, string.Format("Doshii: Attempted to update a transaction version for a transaction that does not exist on the Pos, TransactionId - {0}, version - {1}", transactionId, version));
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a transaction version on the pos, TransactionId - {0}, version - {1}, {2}", transactionId, version, ex.ToString()));
             }
         }
         
@@ -468,11 +673,30 @@ namespace DoshiiDotNetIntegration
 			}
 		}
 
+        /// <summary>
+        /// This method returns an order from Doshii corresponding to the OrderId
+        /// </summary>
+        /// <param name="orderId">
+        /// The Id of the order that is being requested. 
+        /// </param>
+        /// <returns></returns>
+        public virtual Order GetOrderFromDoshiiOrderId(string orderId)
+        {
+            try
+            {
+                return m_HttpComs.GetOrder(orderId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
 		/// <summary>
 		/// Retrieves the current order list from Doshii.
 		/// </summary>
 		/// <returns>The current list of orders available in Doshii.</returns>
-		public virtual System.Collections.Generic.IEnumerable<Order> GetOrders()
+		public virtual IEnumerable<Order> GetOrders()
 		{
 			try
 			{
@@ -483,6 +707,22 @@ namespace DoshiiDotNetIntegration
 				throw rex;
 			}
 		}
+
+        /// <summary>
+        /// Retrieves the current unlinked order list from Doshii.
+        /// </summary>
+        /// <returns>The current list of orders available in Doshii.</returns>
+        public virtual IEnumerable<Order> GetUnlinkedOrders()
+        {
+            try
+            {
+                return m_HttpComs.GetUnlinkedOrders();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
 
         /// <summary>
         /// This method returns an transaction from Doshii corresponding to the transactionId
@@ -503,11 +743,30 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// This method returns an transaction from Doshii corresponding to the transactionId
+        /// </summary>
+        /// <param name="orderId">
+        /// The Id of the order that is being requested. 
+        /// </param>
+        /// <returns></returns>
+        public virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string orderId)
+        {
+            try
+            {
+                return m_HttpComs.GetTransactionFromDoshiiOrderId(orderId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
 		/// <summary>
 		/// Retrieves the list of payments from Doshii.
 		/// </summary>
 		/// <returns>The current list of Doshii payments.</returns>
-		public virtual System.Collections.Generic.IEnumerable<Transaction> GetTransactions()
+		public virtual IEnumerable<Transaction> GetTransactions()
 		{
 			try
 			{
@@ -518,51 +777,6 @@ namespace DoshiiDotNetIntegration
 				throw rex;
 			}
 		}
-
-        /// <summary>
-        /// This method will request payment for an order from the partner associated with the order. 
-        /// This method will only request a payment for an order that is already associated with a partner on the Doshii Api.
-        /// NOTE: it is not necessary to act on the return from this method it it's true - when true <see cref="IPaymentModuleManger.AcceptPayment"/> will be called
-        /// if the payment request fails  <see cref="IPaymentModuleManger.CancelPayment"/> will be called. If the pos wishes to retry at this point the pos should react to the false return. 
-        /// </summary>
-        /// <param name="orderToPay">The order the pos wishes to request payment for</param>
-        /// <param name="amountToPay">The amount the pos is requesting payment for</param>
-        /// <param name="requestFullPayment">If true, the pos will only accept a payment that is equal to the amountToPay
-        /// If false, the pos will accept any amount upto and including the amountToPay</param>
-        /// <returns>
-        /// True - if the payment request was successful
-        /// false - if the payment request was not successful 
-        ///  </returns>
-        /// <exception cref="TransactionNotProcessecException">If the transaction could not be created and requested from Doshii</exception> 
-        public virtual bool RequestPaymentForOrder(Order orderToPay, decimal amountToPay, bool requestFullPayment)
-        {
-            //This method is not useful for pay@table as the pay@table system will always be initiating the payment.
-            // This may be useful for order ahead if the partner does not pay automatically when making the order.
-            // It will be more useful for tab systems like Clipp, OneTab, that have created an order on the system that is expectecd to be paid later. 
-            // It may also be useful for integrated eftpos - but at that point it will need to be modified to accept the partner that the pos wishes to collect the payment from
-            // at the moment it's will only be requesting a payment from a payment system that is already associated with the order in the doshii API
-            if (orderToPay == null)
-            {
-                throw new ArgumentNullException("orderToPay");
-            }
-            if (string.IsNullOrWhiteSpace(orderToPay.Id))
-            {
-                throw new TransactionRequestNotProcessedException("orderToPay.Id is not valid");
-            }
-            if (amountToPay <= 0)
-            {
-                throw new TransactionRequestNotProcessedException("you cannot request a payment for an amount below $0");
-            }
-            var transaction = new Transaction();
-            transaction.OrderId = orderToPay.Id;
-            transaction.AcceptLess = !requestFullPayment;
-            transaction.PartnerInitiated = false;
-            transaction.PaymentAmount = amountToPay;
-            transaction.Status = "waiting";
-            return RequestPaymentForOrder(transaction);
-        } 
-
-
 
         /// <summary>
         /// This method will update the Order on the Doshii API
@@ -584,17 +798,12 @@ namespace DoshiiDotNetIntegration
 			var jsonOrder = Mapper.Map<JsonOrder>(order);
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", jsonOrder.ToJsonString()));
             
-            if (order.Status != "paid")
-            {
-                order.Status = "accepted";
-            }
-
             var returnedOrder = new Order();
             
             try
             {
                 returnedOrder = m_HttpComs.PutOrder(order);
-                if (returnedOrder.Id == "0")
+                if (returnedOrder.Id == "0" && returnedOrder.DoshiiId == "0")
                 {
                     mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId while updating order with id {0}", order.Id));
                     throw new OrderUpdateException(string.Format("Doshii: order was returned from doshii without an orderId while updating order with id {0}", order.Id));
@@ -620,7 +829,6 @@ namespace DoshiiDotNetIntegration
                 throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0}", order.Id), ex);
             }
             
-
             return returnedOrder;
         }
 
@@ -658,12 +866,21 @@ namespace DoshiiDotNetIntegration
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now", table.Name, posOrderId));
 
 			var tableOrder = new TableOrder();
-			tableOrder.Order = (Order)order.Clone(); // I was thinking clone should be used here to limit order to this scope, but on second thought it probably isn't necessary
-			tableOrder.Table = table; // so I haven't worried about cloning the table object here
+			tableOrder.Order = order; 
+			tableOrder.Table = table; 
 
 			try
 			{
-				return m_HttpComs.PutOrderWithTableAllocation(tableOrder);
+				Order returnedOrder = m_HttpComs.PutOrderWithTableAllocation(tableOrder);
+			    if (returnedOrder != null)
+			    {
+			        RecordOrderCheckinId(returnedOrder);
+			        return true;
+			    }
+			    else
+			    {
+			        return false;
+			    }
 			}
 			catch (RestfulApiErrorResponseException rex)
 			{
@@ -680,6 +897,11 @@ namespace DoshiiDotNetIntegration
                 throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for order.Id{0}", order.Id), ex);
             }
 		}
+
+        internal virtual void RecordOrderCheckinId(Order order)
+        {
+            mOrderingManager.RecordCheckinForOrder(order.Id, order.CheckinId);
+        }
 
         /// <summary>
         /// Deletes a table Allocation from Doshii
@@ -706,7 +928,8 @@ namespace DoshiiDotNetIntegration
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for Order Id - '{0}'",posOrderId));
             try
             {
-                return m_HttpComs.DeleteTableAllocation(posOrderId);
+                string checkinId = mOrderingManager.RetrieveCheckinIdForOrder(posOrderId);
+                return m_HttpComs.DeleteTableAllocation(checkinId);
             }
             catch (RestfulApiErrorResponseException rex)
             {

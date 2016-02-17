@@ -68,7 +68,7 @@ namespace SampleDotNetPOS.POSImpl
 				}
 				else
 				{
-					transaction.PaymentAmount = order.PayTotal;
+				    transaction.PaymentAmount = 240M;
 				}
 			}
 
@@ -87,19 +87,26 @@ namespace SampleDotNetPOS.POSImpl
 		}
 
 		/// <summary>
-		/// See <see cref="IPaymentModuleManager.RecordPayment"/> for details of this call.
+		/// See <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> for details of this call.
 		/// </summary>
 		/// <param name="transaction"></param>
-		public void RecordPayment(Transaction transaction)
+		public void RecordSuccessfulPayment(Transaction transaction)
 		{
 			var order = UpdateOrder(transaction.OrderId, "paid");
 			var payment = new Transaction();
 			payment.Reference = "TEST PAYMENT TYPE";
 			payment.PaymentAmount = transaction.PaymentAmount;
-			var payments = order.Payments.ToList<Transaction>();
-			payments.Add(payment);
-			order.Payments = payments;
 		}
+
+	    public void RecordTransactionVersion(string transactionId, string version)
+	    {
+	        throw new NotImplementedException();
+	    }
+
+	    public string RetrieveTransactionVersion(string transactionId)
+	    {
+	        throw new NotImplementedException();
+	    }
 
 		#endregion
 

@@ -39,6 +39,16 @@ namespace SampleDotNetPOS.POSImpl
 
 		#region IOrderingManager Members
 
+
+	    public void RecordCheckinForOrder(string posOrderId, string checkinId)
+	    {
+	        throw new NotImplementedException();
+	    }
+
+	    public string RetrieveCheckinIdForOrder(string posOrderId)
+	    {
+	        throw new NotImplementedException();
+	    }
 		/// <summary>
 		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IOrderingManager.RetrieveOrder(string)"/> for details on this call.
 		/// </summary>
@@ -97,6 +107,32 @@ namespace SampleDotNetPOS.POSImpl
 
 			throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
 		}
+
+        public Order ConfirmNewOrder(Order order)
+        {
+            if (mPresenter != null)
+            {
+                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} without payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+
+                //need to create the order on the pos. 
+                return order;
+            }
+
+            return null;
+        }
+
+        public Order ConfirmNewOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList)
+        {
+            if (mPresenter != null)
+            {
+                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} with payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+
+                //need to create the order on the pos. 
+                return order;
+            }
+
+            return null;
+        }
 
 		#endregion
 

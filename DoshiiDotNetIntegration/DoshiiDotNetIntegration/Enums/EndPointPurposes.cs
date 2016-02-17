@@ -23,11 +23,21 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// Delete the table allocation with the checkInId
         /// </summary>
-        DeleteAllocationFromOrder = 3,
+        DeleteAllocationFromCheckin = 3,
 
         /// <summary>
         /// request to get a transaction
         /// </summary>
-        Transaction = 4
+        Transaction = 4,
+
+        /// <summary>
+        /// request to get a list of transactions from the doshii order id
+        /// </summary>
+        TransactionFromDoshiiOrderId = 5,
+
+        /// <summary>
+        /// Requests about orders from the doshii order id
+        /// </summary>
+        UnlinkedOrders = 6
     }
 }

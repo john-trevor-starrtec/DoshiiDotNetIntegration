@@ -119,6 +119,7 @@
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\OrderUpdateException.cs" />
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
+    <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\TransactionRequestNotProcessedException.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
     <Compile Include="Interfaces\IDoshiiLogger.cs" />

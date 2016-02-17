@@ -100,46 +100,6 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        [ExpectedException(typeof(NotImplementedException))]
-        public void ProcessSocketMessage_OrderStatusMessage()
-        {
-            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage =
-                GenerateObjectsAndStringHelper.GenerateSocketMessage_OrderStatus();
-            _manager.Stub(x => x.GetOrder(Arg<String>.Is.Anything)).IgnoreArguments().Return(GenerateObjectsAndStringHelper.GenerateOrderPending());
-            _manager.Expect(x => x.SocketComsOrderStatusEventHandler(MockSocketComs, GenerateObjectsAndStringHelper.GenerateOrderEventArgs_pending()));
-
-            MockSocketComs.ProcessSocketMessage(testSocketMessage);
-        }
-
-        [Test]
-        public void ProcessSocketMessage_TransactionCreatedMessage()
-        {
-            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage =
-                GenerateObjectsAndStringHelper.GenerateSocketMessage_TransactionCreated();
-            DoshiiDotNetIntegration.Models.Transaction pendingTransaction =
-                GenerateObjectsAndStringHelper.GenerateTransactionPending();
-            _manager.Stub(x => x.GetTransaction(Arg<String>.Is.Anything)).IgnoreArguments().Return(pendingTransaction);
-            _manager.Expect(
-                x =>
-                    x.SocketComsTransactionStatusEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs), Arg<TransactionEventArgs>.Matches(t => t.TransactionId == pendingTransaction.Id && t.Status == pendingTransaction.Status && t.Transaction.PaymentAmount == pendingTransaction.PaymentAmount)));
-            MockSocketComs.ProcessSocketMessage(testSocketMessage);
-            _manager.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void ProcessSocketMessage_TransactionStatusMessage()
-        {
-            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage =
-                GenerateObjectsAndStringHelper.GenerateSocketMessage_TransactionStatus();
-            DoshiiDotNetIntegration.Models.Transaction pendingTransaction =
-                GenerateObjectsAndStringHelper.GenerateTransactionPending();
-            _manager.Stub(x => x.GetTransaction(Arg<String>.Is.Anything)).IgnoreArguments().Return(pendingTransaction);
-            _manager.Expect(x => x.SocketComsTransactionStatusEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs), Arg<TransactionEventArgs>.Matches(t => t.TransactionId == pendingTransaction.Id && t.Status == pendingTransaction.Status && t.Transaction.PaymentAmount == pendingTransaction.PaymentAmount)));
-            MockSocketComs.ProcessSocketMessage(testSocketMessage);
-            _manager.VerifyAllExpectations();
-        }
-
-        [Test]
         public void TestLastSocketMessageTime_notReached()
         {
             DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateObjectsAndStringHelper.GenerateSocketMessage_AllData();

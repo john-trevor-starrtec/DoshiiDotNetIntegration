@@ -35,6 +35,8 @@ namespace DoshiiDotNetIntegration.Models
 		    PartnerInitiated = false; 
             Partner = String.Empty;
 		    Status = "pending";
+            Version = String.Empty;
+            Uri = String.Empty;
 		}
 
         /// <summary>
@@ -81,6 +83,16 @@ namespace DoshiiDotNetIntegration.Models
         /// The current transaction status, pending, waiting, complete
         /// </summary>
         public string Status { get; set; }
+
+        /// <summary>
+        /// An obfuscated string representation of the version for the order in Doshii.
+        /// </summary>
+        public string Version { get; set; }
+
+        /// <summary>
+        /// The URI of the order
+        /// </summary>
+        public string Uri { get; set; }
 
 
 		#region ICloneable Members

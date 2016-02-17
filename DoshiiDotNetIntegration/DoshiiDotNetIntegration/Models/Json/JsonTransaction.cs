@@ -77,5 +77,19 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
+
+        /// <summary>
+        /// An obfuscated string representation of the version of the order in Doshii.
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "version")]
+        public string Version { get; set; }
+
+        /// <summary>
+        /// The URI of the order
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "uri")]
+        public string Uri { get; set; }
     }
 }

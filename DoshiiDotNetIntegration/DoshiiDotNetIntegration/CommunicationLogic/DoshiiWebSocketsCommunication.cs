@@ -71,19 +71,26 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
 		// TODO: [BC]: Consider making the following events public to expose them to the POS implementation.
         
-        internal delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        internal delegate void OrderCreatedEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the state of an order has changed through doshii
         /// </summary>
-        internal event OrderStatusEventHandler OrderStatusEvent;
+        internal event OrderCreatedEventHandler OrderCreatedEvent;
 
-        internal delegate void TransactionStatusEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
+        internal delegate void TransactionCreatedEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the state of an order has changed through doshii
         /// </summary>
-        internal virtual event TransactionStatusEventHandler TransactionStatusEvent;
+        internal virtual event TransactionCreatedEventHandler TransactionCreatedEvent;
+
+        internal delegate void TransactionUpdatedEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// Event will be raised when the state of an order has changed through doshii
+        /// </summary>
+        internal virtual event TransactionUpdatedEventHandler TransactionUpdatedEvent;
 
         internal delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
         /// <summary>
@@ -368,22 +375,53 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             
             switch (messageData.EventName)
             {
-                case "order_status":
+                case "order_created":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    orderStatusEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
+                    orderStatusEventArgs.Order = m_DoshiiLogic.GetOrderFromDoshiiOrderId(messageData.OrderId);
+                    orderStatusEventArgs.TransactionList = m_DoshiiLogic.GetTransactionFromDoshiiOrderId(messageData.OrderId);
                     orderStatusEventArgs.OrderId = messageData.OrderId;
                     orderStatusEventArgs.Status = messageData.Status;
 
-                    OrderStatusEvent(this, orderStatusEventArgs);
+                    if (OrderCreatedEvent != null)
+                    {
+                        OrderCreatedEvent(this, orderStatusEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the OrderCreateEvent"));
+                    }
+                    
                     break;
                 case "transaction_created":
-                case "transaction_status":
-                    CommunicationEventArgs.TransactionEventArgs transactionStatusEventArgs = new TransactionEventArgs();
-                    transactionStatusEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.TransactionId);
-                    transactionStatusEventArgs.TransactionId = messageData.TransactionId;
-                    transactionStatusEventArgs.Status = messageData.Status;
+                    CommunicationEventArgs.TransactionEventArgs transactionCreatedEventArgs = new TransactionEventArgs();
+                    transactionCreatedEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.TransactionId);
+                    transactionCreatedEventArgs.TransactionId = messageData.TransactionId;
+                    transactionCreatedEventArgs.Status = messageData.Status;
+                    if (TransactionCreatedEvent != null)
+                    {
+                        TransactionCreatedEvent(this, transactionCreatedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionCreatedEvent"));
+                    }
+                    
+                    break;
+                case "transaction_updated":
+                    CommunicationEventArgs.TransactionEventArgs transactionUpdtaedEventArgs = new TransactionEventArgs();
+                    transactionUpdtaedEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.TransactionId);
+                    transactionUpdtaedEventArgs.TransactionId = messageData.TransactionId;
+                    transactionUpdtaedEventArgs.Status = messageData.Status;
 
-                    TransactionStatusEvent(this, transactionStatusEventArgs);
+                    if (TransactionUpdatedEvent != null)
+                    {
+                        TransactionUpdatedEvent(this, transactionUpdtaedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
+                    }
+                    
                     break;
                 default:
                     mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
