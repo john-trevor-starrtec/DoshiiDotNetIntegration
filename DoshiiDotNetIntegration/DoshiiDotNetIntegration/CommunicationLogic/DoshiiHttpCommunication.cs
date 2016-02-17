@@ -660,7 +660,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         returnedTransaction = Mapper.Map<Transaction>(jsonTransaction);
                         if (returnedTransaction != null)
                         {
-                            m_DoshiiLogic.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
+                            m_DoshiiLogic.RecordTransactionVersion(returnedTransaction);
                         }
                     }
                     else
@@ -718,7 +718,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         returnedTransaction = Mapper.Map<Transaction>(jsonTransaction);
                         if (returnedTransaction != null)
                         {
-                            m_DoshiiLogic.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
+                            m_DoshiiLogic.RecordTransactionVersion(returnedTransaction);
                         }
                     }
                     else

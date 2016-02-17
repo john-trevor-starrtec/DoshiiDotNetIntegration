@@ -125,7 +125,6 @@
     <Compile Include="Interfaces\IDoshiiLogger.cs" />
     <Compile Include="Interfaces\IOrderingManager.cs" />
     <Compile Include="Interfaces\IPaymentModuleManager.cs" />
-    <Compile Include="Models\Json\JsonConfiguration.cs" />
     <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonOrderToPut.cs" />
     <Compile Include="Models\Json\JsonTransaction.cs" />

@@ -30,7 +30,6 @@ namespace DoshiiDotNetIntegration.Models
 		    DoshiiId = String.Empty;
 			Status = String.Empty;
 			InvoiceId = String.Empty;
-			TransactionId = String.Empty;
 			CheckinId = String.Empty;
 			LocationId = String.Empty;
 			_surcounts.Clear();
@@ -60,11 +59,6 @@ namespace DoshiiDotNetIntegration.Models
         public string InvoiceId{ get; set; }
         
         /// <summary>
-        /// Unique transaction identifier for the order.
-        /// </summary>
-        public string TransactionId { get; set; }
-        
-        /// <summary>
         /// The CheckinId the order is associated with, the doshii system uses this checkinId to relate tables to orders, to delete a table allocation you must have the
         /// order checkIn Id. 
         /// </summary>
@@ -81,7 +75,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// A list of all surcounts applied at and order level
 		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
 		/// </summary>
-		public IEnumerable<Surcount> Surcounts
+		public List<Surcount> Surcounts
 		{
 			get
 			{
@@ -109,7 +103,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// A list of all the items included in the order. 
         /// </summary>
-        public IEnumerable<Product> Items {
+        public List<Product> Items {
             get
             {
                 if (_items == null)

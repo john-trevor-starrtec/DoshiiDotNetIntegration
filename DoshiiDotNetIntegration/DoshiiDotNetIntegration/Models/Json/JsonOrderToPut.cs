@@ -27,11 +27,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 		private List<JsonSurcount> mSurcounts;
 
 		/// <summary>
-		/// Private placeholder for the payments in the order.
-		/// </summary>
-		private List<JsonTransaction> mPayments;
-
-        /// <summary>
         /// The order status
         /// </summary>
         [DataMember]
@@ -80,25 +75,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 			set
 			{
 				mSurcounts = value;
-			}
-		}
-
-        /// <summary>
-        /// A list of all payments applied at the order level
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "payments")]
-		public List<JsonTransaction> Payments 
-		{
-			get
-			{
-				if (mPayments == null)
-					mPayments = new List<JsonTransaction>();
-				return mPayments;
-			}
-			set
-			{
-				mPayments = value;
 			}
 		}
 
