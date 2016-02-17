@@ -44,7 +44,6 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			if (!AutoMapperConfigurator.IsConfigured)
 			{
-				AutoMapperConfigurator.MapConfigurationObjects();
 				AutoMapperConfigurator.MapVariantsObjects();
 				AutoMapperConfigurator.MapProductObjects();
 				AutoMapperConfigurator.MapSurcountObjects();
@@ -70,19 +69,6 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = JsonVariants, dest = Variants
 			Mapper.CreateMap<JsonVariants, Variants>()
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
-		}
-
-		/// <summary>
-		/// This function creates a bi-directional object mapping between the Configuration model objects and their
-		/// equivalent JSON data transfer objects.
-		/// </summary>
-		private static void MapConfigurationObjects()
-		{
-			// src = Configuration, dest = JsonConfiguration
-			Mapper.CreateMap<Configuration, JsonConfiguration>();
-
-			// src = JsonConfiguration, dest = Configuration
-			Mapper.CreateMap<JsonConfiguration, Configuration>();
 		}
 
 		/// <summary>

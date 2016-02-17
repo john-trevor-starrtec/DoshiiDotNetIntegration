@@ -169,8 +169,6 @@ namespace DoshiiDotNetSDKTests
                     x.SocketComsConnectionEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs),
                         Arg<EventArgs>.Is.Anything)).IgnoreArguments();
 
-            _manager.Stub(x => x.SendConfigurationUpdate()).IgnoreArguments().Return(true);
-
             MockSocketComs.WebSocketsConnectionOnOpenEventHandler(this, new EventArgs());
             MockSocketComs.VerifyAllExpectations();
             _manager.VerifyAllExpectations();
@@ -184,8 +182,6 @@ namespace DoshiiDotNetSDKTests
                 x =>
                     x.SocketComsConnectionEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs),
                         Arg<EventArgs>.Is.Anything)).IgnoreArguments();
-
-            _manager.Stub(x => x.SendConfigurationUpdate()).IgnoreArguments().Return(true);
 
             MockSocketComs.m_LastSuccessfullSocketMessageTime = DateTime.MinValue;
             Assert.AreEqual(MockSocketComs.m_LastSuccessfullSocketMessageTime, DateTime.MinValue);

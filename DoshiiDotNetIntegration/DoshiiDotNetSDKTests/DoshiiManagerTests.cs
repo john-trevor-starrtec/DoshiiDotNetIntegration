@@ -59,28 +59,21 @@ namespace DoshiiDotNetSDKTests
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoUrlBase()
         {
-            _manager.Initialize(token, "", startWebSocketsConnection, socketTimeOutSecs, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
+            _manager.Initialize(token, "", startWebSocketsConnection, socketTimeOutSecs);
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoSocketTimeOutValue()
         {
-            _manager.Initialize(token, urlBase, startWebSocketsConnection, -1, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
+            _manager.Initialize(token, urlBase, startWebSocketsConnection, -1);
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoToken()
         {
-            _manager.Initialize("", urlBase, startWebSocketsConnection, socketTimeOutSecs, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
-        }
-
-        [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Initialze_NullConfiguration()
-        {
-            _mockManager.Initialize(token, urlBase, startWebSocketsConnection, socketTimeOutSecs, null);
+            _manager.Initialize("", urlBase, startWebSocketsConnection, socketTimeOutSecs);
         }
 
         [Test]
@@ -114,7 +107,7 @@ namespace DoshiiDotNetSDKTests
                     x.InitializeProcess(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<bool>.Is.Anything,
                         Arg<int>.Is.Equal(DoshiiManager.DefaultTimeout))).Return(true);
 
-            _mockManager.Initialize(token, urlBase, startWebSocketsConnection, 0, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
+            _mockManager.Initialize(token, urlBase, startWebSocketsConnection, 0);
             _mockManager.VerifyAllExpectations();
         }
 
@@ -127,10 +120,8 @@ namespace DoshiiDotNetSDKTests
                     x.InitializeProcess(Arg<String>.Is.Equal(string.Format("{0}?token={1}", String.Format("{0}/socket", urlBase.Replace("http", "ws")), token)), Arg<String>.Is.Anything, Arg<bool>.Is.Anything,
                         Arg<int>.Is.Anything)).Return(true);
 
-            _mockManager.Initialize(token, urlBase, startWebSocketsConnection, 0, GenerateObjectsAndStringHelper.GenerateConfiguration(true, true));
+            _mockManager.Initialize(token, urlBase, startWebSocketsConnection, 0);
             Assert.AreEqual(_mockManager.AuthorizeToken, token);
-            Assert.AreEqual(_mockManager.mConfiguration.CheckoutOnPaid, true);
-            Assert.AreEqual(_mockManager.mConfiguration.DeallocateTableOnPaid, true);
         }
 
         [Test]
@@ -166,17 +157,6 @@ namespace DoshiiDotNetSDKTests
             _mockManager.InitializeProcess(String.Format("{0}/socket", urlBase.Replace("http", "ws")), urlBase, true, 30);
 
             _Logger.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void SendConfigurationAfterSocketComsConnection()
-        {
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-            _mockManager.Expect(x => x.SendConfigurationUpdate()).Return(true);
-            _mockManager.SocketComsConnectionEventHandler(this, new EventArgs());
-
-            _mockManager.VerifyAllExpectations();
         }
 
         [Test]
@@ -759,79 +739,5 @@ namespace DoshiiDotNetSDKTests
 
             _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
         }
-
-        [Test]
-        public void GetConfig_Success()
-        {
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            MockHttpComs.Expect(x => x.GetConfig()).Return(new Configuration(true, true));
-                
-            Configuration testConfig = _mockManager.GetConfiguration();
-            Assert.AreEqual(testConfig.CheckoutOnPaid, true);
-            Assert.AreEqual(testConfig.DeallocateTableOnPaid, true);
-        }
-
-        [Test]
-        [ExpectedException(typeof(RestfulApiErrorResponseException))]
-        public void GetConfig_RestfulApiErrorResponseException()
-        {
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            MockHttpComs.Stub(x => x.GetConfig()).Throw(new RestfulApiErrorResponseException(HttpStatusCode.BadRequest));
-
-            _mockManager.GetConfiguration();
-        }
-
-        [Test]
-        public void UpdateConfiguration_Success()
-        {
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            MockHttpComs.Expect(
-                x =>
-                    x.PutConfiguration(
-                        Arg<Configuration>.Matches(c => c.CheckoutOnPaid == true && c.DeallocateTableOnPaid == true))).Return(true);
-
-            
-            _mockManager.mConfiguration = new Configuration(false, false);
-            Assert.AreEqual(_mockManager.mConfiguration.CheckoutOnPaid, false);
-            Assert.AreEqual(_mockManager.mConfiguration.DeallocateTableOnPaid, false);
-            _mockManager.UpdateConfiguration(new Configuration(true, true));
-
-            Assert.AreEqual(_mockManager.mConfiguration.CheckoutOnPaid, true);
-            Assert.AreEqual(_mockManager.mConfiguration.DeallocateTableOnPaid, true);
-            MockHttpComs.VerifyAllExpectations();
-        }
-
-        [Test]
-        [ExpectedException(typeof(RestfulApiErrorResponseException))]
-        public void UpdateConfiguration_RestfulApiErrorResponseException()
-        {
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            MockHttpComs.Expect(
-                x =>
-                    x.PutConfiguration(
-                        Arg<Configuration>.Matches(c => c.CheckoutOnPaid == true && c.DeallocateTableOnPaid == true)))
-                .Throw(new RestfulApiErrorResponseException(HttpStatusCode.BadRequest));
-            _mockManager.UpdateConfiguration(new Configuration(true, true));
-        }
-
-
-
-        
-        
-        
-       
-
-        
-        
-       
-
     }
 }

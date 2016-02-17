@@ -100,7 +100,7 @@ namespace SampleDotNetPOS
 		/// <param name="locationToken">The entered location token in the view.</param>
 		public void Initialise(string apiAddress, string locationToken)
 		{
-			mManager.Initialize(SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0, new Configuration(true, true));
+			mManager.Initialize(SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0);
 			mOrders = mManager.GetOrders().ToList<Order>();
 			mPayments = mManager.GetTransactions().ToList<Transaction>();
 		}
@@ -108,51 +108,6 @@ namespace SampleDotNetPOS
 		#endregion
 
 		#region Configuration
-
-		/// <summary>
-		/// Retrieves the configuration for Doshii.
-		/// </summary>
-		/// <returns>The configuration for Doshii; or <c>null</c> if not found.</returns>
-		public Configuration RetrieveConfiguration()
-		{
-			try
-			{
-				return mManager.GetConfiguration();
-			}
-			catch
-			{
-				return null;
-			}
-		}
-
-		/// <summary>
-		/// Edits the configuration in Doshii.
-		/// </summary>
-		/// <param name="configuration">Current configuration object to be edited.</param>
-		/// <returns>True on successful update; false otherwise.</returns>
-		public bool EditConfiguration(Configuration configuration)
-		{
-			using (var form = new SampleConfigForm())
-			{
-				var config = form.Display(configuration);
-				if (config != null)
-				{
-					if (config.CheckoutOnPaid != configuration.CheckoutOnPaid || config.DeallocateTableOnPaid != configuration.DeallocateTableOnPaid)
-					{
-						try
-						{
-							return mManager.UpdateConfiguration(config);
-						}
-						catch
-						{
-
-						}
-					}
-				}
-			}
-
-			return false;
-		}
 
 		#endregion
 

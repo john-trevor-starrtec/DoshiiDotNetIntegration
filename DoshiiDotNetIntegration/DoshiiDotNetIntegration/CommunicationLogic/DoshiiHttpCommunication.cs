@@ -558,97 +558,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return PutPostOrder(order, WebRequestMethods.Http.Put);
         }
 
-		/// <summary>
-		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-		/// This method is used to retrieve the Doshii Configuration
-		/// </summary>
-		/// <returns>The current configuration in Doshii.</returns>
-		internal virtual Configuration GetConfig()
-		{
-			DoshiHttpResponseMessage responseMessage;
-
-			try
-			{
-				responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Configuration), WebRequestMethods.Http.Get);
-			}
-			catch (RestfulApiErrorResponseException rex)
-			{
-				throw rex;
-			}
-
-			if (responseMessage != null)
-			{
-				if (responseMessage.Status == HttpStatusCode.OK)
-				{
-					if (responseMessage.Data != null)
-					{
-						var jsonConfig = JsonConvert.DeserializeObject<JsonConfiguration>(responseMessage.Data);
-						return Mapper.Map<Configuration>(jsonConfig);
-					}
-					else
-					{
-						mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
-					}
-
-				}
-				else
-				{
-					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
-				}
-			}
-			else
-			{
-				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.GetTableAllocations)));
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-		/// This method uploads the supplied <paramref name="config"/> to Doshii.
-		/// </summary>
-		/// <param name="config">The configuration to be uploaded to Doshii.</param>
-		/// <returns>True on successful upload; false otherwise.</returns>
-		internal virtual bool PutConfiguration(Configuration config)
-		{
-			bool result = false;
-			DoshiHttpResponseMessage responseMessage;
-
-			try
-			{
-				var jsonConfig = Mapper.Map<JsonConfiguration>(config);
-				responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Configuration), WebRequestMethods.Http.Put, jsonConfig.ToJsonString());
-			}
-			catch (RestfulApiErrorResponseException rex)
-			{
-				throw rex;
-			}
-
-			mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message has been returned to the put config function"));
-
-			if (responseMessage != null)
-			{
-				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
-
-				if (responseMessage.Status == HttpStatusCode.OK)
-				{
-					result = true;
-				}
-				else
-				{
-					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The Response status code for PUT /config was {0}", responseMessage.Status));
-				}
-			}
-			else
-			{
-				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, "Doshii: The Response for PUT /config was null");
-			}
-
-			return result;
-		}
-
-        #endregion
+		#endregion
 
         #endregion
 
@@ -674,10 +584,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             switch (purpose)
             {
-				case EndPointPurposes.Configuration:
-					newUrlbuilder.Append("/config");
-					break;
-                case EndPointPurposes.Order:
+				case EndPointPurposes.Order:
                     newUrlbuilder.Append("/orders");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {

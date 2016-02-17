@@ -107,8 +107,6 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         internal string AuthorizeToken { get; set; }
 
-        internal Configuration mConfiguration { get; set; }
-
         /// <summary>
         /// Gets the current Doshii version information.
         /// This method is automatically called and the results logged when this class in instantiated. 
@@ -173,7 +171,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="configuration">
         /// this is the configuration that configures the behaviour of the Doshii API while interacting with this pos. <see cref="Configuration"/> for details about the available settings. 
         /// </param>
-        public virtual void Initialize(string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs, Configuration configuration)
+        public virtual void Initialize(string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
 			// TODO: Remove socketUrl parameter and build it here based on urlBase?
 
@@ -204,14 +202,8 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
-            if (configuration == null)
-            {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - configuration was null");
-                throw new ArgumentNullException("configuration");
-            }
             string socketUrl = String.Format("{0}/socket", urlBase.Replace("http", "ws"));
             AuthorizeToken = token;
-            mConfiguration = configuration;
             string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
 			InitializeProcess(socketUrlWithToken, urlBase, startWebSocketConnection, timeout);
         }
@@ -300,7 +292,6 @@ namespace DoshiiDotNetIntegration
         internal virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
-            SendConfigurationUpdate();
             //send configuration
         }
 
@@ -751,48 +742,6 @@ namespace DoshiiDotNetIntegration
 
 		#region Configuration
 
-		/// <summary>
-		/// Retrieves the current configuration from Doshii.
-		/// </summary>
-		/// <returns>The current configuration from Doshii.</returns>
-		public virtual Configuration GetConfiguration()
-		{
-			try
-			{
-				return m_HttpComs.GetConfig();
-			}
-			catch (RestfulApiErrorResponseException rex)
-			{
-				throw rex;
-			}
-		}
-
-		/// <summary>
-		/// Updates the supplied <paramref name="configuration"/> in Doshii.
-		/// </summary>
-		/// <param name="configuration">The new configuration to be sent to Doshii.</param>
-		/// <returns>True on successful update; false otherwise.</returns>
-		public bool UpdateConfiguration(Configuration configuration)
-		{
-		    mConfiguration = configuration;
-		    return SendConfigurationUpdate();
-		}
-
-		/// <summary>
-		/// Sends the configuration update to the Doshii API.
-		/// </summary>
-		/// <returns>True on successful update; false otherwise.</returns>
-        internal virtual bool SendConfigurationUpdate()
-        {
-            try
-            {
-                return m_HttpComs.PutConfiguration(mConfiguration);
-            }
-            catch (RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-        }
 		#endregion
 	}
 }

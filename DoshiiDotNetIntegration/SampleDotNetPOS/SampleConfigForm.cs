@@ -19,30 +19,22 @@ namespace SampleDotNetPOS
 		}
 
 
-		public Configuration Display(Configuration configuration)
+		public void Display()
 		{
-			InitialiseView(configuration);
+			InitialiseView();
 
 			if (ShowDialog() == System.Windows.Forms.DialogResult.OK)
-				return ReadView();
+				return;
 			else
-				return configuration;
+				return;
 		}
 
 
-		private void InitialiseView(Configuration config)
+		private void InitialiseView()
 		{
-			cbCheckoutOnPaid.Checked = config.CheckoutOnPaid;
-			cbDeallocateTableOnPaid.Checked = config.DeallocateTableOnPaid;
 		}
 
 
-		private Configuration ReadView()
-		{
-			var config = new Configuration();
-			config.CheckoutOnPaid = cbCheckoutOnPaid.Checked;
-			config.DeallocateTableOnPaid = cbDeallocateTableOnPaid.Checked;
-			return config;
-		}
+		
 	}
 }
