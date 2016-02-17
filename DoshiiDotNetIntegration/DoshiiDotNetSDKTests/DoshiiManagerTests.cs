@@ -287,23 +287,6 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        [ExpectedException(typeof(OrderUpdateException))]
-        public void UpdateOrder_PutOrder_ReturnsOrderId_EqualZero()
-        {
-            Order orderToUpdate = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
-            Order orderToReturn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
-            orderToReturn.Id = "0";
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            MockHttpComs.Stub(
-                x => x.PutOrder(Arg<Order>.Matches(o => o.Id == orderToUpdate.Id && o.Status == orderToUpdate.Status)))
-                .Return(orderToReturn);
-
-            _mockManager.UpdateOrder(orderToUpdate);
-        }
-
-        [Test]
         [ExpectedException(typeof(ConflictWithOrderUpdateException))]
         public void UpdateOrder_PutOrder_Conflict()
         {
@@ -419,34 +402,6 @@ namespace DoshiiDotNetSDKTests
                 .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
             _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
-        }
-
-        [Test]
-        public void DeleteTableAllocaiton_Successful()
-        {
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            MockHttpComs.Expect(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
-                .Return(true);
-
-            bool success = _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
-
-            MockHttpComs.VerifyAllExpectations();
-            Assert.AreEqual(success, true);
-        }
-
-        [Test]
-        [ExpectedException(typeof(ConflictWithOrderUpdateException))]
-        public void DeleteTableAllocaiton_Conflict()
-        {
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            MockHttpComs.Stub(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
-                .Throw(new RestfulApiErrorResponseException(HttpStatusCode.Conflict));
-
-            _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
         }
 
         [Test]

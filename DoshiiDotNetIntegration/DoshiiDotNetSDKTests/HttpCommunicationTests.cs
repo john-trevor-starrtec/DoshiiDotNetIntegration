@@ -117,32 +117,6 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        public void PutOrder_OrderToPutStatus_EqualsOrderStatus_Paid()
-        {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderPaid();
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Matches(data => data.Contains("paid")))).Return(responseMessage);
-
-            MockHttpComs.PutOrder(order);
-
-            MockHttpComs.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void PutOrder_OrderToPutStatus_EqualsOrderStatus_WaitingForPayment()
-        {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Matches(data => data.Contains("waiting_for_payment")))).Return(responseMessage);
-
-            MockHttpComs.PutOrder(order);
-
-            MockHttpComs.VerifyAllExpectations();
-        }
-
-        [Test]
         public void PutOrder_OrderToPutStatus_EqualsOrderStatus_Rejected()
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
@@ -480,29 +454,6 @@ namespace DoshiiDotNetSDKTests
 
             MockHttpComs.PutOrderWithTableAllocation(GenerateObjectsAndStringHelper.GenerateTableOrder());
 
-        }
-
-        [Test]
-        public void CreateOrderWithTableAllocaiton_SuccessfulPut_ReturnsTrue()
-        {
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageOrderSuccess();
-            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-
-            var success = MockHttpComs.PutOrderWithTableAllocation(GenerateObjectsAndStringHelper.GenerateTableOrder());
-
-            Assert.AreEqual(success, true);
-        }
-
-        [Test]
-        public void CreateOrderWithTableAllocaiton_FailedPut_ReturnsFalse()
-        {
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageOrderSuccess();
-            responseMessage.Status = HttpStatusCode.NotFound;
-            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-
-            var success = MockHttpComs.PutOrderWithTableAllocation(GenerateObjectsAndStringHelper.GenerateTableOrder());
-
-            Assert.AreEqual(success, false);
         }
 
         [Test]

@@ -81,7 +81,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// A list of all surcounts applied at and order level
 		/// Surcounts are discounts and surcharges / discounts should have a negative value. 
 		/// </summary>
-		public IEnumerable<Surcount> Surcounts
+		public List<Surcount> Surcounts
 		{
 			get
 			{
@@ -109,7 +109,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// A list of all the items included in the order. 
         /// </summary>
-        public IEnumerable<Product> Items {
+        public List<Product> Items {
             get
             {
                 if (_items == null)

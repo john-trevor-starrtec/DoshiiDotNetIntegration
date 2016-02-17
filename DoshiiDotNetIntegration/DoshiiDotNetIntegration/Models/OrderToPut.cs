@@ -58,7 +58,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// <summary>
 		/// All the items included in the order. 
 		/// </summary>
-		public IEnumerable<Product> Items
+		public List<Product> Items
 		{
 			get
 			{
@@ -75,7 +75,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// <summary>
 		/// A list of all surcounts applied at the order level
 		/// </summary>
-		public IEnumerable<Surcount> Surcounts
+		public List<Surcount> Surcounts
 		{
 			get
 			{

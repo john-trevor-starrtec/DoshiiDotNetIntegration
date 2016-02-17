@@ -297,7 +297,6 @@ namespace DoshiiDotNetIntegration
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
             RefreshAllOrders();
-            //send configuration
         }
 
         /// <summary>
