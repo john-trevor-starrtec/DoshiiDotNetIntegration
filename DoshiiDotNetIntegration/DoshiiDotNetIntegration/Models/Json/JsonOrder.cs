@@ -34,6 +34,13 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
+
+        /// <summary>
+        /// Order Type 'delivery' or 'pickup'
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
         
         /// <summary>
         /// Unique identifier for the invoice once the order is paid for.

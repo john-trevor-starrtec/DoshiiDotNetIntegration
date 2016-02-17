@@ -356,39 +356,46 @@ namespace DoshiiDotNetIntegration
 
         internal virtual void HandleOrderCreated(Order order, List<Transaction> transactionList)
         {
+            if (transactionList == null)
+            {
+                transactionList = new List<Transaction>();
+            }
             Order orderReturnedFromPos = null;
             if (transactionList.Count > 0)
             {
-                orderReturnedFromPos = mOrderingManager.ConfirmNewOrderWithFullPayment(order, transactionList);
+                if (order.Type == "delivery")
+                {
+                    orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, transactionList);
+                }
+                else if (order.Type == "pickup")
+                {
+                    orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrderWithFullPayment(order, transactionList);
+                }
+                else
+                {
+                    //reject the order
+                }
+                
             }
             else
             {
-                orderReturnedFromPos = mOrderingManager.ConfirmNewOrder(order);
+                if (order.Type == "delivery")
+                {
+                    orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrder(order);
+                }
+                else if (order.Type == "pickup")
+                {
+                    orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrder(order);
+                }
+                else
+                {
+                    //reject the order
+                }
+                
             }
             if (orderReturnedFromPos == null)
             {
-                //set order status to rejected post to doshii
-                order.Status = "rejected";
-                try
-                {
-                    UpdateOrder(order);
-                }
-                catch (Exception ex)
-                {
-                    //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
-                }
-                foreach (Transaction tran in transactionList)
-                {
-                    tran.Status = "rejected";
-                    try
-                    {
-                        RejectPaymentForOrder(tran);
-                    }
-                    catch (Exception ex)
-                    {
-                        //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
-                    }
-                }
+                RejectOrderFromOrderCreateMessage(order, transactionList);
             }
             else
             {
@@ -418,7 +425,33 @@ namespace DoshiiDotNetIntegration
                     }
                 }
             }
-        } 
+        }
+
+        internal void RejectOrderFromOrderCreateMessage(Order order, List<Transaction> transactionList)
+        {
+            //set order status to rejected post to doshii
+            order.Status = "rejected";
+            try
+            {
+                UpdateOrder(order);
+            }
+            catch (Exception ex)
+            {
+                //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
+            }
+            foreach (Transaction tran in transactionList)
+            {
+                tran.Status = "rejected";
+                try
+                {
+                    RejectPaymentForOrder(tran);
+                }
+                catch (Exception ex)
+                {
+                    //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
+                }
+            }
+        }
 
         /// <summary>
         /// DO NOT USE, this method is for internal use only

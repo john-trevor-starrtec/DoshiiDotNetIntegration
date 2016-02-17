@@ -111,7 +111,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// A List of <see cref="Transaction"/> to be approved
         /// </param>
         /// <returns></returns>
-	    Order ConfirmNewOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList);
+	    Order ConfirmNewDeliveryOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList);
 
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
@@ -123,6 +123,36 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// the <see cref="Order"/> to be approved
         /// </param>
         /// <returns></returns>
-	    Order ConfirmNewOrder(Order order);
+	    Order ConfirmNewDeliveryOrder(Order order);
+
+        /// <summary>
+        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
+        /// The pos must check that the order can be made on the pos, and that the transactions total the correct amount for payment of the order in full
+        /// The pos cannot modify the <see cref="Transaction"/> objects in the transaction list, during this process as the amount has already been confirmed with the consumer.
+        /// If the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and return the order, and the
+        /// order should be made on the pos. The transaction should not be recorded on the POS during this method. The
+        /// he Pos will receive a call to <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> to record the transaction
+        /// If the <see cref="Order"/> or the <see cref="Transaction"/> is rejected the pos should return Null.
+        /// </summary>
+        /// <param name="order">
+        /// The <see cref="Order"/> to be approved
+        /// </param>
+        /// <param name="transactionList">
+        /// A List of <see cref="Transaction"/> to be approved
+        /// </param>
+        /// <returns></returns>
+        Order ConfirmNewPickupOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList);
+
+        /// <summary>
+        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
+        /// The pos must check that the order can be made on the pos.
+        /// if the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and return the order, and the 
+        /// order should be made on the pos. 
+        /// </summary>
+        /// <param name="order">
+        /// the <see cref="Order"/> to be approved
+        /// </param>
+        /// <returns></returns>
+        Order ConfirmNewPickupOrder(Order order);
 	}
 }

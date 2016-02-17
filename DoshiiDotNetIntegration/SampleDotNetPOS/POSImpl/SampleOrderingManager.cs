@@ -108,7 +108,7 @@ namespace SampleDotNetPOS.POSImpl
 			throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
 		}
 
-        public Order ConfirmNewOrder(Order order)
+        public Order ConfirmNewDeliveryOrder(Order order)
         {
             if (mPresenter != null)
             {
@@ -121,7 +121,33 @@ namespace SampleDotNetPOS.POSImpl
             return null;
         }
 
-        public Order ConfirmNewOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList)
+        public Order ConfirmNewDeliveryOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList)
+        {
+            if (mPresenter != null)
+            {
+                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} with payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+
+                //need to create the order on the pos. 
+                return order;
+            }
+
+            return null;
+        }
+
+        public Order ConfirmNewPickupOrder(Order order)
+        {
+            if (mPresenter != null)
+            {
+                mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} without payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
+
+                //need to create the order on the pos. 
+                return order;
+            }
+
+            return null;
+        }
+
+        public Order ConfirmNewPickupOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList)
         {
             if (mPresenter != null)
             {
