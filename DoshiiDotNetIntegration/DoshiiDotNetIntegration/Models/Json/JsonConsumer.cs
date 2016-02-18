@@ -69,5 +69,17 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "country")]
         public string Country { get; set; }
+
+        /// <summary>
+        /// Notes specific to this order, 
+        /// this may include:
+        /// Notes about delivery location,
+        /// Notes about allergies,
+        /// Notes about a booking that has been made,
+        /// Notes about special requests for the delivery. 
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "notes")]
+        public string Notes { get; set; }
     }
 }

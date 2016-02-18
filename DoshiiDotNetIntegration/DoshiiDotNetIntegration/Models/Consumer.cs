@@ -28,6 +28,7 @@ namespace DoshiiDotNetIntegration.Models
             State = String.Empty;
             PostalCode = String.Empty;
             Country = String.Empty;
+            Notes = String.Empty;
 
         }
 
@@ -70,5 +71,15 @@ namespace DoshiiDotNetIntegration.Models
         /// the consumers address country
         /// </summary>
         public string Country { get; set; }
+
+        /// <summary>
+        /// Notes specific to this order, 
+        /// this may include:
+        /// Notes about delivery location,
+        /// Notes about allergies,
+        /// Notes about a booking that has been made,
+        /// Notes about special requests for the delivery. 
+        /// </summary>
+        public string Notes { get; set; }
     }
 }
