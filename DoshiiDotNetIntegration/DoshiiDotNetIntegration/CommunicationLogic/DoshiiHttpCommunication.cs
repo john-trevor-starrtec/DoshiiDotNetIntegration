@@ -89,7 +89,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// This method is used to retrieve the order from Doshii matching the provided orderId, if no order matches the provided orderId a new order is returned. 
+        /// This method is used to retrieve the order from Doshii matching the provided doshiiOrderId, if no order matches the provided doshiiOrderId a new order is returned. 
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
@@ -137,17 +137,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// This method is used to retrieve the order from Doshii matching the provided orderId, if no order matches the provided orderId a new order is returned. 
+        /// This method is used to retrieve the order from Doshii matching the provided doshiiOrderId, if no order matches the provided doshiiOrderId a new order is returned. 
         /// </summary>
-        /// <param name="orderId"></param>
+        /// <param name="doshiiOrderId"></param>
         /// <returns></returns>
-        internal virtual Order GetOrderromDoshiiOrderId(string orderId)
+        internal virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             var retreivedOrder = new Order();
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, orderId), WebRequestMethods.Http.Get);
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId), WebRequestMethods.Http.Get);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -166,18 +166,18 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId)));
                     }
 
                 }
                 else
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId)));
                 }
             }
             else
             {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId)));
             }
 
             return retreivedOrder;
@@ -185,11 +185,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// This method is used to retrieve the order from Doshii matching the provided orderId, if no order matches the provided orderId a new order is returned. 
+        /// This method is used to retrieve the order from Doshii matching the provided doshiiOrderId, if no order matches the provided doshiiOrderId a new order is returned. 
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
-        internal virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string orderId)
+        internal virtual IEnumerable<Transaction> GetTransactionsFromDoshiiOrderId(string orderId)
         {
             var retreivedTransactionList = new List<Transaction>();
             DoshiHttpResponseMessage responseMessage;
@@ -232,7 +232,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// This method is used to retrieve the order from Doshii matching the provided orderId, if no order matches the provided orderId a new order is returned. 
+        /// This method is used to retrieve the order from Doshii matching the provided doshiiOrderId, if no order matches the provided doshiiOrderId a new order is returned. 
         /// </summary>
         /// <param name="orderId"></param>
         /// <returns></returns>
@@ -281,7 +281,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// This method is used to retrieve the order from Doshii matching the provided orderId, if no order matches the provided orderId a new order is returned. 
+        /// This method is used to retrieve the order from Doshii matching the provided doshiiOrderId, if no order matches the provided doshiiOrderId a new order is returned. 
         /// </summary>
         /// <param name="transactionId"></param>
         /// <returns></returns>
@@ -829,13 +829,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
 				case EndPointPurposes.Order:
                     newUrlbuilder.Append("/orders");
-                    if (!string.IsNullOrWhiteSpace(identification))
-                    {
-                        newUrlbuilder.AppendFormat("/{0}", identification);
-                    }
-                    break;
-                case EndPointPurposes.GetTableAllocations:
-                    newUrlbuilder.Append("/tables");
                     if (!string.IsNullOrWhiteSpace(identification))
                     {
                         newUrlbuilder.AppendFormat("/{0}", identification);

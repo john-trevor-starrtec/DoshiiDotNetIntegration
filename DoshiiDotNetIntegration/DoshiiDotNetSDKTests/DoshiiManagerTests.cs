@@ -250,7 +250,7 @@ namespace DoshiiDotNetSDKTests
             _mockManager.m_HttpComs = MockHttpComs;
 
             MockHttpComs.Expect(x => x.GetUnlinkedOrders()).Return(orderList);
-            MockHttpComs.Expect(x => x.GetTransactionFromDoshiiOrderId(Arg<String>.Is.Anything)).Throw(new RestfulApiErrorResponseException());
+            MockHttpComs.Expect(x => x.GetTransactionsFromDoshiiOrderId(Arg<String>.Is.Anything)).Throw(new RestfulApiErrorResponseException());
 
             _mockManager.RefreshAllOrders();
         }
@@ -264,7 +264,7 @@ namespace DoshiiDotNetSDKTests
 
             MockHttpComs.Expect(x => x.GetUnlinkedOrders()).Return(orderList);
             //_mockManager.Expect(x => x.GetTransactionFromDoshiiOrderId(Arg<String>.Is.Anything));
-            MockHttpComs.Expect(x => x.GetTransactionFromDoshiiOrderId(Arg<String>.Is.Anything)).Return(GenerateObjectsAndStringHelper.GenerateTransactionList());
+            MockHttpComs.Expect(x => x.GetTransactionsFromDoshiiOrderId(Arg<String>.Is.Anything)).Return(GenerateObjectsAndStringHelper.GenerateTransactionList());
             _mockManager.Expect(x => x.HandleOrderCreated(Arg<Order>.Is.Anything, Arg<List<Transaction>>.Is.Anything));
 
 

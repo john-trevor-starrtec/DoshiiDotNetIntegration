@@ -81,6 +81,22 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageConsumer()
+        {
+            var transaction = GenerateConsumer();
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonConsumer>(transaction);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
         internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionWaiting()
         {
             var transaction = GenerateTransactionWaiting();
