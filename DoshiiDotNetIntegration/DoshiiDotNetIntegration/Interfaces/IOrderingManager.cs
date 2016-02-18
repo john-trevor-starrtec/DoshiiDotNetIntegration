@@ -111,7 +111,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// A List of <see cref="Transaction"/> to be approved
         /// </param>
         /// <returns></returns>
-	    Order ConfirmNewDeliveryOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList);
+        Order ConfirmNewDeliveryOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList);
 
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
@@ -123,7 +123,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// the <see cref="Order"/> to be approved
         /// </param>
         /// <returns></returns>
-	    Order ConfirmNewDeliveryOrder(Order order);
+	    Order ConfirmNewDeliveryOrder(Order order, Consumer consumer);
 
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
@@ -141,7 +141,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// A List of <see cref="Transaction"/> to be approved
         /// </param>
         /// <returns></returns>
-        Order ConfirmNewPickupOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList);
+        Order ConfirmNewPickupOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList);
 
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
@@ -153,6 +153,6 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// the <see cref="Order"/> to be approved
         /// </param>
         /// <returns></returns>
-        Order ConfirmNewPickupOrder(Order order);
+        Order ConfirmNewPickupOrder(Order order, Consumer consumer);
 	}
 }

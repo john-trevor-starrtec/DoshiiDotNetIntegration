@@ -108,7 +108,7 @@ namespace SampleDotNetPOS.POSImpl
 			throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
 		}
 
-        public Order ConfirmNewDeliveryOrder(Order order)
+        public Order ConfirmNewDeliveryOrder(Order order, Consumer consumer)
         {
             if (mPresenter != null)
             {
@@ -121,7 +121,7 @@ namespace SampleDotNetPOS.POSImpl
             return null;
         }
 
-        public Order ConfirmNewDeliveryOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList)
+        public Order ConfirmNewDeliveryOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList)
         {
             if (mPresenter != null)
             {
@@ -134,7 +134,7 @@ namespace SampleDotNetPOS.POSImpl
             return null;
         }
 
-        public Order ConfirmNewPickupOrder(Order order)
+        public Order ConfirmNewPickupOrder(Order order, Consumer consumer)
         {
             if (mPresenter != null)
             {
@@ -147,7 +147,7 @@ namespace SampleDotNetPOS.POSImpl
             return null;
         }
 
-        public Order ConfirmNewPickupOrderWithFullPayment(Order order, IEnumerable<Transaction> transactionList)
+        public Order ConfirmNewPickupOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList)
         {
             if (mPresenter != null)
             {

@@ -234,6 +234,55 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// This method is used to retrieve the order from Doshii matching the provided orderId, if no order matches the provided orderId a new order is returned. 
         /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        internal virtual Consumer GetConsumerFromCheckinId(string checkinId)
+        {
+            var retreivedConsumer = new Consumer();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.ConsumerFromCheckinId, checkinId), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonConsumer = JsonConsumer.deseralizeFromJson(responseMessage.Data);
+                        retreivedConsumer = Mapper.Map<Consumer>(jsonConsumer);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.ConsumerFromCheckinId, checkinId)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.ConsumerFromCheckinId, checkinId)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.ConsumerFromCheckinId, checkinId)));
+            }
+
+            return retreivedConsumer;
+        }
+
+
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// This method is used to retrieve the order from Doshii matching the provided orderId, if no order matches the provided orderId a new order is returned. 
+        /// </summary>
         /// <param name="transactionId"></param>
         /// <returns></returns>
         internal virtual Transaction GetTransaction(string transactionId)
@@ -803,7 +852,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 					}
                     break;
                 case EndPointPurposes.TransactionFromDoshiiOrderId:
-                    newUrlbuilder.AppendFormat("unlinked_orders/{0}/transactions", identification);
+                    newUrlbuilder.AppendFormat("/unlinked_orders/{0}/transactions", identification);
                     break;
                 case EndPointPurposes.UnlinkedOrders:
                     newUrlbuilder.Append("/unlinked_orders");
@@ -812,7 +861,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
-                default:
+                case EndPointPurposes.ConsumerFromCheckinId:
+                    newUrlbuilder.AppendFormat("/checkins/{0}/consumer", identification);
+                    break;
+               default:
                     throw new NotSupportedException(purpose.ToString());
             }
 
