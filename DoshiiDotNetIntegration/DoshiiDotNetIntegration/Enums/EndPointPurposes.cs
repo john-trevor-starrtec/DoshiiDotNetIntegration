@@ -38,6 +38,11 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// Requests about orders from the doshii order id
         /// </summary>
-        UnlinkedOrders = 6
+        UnlinkedOrders = 6,
+
+        /// <summary>
+        /// Request about the consumer from the checkinId
+        /// </summary>
+        ConsumerFromCheckinId = 7
     }
 }

@@ -365,15 +365,25 @@ namespace DoshiiDotNetIntegration
             {
                 if (order.Type == "delivery")
                 {
-                    orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, transactionList);
+                    Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
+                    if (consumer == null)
+                    {
+                        return;
+                    }
+                    orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList);
                 }
                 else if (order.Type == "pickup")
                 {
-                    orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrderWithFullPayment(order, transactionList);
+                    Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
+                    if (consumer == null)
+                    {
+                        return;
+                    }
+                    orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList);
                 }
                 else
                 {
-                    //reject the order
+                    RejectOrderFromOrderCreateMessage(order, transactionList);
                 }
                 
             }
@@ -381,15 +391,25 @@ namespace DoshiiDotNetIntegration
             {
                 if (order.Type == "delivery")
                 {
-                    orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrder(order);
+                    Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
+                    if (consumer == null)
+                    {
+                        return;
+                    }
+                    orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrder(order, consumer);
                 }
                 else if (order.Type == "pickup")
                 {
-                    orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrder(order);
+                    Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
+                    if (consumer == null)
+                    {
+                        return;
+                    }
+                    orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrder(order, consumer);
                 }
                 else
                 {
-                    //reject the order
+                    RejectOrderFromOrderCreateMessage(order, transactionList);
                 }
                 
             }
@@ -427,7 +447,22 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        internal void RejectOrderFromOrderCreateMessage(Order order, List<Transaction> transactionList)
+
+        internal virtual Consumer GetConsumerForOrderCreated(Order order, List<Transaction> transactionList)
+        {
+            try
+            {
+                return GetConsumerFromCheckinId(order.CheckinId);
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("There was an exception when retreiving the consumer for a pending order orderId - {0}. The order will be rejected", order.Id), ex);
+                RejectOrderFromOrderCreateMessage(order, transactionList);
+                return null;
+            }
+        }
+
+        internal virtual void RejectOrderFromOrderCreateMessage(Order order, List<Transaction> transactionList)
         {
             //set order status to rejected post to doshii
             order.Status = "rejected";
@@ -713,6 +748,25 @@ namespace DoshiiDotNetIntegration
 				throw rex;
 			}
 		}
+
+        /// <summary>
+        /// This method returns a consumer from Doshii corresponding to the ConsumerId
+        /// </summary>
+        /// <param name="orderId">
+        /// The Id of the order that is being requested. 
+        /// </param>
+        /// <returns></returns>
+        public virtual Consumer GetConsumerFromCheckinId(string checkinId)
+        {
+            try
+            {
+                return m_HttpComs.GetConsumerFromCheckinId(checkinId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
 
         /// <summary>
         /// This method returns an order from Doshii corresponding to the OrderId

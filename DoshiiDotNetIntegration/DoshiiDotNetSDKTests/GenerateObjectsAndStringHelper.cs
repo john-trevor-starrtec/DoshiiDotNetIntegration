@@ -413,6 +413,23 @@ namespace DoshiiDotNetSDKTests
             return tableAllocation;
         }
 
+        internal static Consumer GenerateConsumer()
+        {
+            var consumer = new Consumer()
+            {
+                Name = "testName",
+                PhoneNumber = "0402513654",
+                AddressLine1 = "address line 1",
+                AddressLine2 = "address line 2",
+                City = "Melbourne",
+                State = "vic",
+                PostalCode = "3004",
+                Country = "Au"
+            };
+            return consumer;
+        }
+
+
         internal static List<DoshiiDotNetIntegration.Models.Transaction> GenerateTransactionList()
         {
             List<Transaction> transactionList = new List<Transaction>();
