@@ -456,7 +456,7 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("There was an exception when retreiving the consumer for a pending order orderId - {0}. The order will be rejected", order.Id), ex);
+                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("There was an exception when retreiving the consumer for a pending order doshiiOrderId - {0}. The order will be rejected", order.Id), ex);
                 RejectOrderFromOrderCreateMessage(order, transactionList);
                 return null;
             }
@@ -841,15 +841,15 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// This method returns an transaction from Doshii corresponding to the transactionId
         /// </summary>
-        /// <param name="orderId">
+        /// <param name="doshiiOrderId">
         /// The Id of the order that is being requested. 
         /// </param>
         /// <returns></returns>
-        public virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string orderId)
+        public virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string doshiiOrderId)
         {
             try
             {
-                return m_HttpComs.GetTransactionFromDoshiiOrderId(orderId);
+                return m_HttpComs.GetTransactionsFromDoshiiOrderId(doshiiOrderId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -900,8 +900,8 @@ namespace DoshiiDotNetIntegration
                 returnedOrder = m_HttpComs.PutOrder(order);
                 if (returnedOrder.Id == "0" && returnedOrder.DoshiiId == "0")
                 {
-                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an orderId while updating order with id {0}", order.Id));
-                    throw new OrderUpdateException(string.Format("Doshii: order was returned from doshii without an orderId while updating order with id {0}", order.Id));
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an doshiiOrderId while updating order with id {0}", order.Id));
+                    throw new OrderUpdateException(string.Format("Doshii: order was returned from doshii without an doshiiOrderId while updating order with id {0}", order.Id));
                 }
             }
             catch (RestfulApiErrorResponseException rex)
