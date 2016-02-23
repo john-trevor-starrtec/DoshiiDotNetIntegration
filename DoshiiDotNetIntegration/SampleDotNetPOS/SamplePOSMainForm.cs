@@ -255,11 +255,8 @@ namespace SampleDotNetPOS
 			tbxLocationToken.Enabled = enableInitialiseControls;
 			btnInitialise.Enabled = enableInitialiseControls;
 
-			btnGetConfig.Enabled = enableNonInitialisationControls;
-			btnPutConfig.Enabled = enableNonInitialisationControls;
+			btnTestLogging.Enabled = enableNonInitialisationControls;
 
 		}
-
-		
 	}
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.Exceptions
 {
-    class TransactionDoesNotExistOnPosException: Exception
+    public class TransactionDoesNotExistOnPosException: Exception
     {
         public TransactionDoesNotExistOnPosException() : base() { }
         public TransactionDoesNotExistOnPosException(string message) : base(message) { }

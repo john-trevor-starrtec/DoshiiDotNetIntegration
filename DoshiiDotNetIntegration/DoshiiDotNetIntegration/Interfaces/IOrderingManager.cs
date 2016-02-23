@@ -1,8 +1,5 @@
-﻿using System;
+﻿using DoshiiDotNetIntegration.Models;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.Interfaces
 {
@@ -14,7 +11,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 	/// <remarks>
 	/// This interface is a core Doshii interface required for implementation on the POS side. 
 	/// <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this interface as a callback mechanism 
-	/// to the POS for basic order functions. It should be noted however that this does interface is not
+	/// to the POS for basic order functions. It should be noted however that this interface is not
 	/// the handler for extension modules such as Order@Table which will be implemented in a separate
 	/// callback interface.
 	/// <para>

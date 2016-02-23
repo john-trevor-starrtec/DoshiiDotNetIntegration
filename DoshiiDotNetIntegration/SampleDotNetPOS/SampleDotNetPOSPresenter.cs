@@ -107,10 +107,6 @@ namespace SampleDotNetPOS
 
 		#endregion
 
-		#region Configuration
-
-		#endregion
-
 		#region Ordering
 
 		/// <summary>
@@ -214,6 +210,19 @@ namespace SampleDotNetPOS
 			var payment = RetrieveTransaction(transactionId);
 			if (payment != null)
 				mPayments.Remove(payment);
+		}
+
+		/// <summary>
+		/// Adds the payment if it doesn't already exist, or updates it otherwise.
+		/// </summary>
+		/// <param name="transaction">Details of the payment.</param>
+		public void AddOrUpdateTransaction(Transaction transaction)
+		{
+			int index = mPayments.IndexOf(transaction);
+			if (index < 0)
+				mPayments.Add(transaction);
+			else
+				mPayments[index] = transaction;
 		}
 
 		#endregion
@@ -339,6 +348,12 @@ namespace SampleDotNetPOS
 			{
 				mManager.Dispose();
 				mManager = null;
+			}
+
+			if (mOrderingManager != null)
+			{
+				mOrderingManager.Dispose();
+				mOrderingManager = null;
 			}
 		}
 
