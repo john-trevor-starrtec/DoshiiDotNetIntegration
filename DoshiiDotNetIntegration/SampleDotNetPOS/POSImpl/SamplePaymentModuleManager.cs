@@ -92,20 +92,51 @@ namespace SampleDotNetPOS.POSImpl
 		/// <param name="transaction"></param>
 		public void RecordSuccessfulPayment(Transaction transaction)
 		{
-			var order = UpdateOrder(transaction.OrderId, "paid");
-			var payment = new Transaction();
-			payment.Reference = "TEST PAYMENT TYPE";
-			payment.PaymentAmount = transaction.PaymentAmount;
+			if (mPresenter != null)
+			{
+				mPresenter.AddOrUpdateTransaction(transaction);
+				var order = UpdateOrder(transaction.OrderId, "paid");
+				
+			}
 		}
 
+		/// <summary>
+		/// See <see cref="IPaymentModuleManager.RecordTransactionVersion"/> for details of this call.
+		/// </summary>
+		/// <param name="transactionId"></param>
+		/// <param name="version"></param>
 	    public void RecordTransactionVersion(string transactionId, string version)
 	    {
-	        throw new NotImplementedException();
+	        if (mPresenter != null)
+			{
+				var transaction = mPresenter.RetrieveTransaction(transactionId);
+				if (transaction != null)
+				{
+					transaction.Version = version;
+					return;
+				}
+			}
+
+			throw new DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException();
 	    }
 
+		/// <summary>
+		/// See <see cref="IPaymentModuleManager.RetrieveTransactionVersion"/> for details of this call.
+		/// </summary>
+		/// <param name="transactionId"></param>
+		/// <param name="version"></param>
 	    public string RetrieveTransactionVersion(string transactionId)
 	    {
-	        throw new NotImplementedException();
+	        if (mPresenter != null)
+			{
+				var transaction = mPresenter.RetrieveTransaction(transactionId);
+				if (transaction != null)
+				{
+					return transaction.Version;
+				}
+			}
+
+			throw new DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException();
 	    }
 
 		#endregion

@@ -31,16 +31,14 @@
 			this.ssStatusBar = new System.Windows.Forms.StatusStrip();
 			this.lblCopyright = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pnlTop = new System.Windows.Forms.Panel();
+			this.btnInitialise = new System.Windows.Forms.Button();
+			this.tbxLocationToken = new System.Windows.Forms.TextBox();
+			this.lblLocationToken = new System.Windows.Forms.Label();
+			this.cbxApiAddress = new System.Windows.Forms.ComboBox();
+			this.lblApiAddress = new System.Windows.Forms.Label();
 			this.rtbLog = new System.Windows.Forms.RichTextBox();
 			this.pnlCommands = new System.Windows.Forms.Panel();
 			this.btnTestLogging = new System.Windows.Forms.Button();
-			this.lblApiAddress = new System.Windows.Forms.Label();
-			this.cbxApiAddress = new System.Windows.Forms.ComboBox();
-			this.lblLocationToken = new System.Windows.Forms.Label();
-			this.tbxLocationToken = new System.Windows.Forms.TextBox();
-			this.btnInitialise = new System.Windows.Forms.Button();
-			this.btnGetConfig = new System.Windows.Forms.Button();
-			this.btnPutConfig = new System.Windows.Forms.Button();
 			this.ssStatusBar.SuspendLayout();
 			this.pnlTop.SuspendLayout();
 			this.pnlCommands.SuspendLayout();
@@ -75,45 +73,31 @@
 			this.pnlTop.Size = new System.Drawing.Size(784, 41);
 			this.pnlTop.TabIndex = 1;
 			// 
-			// rtbLog
+			// btnInitialise
 			// 
-			this.rtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.rtbLog.Location = new System.Drawing.Point(0, 41);
-			this.rtbLog.Name = "rtbLog";
-			this.rtbLog.ReadOnly = true;
-			this.rtbLog.Size = new System.Drawing.Size(784, 333);
-			this.rtbLog.TabIndex = 2;
-			this.rtbLog.Text = "";
+			this.btnInitialise.Location = new System.Drawing.Point(697, 5);
+			this.btnInitialise.Name = "btnInitialise";
+			this.btnInitialise.Size = new System.Drawing.Size(75, 23);
+			this.btnInitialise.TabIndex = 4;
+			this.btnInitialise.Text = "Initialise";
+			this.btnInitialise.UseVisualStyleBackColor = true;
+			this.btnInitialise.Click += new System.EventHandler(this.btnInitialise_Click);
 			// 
-			// pnlCommands
+			// tbxLocationToken
 			// 
-			this.pnlCommands.Controls.Add(this.btnPutConfig);
-			this.pnlCommands.Controls.Add(this.btnGetConfig);
-			this.pnlCommands.Controls.Add(this.btnTestLogging);
-			this.pnlCommands.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.pnlCommands.Location = new System.Drawing.Point(0, 374);
-			this.pnlCommands.Name = "pnlCommands";
-			this.pnlCommands.Size = new System.Drawing.Size(784, 166);
-			this.pnlCommands.TabIndex = 3;
+			this.tbxLocationToken.Location = new System.Drawing.Point(363, 7);
+			this.tbxLocationToken.Name = "tbxLocationToken";
+			this.tbxLocationToken.Size = new System.Drawing.Size(328, 20);
+			this.tbxLocationToken.TabIndex = 3;
 			// 
-			// btnTestLogging
+			// lblLocationToken
 			// 
-			this.btnTestLogging.Location = new System.Drawing.Point(12, 6);
-			this.btnTestLogging.Name = "btnTestLogging";
-			this.btnTestLogging.Size = new System.Drawing.Size(75, 23);
-			this.btnTestLogging.TabIndex = 0;
-			this.btnTestLogging.Text = "LOG";
-			this.btnTestLogging.UseVisualStyleBackColor = true;
-			this.btnTestLogging.Click += new System.EventHandler(this.btnTestLogging_Click);
-			// 
-			// lblApiAddress
-			// 
-			this.lblApiAddress.AutoSize = true;
-			this.lblApiAddress.Location = new System.Drawing.Point(12, 9);
-			this.lblApiAddress.Name = "lblApiAddress";
-			this.lblApiAddress.Size = new System.Drawing.Size(68, 13);
-			this.lblApiAddress.TabIndex = 0;
-			this.lblApiAddress.Text = "API Address:";
+			this.lblLocationToken.AutoSize = true;
+			this.lblLocationToken.Location = new System.Drawing.Point(272, 9);
+			this.lblLocationToken.Name = "lblLocationToken";
+			this.lblLocationToken.Size = new System.Drawing.Size(85, 13);
+			this.lblLocationToken.TabIndex = 2;
+			this.lblLocationToken.Text = "Location Token:";
 			// 
 			// cbxApiAddress
 			// 
@@ -128,31 +112,43 @@
 			this.cbxApiAddress.Size = new System.Drawing.Size(180, 21);
 			this.cbxApiAddress.TabIndex = 1;
 			// 
-			// lblLocationToken
+			// lblApiAddress
 			// 
-			this.lblLocationToken.AutoSize = true;
-			this.lblLocationToken.Location = new System.Drawing.Point(272, 9);
-			this.lblLocationToken.Name = "lblLocationToken";
-			this.lblLocationToken.Size = new System.Drawing.Size(85, 13);
-			this.lblLocationToken.TabIndex = 2;
-			this.lblLocationToken.Text = "Location Token:";
+			this.lblApiAddress.AutoSize = true;
+			this.lblApiAddress.Location = new System.Drawing.Point(12, 9);
+			this.lblApiAddress.Name = "lblApiAddress";
+			this.lblApiAddress.Size = new System.Drawing.Size(68, 13);
+			this.lblApiAddress.TabIndex = 0;
+			this.lblApiAddress.Text = "API Address:";
 			// 
-			// tbxLocationToken
+			// rtbLog
 			// 
-			this.tbxLocationToken.Location = new System.Drawing.Point(363, 7);
-			this.tbxLocationToken.Name = "tbxLocationToken";
-			this.tbxLocationToken.Size = new System.Drawing.Size(328, 20);
-			this.tbxLocationToken.TabIndex = 3;
+			this.rtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.rtbLog.Location = new System.Drawing.Point(0, 41);
+			this.rtbLog.Name = "rtbLog";
+			this.rtbLog.ReadOnly = true;
+			this.rtbLog.Size = new System.Drawing.Size(784, 333);
+			this.rtbLog.TabIndex = 2;
+			this.rtbLog.Text = "";
 			// 
-			// btnInitialise
+			// pnlCommands
 			// 
-			this.btnInitialise.Location = new System.Drawing.Point(697, 5);
-			this.btnInitialise.Name = "btnInitialise";
-			this.btnInitialise.Size = new System.Drawing.Size(75, 23);
-			this.btnInitialise.TabIndex = 4;
-			this.btnInitialise.Text = "Initialise";
-			this.btnInitialise.UseVisualStyleBackColor = true;
-			this.btnInitialise.Click += new System.EventHandler(this.btnInitialise_Click);
+			this.pnlCommands.Controls.Add(this.btnTestLogging);
+			this.pnlCommands.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.pnlCommands.Location = new System.Drawing.Point(0, 374);
+			this.pnlCommands.Name = "pnlCommands";
+			this.pnlCommands.Size = new System.Drawing.Size(784, 166);
+			this.pnlCommands.TabIndex = 3;
+			// 
+			// btnTestLogging
+			// 
+			this.btnTestLogging.Location = new System.Drawing.Point(12, 6);
+			this.btnTestLogging.Name = "btnTestLogging";
+			this.btnTestLogging.Size = new System.Drawing.Size(92, 23);
+			this.btnTestLogging.TabIndex = 0;
+			this.btnTestLogging.Text = "TEST LOG";
+			this.btnTestLogging.UseVisualStyleBackColor = true;
+			this.btnTestLogging.Click += new System.EventHandler(this.btnTestLogging_Click);
 			// 
 			// SamplePOSMainForm
 			// 
@@ -189,8 +185,6 @@
 		private System.Windows.Forms.ComboBox cbxApiAddress;
 		private System.Windows.Forms.Label lblApiAddress;
 		private System.Windows.Forms.Button btnInitialise;
-		private System.Windows.Forms.Button btnGetConfig;
-		private System.Windows.Forms.Button btnPutConfig;
 	}
 }
 

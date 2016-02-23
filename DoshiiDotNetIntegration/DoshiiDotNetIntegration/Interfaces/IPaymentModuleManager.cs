@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DoshiiDotNetIntegration.Exceptions;
-using DoshiiDotNetIntegration.Models;
+﻿using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.Interfaces
 {
@@ -18,22 +13,25 @@ namespace DoshiiDotNetIntegration.Interfaces
 	/// At this point, the POS should place the corresponding order into a "locked" state and send back the final
 	/// details of the order to ensure that the order is current in Doshii. Once the partner captures the funds
 	/// to pay off the order, the Doshii SDK emits a 
-	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string, Transaction)"/>
-	/// call to finalize the payment.
+	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.RecordSuccessfulPayment(Transaction)"/>
+	/// call to finalise the payment. A payment cancelled by the partner will cause the SDK to emit a call to
+	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.CancelPayment(Transaction)"/>, at which
+	/// point the POS should unlock the order without accepting payment.
 	/// </remarks>
 	public interface IPaymentModuleManager
 	{
 		/// <summary>
 		/// The Doshii SDK will call this function to indicate that the partner is ready to accept a payment against the order
-		/// with the supplied <paramref name="transaction.OrderId"/>. The POS is required to respond with a transaction containing the current amount owing for the 
-		/// order in the transaction.PaymentAmount property, and if the payment can be below the total amount owing in the transaction.AcceptLess property 
-		/// and it is recommended that the POS places this order into a state that cannot be edited from the POS.
-        /// If the referenced order does not exist on the pos the pos should throw a <exception cref="OrderDoesNotExistOnPosException"></exception> 
+		/// with the supplied <paramref name="transaction"/><c>.OrderId</c>. The POS is required to respond with a transaction containing the current amount owing for the 
+		/// order in the <paramref name="transaction"/><c>.PaymentAmount</c> property. If the POS will accept a payment amount below the total amount owing, the 
+		/// <paramref name="transaction"/><c>.AcceptLess</c> should be set to <c>true</c>. It is recommended that the POS places this order into a state that cannot 
+		/// be edited from the POS after receiving the <c>ReadyToPay</c> call from the Doshii SDK.
 		/// </summary>
-        /// <param name="transaction">The transaction that has been initiated by the partner</param>
-		/// <returns>A transaction detailing the current amount owing on the check>; 
+        /// <param name="transaction">The payment details that has been initiated by the partner.</param>
+		/// <returns>A payment transaction detailing the current amount owing on the order; 
 		/// or <c>null</c> if the pos does not want the transaction from the partner to be processed for any reason.</returns>
-		DoshiiDotNetIntegration.Models.Transaction ReadyToPay(Transaction transaction);
+		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistException">Thrown when the referenced order does not exist.</exception>
+		Transaction ReadyToPay(Transaction transaction);
 
 		/// <summary>
 		/// The Doshii SDK will call this function to indicate that the partner has failed to claim payment for an order that
@@ -42,16 +40,15 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string)"/> call, allowing it to be edited
 		/// once more from the POS.
 		/// </summary>
-		/// <param name="orderId">The identifier for the order previously being paid.</param>
+		/// <param name="transaction">The details of the payment being cancelled.</param>
 		void CancelPayment(Transaction transaction);
 
 		/// <summary>
-		/// The Doshii SDK will call this function after payment has been captured for an order with the supplied <paramref name="orderId"/>.
-		/// At this point the POS cannot reject the payment and must record the payment received. If the pos did not want to receive the payment the POS needed to reject the 
+		/// The Doshii SDK will call this function after payment has been successfully captured for an order. 
+		/// At this point the POS cannot reject the payment and must record the payment received. If the POS did not want to receive the payment the POS needed to reject the 
 		/// <see cref="ReadyToPay"/> message, or reject the order when the order was received with a full payment if <see cref="IOrderingManager"/> has been implemented. 
 		/// </summary>
-		/// <param name="orderId">The identifier for the order being paid.</param>
-		/// <param name="paymentAmount">The amount paid.</param>
+		/// <param name="transaction">The details of the payment to be applied.</param>
 		void RecordSuccessfulPayment(Transaction transaction);
 
         /// <summary>
@@ -66,7 +63,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="transactionId">The unique doshii identifier of the transaction being updated in the POS.</param>
         /// <param name="version">The current version of the transaction in Doshii.</param>
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException">This exception 
-        /// should be thrown when there is no transaction in the POS with the corresponding id
+        /// should be thrown when there is no transaction in the POS with the corresponding <paramref name="transactionId"/>.
         void RecordTransactionVersion(string transactionId, string version);
 
         /// <summary>
@@ -76,8 +73,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="transactionId">The unique doshii identifier of the transaction being queried on the POS.</param>
         /// <returns>The current version of the transaction in the POS.</returns>
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException">This exception 
-        /// should be thrown when there is no order in the POS with the corresponding 
-        /// <paramref name="posOrderId"/>.</exception>
+        /// should be thrown when there is no transaction in the POS with the corresponding 
+        /// <paramref name="transactionId"/>.</exception>
         string RetrieveTransactionVersion(string transactionId);
 	}
 }
