@@ -31,7 +31,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		public void Clear()
 		{
 			Name = String.Empty;
-			Price = String.Empty;
+			Amount = String.Empty;
 		}
 
         /// <summary>
@@ -42,10 +42,24 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Name { get; set; }
 
         /// <summary>
-        /// The Price / value of the surcount in cents. 
+        /// The Amount / value of the surcount in cents. 
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "price")]
-        public string Price { get; set; }
+        [JsonProperty(PropertyName = "amount")]
+        public string Amount { get; set; }
+
+        /// <summary>
+        /// The type of the surcount ('absolute' or 'percentage')
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
+        /// <summary>
+        /// The posId for the product
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "posId")]
+        public string Id { get; set; }
     }
 }

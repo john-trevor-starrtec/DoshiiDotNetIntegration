@@ -29,7 +29,9 @@ namespace DoshiiDotNetIntegration.Models
 		public void Clear()
 		{
 			Name = String.Empty;
-			Price = 0.0M;
+		    Type = String.Empty;
+		    Id = String.Empty;
+			Amount = 0.0M;
 		}
 
         /// <summary>
@@ -38,9 +40,19 @@ namespace DoshiiDotNetIntegration.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// The Price / value of the surcount in cents. 
+        /// The Amount / value of the surcount in cents. 
         /// </summary>
-        public decimal Price { get; set; }
+        public decimal Amount { get; set; }
+
+        /// <summary>
+        /// The type of the surcount ('absolute' or 'percentage')
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// The posId for the product
+        /// </summary>
+        public string Id { get; set; }
 
 		#region ICloneable Members
 
