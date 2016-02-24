@@ -99,6 +99,22 @@ namespace DoshiiDotNetIntegration.Helpers
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
 
+        /// <summary>
+        /// This function creates a bi-directional object mapping between the Menu model objects and their
+        /// JSON equivalent data transfer objects.
+        /// </summary>
+        private static void MapMenuObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Menu, JsonMenu>()
+                .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products.ToList<Product>()))
+                .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonMenu, Menu>();
+
+        }
+
 		/// <summary>
 		/// This function creates a bi-directional object mapping between the Surcount model objects and their
 		/// JSON equivalent data transfer objects.
@@ -107,11 +123,11 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			// src = Surcount, dest = JsonSurcount
 			Mapper.CreateMap<Surcount, JsonSurcount>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
+				.ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Amount)));
 
 			// src = JsonSurcount, dest = Surcount
 			Mapper.CreateMap<JsonSurcount, Surcount>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
+				.ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Amount)));
 		}
 
 		/// <summary>

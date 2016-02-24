@@ -587,6 +587,219 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return returnOrder;
         }
 
+
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// completes the Put or Post request to update an order with Doshii. 
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
+        internal Menu PutMenu(Menu menu)
+        {
+            var returedMenu = new Menu();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                var jsonMenu = Mapper.Map<JsonMenu>(menu);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu), WebRequestMethods.Http.Put, jsonMenu.ToJsonString());
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonMenu = JsonConvert.DeserializeObject<JsonMenu>(responseMessage.Data);
+                        returedMenu = Mapper.Map<Menu>(jsonMenu);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Menu)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Menu)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Menu)));
+                throw new NullOrderReturnedException();
+            }
+            return returedMenu;
+        }
+
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// completes the Put or Post request to update an order with Doshii. 
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
+        internal Surcount PutSurcount(Surcount surcount, string identification)
+        {
+            var returedSurcount = new Surcount();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                var jsonSurcount = Mapper.Map<JsonSurcount>(surcount);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Surcounts, identification), WebRequestMethods.Http.Put, jsonSurcount.ToJsonString());
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonSurcount = JsonConvert.DeserializeObject<JsonSurcount>(responseMessage.Data);
+                        returedSurcount = Mapper.Map<Surcount>(jsonSurcount);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Surcounts, identification)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Surcounts, identification)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Surcounts, identification)));
+                throw new NullOrderReturnedException();
+            }
+            return returedSurcount;
+        }
+
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// completes the Put or Post request to update an order with Doshii. 
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
+        internal bool DeleteSurcount(string posId)
+        {
+            var returedMenu = new Menu();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Surcounts, posId), DeleteMethod);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage.Status == HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// completes the Put or Post request to update an order with Doshii. 
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
+        internal Product PutProduct(Product product, string identification)
+        {
+            var returnedProduct = new Product();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                var jsonProduct = Mapper.Map<JsonProduct>(product);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Products, identification), WebRequestMethods.Http.Put, jsonProduct.ToJsonString());
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonProduct = JsonConvert.DeserializeObject<JsonProduct>(responseMessage.Data);
+                        returnedProduct = Mapper.Map<Product>(jsonProduct);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Products, identification)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(EndPointPurposes.Products, identification)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.Products, identification)));
+                throw new NullOrderReturnedException();
+            }
+            return returnedProduct;
+        }
+
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// completes the Put or Post request to update an order with Doshii. 
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <returns></returns>
+        /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
+        internal bool DeleteProduct(string posId)
+        {
+            var returedMenu = new Menu();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu, posId), DeleteMethod);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage.Status == HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
         /// <summary>
 		/// This function takes the supplied <paramref name="responseMessage"/> received from the RESTful Doshii API and translates it
 		/// into some sort of order object. It utilises the mapping between a model object (<typeparamref name="T"/>) and its corresponding 
@@ -856,6 +1069,23 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case EndPointPurposes.ConsumerFromCheckinId:
                     newUrlbuilder.AppendFormat("/checkins/{0}/consumer", identification);
+                    break;
+                case EndPointPurposes.Menu:
+                    newUrlbuilder.AppendFormat("/menu");
+                    break;
+                case EndPointPurposes.Products:
+                    newUrlbuilder.Append("/menu/products");
+                    if (!string.IsNullOrWhiteSpace(identification))
+                    {
+                        newUrlbuilder.AppendFormat("/{0}", identification);
+                    }
+                    break;
+                case EndPointPurposes.Surcounts:
+                    newUrlbuilder.Append("/menu/surcounts");
+                    if (!string.IsNullOrWhiteSpace(identification))
+                    {
+                        newUrlbuilder.AppendFormat("/{0}", identification);
+                    }
                     break;
                default:
                     throw new NotSupportedException(purpose.ToString());

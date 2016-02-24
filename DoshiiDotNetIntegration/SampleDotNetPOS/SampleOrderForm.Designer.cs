@@ -425,7 +425,7 @@
 			// 
 			// colSurcountPrice
 			// 
-			this.colSurcountPrice.HeaderText = "Price";
+			this.colSurcountPrice.HeaderText = "Amount";
 			this.colSurcountPrice.Name = "colSurcountPrice";
 			// 
 			// gbxPayments
@@ -487,7 +487,7 @@
 			// 
 			// colItemPrice
 			// 
-			this.colItemPrice.HeaderText = "Price";
+			this.colItemPrice.HeaderText = "Amount";
 			this.colItemPrice.Name = "colItemPrice";
 			// 
 			// colItemTags

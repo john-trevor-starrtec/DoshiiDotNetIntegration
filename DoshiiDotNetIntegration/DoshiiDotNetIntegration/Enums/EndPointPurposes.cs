@@ -43,6 +43,21 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// Request about the consumer from the checkinId
         /// </summary>
-        ConsumerFromCheckinId = 7
+        ConsumerFromCheckinId = 7,
+
+        /// <summary>
+        /// Request about the consumer from the checkinId
+        /// </summary>
+        Menu = 8,
+
+        /// <summary>
+        /// Request about the consumer from the checkinId
+        /// </summary>
+        Products = 9,
+
+        /// <summary>
+        /// Request about the consumer from the checkinId
+        /// </summary>
+        Surcounts = 10
     }
 }

@@ -1062,9 +1062,162 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
-		#region IDisposable Members
+        #region products and menu
 
-		/// <summary>
+        /// <summary>
+        /// this method is used to update the pos menu on doshii,
+        /// calls to this method will replace the existing pos menu on doshii with the menu paramater. 
+        /// If you wish to update or create single products you should use <see cref="PutProduct"/> method
+        /// If you wish to update or create single order level surcharges you should use the <see cref="PutSurcount"/> method
+        /// if you wish to delete a single product you should use the <see cref="DeleteProduct "/> method
+        /// if you wish to delete a single order level surcharge you should use the <see cref="DeleteSurcount "/> method
+         /// </summary>
+        /// <param name="menu">
+        /// The full pos menu to be updated to doshii
+        /// </param>
+        /// <returns>
+        /// if successful the full menu will be returned. 
+        /// if unsuccessful null will be returned. 
+        /// </returns>
+        public Menu PutMenu(Menu menu)
+        {
+            Menu returnedMenu = null;
+            try
+            {
+               returnedMenu = m_HttpComs.PutMenu(menu);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            if (returnedMenu != null)
+            {
+                return returnedMenu;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// This method is used to create or update a pos surcount on the doshii system. 
+        /// </summary>
+        /// <param name="surcount">
+        /// the surcount to be created or updated
+        /// </param>
+        /// <returns>
+        /// if successful the surcount as it exists on doshii will be returned
+        /// if unsuccessful null will be returned. 
+        /// </returns>
+        public Surcount PutSurcount(Surcount surcount)
+        {
+            if (surcount.Id == null || string.IsNullOrEmpty(surcount.Id))
+            {
+                mLog.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Surcounts must have an Id to be created or updated on Doshii");
+            }
+            Surcount returnedSurcharge = null;
+            try
+            {
+                returnedSurcharge = m_HttpComs.PutSurcount(surcount, surcount.Id);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            if (returnedSurcharge != null)
+            {
+                return returnedSurcharge;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// This method is used to create or update a pos product on the doshii system. 
+        /// </summary>
+        /// <param name="product">
+        /// the product to be created or updated
+        /// </param>
+        /// <returns>
+        /// if successful the product as it exists on doshii will be returned
+        /// if unsuccessful null will be returned. 
+        /// </returns>
+        public Product PutProduct(Product product)
+        {
+            if (product.Id == null || string.IsNullOrEmpty(product.Id))
+            {
+                mLog.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Products must have an Id to be created or updated on Doshii");
+            }
+            Product returnedProduct = null;
+            try
+            {
+                returnedProduct = m_HttpComs.PutProduct(product, product.Id);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            if (returnedProduct != null)
+            {
+                return returnedProduct;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// this method is used to delete a pos surcount from doshii
+        /// </summary>
+        /// <param name="posId">
+        /// the Id of the surcount to be deleted
+        /// </param>
+        /// <returns></returns>
+        public bool DeleteSurcount(string posId)
+        {
+            bool success;
+            try
+            {
+                success = m_HttpComs.DeleteSurcount(posId);
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// This method is used to delete a pos product from doshii
+        /// </summary>
+        /// <param name="posId">
+        /// the Id of the product to be deleted. 
+        /// </param>
+        /// <returns></returns>
+        public bool DeleteProduct(string posId)
+        {
+            bool success;
+            try
+            {
+                success = m_HttpComs.DeleteProduct(posId);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return success;
+        }
+
+
+        #endregion
+
+        #region IDisposable Members
+
+        /// <summary>
 		/// Cleanly disposes of the memory allocated to the instance's member variables.
 		/// </summary>
 		public void Dispose()
