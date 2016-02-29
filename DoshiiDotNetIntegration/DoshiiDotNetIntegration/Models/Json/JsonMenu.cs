@@ -14,7 +14,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     [Serializable]
     internal class JsonMenu : JsonSerializationBase<JsonMenu>
     {
-        private List<JsonSurcount> _surcounts;
+        private List<JsonMenuSurcount> _surcounts;
 
         /// <summary>
         /// A list of all order level surcounts available in the pos menu
@@ -22,33 +22,33 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "surcounts")]
-        public List<JsonSurcount> Surcounts
+        public List<JsonMenuSurcount> Surcounts
         {
             get
             {
                 if (_surcounts == null)
                 {
-                    _surcounts = new List<JsonSurcount>();
+                    _surcounts = new List<JsonMenuSurcount>();
                 }
                 return _surcounts;
             }
             set { _surcounts = value; }
         }
 
-        private List<JsonProduct> _products;
+        private List<JsonMenuProduct> _products;
 
         /// <summary>
         /// A list of all products available on the pos menu
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "products")]
-        public List<JsonProduct> Products
+        public List<JsonMenuProduct> Products
         {
             get
             {
                 if (_products == null)
                 {
-                    _products = new List<JsonProduct>();
+                    _products = new List<JsonMenuProduct>();
                 }
                 return _products;
             }

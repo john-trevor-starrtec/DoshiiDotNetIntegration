@@ -56,7 +56,7 @@ namespace SampleDotNetPOS
 			lblCopyright.Text = String.Format("\u00a9 Copyright {0:yyyy} Doshii Pty Ltd. All Rights Reserved.", DateTime.Today);
 
 			cbxApiAddress.SelectedIndex = 0;
-			LocationToken = "Z3S-Y4hEaO6Qt7klNyQFPhr2r8w";
+            LocationToken = "7B2RDcb7atv8QW6YqDCxqsoHvJc";
 
 			EnableDisableControls(true);
 		}

@@ -51,6 +51,7 @@ namespace DoshiiDotNetIntegration.Helpers
 				AutoMapperConfigurator.MapTableAllocationObjects();
 			    AutoMapperConfigurator.MapConsumerObjects();
 				AutoMapperConfigurator.MapOrderObjects();
+                AutoMapperConfigurator.MapMenuObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
@@ -62,12 +63,12 @@ namespace DoshiiDotNetIntegration.Helpers
 		/// </summary>
 		private static void MapVariantsObjects()
 		{
-			// Mapping from Variants to JsonVariants
-			// src = Variants, dest = JsonVariants, opt = Mapping Option
+			// Mapping from Variants to JsonOrderVariants
+			// src = Variants, dest = JsonOrderVariants, opt = Mapping Option
 			Mapper.CreateMap<Variants, JsonVariants>()
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
 
-			// src = JsonVariants, dest = Variants
+			// src = JsonOrderVariants, dest = Variants
 			Mapper.CreateMap<JsonVariants, Variants>()
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
@@ -78,25 +79,49 @@ namespace DoshiiDotNetIntegration.Helpers
 		/// </summary>
 		private static void MapProductObjects()
 		{
-			// src = ProductOptions, dest = JsonProductOptions
-			Mapper.CreateMap<ProductOptions, JsonProductOptions>()
-				.ForMember(dest => dest.SerializeSelected, opt => opt.Ignore())
-				.ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected.ToList<Variants>()))
+			// src = ProductOptions, dest = JsonOrderProductOptions
+			Mapper.CreateMap<ProductOptions, JsonOrderProductOptions>()
 				.ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variants>()));
 
-			// src = JsonProductOptions, dest = ProductOptions
-			Mapper.CreateMap<JsonProductOptions, ProductOptions>();
+			// src = JsonOrderProductOptions, dest = ProductOptions
+			Mapper.CreateMap<JsonOrderProductOptions, ProductOptions>();
 
-			// src = Product, dest = JsonProduct
-			Mapper.CreateMap<Product, JsonProduct>()
+			// src = Product, dest = JsonOrderProduct
+			Mapper.CreateMap<Product, JsonOrderProduct>()
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)))
 				.ForMember(dest => dest.ProductOptions, opt => opt.MapFrom(src => src.ProductOptions.ToList<ProductOptions>()))
-				.ForMember(dest => dest.SerializeRejectionReason, opt => opt.Ignore())
 				.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()));
 
-			// src = JsonProduct, dest = Product
-			Mapper.CreateMap<JsonProduct, Product>()
+			// src = JsonOrderProduct, dest = Product
+			Mapper.CreateMap<JsonOrderProduct, Product>()
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
+
+            // src = ProductOptions, dest = JsonOrderProductOptions
+            Mapper.CreateMap<ProductOptions, JsonMenuProductOptions>()
+                .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variants>()));
+
+            // src = JsonOrderProductOptions, dest = ProductOptions
+		    Mapper.CreateMap<JsonMenuProductOptions, ProductOptions>();
+                
+            // src = ProductOptions, dest = JsonOrderProductOptions
+            Mapper.CreateMap<ProductOptions, JsonOrderProductOptions>()
+                .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants.ToList<Variants>()));
+
+            // src = JsonOrderProductOptions, dest = ProductOptions
+            Mapper.CreateMap<JsonOrderProductOptions, ProductOptions>()
+                .ForMember(dest => dest.Max, opt => opt.Ignore())
+                .ForMember(dest => dest.Min, opt => opt.Ignore());
+
+            // src = Product, dest = JsonOrderProduct
+            Mapper.CreateMap<Product, JsonMenuProduct>()
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)))
+                .ForMember(dest => dest.ProductOptions, opt => opt.MapFrom(src => src.ProductOptions.ToList<ProductOptions>()))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()));
+
+            // src = JsonOrderProduct, dest = Product
+		    Mapper.CreateMap<JsonMenuProduct, Product>()
+		        .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)))
+		        .ForMember(dest => dest.Quantity, opt => opt.Ignore());
 		}
 
         /// <summary>
@@ -105,12 +130,12 @@ namespace DoshiiDotNetIntegration.Helpers
         /// </summary>
         private static void MapMenuObjects()
         {
-            // src = Order, dest = JsonOrder
+            // src = Menu, dest = JsonMenu
             Mapper.CreateMap<Menu, JsonMenu>()
                 .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.Products.ToList<Product>()))
                 .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 
-            // src = JsonOrder, dest = Order
+            // src = JsonMenu, dest = Menu
             Mapper.CreateMap<JsonMenu, Menu>();
 
         }
@@ -121,13 +146,20 @@ namespace DoshiiDotNetIntegration.Helpers
 		/// </summary>
 		private static void MapSurcountObjects()
 		{
-			// src = Surcount, dest = JsonSurcount
-			Mapper.CreateMap<Surcount, JsonSurcount>()
+			// src = Surcount, dest = JsonOrderSurcount
+			Mapper.CreateMap<Surcount, JsonOrderSurcount>()
 				.ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Amount)));
 
-			// src = JsonSurcount, dest = Surcount
-			Mapper.CreateMap<JsonSurcount, Surcount>()
+			// src = JsonOrderSurcount, dest = Surcount
+			Mapper.CreateMap<JsonOrderSurcount, Surcount>()
 				.ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Amount)));
+
+            // src = Surcount, dest = JsonOrderSurcount
+		    Mapper.CreateMap<Surcount, JsonMenuSurcount>();
+                
+            // src = JsonOrderSurcount, dest = Surcount
+            Mapper.CreateMap<JsonMenuSurcount, Surcount>()
+                .ForMember(dest => dest.Amount, opt => opt.Ignore());
 		}
 
 		/// <summary>
@@ -181,14 +213,6 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = JsonOrder, dest = Order
 		    Mapper.CreateMap<JsonOrder, Order>();
 				
-			// src = OrderToPut, dest = JsonOrderToPut
-			Mapper.CreateMap<OrderToPut, JsonOrderToPut>()
-				.ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
-				.ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
-
-			// src = JsonOrderToPut, dest = OrderToPut
-			Mapper.CreateMap<JsonOrderToPut, OrderToPut>();
-
 			// src = TableOrder, dest = JsonTableOrder
 			Mapper.CreateMap<TableOrder, JsonTableOrder>();
 

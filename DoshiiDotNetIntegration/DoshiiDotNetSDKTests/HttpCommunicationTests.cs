@@ -117,20 +117,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.VerifyAllExpectations();
         }
 
-        [Test]
-        public void PutOrder_OrderToPutStatus_EqualsOrderStatus_Rejected()
-        {
-            var order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageSuccessfulOrder();
-            responseMessage.Data = Mapper.Map<JsonOrder>(order).ToJsonString();
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Matches(data => data.Contains("rejected")))).Return(responseMessage);
-
-            MockHttpComs.PutOrder(order);
-
-            MockHttpComs.VerifyAllExpectations();
-        }
-
-        [Test]
+       [Test]
         [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullOrderReturnedException))]
         public void PutOrder_NullOrderReturned_ExceptionThrown()
         {

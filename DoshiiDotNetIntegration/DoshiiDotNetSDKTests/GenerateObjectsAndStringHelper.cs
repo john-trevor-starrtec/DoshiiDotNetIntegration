@@ -298,7 +298,6 @@ namespace DoshiiDotNetSDKTests
                 Max = 0,
                 PosId = "10",
                 Variants = GenerateProductVarientList(),
-                Selected = new List<DoshiiDotNetIntegration.Models.Variants>()
             };
             return productOption;
         }

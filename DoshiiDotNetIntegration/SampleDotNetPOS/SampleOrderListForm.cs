@@ -68,7 +68,7 @@ namespace SampleDotNetPOS
 				order.Items.Count, 
 				order.Items.Sum(o => o.Price).ToString("c"), 
 				order.Surcounts.Count,
-				order.Surcounts.Sum(o => o.Price).ToString("c")
+				order.Surcounts.Sum(o => o.Amount).ToString("c")
 			);
 			dgvOrders.Rows[index].Tag = order;
 		}
@@ -101,7 +101,7 @@ namespace SampleDotNetPOS
 		{
 			int index = dgvSurcounts.Rows.Add(
 				surcount.Name,
-				surcount.Price.ToString("c")
+				surcount.Amount.ToString("c")
 			);
 			dgvSurcounts.Rows[index].Tag = surcount;
 		}

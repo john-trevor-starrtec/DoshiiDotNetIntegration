@@ -5,34 +5,52 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 
-namespace DoshiiDotNetIntegration.Models
+namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
     /// The doshii representation of a product 
     /// A product is the highest level line item on orders.
     /// </summary>
-    public class Product : ICloneable
+    [DataContract]
+    [Serializable]
+    internal class JsonOrderProduct : JsonSerializationBase<JsonOrderProduct>
     {
         /// <summary>
         /// The Doshii Id of the product.
         /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
+
+        /// <summary>
+        /// The quantity of the item ordered.
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "quantity")]
+        public string Quantity { get; set; }
 
         /// <summary>
         /// The name of the product.
         /// This name will be displayed to Doshii users on the mobile app.
         /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
 		/// <summary>
 		/// A description of the product that will be displayed on the mobile app
 		/// </summary>
+		[DataMember]
+		[JsonProperty(PropertyName = "description")]
 		public string Description { get; set; }
 
 		/// <summary>
-		/// The price the product will be sold for through the mobile app. 
+		/// The price the product will be sold for through the mobile app, 
+		/// This price is to be represented in cents. 
 		/// </summary>
-		public decimal Price { get; set; }
+		[DataMember]
+		[JsonProperty(PropertyName = "price")]
+		public string Price { get; set; }
 
         private List<string> _Tags;
         
@@ -42,7 +60,9 @@ namespace DoshiiDotNetIntegration.Models
         /// Products can be added manually to groups in the doshii dashboard,
         /// If this list is populated the product will be automatically added to the groups included, this will reduce setup time. 
         /// </summary>
-        public IEnumerable<string> Tags 
+        [DataMember]
+        [JsonProperty(PropertyName = "tags")]
+        public List<string> Tags 
         { 
             get
             { 
@@ -54,127 +74,82 @@ namespace DoshiiDotNetIntegration.Models
             }
             set
             {
-                _Tags = value.ToList<string>();
+                _Tags = value;
             }
         }
 
-        private List<ProductOptions> _ProductOptions;
+        private List<JsonOrderProductOptions> _ProductOptions;
         
         /// <summary>
         /// A list of ProductOptions the customer can choose from to modify the product they are ordering.
         /// </summary>
-        public IEnumerable<ProductOptions> ProductOptions {
+        [DataMember]
+        [JsonProperty(PropertyName = "options")]
+		public List<JsonOrderProductOptions> ProductOptions
+		{
             get
             {
                 if (_ProductOptions == null)
                 {
-                    _ProductOptions = new List<ProductOptions>();
+					_ProductOptions = new List<JsonOrderProductOptions>();
                 }
                 return _ProductOptions;
             } 
             set
             {
-                _ProductOptions = value.ToList<ProductOptions>();
+                _ProductOptions = value;
             }
         }
 
-        private List<Surcount> _ProductSurcounts;
+        private List<JsonOrderSurcount> _ProductSurcounts;
 
         /// <summary>
-        /// A list of Surcharges available / selected for this product on the product.
+        /// A list of surcounts that can / are applied to the product.
         /// </summary>
-        public IEnumerable<Surcount> ProductSurcounts
+        [DataMember]
+        [JsonProperty(PropertyName = "surcounts")]
+        public List<JsonOrderSurcount> ProductSurcounts
         {
             get
             {
                 if (_ProductSurcounts == null)
                 {
-                    _ProductSurcounts = new List<Surcount>();
+                    _ProductSurcounts = new List<JsonOrderSurcount>();
                 }
                 return _ProductSurcounts;
             }
             set
             {
-                _ProductSurcounts = value.ToList<Surcount>();
+                _ProductSurcounts = value;
             }
         }
 
 		/// <summary>
-		/// The obfuscated string representation of the version for the product.
+		/// The version of the product in Doshii.
 		/// </summary>
+		[DataMember]
+		[JsonProperty(PropertyName = "version")]
 		public string Version { get; set; }
 
 		/// <summary>
 		/// The POS Id of the product
 		/// </summary>
+		[DataMember]
+		[JsonProperty(PropertyName = "pos_id")]
 		public string PosId { get; set; }
 
 		/// <summary>
 		/// The image associated with the product.
 		/// </summary>
+		[DataMember]
+		[JsonProperty(PropertyName = "image")]
 		public string Image { get; set; }
 
         /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
-
-        /// <summary>
-        /// The status of the item that is being ordered. 
-        /// </summary>
-        public decimal Quantity { get; set; }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public Product()
-		{
-			_Tags = new List<string>();
-			_ProductOptions = new List<ProductOptions>();
-			Clear();
-		}
-
-		/// <summary>
-		/// Resets all property values to default settings.
-		/// </summary>
-		public void Clear()
-		{
-			Id = String.Empty;
-			Name = String.Empty;
-			Description = String.Empty;
-			Price = 0.0M;
-			_Tags.Clear();
-			_ProductOptions.Clear();
-			Version = String.Empty;
-			PosId = String.Empty;
-			Image = String.Empty;
-			Status = String.Empty;
-		    Quantity = 0.0M;
-		}
-
-		#region ICloneable Members
-
-		/// <summary>
-		/// Returns a deep copy of the instance.
-		/// </summary>
-		/// <returns>A clone of the instance.</returns>
-		public object Clone()
-		{
-			var product = (Product)this.MemberwiseClone();
-
-			var tags = new List<string>();
-			foreach (string tag in this.Tags)
-				tags.Add(tag);
-			product.Tags = tags;
-
-			var options = new List<ProductOptions>();
-			foreach (var option in this.ProductOptions)
-				options.Add((ProductOptions)option.Clone());
-			product.ProductOptions = options;
-
-			return product;
-		}
-
-		#endregion
-	}
+    }
 }

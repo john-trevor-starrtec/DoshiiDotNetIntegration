@@ -547,33 +547,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             var returnOrder = new Order();
             DoshiHttpResponseMessage responseMessage;
-            OrderToPut orderToPut = new OrderToPut();
-
-            if (order.Status == "accepted")
-            {
-                orderToPut.Status = "accepted";
-            }
-            else if (order.Status == "complete")
-            {
-                orderToPut.Status = "complete";
-            }
-            else
-            {
-                orderToPut.Status = "rejected";
-            }
-
-            orderToPut.Items = order.Items;
-            orderToPut.Surcounts = order.Surcounts;
+            
             try
             {
-                var jsonOrderToPut = Mapper.Map<JsonOrderToPut>(orderToPut);
+                var jsonOrderToPut = Mapper.Map<JsonOrder>(order);
                 if (String.IsNullOrEmpty(order.Id))
                 {
-                    responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders, order.DoshiiId), method, jsonOrderToPut.ToJsonStringForOrder());
+                    responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders, order.DoshiiId), method, jsonOrderToPut.ToJsonString());
                 }
                 else
                 {
-                    responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order, order.Id), method, jsonOrderToPut.ToJsonStringForOrder());
+                    responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order, order.Id), method, jsonOrderToPut.ToJsonString());
                 }
             }
             catch (RestfulApiErrorResponseException rex)
@@ -641,7 +625,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// completes the Put or Post request to update an order with Doshii. 
+        /// adds or updates a surcount on the pos menu in doshii. 
         /// </summary>
         /// <param name="menu"></param>
         /// <returns></returns>
@@ -652,7 +636,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                var jsonSurcount = Mapper.Map<JsonSurcount>(surcount);
+                var jsonSurcount = Mapper.Map<JsonMenuSurcount>(surcount);
                 responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Surcounts, identification), WebRequestMethods.Http.Put, jsonSurcount.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
@@ -668,7 +652,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonSurcount = JsonConvert.DeserializeObject<JsonSurcount>(responseMessage.Data);
+                        var jsonSurcount = JsonConvert.DeserializeObject<JsonMenuSurcount>(responseMessage.Data);
                         returedSurcount = Mapper.Map<Surcount>(jsonSurcount);
                     }
                     else
@@ -692,7 +676,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// completes the Put or Post request to update an order with Doshii. 
+        /// Deletes a surcount from the pos menu on doshii
         /// </summary>
         /// <param name="menu"></param>
         /// <returns></returns>
@@ -721,7 +705,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// completes the Put or Post request to update an order with Doshii. 
+        /// adds or updates a product on the pos menu on doshii
         /// </summary>
         /// <param name="menu"></param>
         /// <returns></returns>
@@ -732,7 +716,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                var jsonProduct = Mapper.Map<JsonProduct>(product);
+                var jsonProduct = Mapper.Map<JsonMenuProduct>(product);
                 responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Products, identification), WebRequestMethods.Http.Put, jsonProduct.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
@@ -748,7 +732,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonProduct = JsonConvert.DeserializeObject<JsonProduct>(responseMessage.Data);
+                        var jsonProduct = JsonConvert.DeserializeObject<JsonMenuProduct>(responseMessage.Data);
                         returnedProduct = Mapper.Map<Product>(jsonProduct);
                     }
                     else
@@ -772,7 +756,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// completes the Put or Post request to update an order with Doshii. 
+        /// deletes the product from the pos menu on doshii
         /// </summary>
         /// <param name="menu"></param>
         /// <returns></returns>
