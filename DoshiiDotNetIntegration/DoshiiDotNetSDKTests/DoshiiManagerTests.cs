@@ -45,6 +45,14 @@ namespace DoshiiDotNetSDKTests
         }
 
 		[Test]
+		public void BuildSocketUrl()
+		{
+			string expectedResult = String.Format("wss://alpha.corp.doshii.co/pos/socket?token={0}", token);
+			string actualResult = _manager.BuildSocketUrl(urlBase, token);
+			Assert.AreEqual(expectedResult, actualResult);
+		}
+
+		[Test]
 		[ExpectedException(typeof(ArgumentNullException))]
 		public void ContsuctNullPaymentManager()
 		{

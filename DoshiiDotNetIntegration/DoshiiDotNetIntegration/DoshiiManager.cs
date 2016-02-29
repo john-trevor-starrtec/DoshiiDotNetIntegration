@@ -105,7 +105,7 @@ namespace DoshiiDotNetIntegration
 		internal DoshiiLogManager mLog;
 
         /// <summary>
-        /// The authentication token for the venue 
+        /// The unique token for the venue -- this can be retrieved from the Doshii website.
         /// </summary>
         internal string AuthorizeToken { get; set; }
 
@@ -170,13 +170,8 @@ namespace DoshiiDotNetIntegration
         /// will allow the tabs / orders / checks to be acted on in the pos without messages being sent to doshii to update doshii. After the disassociate occurs the user will no longer be able to access their tab / order on the Doshii app and this value is passed to the Doshii API upon communication initializations so doshii will close tabs when there has been no communication for this period of time. 
         /// NOTE: This differs from the time that is set on the Doshii back end that indicates how long a tab can be inactive for before a checkout message is sent to the pos indicating that the consumer no longer has a valie Doshii tab / order and any associated tab / order / person registered on the pos should be disassociated from Doshii.  
         /// </param>
-        /// <param name="configuration">
-        /// this is the configuration that configures the behaviour of the Doshii API while interacting with this pos. <see cref="Configuration"/> for details about the available settings. 
-        /// </param>
         public virtual void Initialize(string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
-			// TODO: Remove socketUrl parameter and build it here based on urlBase?
-
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}token {0}, {3}BaseUrl: {1}", token, urlBase, CurrentVersion(), Environment.NewLine));
 			
             if (string.IsNullOrWhiteSpace(urlBase))
@@ -204,11 +199,37 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
-            string socketUrl = String.Format("{0}/socket", urlBase.Replace("http", "ws"));
-            AuthorizeToken = token;
-            string socketUrlWithToken = string.Format("{0}?token={1}", socketUrl, token);
-			InitializeProcess(socketUrlWithToken, urlBase, startWebSocketConnection, timeout);
+			AuthorizeToken = token;
+			string socketUrl = BuildSocketUrl(urlBase, token);
+			InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
         }
+
+		/// <summary>
+		/// DO NOT USE, this method is for internal use only.
+		/// Builds the socket URL from the supplied <paramref name="baseApiUrl"/>, including appending the supplied <paramref name="token"/> as a <c>GET</c> parameter.
+		/// </summary>
+		/// <param name="baseApiUrl">The base URL for the API. This is an HTTP address that points to the Doshii POS API, including version.</param>
+		/// <param name="token">The Doshii authentication token for the POS implementation in the API.</param>
+		/// <returns>The URL for the web socket connection in Doshii.</returns>
+		internal virtual string BuildSocketUrl(string baseApiUrl, string token)
+		{
+			// baseApiUrl is for example https://sandbox.doshii.co/pos/api/v2
+			// require socket url of wss://sandbox.doshii.co/pos/socket?token={token} in this example
+			// so first, replace http with ws (this handles situation where using http/ws instead of https/wss
+			string result = baseApiUrl.Replace("http", "ws");
+
+			// next remove the /api/v2 section of the url
+			int index = result.IndexOf("/api");
+			if (index > 0 && index < result.Length)
+			{
+				result = result.Remove(index);
+			}
+
+			// finally append the socket endpoint and token parameter to the url and return the result
+			result = String.Format("{0}/socket?token={1}", result, token);
+
+			return result;
+		}
 
         /// <summary>
         /// DO NOT USE, this method is for internal use only
@@ -216,6 +237,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="socketUrl"></param>
         /// <param name="UrlBase"></param>
         /// <param name="StartWebSocketConnection"></param>
+		/// <param name="timeOutValueSecs"></param>
         /// <returns></returns>
         internal virtual bool InitializeProcess(string socketUrl, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
         {
@@ -289,14 +311,14 @@ namespace DoshiiDotNetIntegration
 
         /// <summary>
         /// DO NOT USE, this method is for internal use only
-        /// Handles a socket communication established event and calls refreshComsumerData. 
+        /// Handles a socket communication established event and calls <see cref="RefreshAllOrders()"/>. 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event arguments.</param>
         internal virtual void SocketComsConnectionEventHandler(object sender, EventArgs e)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: received Socket connection event");
-            RefreshAllOrders();
+            //RefreshAllOrders();
         }
 
         /// <summary>

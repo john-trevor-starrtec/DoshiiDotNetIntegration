@@ -133,6 +133,40 @@ namespace SampleDotNetPOS
 		}
 
 		/// <summary>
+		/// Updates the label that displays the current number of orders currently in memory.
+		/// </summary>
+		/// <param name="count">The number of orders.</param>
+		public void UpdateOrderCountLabel(int count)
+		{
+			if (count == 0)
+			{
+				lblOrderCount.Visible = false;
+			}
+			else
+			{
+				lblOrderCount.Visible = true;
+				lblOrderCount.Text = String.Format("{0} Order{1}", count, count == 1 ? String.Empty : "s");
+			}
+		}
+
+		/// <summary>
+		/// Updates the label that displays the current number of transactions currently in memory.
+		/// </summary>
+		/// <param name="count">The number of orders.</param>
+		public void UpdatePaymentCountLabel(int count)
+		{
+			if (count == 0)
+			{
+				lblPaymentCount.Visible = false;
+			}
+			else
+			{
+				lblPaymentCount.Visible = true;
+				lblPaymentCount.Text = String.Format("{0} Payment{1}", count, count == 1 ? String.Empty : "s");
+			}
+		}
+
+		/// <summary>
 		/// Delegate that performs logging in the view.
 		/// </summary>
 		/// <param name="message">The message to be written to the view.</param>
@@ -256,7 +290,20 @@ namespace SampleDotNetPOS
 			btnInitialise.Enabled = enableInitialiseControls;
 
 			btnTestLogging.Enabled = enableNonInitialisationControls;
+			btnViewOrders.Enabled = enableNonInitialisationControls;
+		}
 
+		/// <summary>
+		/// Callback for when the VIEW ORDERS button is pressed.
+		/// </summary>
+		/// <param name="sender">The source of the event.</param>
+		/// <param name="e">The event arguments.</param>
+		private void btnViewOrders_Click(object sender, EventArgs e)
+		{
+			if (mPresenter != null)
+			{
+				mPresenter.DisplayOrderList();
+			}
 		}
 	}
 }

@@ -80,6 +80,9 @@ namespace SampleDotNetPOS
 			mManager = new DoshiiManager(mPaymentManager, mLog, mOrderingManager);
 			mOrders = new List<Order>();
 			mPayments = new List<Transaction>();
+
+			mView.UpdateOrderCountLabel(mOrders.Count);
+			mView.UpdatePaymentCountLabel(mPayments.Count);
 		}
 
 		/// <summary>
@@ -101,13 +104,51 @@ namespace SampleDotNetPOS
 		public void Initialise(string apiAddress, string locationToken)
 		{
 			mManager.Initialize(SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0);
+
+			// refresh the order list in memory
 			mOrders = mManager.GetOrders().ToList<Order>();
-			mPayments = mManager.GetTransactions().ToList<Transaction>();
+			mOrders.AddRange(mManager.GetUnlinkedOrders());
+
+			// retrieve any payment transactions for current orders
+			mPayments.Clear();
+			foreach (var order in mOrders)
+			{
+				mPayments.AddRange(mManager.GetTransactionFromDoshiiOrderId(order.DoshiiId));
+			}
+
+			// update the view labels for count of orders and payments
+			mView.UpdateOrderCountLabel(mOrders.Count);
+			mView.UpdatePaymentCountLabel(mPayments.Count);
 		}
 
 		#endregion
 
 		#region Ordering
+
+		/// <summary>
+		/// Opens a form that displays the current order list.
+		/// </summary>
+		public void DisplayOrderList()
+		{
+			using (var view = new SampleOrderListForm())
+			{
+				view.AttachPresenter(this);
+
+				try
+				{
+					foreach (var order in mOrders)
+					{
+						view.AddOrder(order);
+					}
+
+					view.ShowDialog();
+				}
+				finally
+				{
+					view.RemovePresenter();
+				}
+			}
+		}
 
 		/// <summary>
 		/// Retrieves an order from the current list of orders by <paramref name="orderId"/>.
@@ -144,7 +185,10 @@ namespace SampleDotNetPOS
 		{
 			int index = mOrders.IndexOf(order);
 			if (index < 0)
+			{
 				mOrders.Add(order);
+				mView.UpdateOrderCountLabel(mOrders.Count);
+			}
 			else
 				mOrders[index] = order;
 		}
@@ -157,7 +201,10 @@ namespace SampleDotNetPOS
 		{
 			var order = RetrieveOrder(orderId);
 			if (order != null)
+			{
 				mOrders.Remove(order);
+				mView.UpdateOrderCountLabel(mOrders.Count);
+			}
 		}
 
 		/// <summary>
@@ -195,10 +242,20 @@ namespace SampleDotNetPOS
 		/// Retrieves the transaction with corresponding <paramref name="transactionId"/> from the current list.
 		/// </summary>
 		/// <param name="transactionId">The Id of the transaction being requested from the current list.</param>
-		/// <returns></returns>
+		/// <returns>The payment with the supplied <paramref name="transactionId"/> if found; or <c>null</c> otherwise.</returns>
 		public Transaction RetrieveTransaction(string transactionId)
 		{
 			return mPayments.FirstOrDefault(o => o.Id == transactionId);
+		}
+
+		/// <summary>
+		/// Retrieves the current list of transactions for the order with the supplied <paramref name="orderId"/>.
+		/// </summary>
+		/// <param name="orderId">The Id of the order being queried.</param>
+		/// <returns>The list of payments for the order with the supplied <paramref name="orderId"/>.</returns>
+		public IEnumerable<Transaction> RetrieveOrderTransactions(string orderId)
+		{
+			return mPayments.Where(o => o.OrderId == orderId);
 		}
 
 		/// <summary>
@@ -209,7 +266,10 @@ namespace SampleDotNetPOS
 		{
 			var payment = RetrieveTransaction(transactionId);
 			if (payment != null)
+			{
 				mPayments.Remove(payment);
+				mView.UpdatePaymentCountLabel(mPayments.Count);
+			}
 		}
 
 		/// <summary>
@@ -220,7 +280,10 @@ namespace SampleDotNetPOS
 		{
 			int index = mPayments.IndexOf(transaction);
 			if (index < 0)
+			{
 				mPayments.Add(transaction);
+				mView.UpdatePaymentCountLabel(mPayments.Count);
+			}
 			else
 				mPayments[index] = transaction;
 		}

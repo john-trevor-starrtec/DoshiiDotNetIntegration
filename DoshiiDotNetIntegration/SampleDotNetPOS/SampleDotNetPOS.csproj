@@ -64,6 +64,12 @@
     <Compile Include="SampleOrderForm.Designer.cs">
       <DependentUpon>SampleOrderForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SampleOrderListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SampleOrderListForm.Designer.cs">
+      <DependentUpon>SampleOrderListForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SamplePOSMainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,12 +86,16 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="SampleConfigForm.resx">
       <DependentUpon>SampleConfigForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SampleOrderForm.resx">
       <DependentUpon>SampleOrderForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SampleOrderListForm.resx">
+      <DependentUpon>SampleOrderListForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SamplePOSMainForm.resx">
       <DependentUpon>SamplePOSMainForm.cs</DependentUpon>
@@ -109,6 +119,15 @@
       <Project>{c415ea93-1d45-4678-8cd4-f810b9521143}</Project>
       <Name>DoshiiDotNetIntegration</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\delete.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1190,7 +1190,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 using (WebResponse response = wex.Response)
                 {
                     HttpWebResponse httpResponse = (HttpWebResponse)response;
-                    Console.WriteLine("Error code: {0}", httpResponse.StatusCode);
+                    //Console.WriteLine("Error code: {0}", httpResponse.StatusCode);
+					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, String.Format("Error code: {0}", httpResponse.StatusCode));
                     string errorResponce;
                     using (Stream responceErrorData = response.GetResponseStream())
                     {
@@ -1207,7 +1208,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         httpResponse.StatusCode == HttpStatusCode.Conflict)
                     {
 						mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}", method, url, data, errorResponce, wex));
-                        throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode);
+                        throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode, wex);
                     }
                     else
                     {
@@ -1217,7 +1218,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (Exception ex)
             {
-				mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} : {4}", method, url, data, responceMessage.Status.ToString(), ex));
+				mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Error, string.Format("Doshii: As exception was thrown while attempting a {0} request to endpoint {1}, with data {2} and status {3} : {4}", method, url, data, responceMessage.Status.ToString(), ex));
+				throw new Exceptions.RestfulApiErrorResponseException(responceMessage.Status, ex);
             }
 
             return responceMessage;
