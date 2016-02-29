@@ -30,6 +30,8 @@
 		{
 			this.ssStatusBar = new System.Windows.Forms.StatusStrip();
 			this.lblCopyright = new System.Windows.Forms.ToolStripStatusLabel();
+			this.lblOrderCount = new System.Windows.Forms.ToolStripStatusLabel();
+			this.lblPaymentCount = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pnlTop = new System.Windows.Forms.Panel();
 			this.btnInitialise = new System.Windows.Forms.Button();
 			this.tbxLocationToken = new System.Windows.Forms.TextBox();
@@ -39,6 +41,7 @@
 			this.rtbLog = new System.Windows.Forms.RichTextBox();
 			this.pnlCommands = new System.Windows.Forms.Panel();
 			this.btnTestLogging = new System.Windows.Forms.Button();
+			this.btnViewOrders = new System.Windows.Forms.Button();
 			this.ssStatusBar.SuspendLayout();
 			this.pnlTop.SuspendLayout();
 			this.pnlCommands.SuspendLayout();
@@ -47,18 +50,34 @@
 			// ssStatusBar
 			// 
 			this.ssStatusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.lblCopyright});
-			this.ssStatusBar.Location = new System.Drawing.Point(0, 540);
+            this.lblCopyright,
+            this.lblOrderCount,
+            this.lblPaymentCount});
+			this.ssStatusBar.Location = new System.Drawing.Point(0, 538);
 			this.ssStatusBar.Name = "ssStatusBar";
-			this.ssStatusBar.Size = new System.Drawing.Size(784, 22);
+			this.ssStatusBar.Size = new System.Drawing.Size(784, 24);
 			this.ssStatusBar.TabIndex = 4;
 			// 
 			// lblCopyright
 			// 
 			this.lblCopyright.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.lblCopyright.Name = "lblCopyright";
-			this.lblCopyright.Size = new System.Drawing.Size(60, 17);
+			this.lblCopyright.Size = new System.Drawing.Size(60, 19);
 			this.lblCopyright.Text = "Copyright";
+			// 
+			// lblOrderCount
+			// 
+			this.lblOrderCount.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+			this.lblOrderCount.Name = "lblOrderCount";
+			this.lblOrderCount.Size = new System.Drawing.Size(55, 19);
+			this.lblOrderCount.Text = "0 Orders";
+			// 
+			// lblPaymentCount
+			// 
+			this.lblPaymentCount.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+			this.lblPaymentCount.Name = "lblPaymentCount";
+			this.lblPaymentCount.Size = new System.Drawing.Size(72, 19);
+			this.lblPaymentCount.Text = "0 Payments";
 			// 
 			// pnlTop
 			// 
@@ -103,10 +122,10 @@
 			// 
 			this.cbxApiAddress.FormattingEnabled = true;
 			this.cbxApiAddress.Items.AddRange(new object[] {
-            "https://alphasandbox.doshii.co/pos/api/v1",
-            "https://beta.doshii.co/pos/api/v1",
-            "http://localhost:3000/pos/api/v1",
-            "http://alpha.corp.doshii.co/pos/api/v1"});
+            "http://sandbox.doshii.co/pos/api/v2",
+            "http://localhost:3000/pos/api/v2",
+            "http://sandbox.doshii.co/pos/api/v1",
+            "http://localhost:3000/pos/api/v1"});
 			this.cbxApiAddress.Location = new System.Drawing.Point(86, 6);
 			this.cbxApiAddress.Name = "cbxApiAddress";
 			this.cbxApiAddress.Size = new System.Drawing.Size(180, 21);
@@ -127,15 +146,16 @@
 			this.rtbLog.Location = new System.Drawing.Point(0, 41);
 			this.rtbLog.Name = "rtbLog";
 			this.rtbLog.ReadOnly = true;
-			this.rtbLog.Size = new System.Drawing.Size(784, 333);
+			this.rtbLog.Size = new System.Drawing.Size(784, 331);
 			this.rtbLog.TabIndex = 2;
 			this.rtbLog.Text = "";
 			// 
 			// pnlCommands
 			// 
+			this.pnlCommands.Controls.Add(this.btnViewOrders);
 			this.pnlCommands.Controls.Add(this.btnTestLogging);
 			this.pnlCommands.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.pnlCommands.Location = new System.Drawing.Point(0, 374);
+			this.pnlCommands.Location = new System.Drawing.Point(0, 372);
 			this.pnlCommands.Name = "pnlCommands";
 			this.pnlCommands.Size = new System.Drawing.Size(784, 166);
 			this.pnlCommands.TabIndex = 3;
@@ -149,6 +169,16 @@
 			this.btnTestLogging.Text = "TEST LOG";
 			this.btnTestLogging.UseVisualStyleBackColor = true;
 			this.btnTestLogging.Click += new System.EventHandler(this.btnTestLogging_Click);
+			// 
+			// btnViewOrders
+			// 
+			this.btnViewOrders.Location = new System.Drawing.Point(12, 35);
+			this.btnViewOrders.Name = "btnViewOrders";
+			this.btnViewOrders.Size = new System.Drawing.Size(92, 23);
+			this.btnViewOrders.TabIndex = 1;
+			this.btnViewOrders.Text = "VIEW ORDERS";
+			this.btnViewOrders.UseVisualStyleBackColor = true;
+			this.btnViewOrders.Click += new System.EventHandler(this.btnViewOrders_Click);
 			// 
 			// SamplePOSMainForm
 			// 
@@ -185,6 +215,9 @@
 		private System.Windows.Forms.ComboBox cbxApiAddress;
 		private System.Windows.Forms.Label lblApiAddress;
 		private System.Windows.Forms.Button btnInitialise;
+		private System.Windows.Forms.ToolStripStatusLabel lblOrderCount;
+		private System.Windows.Forms.ToolStripStatusLabel lblPaymentCount;
+		private System.Windows.Forms.Button btnViewOrders;
 	}
 }
 
