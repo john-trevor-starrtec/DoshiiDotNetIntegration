@@ -42,7 +42,7 @@ namespace DoshiiDotNetIntegration.Models
         /// Products can be added manually to groups in the doshii dashboard,
         /// If this list is populated the product will be automatically added to the groups included, this will reduce setup time. 
         /// </summary>
-        public IEnumerable<string> Tags 
+        public List<string> Tags 
         { 
             get
             { 
@@ -117,11 +117,6 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
-        public string Status { get; set; }
-
-        /// <summary>
-        /// The status of the item that is being ordered. 
-        /// </summary>
         public decimal Quantity { get; set; }
 
         /// <summary>
@@ -148,8 +143,7 @@ namespace DoshiiDotNetIntegration.Models
 			Version = String.Empty;
 			PosId = String.Empty;
 			Image = String.Empty;
-			Status = String.Empty;
-		    Quantity = 0.0M;
+			Quantity = 0.0M;
 		}
 
 		#region ICloneable Members
