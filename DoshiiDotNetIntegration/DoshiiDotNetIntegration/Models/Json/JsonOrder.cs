@@ -98,6 +98,13 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "uri")]
 		public string Uri { get; set; }
 
+        /// <summary>
+        /// The URI of the order
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "requiredAt")]
+        public string RequiredAt { get; set; }
+
         private List<JsonOrderProduct> _items;
         
         /// <summary>

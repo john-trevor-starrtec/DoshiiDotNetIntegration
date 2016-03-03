@@ -873,7 +873,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// completes the Put or Post request to update an order with Doshii. 
+        /// completes the Post request to create a transaction on Doshii. 
         /// </summary>
         /// <param name="order"></param>
         /// <param name="method"></param>

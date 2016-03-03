@@ -20,7 +20,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "table")]
-		public JsonTableAllocation Table
+        public JsonTableAllocationForCreate Table
 		{
 			get;
 			set;

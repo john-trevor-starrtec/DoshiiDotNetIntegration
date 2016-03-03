@@ -132,6 +132,7 @@
     <Compile Include="Models\Json\JsonMenuProduct.cs" />
     <Compile Include="Models\Json\JsonMenuProductOptions.cs" />
     <Compile Include="Models\Json\JsonMenuSurcount.cs" />
+    <Compile Include="Models\Json\JsonTableAllocationForCreate.cs" />
     <Compile Include="Models\Json\JsonVariants.cs" />
     <Compile Include="Models\Json\JsonTransaction.cs" />
     <Compile Include="Models\Json\JsonOrderProduct.cs" />
