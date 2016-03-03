@@ -281,25 +281,7 @@ namespace DoshiiDotNetSDKTests
             _mockManager.VerifyAllExpectations();
         }
 
-        [Test]
-        public void RequestPaymentForOrderExistingTransaction_ExceptionNotFound()
-        {
-            Transaction transaction = GenerateObjectsAndStringHelper.GenerateTransactionWaiting();
-            RestfulApiErrorResponseException newException = new RestfulApiErrorResponseException();
-            newException.StatusCode = HttpStatusCode.NotFound;
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            paymentManager.Expect(x => x.RetrieveTransactionVersion(transaction.Id)).Return("1");
-            MockHttpComs.Expect(x => x.PutTransaction(transaction)).Throw(newException);
-            paymentManager.Expect(x => x.CancelPayment(Arg<Transaction>.Is.Anything));    
-
-            bool success = _mockManager.RequestPaymentForOrderExistingTransaction(transaction);
-            Assert.AreEqual(success, false);
-            paymentManager.VerifyAllExpectations();
-            MockHttpComs.VerifyAllExpectations();
-        }
-
+        
         [Test]
         public void RequestPaymentForOrderExistingTransaction_ExceptionPaymentRequired()
         {
@@ -309,7 +291,6 @@ namespace DoshiiDotNetSDKTests
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             _mockManager.m_HttpComs = MockHttpComs;
 
-            paymentManager.Expect(x => x.RetrieveTransactionVersion(transaction.Id)).Return("1");
             MockHttpComs.Expect(x => x.PutTransaction(transaction)).Throw(newException);
             paymentManager.Expect(x => x.CancelPayment(Arg<Transaction>.Is.Anything));
 
@@ -328,7 +309,6 @@ namespace DoshiiDotNetSDKTests
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             _mockManager.m_HttpComs = MockHttpComs;
 
-            paymentManager.Expect(x => x.RetrieveTransactionVersion(transaction.Id)).Return("1");
             MockHttpComs.Expect(x => x.PutTransaction(transaction)).Throw(newException);
             paymentManager.Expect(x => x.CancelPayment(Arg<Transaction>.Is.Anything));
 
@@ -336,24 +316,6 @@ namespace DoshiiDotNetSDKTests
             Assert.AreEqual(success, false);
             paymentManager.VerifyAllExpectations();
             MockHttpComs.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void RequestPaymentForOrderExistingTransaction_ExceptionNullOrderReturned()
-        {
-            Transaction transaction = GenerateObjectsAndStringHelper.GenerateTransactionWaiting();
-            RestfulApiErrorResponseException newException = new RestfulApiErrorResponseException();
-            newException.StatusCode = HttpStatusCode.BadGateway;
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            paymentManager.Expect(x => x.RetrieveTransactionVersion(transaction.Id))
-                .Throw(new NullOrderReturnedException());
-            paymentManager.Expect(x => x.CancelPayment(Arg<Transaction>.Is.Anything));
-
-            bool success = _mockManager.RequestPaymentForOrderExistingTransaction(transaction);
-            Assert.AreEqual(success, false);
-            paymentManager.VerifyAllExpectations();
         }
 
         [Test]
@@ -365,8 +327,6 @@ namespace DoshiiDotNetSDKTests
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             _mockManager.m_HttpComs = MockHttpComs;
 
-            paymentManager.Expect(x => x.RetrieveTransactionVersion(transaction.Id))
-                .Throw(new Exception());
             paymentManager.Expect(x => x.CancelPayment(Arg<Transaction>.Is.Anything));
 
             bool success = _mockManager.RequestPaymentForOrderExistingTransaction(transaction);
@@ -386,7 +346,6 @@ namespace DoshiiDotNetSDKTests
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             _mockManager.m_HttpComs = MockHttpComs;
 
-            paymentManager.Expect(x => x.RetrieveTransactionVersion(transaction.Id)).Return("1");
             MockHttpComs.Expect(x => x.PutTransaction(transaction))
                 .Return(completeTransaction);
             
@@ -411,7 +370,6 @@ namespace DoshiiDotNetSDKTests
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             _mockManager.m_HttpComs = MockHttpComs;
 
-            paymentManager.Expect(x => x.RetrieveTransactionVersion(transaction.Id)).Return("1");
             MockHttpComs.Expect(x => x.PutTransaction(transaction))
                 .Return(null);
 
@@ -435,7 +393,6 @@ namespace DoshiiDotNetSDKTests
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             _mockManager.m_HttpComs = MockHttpComs;
 
-            paymentManager.Expect(x => x.RetrieveTransactionVersion(transaction.Id)).Return("1");
             MockHttpComs.Expect(x => x.PutTransaction(transaction))
                 .Return(completeTransaction);
 
@@ -1062,7 +1019,7 @@ namespace DoshiiDotNetSDKTests
                 .Throw(new OrderDoesNotExistOnPosException());
 
 
-            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation().Name);
         }
 
         [Test]
@@ -1076,7 +1033,7 @@ namespace DoshiiDotNetSDKTests
                 .Return(null);
 
 
-            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation().Name);
         }
 
         [Test]
@@ -1091,7 +1048,7 @@ namespace DoshiiDotNetSDKTests
             orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
                 .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
-            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation().Name);
         }
 
         [Test]
@@ -1106,7 +1063,7 @@ namespace DoshiiDotNetSDKTests
             orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
                 .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
-            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation());
+            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation().Name);
         }
 
         [Test]

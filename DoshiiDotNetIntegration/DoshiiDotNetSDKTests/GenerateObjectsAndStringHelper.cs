@@ -228,7 +228,6 @@ namespace DoshiiDotNetSDKTests
                 Price = 1.0M,
                 Description = "The first Product",
                 ProductOptions = GenerateProductOptionList(),
-                Status = "pending"    
             };
             return product;
         }
@@ -247,7 +246,6 @@ namespace DoshiiDotNetSDKTests
                 Price = 1.0M,
                 Description = "The first Product",
                 ProductOptions = null,
-                Status = "pending"    
             };
             return product;
         }

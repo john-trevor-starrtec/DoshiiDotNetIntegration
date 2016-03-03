@@ -145,11 +145,5 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "image")]
 		public string Image { get; set; }
 
-        /// <summary>
-        /// The status of the item that is being ordered. 
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
-    }
+   }
 }

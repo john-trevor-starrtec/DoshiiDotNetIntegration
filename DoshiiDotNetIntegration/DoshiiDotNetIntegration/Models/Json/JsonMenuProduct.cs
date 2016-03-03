@@ -131,13 +131,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 		public string Image { get; set; }
 
         /// <summary>
-        /// The status of the item that is being ordered. 
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
-
-        /// <summary>
         /// The price the product will be sold for through the mobile app, 
         /// This price is to be represented in cents. 
         /// </summary>

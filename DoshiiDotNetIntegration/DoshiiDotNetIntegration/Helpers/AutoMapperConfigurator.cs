@@ -188,6 +188,16 @@ namespace DoshiiDotNetIntegration.Helpers
 
 			// src = JsonTableAllocation, dest = TableAllocation
 			Mapper.CreateMap<JsonTableAllocation, TableAllocation>();
+
+            // src = TableAllocation, dest = JsonTableAllocation
+		    Mapper.CreateMap<TableAllocation, JsonTableAllocationForCreate>();
+		        
+
+            // src = JsonTableAllocation, dest = TableAllocation
+            Mapper.CreateMap<JsonTableAllocationForCreate, TableAllocation>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore())
+                .ForMember(dest => dest.Version, opt => opt.Ignore());
 		}
 
 	    private static void MapConsumerObjects()

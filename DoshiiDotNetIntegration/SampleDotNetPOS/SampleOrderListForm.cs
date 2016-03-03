@@ -87,8 +87,7 @@ namespace SampleDotNetPOS
 				String.Join(";", item.Tags),
 				item.Version,
 				item.PosId,
-				item.Image,
-				item.Status
+				item.Image
 			);
 			dgvOrderItems.Rows[index].Tag = item;
 		}
