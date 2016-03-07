@@ -225,7 +225,7 @@ namespace DoshiiDotNetSDKTests
                 PosId = "1",
                 Name = "Product1",
                 Tags = tagsList,
-                Price = 1.0M,
+                UnitPrice = 1.0M,
                 Description = "The first Product",
                 ProductOptions = GenerateProductOptionList(),
             };
@@ -243,7 +243,7 @@ namespace DoshiiDotNetSDKTests
                 PosId = "2",
                 Name = "Product2",
                 Tags = tagsList,
-                Price = 1.0M,
+                UnitPrice = 1.0M,
                 Description = "The first Product",
                 ProductOptions = null,
             };

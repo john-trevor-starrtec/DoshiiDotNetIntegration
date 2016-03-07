@@ -88,13 +88,17 @@ namespace DoshiiDotNetIntegration.Helpers
 
 			// src = Product, dest = JsonOrderProduct
 			Mapper.CreateMap<Product, JsonOrderProduct>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)))
+				.ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.UnitPrice)))
+                .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.TotalAfterSurcounts)))
+                .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.TotalBeforeSurcounts)))
 				.ForMember(dest => dest.ProductOptions, opt => opt.MapFrom(src => src.ProductOptions.ToList<ProductOptions>()))
 				.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()));
 
 			// src = JsonOrderProduct, dest = Product
 			Mapper.CreateMap<JsonOrderProduct, Product>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
+				.ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
+                .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.TotalAfterSurcounts)))
+                .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.TotalBeforeSurcounts)));
 
             // src = ProductOptions, dest = JsonOrderProductOptions
             Mapper.CreateMap<ProductOptions, JsonMenuProductOptions>()
@@ -114,13 +118,15 @@ namespace DoshiiDotNetIntegration.Helpers
 
             // src = Product, dest = JsonOrderProduct
             Mapper.CreateMap<Product, JsonMenuProduct>()
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)))
+                .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.UnitPrice)))
                 .ForMember(dest => dest.ProductOptions, opt => opt.MapFrom(src => src.ProductOptions.ToList<ProductOptions>()))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()));
 
             // src = JsonOrderProduct, dest = Product
 		    Mapper.CreateMap<JsonMenuProduct, Product>()
-		        .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)))
+		        .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
+                .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.Ignore())
+                .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.Ignore())
 		        .ForMember(dest => dest.Quantity, opt => opt.Ignore());
 		}
 

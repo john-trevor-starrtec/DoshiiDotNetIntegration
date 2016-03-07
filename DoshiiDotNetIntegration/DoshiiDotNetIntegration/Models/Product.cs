@@ -30,9 +30,19 @@ namespace DoshiiDotNetIntegration.Models
 		public string Description { get; set; }
 
 		/// <summary>
-		/// The price the product will be sold for through the mobile app. 
+		/// The total price of the line item before surcounts are included qty * unit price. 
 		/// </summary>
-		public decimal Price { get; set; }
+		public decimal TotalBeforeSurcounts { get; set; }
+
+        /// <summary>
+        /// The total price of the line item after surcounts are included qty * unit price + surcount. 
+        /// </summary>
+        public decimal TotalAfterSurcounts { get; set; }
+
+        /// <summary>
+        /// the unit price of the item 
+        /// </summary>
+        public decimal UnitPrice { get; set; }
 
         private List<string> _Tags;
         
@@ -137,7 +147,9 @@ namespace DoshiiDotNetIntegration.Models
 			Id = String.Empty;
 			Name = String.Empty;
 			Description = String.Empty;
-			Price = 0.0M;
+			TotalBeforeSurcounts = 0.0M;
+		    TotalAfterSurcounts = 0.0M;
+		    UnitPrice = 0.0M;
 			_Tags.Clear();
 			_ProductOptions.Clear();
 			Version = String.Empty;

@@ -66,7 +66,7 @@ namespace SampleDotNetPOS
 				order.Version, 
 				order.Uri, 
 				order.Items.Count, 
-				order.Items.Sum(o => o.Price).ToString("c"), 
+				order.Items.Sum(o => o.UnitPrice).ToString("c"), 
 				order.Surcounts.Count,
 				order.Surcounts.Sum(o => o.Amount).ToString("c")
 			);
@@ -83,7 +83,7 @@ namespace SampleDotNetPOS
 				item.Id,
 				item.Name,
 				item.Description,
-				item.Price.ToString("c"),
+				item.UnitPrice.ToString("c"),
 				String.Join(";", item.Tags),
 				item.Version,
 				item.PosId,

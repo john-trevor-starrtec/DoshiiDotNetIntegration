@@ -131,11 +131,11 @@ namespace DoshiiDotNetIntegration.Models.Json
 		public string Image { get; set; }
 
         /// <summary>
-        /// The price the product will be sold for through the mobile app, 
+        /// The Unitprice the product will be sold for through the mobile app, 
         /// This price is to be represented in cents. 
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "price")]
-        public string Price { get; set; }
+        [JsonProperty(PropertyName = "unitPrice")]
+        public string UnitPrice { get; set; }
     }
 }

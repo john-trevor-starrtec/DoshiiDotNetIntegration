@@ -45,12 +45,26 @@ namespace DoshiiDotNetIntegration.Models.Json
 		public string Description { get; set; }
 
 		/// <summary>
-		/// The price the product will be sold for through the mobile app, 
+		/// The Unitprice the product will be sold for through the mobile app, 
 		/// This price is to be represented in cents. 
 		/// </summary>
 		[DataMember]
-		[JsonProperty(PropertyName = "price")]
-		public string Price { get; set; }
+        [JsonProperty(PropertyName = "unitPrice")]
+		public string UnitPrice { get; set; }
+
+        /// <summary>
+        /// The total price of the line item before surcounts are included qty * unit price. 
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "totalBeforeSurcounts")]
+        public string TotalBeforeSurcounts { get; set; }
+
+        /// <summary>
+        /// The total price of the line item after surcounts are included qty * unit price + surcount. 
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "totalAfterSurcounts")]
+        public string TotalAfterSurcounts { get; set; }
 
         private List<string> _Tags;
         
