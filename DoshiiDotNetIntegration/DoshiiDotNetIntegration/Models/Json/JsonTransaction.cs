@@ -92,9 +92,48 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "uri")]
         public string Uri { get; set; }
 
+
+        #region serialize methods
+
         public bool ShouldSerializePartner()
         {
-            return (!string.IsNullOrEmpty(Partner));
+            return false;
         }
+
+        public bool ShouldSerializeVersion()
+        {
+            return (!string.IsNullOrEmpty(Version));
+        }
+
+        public bool ShouldSerializeUri()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializePartnerInitiated()
+        {
+            return false;
+        }
+
+        public bool ShouldSerializeId()
+        {
+            return false;
+            
+        }
+
+        /*public bool ShouldSerializeAcceptLess()
+        {
+            return false;
+        }*/
+        
+        public bool ShouldSerializeInvoice()
+        {
+            return (!string.IsNullOrEmpty(Invoice));
+        }
+        #endregion
+
+        
+
+
     }
 }
