@@ -27,13 +27,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Name { get; set; }
 
         /// <summary>
-        /// The price of the variant in cents
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "price")]
-        public string Price { get; set; }
-
-        /// <summary>
         /// The POS Id of the variant.
         /// </summary>
         [DataMember]
@@ -46,5 +39,12 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[DataMember]
 		[JsonProperty(PropertyName = "selectedOptionalVariant")]
 		public bool SelectedOptionalVariant { get; set; }
+
+        /// <summary>
+        /// The price of the variant in cents
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "price")]
+        public string Price { get; set; }
     }
 }

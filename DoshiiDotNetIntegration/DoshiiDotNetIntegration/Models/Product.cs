@@ -14,11 +14,6 @@ namespace DoshiiDotNetIntegration.Models
     public class Product : ICloneable
     {
         /// <summary>
-        /// The Doshii Id of the product.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
         /// The name of the product.
         /// This name will be displayed to Doshii users on the mobile app.
         /// </summary>
@@ -30,9 +25,19 @@ namespace DoshiiDotNetIntegration.Models
 		public string Description { get; set; }
 
 		/// <summary>
-		/// The price the product will be sold for through the mobile app. 
+		/// The total price of the line item before surcounts are included qty * unit price. 
 		/// </summary>
-		public decimal Price { get; set; }
+		public decimal TotalBeforeSurcounts { get; set; }
+
+        /// <summary>
+        /// The total price of the line item after surcounts are included qty * unit price + surcount. 
+        /// </summary>
+        public decimal TotalAfterSurcounts { get; set; }
+
+        /// <summary>
+        /// the unit price of the item 
+        /// </summary>
+        public decimal UnitPrice { get; set; }
 
         private List<string> _Tags;
         
@@ -42,7 +47,7 @@ namespace DoshiiDotNetIntegration.Models
         /// Products can be added manually to groups in the doshii dashboard,
         /// If this list is populated the product will be automatically added to the groups included, this will reduce setup time. 
         /// </summary>
-        public IEnumerable<string> Tags 
+        public List<string> Tags 
         { 
             get
             { 
@@ -78,6 +83,27 @@ namespace DoshiiDotNetIntegration.Models
             }
         }
 
+        private List<Surcount> _ProductSurcounts;
+
+        /// <summary>
+        /// A list of Surcharges available / selected for this product on the product.
+        /// </summary>
+        public IEnumerable<Surcount> ProductSurcounts
+        {
+            get
+            {
+                if (_ProductSurcounts == null)
+                {
+                    _ProductSurcounts = new List<Surcount>();
+                }
+                return _ProductSurcounts;
+            }
+            set
+            {
+                _ProductSurcounts = value.ToList<Surcount>();
+            }
+        }
+
 		/// <summary>
 		/// The obfuscated string representation of the version for the product.
 		/// </summary>
@@ -96,7 +122,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
-        public string Status { get; set; }
+        public decimal Quantity { get; set; }
 
         /// <summary>
         /// Constructor
@@ -113,16 +139,17 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public void Clear()
 		{
-			Id = String.Empty;
 			Name = String.Empty;
 			Description = String.Empty;
-			Price = 0.0M;
+			TotalBeforeSurcounts = 0.0M;
+		    TotalAfterSurcounts = 0.0M;
+		    UnitPrice = 0.0M;
 			_Tags.Clear();
 			_ProductOptions.Clear();
 			Version = String.Empty;
 			PosId = String.Empty;
 			Image = String.Empty;
-			Status = String.Empty;
+			Quantity = 0.0M;
 		}
 
 		#region ICloneable Members

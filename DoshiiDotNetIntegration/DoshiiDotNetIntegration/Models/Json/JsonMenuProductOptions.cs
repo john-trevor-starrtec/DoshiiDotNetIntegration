@@ -5,95 +5,64 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 
-namespace DoshiiDotNetIntegration.Models
+namespace DoshiiDotNetIntegration.Models.Json
 {
     /// <summary>
     /// Product options are lists of product variants that can be selected from to modify products.
     /// </summary>
-    public class ProductOptions : ICloneable
+    [DataContract]
+    [Serializable]
+    internal class JsonMenuProductOptions : JsonSerializationBase<JsonMenuProductOptions>
     {
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		public ProductOptions()
-		{
-			_Variants = new List<Variants>();
-			Clear();
-		}
-
-		/// <summary>
-		/// Resets all property values to default settings.
-		/// </summary>
-		public void Clear()
-		{
-			Name = String.Empty;
-			Min = 0;
-			Max = 0;
-			PosId = String.Empty;
-			_Variants.Clear();
-		}
-
         /// <summary>
         /// The name of this product options / or list of variants
         /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         /// <summary>
         /// The minimum amount of variants that must be chosen from this set of variants
         /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "min")]
         public int Min { get; set; }
 
         /// <summary>
         /// The maximum amount of variants that can be chosen form this set of variants. 
         /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "max")]
         public int Max { get; set; }
 
         /// <summary>
         /// The POS identifier for this set of variants. 
         /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "pos_id")]
         public string PosId { get; set; }
 
-        private List<Variants> _Variants;
+		private List<JsonVariants> _Variants;
 
         /// <summary>
         /// A List of Variants available to be selected from this list. 
         /// </summary>
-        public IEnumerable<Variants> Variants 
+        [DataMember]
+        [JsonProperty(PropertyName = "variants")]
+		public List<JsonVariants> Variants 
         {
             get
             {
                 if (_Variants == null)
                 {
-                    _Variants = new List<Variants>();
+					_Variants = new List<JsonVariants>();
                 }
                 return _Variants;
             }
             set
             {
-                _Variants = value.ToList<Variants>();
+				_Variants = value;
             }
         } 
-        
-        #region ICloneable Members
-
-		/// <summary>
-		/// Returns a deep copy of the instance.
-		/// </summary>
-		/// <returns>A clone of the instance.</returns>
-		public object Clone()
-		{
-			var options = (ProductOptions)this.MemberwiseClone();
-
-			var variants = new List<Variants>();
-			foreach (var variant in this.Variants)
-			{
-				variants.Add((Variants)variant.Clone());
-			}
-			options.Variants = variants;
-
-			return options;
-		}
-
-		#endregion
-	}
+    }
 }

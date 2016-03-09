@@ -66,9 +66,9 @@ namespace SampleDotNetPOS
 				order.Version, 
 				order.Uri, 
 				order.Items.Count, 
-				order.Items.Sum(o => o.Price).ToString("c"), 
+				order.Items.Sum(o => o.UnitPrice).ToString("c"), 
 				order.Surcounts.Count,
-				order.Surcounts.Sum(o => o.Price).ToString("c")
+				order.Surcounts.Sum(o => o.Amount).ToString("c")
 			);
 			dgvOrders.Rows[index].Tag = order;
 		}
@@ -80,15 +80,13 @@ namespace SampleDotNetPOS
 		public void AddItem(Product item)
 		{
 			int index = dgvOrderItems.Rows.Add(
-				item.Id,
 				item.Name,
 				item.Description,
-				item.Price.ToString("c"),
+				item.UnitPrice.ToString("c"),
 				String.Join(";", item.Tags),
 				item.Version,
 				item.PosId,
-				item.Image,
-				item.Status
+				item.Image
 			);
 			dgvOrderItems.Rows[index].Tag = item;
 		}
@@ -101,7 +99,7 @@ namespace SampleDotNetPOS
 		{
 			int index = dgvSurcounts.Rows.Add(
 				surcount.Name,
-				surcount.Price.ToString("c")
+				surcount.Amount.ToString("c")
 			);
 			dgvSurcounts.Rows[index].Tag = surcount;
 		}

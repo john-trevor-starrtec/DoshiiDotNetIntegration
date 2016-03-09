@@ -36,6 +36,7 @@ namespace DoshiiDotNetIntegration.Models
 			Version = String.Empty;
 			Uri = String.Empty;
 			_items.Clear();
+		    RequiredAt = String.Empty;
 		}
 
         /// <summary>
@@ -103,6 +104,12 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public string Uri { get; set; }
 
+        /// <summary>
+        /// the time the order is required if it is required in the future, 
+        /// string will be empty is it is required now. 
+        /// </summary>
+        public string RequiredAt { get; set; }
+        
         private List<Product> _items;
         
         /// <summary>

@@ -613,7 +613,9 @@ namespace DoshiiDotNetIntegration
 
             try
             {
-                transaction.Version = mPaymentManager.RetrieveTransactionVersion(transaction.Id);
+                //as the transaction cannot currently be changed on doshii and transacitons are only created when a payment is made with an order the line below is not necessary unitll
+                //doshii is enhanced to allow modifying of transactions. 
+                //transaction.Version = mPaymentManager.RetrieveTransactionVersion(transaction.Id);
                 returnedTransaction = m_HttpComs.PutTransaction(transaction);
             }
             catch (RestfulApiErrorResponseException rex)
@@ -751,7 +753,30 @@ namespace DoshiiDotNetIntegration
                 mPaymentManager.CancelPayment(transaction);
             }
         }
-        
+
+        /// <summary>
+        /// attempts to add a pos transaction to doshii
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns>
+        /// the transaction that was recorded on doshii if the request was successful
+        /// returns null if the request failed. 
+        /// </returns>
+        public Transaction RecordPosTransactionOnDoshii(Transaction transaction)
+        {
+            Transaction returnedTransaction;
+            try
+            {
+                returnedTransaction = m_HttpComs.PostTransaction(transaction);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return returnedTransaction;
+        }
+
+
         /// <summary>
         /// This method returns an order from Doshii corresponding to the OrderId
         /// </summary>
@@ -912,7 +937,8 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         public virtual Order UpdateOrder(Order order)
         {
-			var jsonOrder = Mapper.Map<JsonOrder>(order);
+            order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
+            var jsonOrder = Mapper.Map<JsonOrder>(order);
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", jsonOrder.ToJsonString()));
             
             var returnedOrder = new Order();
@@ -959,14 +985,19 @@ namespace DoshiiDotNetIntegration
 		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
 		/// <param name="table">The table to add in Doshii.</param>
 		/// <returns>The current order details in Doshii after upload.</returns>
-		public bool AddTableAllocation(string posOrderId, TableAllocation table)
+		public bool AddTableAllocation(string posOrderId, string tableName)
 		{
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", table.Name, posOrderId));
+            TableAllocation table = new TableAllocation();
+            table.Name = tableName;
 
-			Order order = null;
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", table.Name, posOrderId));
+
+            Order order = null;
 			try
 			{
 				order = mOrderingManager.RetrieveOrder(posOrderId);
+			    order.Version = mOrderingManager.RetrieveOrderVersion(posOrderId);
+			    order.Status = "accepted";
 			}
 			catch (OrderDoesNotExistOnPosException dne)
 			{
@@ -1169,14 +1200,14 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public Product PutProduct(Product product)
         {
-            if (product.Id == null || string.IsNullOrEmpty(product.Id))
+            if (product.PosId == null || string.IsNullOrEmpty(product.PosId))
             {
                 mLog.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Products must have an Id to be created or updated on Doshii");
             }
             Product returnedProduct = null;
             try
             {
-                returnedProduct = m_HttpComs.PutProduct(product, product.Id);
+                returnedProduct = m_HttpComs.PutProduct(product, product.PosId);
             }
             catch (Exception ex)
             {

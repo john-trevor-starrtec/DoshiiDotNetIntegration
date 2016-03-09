@@ -15,26 +15,9 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class JsonSurcount : JsonSerializationBase<JsonSurcount>
+    internal class JsonOrderSurcount : JsonSerializationBase<JsonOrderSurcount>
     {
 		/// <summary>
-		/// Constructor.
-		/// </summary>
-		public JsonSurcount()
-		{
-			Clear();
-		}
-
-		/// <summary>
-		/// Resets all property values to default settings.
-		/// </summary>
-		public void Clear()
-		{
-			Name = String.Empty;
-			Amount = String.Empty;
-		}
-
-        /// <summary>
         /// The Name of the surcount
         /// </summary>
         [DataMember]

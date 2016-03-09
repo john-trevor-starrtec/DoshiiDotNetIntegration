@@ -221,14 +221,12 @@ namespace DoshiiDotNetSDKTests
             var optionsList = new List<DoshiiDotNetIntegration.Models.ProductOptions>();
             var product = new DoshiiDotNetIntegration.Models.Product()
             {
-                Id = "1",
                 PosId = "1",
                 Name = "Product1",
                 Tags = tagsList,
-                Price = 1.0M,
+                UnitPrice = 1.0M,
                 Description = "The first Product",
                 ProductOptions = GenerateProductOptionList(),
-                Status = "pending"    
             };
             return product;
         }
@@ -240,14 +238,12 @@ namespace DoshiiDotNetSDKTests
             tagsList.Add("Product2Department");
             var product = new DoshiiDotNetIntegration.Models.Product()
             {
-                Id = "2",
                 PosId = "2",
                 Name = "Product2",
                 Tags = tagsList,
-                Price = 1.0M,
+                UnitPrice = 1.0M,
                 Description = "The first Product",
                 ProductOptions = null,
-                Status = "pending"    
             };
             return product;
         }
@@ -298,7 +294,6 @@ namespace DoshiiDotNetSDKTests
                 Max = 0,
                 PosId = "10",
                 Variants = GenerateProductVarientList(),
-                Selected = new List<DoshiiDotNetIntegration.Models.Variants>()
             };
             return productOption;
         }

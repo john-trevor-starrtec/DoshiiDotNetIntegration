@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// <summary>
     /// A Doshii order
     /// </summary>
-    [DataContract]
+    [DataContract(Name = "order")]
     [Serializable]
     internal class JsonOrder : JsonSerializationBase<JsonOrder>
     {
@@ -63,7 +63,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "locationId")]
 		public string LocationId { get; set; }
 
-		private List<JsonSurcount> _surcounts;
+		private List<JsonOrderSurcount> _surcounts;
 
 		/// <summary>
 		/// A list of all surcounts applied at and order level
@@ -71,13 +71,13 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "surcounts")]
-		public List<JsonSurcount> Surcounts
+		public List<JsonOrderSurcount> Surcounts
 		{
 			get
 			{
 				if (_surcounts == null)
 				{
-					_surcounts = new List<JsonSurcount>();
+					_surcounts = new List<JsonOrderSurcount>();
 				}
 				return _surcounts;
 			}
@@ -98,20 +98,27 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "uri")]
 		public string Uri { get; set; }
 
-        private List<JsonProduct> _items;
+        /// <summary>
+        /// The URI of the order
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "requiredAt")]
+        public string RequiredAt { get; set; }
+
+        private List<JsonOrderProduct> _items;
         
         /// <summary>
         /// A list of all the items included in the order. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "items")]
-		public List<JsonProduct> Items
+		public List<JsonOrderProduct> Items
 		{
             get
             {
                 if (_items == null)
                 {
-					_items = new List<JsonProduct>();
+					_items = new List<JsonOrderProduct>();
                 }
                 return _items;
             }
