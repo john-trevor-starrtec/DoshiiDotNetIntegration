@@ -1023,20 +1023,6 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        [ExpectedException(typeof(OrderDoesNotExistOnPosException))]
-        public void AddTableAllocaiton_OrderReturnedFromPosIsNull()
-        {
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
-                .Return(null);
-
-
-            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation().Name);
-        }
-
-        [Test]
         [ExpectedException(typeof(ConflictWithOrderUpdateException))]
         public void AddTableAllocaiton_PutOrderWithTableAllocationConflict()
         {

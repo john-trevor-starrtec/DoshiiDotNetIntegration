@@ -80,7 +80,6 @@ namespace SampleDotNetPOS
 		public void AddItem(Product item)
 		{
 			int index = dgvOrderItems.Rows.Add(
-				item.Id,
 				item.Name,
 				item.Description,
 				item.UnitPrice.ToString("c"),

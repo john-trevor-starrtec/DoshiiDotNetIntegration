@@ -937,7 +937,8 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         public virtual Order UpdateOrder(Order order)
         {
-			var jsonOrder = Mapper.Map<JsonOrder>(order);
+            order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
+            var jsonOrder = Mapper.Map<JsonOrder>(order);
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", jsonOrder.ToJsonString()));
             
             var returnedOrder = new Order();
@@ -995,6 +996,8 @@ namespace DoshiiDotNetIntegration
 			try
 			{
 				order = mOrderingManager.RetrieveOrder(posOrderId);
+			    order.Version = mOrderingManager.RetrieveOrderVersion(posOrderId);
+			    order.Status = "accepted";
 			}
 			catch (OrderDoesNotExistOnPosException dne)
 			{
@@ -1197,14 +1200,14 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public Product PutProduct(Product product)
         {
-            if (product.Id == null || string.IsNullOrEmpty(product.Id))
+            if (product.PosId == null || string.IsNullOrEmpty(product.PosId))
             {
                 mLog.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Products must have an Id to be created or updated on Doshii");
             }
             Product returnedProduct = null;
             try
             {
-                returnedProduct = m_HttpComs.PutProduct(product, product.Id);
+                returnedProduct = m_HttpComs.PutProduct(product, product.PosId);
             }
             catch (Exception ex)
             {

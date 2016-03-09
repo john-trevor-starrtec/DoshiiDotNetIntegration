@@ -28,7 +28,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// Serializes the derived class into a json string. 
         /// </summary>
         /// <returns></returns>
-        public string ToJsonString()
+        public virtual string ToJsonString()
         {
             string json = "";
             try

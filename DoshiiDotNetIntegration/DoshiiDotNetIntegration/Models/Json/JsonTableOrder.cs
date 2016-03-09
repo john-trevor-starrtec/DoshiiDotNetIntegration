@@ -31,7 +31,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// </summary>
 		[DataMember]
 		[JsonProperty(PropertyName = "order")]
-		public JsonOrder Order
+		public JsonOrderToPut Order
 		{
 			get;
 			set;

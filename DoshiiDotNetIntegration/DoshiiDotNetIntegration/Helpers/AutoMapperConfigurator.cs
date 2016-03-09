@@ -66,7 +66,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			// Mapping from Variants to JsonOrderVariants
 			// src = Variants, dest = JsonOrderVariants, opt = Mapping Option
 			Mapper.CreateMap<Variants, JsonVariants>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
 
 			// src = JsonOrderVariants, dest = Variants
 			Mapper.CreateMap<JsonVariants, Variants>()
@@ -89,6 +89,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = Product, dest = JsonOrderProduct
 			Mapper.CreateMap<Product, JsonOrderProduct>()
 				.ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.UnitPrice)))
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => AutoMapperConfigurator.MapQuantityToString(src.Quantity)))
                 .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.TotalAfterSurcounts)))
                 .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.TotalBeforeSurcounts)))
 				.ForMember(dest => dest.ProductOptions, opt => opt.MapFrom(src => src.ProductOptions.ToList<ProductOptions>()))
@@ -97,6 +98,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = JsonOrderProduct, dest = Product
 			Mapper.CreateMap<JsonOrderProduct, Product>()
 				.ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
+                .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => AutoMapperConfigurator.MapQuantity(src.Quantity)))
                 .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.TotalAfterSurcounts)))
                 .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.TotalBeforeSurcounts)));
 
@@ -127,7 +129,7 @@ namespace DoshiiDotNetIntegration.Helpers
 		        .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
                 .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.Ignore())
                 .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.Ignore())
-		        .ForMember(dest => dest.Quantity, opt => opt.Ignore());
+                .ForMember(dest => dest.Quantity, opt => opt.Ignore());
 		}
 
         /// <summary>
@@ -228,6 +230,22 @@ namespace DoshiiDotNetIntegration.Helpers
 				
 			// src = JsonOrder, dest = Order
 		    Mapper.CreateMap<JsonOrder, Order>();
+
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Order, JsonOrderToPut>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
+                .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonOrderToPut, Order>()
+             .ForMember(dest => dest.Id, opt => opt.Ignore())
+             .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
+             .ForMember(dest => dest.Type, opt => opt.Ignore())
+             .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())
+             .ForMember(dest => dest.CheckinId, opt => opt.Ignore())
+             .ForMember(dest => dest.LocationId, opt => opt.Ignore())
+             .ForMember(dest => dest.Uri, opt => opt.Ignore())
+             .ForMember(dest => dest.RequiredAt, opt => opt.Ignore());
 				
 			// src = TableOrder, dest = JsonTableOrder
 			Mapper.CreateMap<TableOrder, JsonTableOrder>();
@@ -304,5 +322,22 @@ namespace DoshiiDotNetIntegration.Helpers
 			int result = (int)Math.Floor(amount * AutoMapperConfigurator.CentsPerDollar);
 			return result.ToString();
 		}
+
+        private static string MapQuantityToString(decimal quantity)
+        {
+            return quantity.ToString();
+        }
+
+        private static decimal MapQuantity(string quantity)
+        {
+            if (!String.IsNullOrEmpty(quantity))
+            {
+                int result;
+                if (Int32.TryParse(quantity, out result))
+                    return result;
+            }
+
+            return 0.0M;
+        }
 	}
 }

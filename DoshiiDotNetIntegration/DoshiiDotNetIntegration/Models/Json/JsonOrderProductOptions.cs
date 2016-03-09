@@ -25,7 +25,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// The POS identifier for this set of variants. 
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "pos_id")]
+        [JsonProperty(PropertyName = "posId")]
         public string PosId { get; set; }
 
 		private List<JsonVariants> _Variants;

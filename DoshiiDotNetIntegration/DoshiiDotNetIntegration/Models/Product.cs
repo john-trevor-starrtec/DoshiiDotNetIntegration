@@ -14,11 +14,6 @@ namespace DoshiiDotNetIntegration.Models
     public class Product : ICloneable
     {
         /// <summary>
-        /// The Doshii Id of the product.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
         /// The name of the product.
         /// This name will be displayed to Doshii users on the mobile app.
         /// </summary>
@@ -144,7 +139,6 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public void Clear()
 		{
-			Id = String.Empty;
 			Name = String.Empty;
 			Description = String.Empty;
 			TotalBeforeSurcounts = 0.0M;

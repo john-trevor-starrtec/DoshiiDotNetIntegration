@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// <summary>
     /// A Doshii order
     /// </summary>
-    [DataContract]
+    [DataContract(Name = "order")]
     [Serializable]
     internal class JsonOrder : JsonSerializationBase<JsonOrder>
     {

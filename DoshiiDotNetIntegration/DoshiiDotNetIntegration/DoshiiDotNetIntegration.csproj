@@ -128,6 +128,7 @@
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
+    <Compile Include="Models\Json\JsonOrderToPut.cs" />
     <Compile Include="Models\Json\JsonOrder.cs" />
     <Compile Include="Models\Json\JsonMenuProduct.cs" />
     <Compile Include="Models\Json\JsonMenuProductOptions.cs" />

@@ -16,13 +16,6 @@ namespace DoshiiDotNetIntegration.Models.Json
     internal class JsonMenuProduct : JsonSerializationBase<JsonMenuProduct>
     {
         /// <summary>
-        /// The Doshii Id of the product.
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
-
-        /// <summary>
         /// The name of the product.
         /// This name will be displayed to Doshii users on the mobile app.
         /// </summary>
@@ -120,7 +113,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// The POS Id of the product
 		/// </summary>
 		[DataMember]
-		[JsonProperty(PropertyName = "pos_id")]
+		[JsonProperty(PropertyName = "posId")]
 		public string PosId { get; set; }
 
 		/// <summary>

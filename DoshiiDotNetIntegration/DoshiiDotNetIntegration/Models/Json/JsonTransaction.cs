@@ -91,5 +91,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "uri")]
         public string Uri { get; set; }
+
+        public bool ShouldSerializePartner()
+        {
+            return (!string.IsNullOrEmpty(Partner));
+        }
     }
 }

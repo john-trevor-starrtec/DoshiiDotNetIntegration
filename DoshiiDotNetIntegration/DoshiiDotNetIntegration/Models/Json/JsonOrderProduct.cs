@@ -16,13 +16,6 @@ namespace DoshiiDotNetIntegration.Models.Json
     internal class JsonOrderProduct : JsonSerializationBase<JsonOrderProduct>
     {
         /// <summary>
-        /// The Doshii Id of the product.
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
-
-        /// <summary>
         /// The quantity of the item ordered.
         /// </summary>
         [DataMember]

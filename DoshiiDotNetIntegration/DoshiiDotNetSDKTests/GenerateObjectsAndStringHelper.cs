@@ -221,7 +221,6 @@ namespace DoshiiDotNetSDKTests
             var optionsList = new List<DoshiiDotNetIntegration.Models.ProductOptions>();
             var product = new DoshiiDotNetIntegration.Models.Product()
             {
-                Id = "1",
                 PosId = "1",
                 Name = "Product1",
                 Tags = tagsList,
@@ -239,7 +238,6 @@ namespace DoshiiDotNetSDKTests
             tagsList.Add("Product2Department");
             var product = new DoshiiDotNetIntegration.Models.Product()
             {
-                Id = "2",
                 PosId = "2",
                 Name = "Product2",
                 Tags = tagsList,

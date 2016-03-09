@@ -475,9 +475,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		{
 			var returnedTableOrder = new Order();
 			DoshiHttpResponseMessage responseMessage;
-			string orderIdentifier = tableOrder.Order.Id;
-
-			try
+            string orderIdentifier = tableOrder.Order.Id;
+		    try
 			{
 				var jsonTableOrder = Mapper.Map<JsonTableOrder>(tableOrder);
 				responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order, orderIdentifier), WebRequestMethods.Http.Put, jsonTableOrder.ToJsonString());
@@ -550,7 +549,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             
             try
             {
-                var jsonOrderToPut = Mapper.Map<JsonOrder>(order);
+                var jsonOrderToPut = Mapper.Map<JsonOrderToPut>(order);
                 if (String.IsNullOrEmpty(order.Id))
                 {
                     responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders, order.DoshiiId), method, jsonOrderToPut.ToJsonString());
