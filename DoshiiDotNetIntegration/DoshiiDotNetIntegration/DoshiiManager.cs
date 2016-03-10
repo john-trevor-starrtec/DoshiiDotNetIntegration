@@ -556,7 +556,6 @@ namespace DoshiiDotNetIntegration
                     break;
                 case "complete":
                     mPaymentManager.RecordTransactionVersion(e.Transaction.Id, e.Transaction.Version);
-                    mPaymentManager.RecordSuccessfulPayment(e.Transaction);
                     break;
                 default:
                     mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a create transaction message was received for a transaction which state was not pending, Transaction status - '{0}'", e.Transaction.Status));

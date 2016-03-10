@@ -117,13 +117,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 		public string PosId { get; set; }
 
 		/// <summary>
-		/// The image associated with the product.
-		/// </summary>
-		[DataMember]
-		[JsonProperty(PropertyName = "image")]
-		public string Image { get; set; }
-
-        /// <summary>
         /// The Unitprice the product will be sold for through the mobile app, 
         /// This price is to be represented in cents. 
         /// </summary>

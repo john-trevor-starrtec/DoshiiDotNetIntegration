@@ -364,22 +364,21 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             SocketMessageData messageData = new SocketMessageData();
             messageData.EventName = (string)theMessage.Emit[0];
-            messageData.CheckinId = (string)dynamicSocketMessageData.CheckinId;
-            messageData.OrderId = (string)dynamicSocketMessageData.OrderId;
-            messageData.MeerkatConsumerId = (string)dynamicSocketMessageData.MeerkatConsumerId;
-            messageData.Status = (string)dynamicSocketMessageData.Status;
-            messageData.Name = (string)dynamicSocketMessageData.Name;
-            messageData.Id = (string)dynamicSocketMessageData.Id;
-            messageData.TransactionId = (string)dynamicSocketMessageData.TransactionId;
+            messageData.CheckinId = (string)dynamicSocketMessageData.checkinId;
+            messageData.OrderId = (string)dynamicSocketMessageData.orderId;
+            messageData.MeerkatConsumerId = (string)dynamicSocketMessageData.meerkatConsumerId;
+            messageData.Status = (string)dynamicSocketMessageData.status;
+            messageData.Name = (string)dynamicSocketMessageData.name;
+            messageData.Id = (string)dynamicSocketMessageData.id;
             messageData.Uri = (Uri)dynamicSocketMessageData.Uri;
             
             switch (messageData.EventName)
             {
                 case "order_created":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    orderStatusEventArgs.Order = m_DoshiiLogic.GetOrderFromDoshiiOrderId(messageData.OrderId);
+                    orderStatusEventArgs.Order = m_DoshiiLogic.GetOrderFromDoshiiOrderId(messageData.Id);
                     orderStatusEventArgs.TransactionList = m_DoshiiLogic.GetTransactionFromDoshiiOrderId(messageData.OrderId);
-                    orderStatusEventArgs.OrderId = messageData.OrderId;
+                    orderStatusEventArgs.OrderId = messageData.Id;
                     orderStatusEventArgs.Status = messageData.Status;
 
                     if (OrderCreatedEvent != null)
@@ -394,8 +393,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "transaction_created":
                     CommunicationEventArgs.TransactionEventArgs transactionCreatedEventArgs = new TransactionEventArgs();
-                    transactionCreatedEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.TransactionId);
-                    transactionCreatedEventArgs.TransactionId = messageData.TransactionId;
+                    transactionCreatedEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.Id);
+                    transactionCreatedEventArgs.TransactionId = messageData.Id;
                     transactionCreatedEventArgs.Status = messageData.Status;
                     if (TransactionCreatedEvent != null)
                     {
@@ -409,8 +408,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "transaction_updated":
                     CommunicationEventArgs.TransactionEventArgs transactionUpdtaedEventArgs = new TransactionEventArgs();
-                    transactionUpdtaedEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.TransactionId);
-                    transactionUpdtaedEventArgs.TransactionId = messageData.TransactionId;
+                    transactionUpdtaedEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.Id);
+                    transactionUpdtaedEventArgs.TransactionId = messageData.Id;
                     transactionUpdtaedEventArgs.Status = messageData.Status;
 
                     if (TransactionUpdatedEvent != null)

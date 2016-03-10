@@ -115,11 +115,6 @@ namespace DoshiiDotNetIntegration.Models
 		public string PosId { get; set; }
 
 		/// <summary>
-		/// The image associated with the product.
-		/// </summary>
-		public string Image { get; set; }
-
-        /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
         public decimal Quantity { get; set; }
@@ -148,7 +143,6 @@ namespace DoshiiDotNetIntegration.Models
 			_ProductOptions.Clear();
 			Version = String.Empty;
 			PosId = String.Empty;
-			Image = String.Empty;
 			Quantity = 0.0M;
 		}
 
