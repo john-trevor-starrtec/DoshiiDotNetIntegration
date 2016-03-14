@@ -142,7 +142,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// The POS Id of the product
 		/// </summary>
 		[DataMember]
-		[JsonProperty(PropertyName = "pos_id")]
+		[JsonProperty(PropertyName = "posid")]
 		public string PosId { get; set; }
 
 		/// <summary>

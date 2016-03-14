@@ -825,7 +825,7 @@ namespace DoshiiDotNetIntegration
         {
             try
             {
-                return m_HttpComs.GetOrder(orderId);
+                return m_HttpComs.GetOrderFromDoshiiOrderId(orderId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -899,7 +899,16 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
-                throw rex;
+                //this means there were no transactions for the unlinked order. 
+                if (rex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    List<Transaction> emplyTransactionList = new List<Transaction>();
+                    return emplyTransactionList;
+                }
+                else
+                {
+                    throw rex;
+                }
             }
         }
 
