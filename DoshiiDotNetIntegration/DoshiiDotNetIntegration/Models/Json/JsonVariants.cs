@@ -30,7 +30,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// The POS Id of the variant.
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "pos_id")]
+        [JsonProperty(PropertyName = "posId")]
         public string PosId { get; set; }
 
 		/// <summary>
