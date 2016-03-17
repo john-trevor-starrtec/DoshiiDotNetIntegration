@@ -15,6 +15,20 @@ namespace DoshiiDotNetIntegration.Models.Json
     internal class JsonConsumer : JsonSerializationBase<JsonConsumer>
     {
         /// <summary>
+        /// the url for the consumers photo
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "photoURL")]
+        public string PhotoUrl { get; set; }
+
+        /// <summary>
+        /// is this an anonymous user. 
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "anonymous")]
+        public bool Anonymous { get; set; }
+        
+        /// <summary>
         /// The consumers name
         /// </summary>
         [DataMember]
@@ -32,14 +46,14 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// the consumers address line 1
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "address_line1")]
+        [JsonProperty(PropertyName = "addressLine1")]
         public string AddressLine1 { get; set; }
 
         /// <summary>
         /// the consumers address line 1
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "address_line2")]
+        [JsonProperty(PropertyName = "addressLine2")]
         public string AddressLine2 { get; set; }
 
         /// <summary>

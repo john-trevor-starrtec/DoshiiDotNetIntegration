@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class JsonOrderToPut : JsonSerializationBase<JsonOrderToPut>
+    internal class JsonUnlinkedOrderToPut : JsonSerializationBase<JsonOrderToPut>
     {
         /// <summary>
         /// id
@@ -76,22 +76,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
         #region serializeMembers
-
-        public override string ToJsonString()
-        {
-            string json = "";
-            try
-            {
-                json = JsonConvert.SerializeObject(new { order = this });
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-            return json;
-
-        }
 
         public bool ShouldSerializeVersion()
         {

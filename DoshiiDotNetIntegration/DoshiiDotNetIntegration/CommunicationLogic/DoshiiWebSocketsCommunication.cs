@@ -377,7 +377,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case "order_created":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
                     orderStatusEventArgs.Order = m_DoshiiLogic.GetOrderFromDoshiiOrderId(messageData.Id);
-                    orderStatusEventArgs.TransactionList = m_DoshiiLogic.GetTransactionFromDoshiiOrderId(messageData.OrderId);
+                    orderStatusEventArgs.TransactionList = m_DoshiiLogic.GetTransactionFromDoshiiOrderId(messageData.Id);
                     orderStatusEventArgs.OrderId = messageData.Id;
                     orderStatusEventArgs.Status = messageData.Status;
 

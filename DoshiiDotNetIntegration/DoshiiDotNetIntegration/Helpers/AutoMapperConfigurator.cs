@@ -246,6 +246,22 @@ namespace DoshiiDotNetIntegration.Helpers
              .ForMember(dest => dest.LocationId, opt => opt.Ignore())
              .ForMember(dest => dest.Uri, opt => opt.Ignore())
              .ForMember(dest => dest.RequiredAt, opt => opt.Ignore());
+
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Order, JsonUnlinkedOrderToPut>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
+                .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonUnlinkedOrderToPut, Order>()
+             .ForMember(dest => dest.Id, opt => opt.Ignore())
+             .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
+             .ForMember(dest => dest.Type, opt => opt.Ignore())
+             .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())
+             .ForMember(dest => dest.CheckinId, opt => opt.Ignore())
+             .ForMember(dest => dest.LocationId, opt => opt.Ignore())
+             .ForMember(dest => dest.Uri, opt => opt.Ignore())
+             .ForMember(dest => dest.RequiredAt, opt => opt.Ignore());
 				
 			// src = TableOrder, dest = JsonTableOrder
 			Mapper.CreateMap<TableOrder, JsonTableOrder>();

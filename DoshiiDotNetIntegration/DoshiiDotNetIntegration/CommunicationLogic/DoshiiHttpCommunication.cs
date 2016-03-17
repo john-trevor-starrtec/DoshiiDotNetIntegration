@@ -570,6 +570,26 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return returnOrder;
         }
 
+        internal Order PutConfirmOrderCreated(Order order)
+        {
+            var returnOrder = new Order();
+            DoshiHttpResponseMessage responseMessage;
+
+            try
+            {
+                var jsonOrderToPut = Mapper.Map<JsonUnlinkedOrderToPut>(order);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.UnlinkedOrders, order.DoshiiId), WebRequestMethods.Http.Put, jsonOrderToPut.ToJsonString());
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            var dto = new JsonOrder();
+            returnOrder = HandleOrderResponse<Order, JsonOrder>(order.Id, responseMessage, out dto);
+
+            return returnOrder;
+        }
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.

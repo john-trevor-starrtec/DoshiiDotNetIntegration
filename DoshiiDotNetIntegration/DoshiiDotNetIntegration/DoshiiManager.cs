@@ -383,24 +383,20 @@ namespace DoshiiDotNetIntegration
                 transactionList = new List<Transaction>();
             }
             Order orderReturnedFromPos = null;
+            Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
+            if (consumer == null)
+            {
+                return;
+            }
             if (transactionList.Count > 0)
             {
+                
                 if (order.Type == "delivery")
                 {
-                    Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
-                    if (consumer == null)
-                    {
-                        return;
-                    }
                     orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList);
                 }
                 else if (order.Type == "pickup")
                 {
-                    Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
-                    if (consumer == null)
-                    {
-                        return;
-                    }
                     orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList);
                 }
                 else
@@ -413,20 +409,11 @@ namespace DoshiiDotNetIntegration
             {
                 if (order.Type == "delivery")
                 {
-                    Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
-                    if (consumer == null)
-                    {
-                        return;
-                    }
+                    
                     orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrder(order, consumer);
                 }
                 else if (order.Type == "pickup")
                 {
-                    Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
-                    if (consumer == null)
-                    {
-                        return;
-                    }
                     orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrder(order, consumer);
                 }
                 else
@@ -445,7 +432,7 @@ namespace DoshiiDotNetIntegration
                 orderReturnedFromPos.Status = "accepted";
                 try
                 {
-                    UpdateOrder(orderReturnedFromPos);
+                    ConfirmCreatedOrder(orderReturnedFromPos);
                 }
                 catch (Exception ex)
                 {
@@ -456,6 +443,7 @@ namespace DoshiiDotNetIntegration
                 foreach (Transaction tran in transactionList)
                 {
                     RecordTransactionVersion(tran);
+                    tran.OrderId = orderReturnedFromPos.Id;
                     tran.Status = "waiting";
                     try
                     {
@@ -980,6 +968,46 @@ namespace DoshiiDotNetIntegration
                 throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0}", order.Id), ex);
             }
             
+            return returnedOrder;
+        }
+
+        internal virtual Order ConfirmCreatedOrder(Order order)
+        {
+            order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
+            var jsonOrder = Mapper.Map<JsonOrder>(order);
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", jsonOrder.ToJsonString()));
+
+            var returnedOrder = new Order();
+
+            try
+            {
+                returnedOrder = m_HttpComs.PutConfirmOrderCreated(order);
+                if (returnedOrder.Id == "0" && returnedOrder.DoshiiId == "0")
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an doshiiOrderId while updating order with id {0}", order.Id));
+                    throw new OrderUpdateException(string.Format("Doshii: order was returned from doshii without an doshiiOrderId while updating order with id {0}", order.Id));
+                }
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                if (rex.StatusCode == HttpStatusCode.Conflict)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("There was a conflict updating order.id {0}", order.Id.ToString()));
+                    throw new ConflictWithOrderUpdateException(string.Format("There was a conflict updating order.id {0}", order.Id.ToString()));
+                }
+                throw new OrderUpdateException("Update order not successful", rex);
+            }
+            catch (NullOrderReturnedException Nex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
+                throw new OrderUpdateException(string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id), Nex);
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0} : {1}", order.Id, ex));
+                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a putOrder for order.Id{0}", order.Id), ex);
+            }
+
             return returnedOrder;
         }
 

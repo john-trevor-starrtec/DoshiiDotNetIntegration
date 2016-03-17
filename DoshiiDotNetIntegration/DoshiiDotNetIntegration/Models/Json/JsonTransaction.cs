@@ -105,6 +105,16 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(Version));
         }
 
+        public bool ShouldSerializeOrderId()
+        {
+            return (!string.IsNullOrEmpty(OrderId));
+        }
+
+        public bool ShouldSerializeReference()
+        {
+            return (!string.IsNullOrEmpty(Reference));
+        }
+
         public bool ShouldSerializeUri()
         {
             return false;

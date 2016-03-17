@@ -29,9 +29,20 @@ namespace DoshiiDotNetIntegration.Models
             PostalCode = String.Empty;
             Country = String.Empty;
             Notes = String.Empty;
-
+            PhotoUrl = string.Empty;
+            Anonymous = false;
         }
 
+        /// <summary>
+        /// the url for the consumers photo
+        /// </summary>
+        public string PhotoUrl { get; set; }
+
+        /// <summary>
+        /// is this an anonymous user. 
+        /// </summary>
+        public bool Anonymous { get; set; }
+        
         /// <summary>
         /// The consumers name
         /// </summary>

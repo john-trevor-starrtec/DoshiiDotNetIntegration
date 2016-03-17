@@ -14,7 +14,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     internal class JsonOrder : JsonSerializationBase<JsonOrder>
     {
         /// <summary>
-        /// Order id
+        /// id
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "id")]
