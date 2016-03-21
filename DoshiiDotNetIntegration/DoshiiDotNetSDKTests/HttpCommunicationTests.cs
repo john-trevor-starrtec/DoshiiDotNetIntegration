@@ -363,7 +363,7 @@ namespace DoshiiDotNetSDKTests
         }
 
 
-        [Test]
+        /*[Test]
         public void GetTransaction_ReturnedTransactionIsRetreivedTransaction()
         {
             var transactionInput = GenerateObjectsAndStringHelper.GenerateTransactionPending();
@@ -373,7 +373,7 @@ namespace DoshiiDotNetSDKTests
             var transactionResponse = MockHttpComs.GetTransaction(transactionInput.Id.ToString());
 
             Assert.AreEqual(transactionInput.Id, transactionResponse.Id);
-        }
+        }*/
 
         [Test]
         public void GetTransaction_ReturnedTransactionDataIsBlank()

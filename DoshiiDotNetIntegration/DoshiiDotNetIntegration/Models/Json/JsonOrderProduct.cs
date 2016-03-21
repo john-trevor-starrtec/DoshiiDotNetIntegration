@@ -145,12 +145,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "posid")]
 		public string PosId { get; set; }
 
-		/// <summary>
-		/// The image associated with the product.
-		/// </summary>
-		[DataMember]
-		[JsonProperty(PropertyName = "image")]
-		public string Image { get; set; }
+		
 
    }
 }

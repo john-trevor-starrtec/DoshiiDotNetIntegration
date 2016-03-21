@@ -123,5 +123,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "unitPrice")]
         public string UnitPrice { get; set; }
+
     }
 }

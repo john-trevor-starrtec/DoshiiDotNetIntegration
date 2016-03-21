@@ -114,7 +114,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// </summary>
 		public string PosId { get; set; }
 
-		/// <summary>
+        /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
         public decimal Quantity { get; set; }
@@ -143,7 +143,7 @@ namespace DoshiiDotNetIntegration.Models
 			_ProductOptions.Clear();
 			Version = String.Empty;
 			PosId = String.Empty;
-			Quantity = 0.0M;
+            Quantity = 0.0M;
 		}
 
 		#region ICloneable Members
