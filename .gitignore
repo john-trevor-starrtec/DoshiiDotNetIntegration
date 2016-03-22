@@ -16,3 +16,4 @@ DoshiiDotNetIntegration/packages/Microsoft.Bcl.Build.1.0.14/License-Stable.rtf
 *.ps1
 /DoshiiDotNetIntegration/DoshiiDotNetIntegration/nuget.exe
 /DoshiiDotNetIntegration/DoshiiDotNetIntegration/DoshiiDotNetIntegration.nuspec
+/DoshiiDotNetIntegration/DoshiiDotNetIntegration/*.nupkg
