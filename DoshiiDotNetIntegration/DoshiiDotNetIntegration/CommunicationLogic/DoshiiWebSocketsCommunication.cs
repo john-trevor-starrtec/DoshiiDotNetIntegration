@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using WebSocketSharp;
-using Newtonsoft.Json;
+﻿using AutoMapper;
+using DoshiiDotNetIntegration.Models.Json;
+using System;
 using System.Threading;
+using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
+using Microsoft.CSharp.RuntimeBinder;
+using WebSocketSharp;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
@@ -12,7 +12,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
     /// DO NOT USE, This class is used internally by the SDK and should not be instantiated by the POS.
     /// facilitates the web sockets communication with the doshii application
     /// </summary>
-    internal class DoshiiWebSocketsCommunication 
+    internal class DoshiiWebSocketsCommunication : IDisposable
     {
 
         #region fields and properties
@@ -21,36 +21,47 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Web socket object that will handle all the communications with doshii
         /// </summary>
-        internal  WebSocket m_WebSocketsConnection = null;
+		internal WebSocket m_WebSocketsConnection { get; set; }
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// A doshii logic instance
         /// </summary>
-        internal  DoshiiManager m_DoshiiLogic;
+        internal DoshiiManager m_DoshiiLogic { get; private set; }
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// A thread to send heartbeat socket message to doshii. 
         /// </summary>
-        internal  Thread m_HeartBeatThread = null;
+        internal Thread m_HeartBeatThread = null;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// This will hold the value for the last connected time so that there are not many connections established after the connection drops out. 
         /// </summary>
-        internal  DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
+        internal DateTime m_LastConnectionAttemptTime = DateTime.MinValue;
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// this is used to hold the timeout value for the socket connection being unable to connect to the server.
         /// </summary>
-        internal  int m_SocketConnectionTimeOutValue;
+        internal int m_SocketConnectionTimeOutValue { get; set; }
 
         /// <summary>
         /// this is used to calculate if the last successful socket connection is within the timeOut range. 
         /// </summary>
-        internal  DateTime m_LastSuccessfullSocketMessageTime;
+        internal DateTime m_LastSuccessfullSocketMessageTime { get; set; }
+
+		/// <summary>
+		/// Callback to the POS logging mechanism.
+		/// </summary>
+		internal DoshiiLogManager mLog { get; private set; }
+
+		/// <summary>
+		/// Ping message to send during heartbeat checks.
+		/// </summary>
+		private const string PingMessage = "primus::ping::";
+        private const string PongMessage = "primus::pong::";
 
         #endregion
 
@@ -58,54 +69,42 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region events
 
-        internal  delegate void CreatedOrderEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
-        /// <summary>
-        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Event will be raised when a new order is created on doshii
-        /// </summary>
-        internal  event CreatedOrderEventHandler CreateOrderEvent;
+		// TODO: [BC]: Consider making the following events public to expose them to the POS implementation.
         
-        internal  delegate void OrderStatusEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+        internal delegate void OrderCreatedEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the state of an order has changed through doshii
         /// </summary>
-        internal  event OrderStatusEventHandler OrderStatusEvent;
-        
-        internal  delegate void ConsumerCheckInEventHandler(object sender, CommunicationEventArgs.CheckInEventArgs e);
-        /// <summary>
-        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Event will be raised when a consumer checks in through doshii
-        /// </summary>
-        internal  event ConsumerCheckInEventHandler ConsumerCheckinEvent;
-        
-        internal  delegate void TableAllocationEventHandler(object sender, CommunicationEventArgs.TableAllocationEventArgs e);
-        /// <summary>
-        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Event will be raised when a table allocation event occurs through doshii
-        /// </summary>
-        internal  event TableAllocationEventHandler TableAllocationEvent;
-        
-        internal  delegate void CheckOutEventHandler(object sender, CommunicationEventArgs.CheckOutEventArgs e);
-        /// <summary>
-        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Event will be raised when a consumer is checked out from doshii
-        /// </summary>
-        internal  event CheckOutEventHandler CheckOutEvent;
-        
-        internal  delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
-        /// <summary>
-        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Event will be raised when the socket communication with doshii are opened. 
-        /// </summary>
-        internal  event SocketCommunicationEstablishedEventHandler SocketCommunicationEstablishedEvent;
+        internal event OrderCreatedEventHandler OrderCreatedEvent;
 
-        internal  delegate void SocketCommunicationTimeoutReachedEventHandler(object sender, EventArgs e);
+        internal delegate void TransactionCreatedEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// Event will be raised when the state of an order has changed through doshii
+        /// </summary>
+        internal virtual event TransactionCreatedEventHandler TransactionCreatedEvent;
+
+        internal delegate void TransactionUpdatedEventHandler(object sender, CommunicationEventArgs.TransactionEventArgs e);
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// Event will be raised when the state of an order has changed through doshii
+        /// </summary>
+        internal virtual event TransactionUpdatedEventHandler TransactionUpdatedEvent;
+
+        internal delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
         /// Event will be raised when the socket communication with doshii are opened. 
         /// </summary>
-        internal  event SocketCommunicationTimeoutReachedEventHandler SocketCommunicationTimeoutReached;
+        internal event SocketCommunicationEstablishedEventHandler SocketCommunicationEstablishedEvent;
+
+        internal delegate void SocketCommunicationTimeoutReachedEventHandler(object sender, EventArgs e);
+        /// <summary>
+        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
+        /// Event will be raised when the socket communication with doshii are opened. 
+        /// </summary>
+        internal event SocketCommunicationTimeoutReachedEventHandler SocketCommunicationTimeoutReached;
 
         #endregion
 
@@ -126,26 +125,37 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The initialize method must be called after the constructor to initialize the connection
         /// </summary>
         /// <param name="webSocketUrl"></param>
+		/// <param name="socketConnectionTimeOutValue"></param>
         /// <param name="doshii"></param>
-        internal DoshiiWebSocketsCommunication(string webSocketUrl, DoshiiManager doshii, int socketConnectionTimeOutValue)
+		/// <param name="logManager"></param>
+        internal DoshiiWebSocketsCommunication(string webSocketUrl, int socketConnectionTimeOutValue, DoshiiLogManager logManager, DoshiiManager doshii)
         {
             if (doshii == null)
             {
-                throw new NotSupportedException("doshii");
+                throw new ArgumentNullException("doshii");
             }
+
+			if (logManager == null)
+			{
+				throw new ArgumentNullException("logManager");
+			}
+
+			m_SocketConnectionTimeOutValue = socketConnectionTimeOutValue;
+			mLog = logManager;
+			m_DoshiiLogic = doshii;
+
             if (socketConnectionTimeOutValue < 10)
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("The socketConnectionTimeOutValue is set to less than 10 seconds, Times smaller than 10 seconds are not supported."));
-                throw new NotSupportedException("SocketConnectionTimeOutValue is less that 10");
+				mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The socketConnectionTimeOutValue is set to less than 10 seconds, Times smaller than 10 seconds are not supported."));
+				throw new ArgumentException("SocketConnectionTimeOutValue is less than 10");
             }
-            m_SocketConnectionTimeOutValue = socketConnectionTimeOutValue;
-            m_DoshiiLogic = doshii;
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("instantiating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
+
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("instantiating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
                 
             if (string.IsNullOrWhiteSpace(webSocketUrl))
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("cannot create an instance of DoshiiWebSocketsCommunication with a blank socketUrl"));
-                throw new NotSupportedException("webSocketUrl");
+				mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("cannot create an instance of DoshiiWebSocketsCommunication with a blank socketUrl"));
+				throw new ArgumentException("webSocketUrl");
             }
                         
             m_WebSocketsConnection = new WebSocket(webSocketUrl);
@@ -162,7 +172,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal virtual void Initialize()
         {
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("initializing doshii web-socket connection"));
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("initializing doshii web-socket connection"));
             Connect();
         }
 
@@ -190,7 +200,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal virtual void SetLastConnectionAttemptTime()
         {
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Setting last connection attempt time: {0}", DateTime.Now.ToString())); 
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Setting last connection attempt time: {0}", DateTime.Now.ToString())); 
             m_LastConnectionAttemptTime = DateTime.Now;
         }
 
@@ -207,20 +217,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if ((DateTime.Now.AddSeconds(-10) > m_LastConnectionAttemptTime))
                     {
                         SetLastConnectionAttemptTime();
-                        m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Attempting Socket connection")); 
+						mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Attempting Socket connection")); 
                         m_WebSocketsConnection.Connect();
                     }
                     
                 }
                 catch(Exception ex)
                 {
-                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error initializing the web sockets connection to Doshii"), ex);
+					mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, "Doshii: There was an error initializing the web sockets connection to Doshii", ex);
                 }
                 
             }
             else
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the was object"));
+				mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the was object"));
             }
         }
 
@@ -229,21 +239,24 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// This should not be used for anything other than heartbeats as the POS does not communication with Doshii though web sockets. 
         /// </summary>
         /// <param name="message"></param>
-        internal virtual void SendMessage(string message)
+		/// <returns>True on successful send; false otherwise.</returns>
+        internal virtual bool SendMessage(string message)
         {
             try
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Sending web-sockets message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()));
+				mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Sending web-sockets message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()));
                 if (m_WebSocketsConnection.IsAlive)
                 {
                     m_WebSocketsConnection.Send(message);
+					return true;
                 }
             }
             catch (Exception ex)
             {
-                m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: Exception while sending a webSocket message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()), ex);
+				mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("Doshii: Exception while sending a webSocket message '{0}' to {1}", message, m_WebSocketsConnection.Url.ToString()), ex);
             }
-            
+
+			return false;
         }
 
         /// <summary>
@@ -252,7 +265,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal virtual void HeartBeatChecker()
         {
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Starting web Socket heartbeat thread"));
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Starting web Socket heartbeat thread"));
             while (true)
             {
                 Thread.Sleep(10000);
@@ -261,12 +274,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     //raise event to signal that Timeout out is expired.
                     SocketCommunicationTimeoutReached(this, new EventArgs());
                 }
+
                 if (m_WebSocketsConnection.IsAlive)
                 {
                     TimeSpan thisTimeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
                     double doubleForHeartbeat = thisTimeSpan.TotalMilliseconds;
-                    string message = string.Format("\"primus::ping::<{0}>\"", doubleForHeartbeat.ToString());
-                    SendMessage(message);
+                    string message = string.Format("\"{0}<{1}>\"", DoshiiWebSocketsCommunication.PingMessage, doubleForHeartbeat.ToString());
+					if (SendMessage(message))
+						SetLastSuccessfullSocketCommunicationTime();
                 }
                 else
                 {
@@ -289,7 +304,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         internal virtual void WebSocketsConnectionOnErrorEventHandler(object sender, ErrorEventArgs e)
         {
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the web-sockets connection to {0} the error was {1}", m_WebSocketsConnection.Url.ToString(), e.Message));
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("Doshii: There was an error with the web-sockets connection to {0} the error was {1}", m_WebSocketsConnection.Url.ToString(), e.Message));
             //StopHeartbeatThread();
             if (e.Message == "The WebSocket connection has already been closed.")
             {
@@ -306,19 +321,19 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
-            DoshiiDotNetIntegration.Models.SocketMessage theMessage = new Models.SocketMessage();
+            SocketMessage theMessage = new SocketMessage();
             if (e.Type == Opcode.Text)
             {
                 string messageString = e.Data.ToString();
                 // drop heart beat response
-                if (messageString.Contains("primus::pong::<"))
+                if (messageString.Contains(String.Format("{0}", DoshiiWebSocketsCommunication.PongMessage)))
                 {
-                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Received web-sockets message '{0}' from {1}", messageString, m_WebSocketsConnection.Url.ToString()));
+					mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Received web-sockets message '{0}' from {1}", messageString, m_WebSocketsConnection.Url.ToString()));
                     return;
                 }
                 else
                 {
-                    theMessage = DoshiiDotNetIntegration.Models.SocketMessage.deseralizeFromJson(messageString);
+                    theMessage = SocketMessage.deseralizeFromJson(messageString);
                 }
                 
             }
@@ -327,94 +342,90 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
                 string messageString = e.RawData.ToString();
                 // drop heartbeat message
-                if (messageString.Contains("primus::pong::<"))
+                if (messageString.Contains(String.Format("{0}", DoshiiWebSocketsCommunication.PongMessage)))
                 {
                     return;
                 }
                 else
                 {
-                    theMessage = DoshiiDotNetIntegration.Models.SocketMessage.deseralizeFromJson(messageString);
+                    theMessage = SocketMessage.deseralizeFromJson(messageString);
                 }
                 
             }
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("WebScoket message received - '{0}'", theMessage.ToString()));
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("WebScoket message received - '{0}'", theMessage.ToString()));
+            ProcessSocketMessage(theMessage);
+
+        }
+
+
+        internal virtual void ProcessSocketMessage(SocketMessage theMessage)
+        {
             dynamic dynamicSocketMessageData = theMessage.Emit[1];
 
-            Models.SocketMessageData messageData = new Models.SocketMessageData();
-
+            SocketMessageData messageData = new SocketMessageData();
             messageData.EventName = (string)theMessage.Emit[0];
             messageData.CheckinId = (string)dynamicSocketMessageData.checkinId;
             messageData.OrderId = (string)dynamicSocketMessageData.orderId;
-            messageData.meerkatConsumerId = (string)dynamicSocketMessageData.meerkatConsumerId;
+            messageData.MeerkatConsumerId = (string)dynamicSocketMessageData.meerkatConsumerId;
             messageData.Status = (string)dynamicSocketMessageData.status;
             messageData.Name = (string)dynamicSocketMessageData.name;
             messageData.Id = (string)dynamicSocketMessageData.id;
-            
-            string uriString = (string)dynamicSocketMessageData.uri;
-            if (!string.IsNullOrWhiteSpace(uriString))
-            {
-                messageData.Uri = new Uri((string)dynamicSocketMessageData.uri);
-            }
+            messageData.Uri = (Uri)dynamicSocketMessageData.Uri;
             
             switch (messageData.EventName)
             {
-                case "table_allocation":
-                    CommunicationEventArgs.TableAllocationEventArgs allocationEventArgs = new CommunicationEventArgs.TableAllocationEventArgs();
+                case "order_created":
+                    CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
+                    orderStatusEventArgs.Order = m_DoshiiLogic.GetOrderFromDoshiiOrderId(messageData.Id);
+                    orderStatusEventArgs.TransactionList = m_DoshiiLogic.GetTransactionFromDoshiiOrderId(messageData.Id);
+                    orderStatusEventArgs.OrderId = messageData.Id;
+                    orderStatusEventArgs.Status = messageData.Status;
 
-                    allocationEventArgs.TableAllocation = new Models.TableAllocation();
-
-                    allocationEventArgs.TableAllocation.CustomerId = messageData.ConsumerId;
-                    allocationEventArgs.TableAllocation.Id = messageData.Id;
-                    allocationEventArgs.TableAllocation.Name = messageData.Name;
-                    allocationEventArgs.TableAllocation.MeerkatConsumerId = messageData.meerkatConsumerId;
-                    if (messageData.Status == "waiting_for_confirmation")
+                    if (OrderCreatedEvent != null)
                     {
-                        allocationEventArgs.TableAllocation.Status = "waiting_for_confirmation";
+                        OrderCreatedEvent(this, orderStatusEventArgs);
                     }
                     else
                     {
-                        allocationEventArgs.TableAllocation.Status = "confirmed";
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the OrderCreateEvent"));
                     }
-                            
-                    TableAllocationEvent(this, allocationEventArgs);
+                    
                     break;
-                case "order_create":
-                    CommunicationEventArgs.OrderEventArgs createOrderEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    createOrderEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
-                    createOrderEventArgs.OrderId = messageData.OrderId;
-                    createOrderEventArgs.Status = messageData.Status;    
-                    CreateOrderEvent(this, createOrderEventArgs);
+                case "transaction_created":
+                    CommunicationEventArgs.TransactionEventArgs transactionCreatedEventArgs = new TransactionEventArgs();
+                    transactionCreatedEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.Id);
+                    transactionCreatedEventArgs.TransactionId = messageData.Id;
+                    transactionCreatedEventArgs.Status = messageData.Status;
+                    if (TransactionCreatedEvent != null)
+                    {
+                        TransactionCreatedEvent(this, transactionCreatedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionCreatedEvent"));
+                    }
+                    
                     break;
-                case "order_status":
-                    CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
-                    orderStatusEventArgs.Order = m_DoshiiLogic.GetOrder(messageData.OrderId);
-                    orderStatusEventArgs.OrderId = messageData.OrderId;
-                    orderStatusEventArgs.Status = messageData.Status;    
-                
-                    OrderStatusEvent(this, orderStatusEventArgs);
-                    break;
-                case "consumer_checkin":
-                    CommunicationEventArgs.CheckInEventArgs newCheckinEventArgs = new CommunicationEventArgs.CheckInEventArgs();
-                    newCheckinEventArgs.CheckIn = messageData.CheckinId;
-                    newCheckinEventArgs.MeerkatCustomerId = messageData.meerkatConsumerId;
-                    newCheckinEventArgs.Uri = messageData.Uri;
-                    newCheckinEventArgs.Consumer = m_DoshiiLogic.GetConsumer(messageData.meerkatConsumerId);
-                    newCheckinEventArgs.Consumer.CheckInId = newCheckinEventArgs.CheckIn;
+                case "transaction_updated":
+                    CommunicationEventArgs.TransactionEventArgs transactionUpdtaedEventArgs = new TransactionEventArgs();
+                    transactionUpdtaedEventArgs.Transaction = m_DoshiiLogic.GetTransaction(messageData.Id);
+                    transactionUpdtaedEventArgs.TransactionId = messageData.Id;
+                    transactionUpdtaedEventArgs.Status = messageData.Status;
 
-                    ConsumerCheckinEvent(this, newCheckinEventArgs);
-                    break;
-                case "consumer_checkout":
-                    CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs checkOutEventArgs = new CommunicationLogic.CommunicationEventArgs.CheckOutEventArgs();
-
-                    checkOutEventArgs.MeerkatConsumerId = messageData.meerkatConsumerId;
-
-                    CheckOutEvent(this, checkOutEventArgs);
+                    if (TransactionUpdatedEvent != null)
+                    {
+                        TransactionUpdatedEvent(this, transactionUpdtaedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
+                    }
+                    
                     break;
                 default:
-                    m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
+                    mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));
                     break;
             }
-            
         }
 
         /// <summary>
@@ -426,7 +437,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="e"></param>
         internal virtual void WebSocketsConnectionOnCloseEventHandler(object sender, CloseEventArgs e)
         {
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection to {0} closed", m_WebSocketsConnection.Url.ToString()));
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebSockets connection to {0} closed", m_WebSocketsConnection.Url.ToString()));
         }
 
         /// <summary>
@@ -438,7 +449,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual void WebSocketsConnectionOnOpenEventHandler(object sender, EventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
-            m_DoshiiLogic.m_DoshiiInterface.LogDoshiiMessage(Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebScokets connection successfully open to {0}", m_WebSocketsConnection.Url.ToString()));
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: WebSockets connection successfully open to {0}", m_WebSocketsConnection.Url.ToString()));
             StartHeartbeatThread();
             SocketCommunicationEstablishedEvent(this, e);
         }
@@ -470,5 +481,19 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 return true;
             }
         }
-    }
+
+		#region IDisposable Members
+
+		/// <summary>
+		/// Cleanly disposes of the instance and its member variables.
+		/// </summary>
+		public void Dispose()
+		{
+			mLog = null;
+			m_DoshiiLogic = null;
+			m_WebSocketsConnection = null;
+		}
+
+		#endregion
+	}
 }

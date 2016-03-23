@@ -10,36 +10,47 @@ namespace DoshiiDotNetIntegration.Models
     /// <summary>
     /// Product options are lists of product variants that can be selected from to modify products.
     /// </summary>
-    [DataContract]
-    [Serializable]
-    public class ProductOptions : JsonSerializationBase<ProductOptions>
+    public class ProductOptions : ICloneable
     {
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		public ProductOptions()
+		{
+			_Variants = new List<Variants>();
+			Clear();
+		}
+
+		/// <summary>
+		/// Resets all property values to default settings.
+		/// </summary>
+		public void Clear()
+		{
+			Name = String.Empty;
+			Min = 0;
+			Max = 0;
+			PosId = String.Empty;
+			_Variants.Clear();
+		}
+
         /// <summary>
         /// The name of this product options / or list of variants
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         /// <summary>
         /// The minimum amount of variants that must be chosen from this set of variants
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "min")]
         public int Min { get; set; }
 
         /// <summary>
         /// The maximum amount of variants that can be chosen form this set of variants. 
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "max")]
         public int Max { get; set; }
 
         /// <summary>
         /// The POS identifier for this set of variants. 
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "pos_id")]
         public string PosId { get; set; }
 
         private List<Variants> _Variants;
@@ -47,9 +58,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// A List of Variants available to be selected from this list. 
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "variants")]
-        public List<Variants> Variants 
+        public IEnumerable<Variants> Variants 
         {
             get
             {
@@ -61,87 +70,30 @@ namespace DoshiiDotNetIntegration.Models
             }
             set
             {
-                _Variants = value;
+                _Variants = value.ToList<Variants>();
             }
         } 
         
-        
-        private List<Variants> _Selected;
-                
-        /// <summary>
-        /// A list of Variants that have been selected from the list. 
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "selected")]
-        public List<Variants> Selected
-        {
-            get
-            {
-                if (_Selected == null)
-                {
-                    _Selected = new List<Variants>();
-                }
-                return _Selected;
-            }
-            set
-            {
-                _Selected = value;
-            }
+        #region ICloneable Members
 
-        }
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the instance.</returns>
+		public object Clone()
+		{
+			var options = (ProductOptions)this.MemberwiseClone();
 
-        #region serialization methods 
+			var variants = new List<Variants>();
+			foreach (var variant in this.Variants)
+			{
+				variants.Add((Variants)variant.Clone());
+			}
+			options.Variants = variants;
 
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        public bool SerializeSelected = false;
+			return options;
+		}
 
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS. 
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldSerializeSelected()
-        {
-            if (SerializeSelected)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public string ToJsonStringForOrder()
-        {
-            SerializeSelected = true;
-            return base.ToJsonString();
-        }
-
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <param name="value"></param>
-        public void SetSerializeForOrder(bool value)
-        {
-            SerializeSelected = value;
-        }
-
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public string ToJsonStringForProductUpdate()
-        {
-            SerializeSelected = true;
-            return base.ToJsonString();
-        }
-
-        #endregion
-    }
+		#endregion
+	}
 }

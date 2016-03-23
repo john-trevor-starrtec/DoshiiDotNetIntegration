@@ -13,23 +13,58 @@ namespace DoshiiDotNetIntegration.Models
     /// Surcharges should have a positive price.
     /// Discounts should have a negative price. 
     /// </summary>
-    [DataContract]
-    [Serializable]
-    public class Surcount
+    public class Surcount : ICloneable
     {
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		public Surcount()
+		{
+			Clear();
+		}
+
+		/// <summary>
+		/// Resets all property values to default settings.
+		/// </summary>
+		public void Clear()
+		{
+			Name = String.Empty;
+		    Type = String.Empty;
+		    Id = String.Empty;
+			Amount = 0.0M;
+		}
+
         /// <summary>
         /// The Name of the surcount
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The Amount / value of the surcount in cents. 
+        /// </summary>
+        public decimal Amount { get; set; }
 
         /// <summary>
-        /// The Price / value of the surcount in cents. 
+        /// The type of the surcount ('absolute' or 'percentage')
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "price")]
-        public string Price { get; set; }
-    }
+        public string Type { get; set; }
+
+        /// <summary>
+        /// The posId for the product
+        /// </summary>
+        public string Id { get; set; }
+
+		#region ICloneable Members
+
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the instance.</returns>
+		public object Clone()
+		{
+			return this.MemberwiseClone();
+		}
+
+		#endregion
+	}
 }

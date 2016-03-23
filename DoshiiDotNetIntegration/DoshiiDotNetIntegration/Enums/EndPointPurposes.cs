@@ -10,45 +10,54 @@ namespace DoshiiDotNetIntegration.Enums
     /// </summary>
     public enum EndPointPurposes
     {
-        /// <summary>
-        /// Requests about products
-        /// </summary>
-        Products = 1,
-
-        /// <summary>
-        /// Requests about consumers
-        /// </summary>
-        Consumer = 2,
-
-        /// <summary>
+		/// <summary>
         /// Requests about orders
         /// </summary>
-        Order = 3,
+        Order = 1,
 
         /// <summary>
         /// Getting a table allocation
         /// </summary>
-        GetTableAllocations = 4,
-
-        /// <summary>
-        /// Confirming a table allocation
-        /// </summary>
-        ConfirmTableAllocation = 5,
+        GetTableAllocations = 2,
 
         /// <summary>
         /// Delete the table allocation with the checkInId
         /// </summary>
-        DeleteAllocationWithCheckInId = 6,
+        DeleteAllocationFromCheckin = 3,
 
         /// <summary>
-        /// Add a table Allocation
+        /// request to get a transaction
         /// </summary>
-        AddTableAllocation = 7,
+        Transaction = 4,
 
         /// <summary>
-        /// Set Seating and ordering configuration. 
+        /// request to get a list of transactions from the doshii order id
         /// </summary>
-        SetSeatingAndOrderConfiguration = 8
+        TransactionFromDoshiiOrderId = 5,
 
+        /// <summary>
+        /// Requests about orders from the doshii order id
+        /// </summary>
+        UnlinkedOrders = 6,
+
+        /// <summary>
+        /// Request about the consumer from the checkinId
+        /// </summary>
+        ConsumerFromCheckinId = 7,
+
+        /// <summary>
+        /// Request about the consumer from the checkinId
+        /// </summary>
+        Menu = 8,
+
+        /// <summary>
+        /// Request about the consumer from the checkinId
+        /// </summary>
+        Products = 9,
+
+        /// <summary>
+        /// Request about the consumer from the checkinId
+        /// </summary>
+        Surcounts = 10
     }
 }

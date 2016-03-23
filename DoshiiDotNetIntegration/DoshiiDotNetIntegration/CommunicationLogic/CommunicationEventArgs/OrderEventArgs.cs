@@ -1,16 +1,20 @@
-﻿using System;
+﻿using DoshiiDotNetIntegration.Models.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs
 {
     internal class OrderEventArgs : EventArgs 
     {
-        internal string OrderId;
+        internal string OrderId { get; set; }
 
-        internal string Status;
+		internal string Status { get; set; }
 
-        internal Models.Order Order;
+		internal Order Order { get; set; }
+
+        internal IEnumerable<Transaction> TransactionList { get; set; }
     }
 }
