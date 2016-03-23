@@ -17,3 +17,13 @@ DoshiiDotNetIntegration/packages/Microsoft.Bcl.Build.1.0.14/License-Stable.rtf
 /DoshiiDotNetIntegration/DoshiiDotNetIntegration/nuget.exe
 /DoshiiDotNetIntegration/DoshiiDotNetIntegration/DoshiiDotNetIntegration.nuspec
 /DoshiiDotNetIntegration/DoshiiDotNetIntegration/*.nupkg
+/DoshiiDotNetIntegration/packages/AutoMapper.4.2.1
+/DoshiiDotNetIntegration/packages/log4net.2.0.3
+/DoshiiDotNetIntegration/packages/Microsoft.Bcl.1.1.10
+/DoshiiDotNetIntegration/packages/Microsoft.Bcl.Build.1.0.14
+/DoshiiDotNetIntegration/packages/Newtonsoft.Json.6.0.4
+/DoshiiDotNetIntegration/packages/Newtonsoft.Json.6.0.8
+/DoshiiDotNetIntegration/packages/NUnit.2.6.4
+/DoshiiDotNetIntegration/packages/NUnitTestAdapter.WithFramework.1.2
+/DoshiiDotNetIntegration/packages/RhinoMocks.3.6.1
+/DoshiiDotNetIntegration/packages/WebSocketSharp.1.0.3-rc9

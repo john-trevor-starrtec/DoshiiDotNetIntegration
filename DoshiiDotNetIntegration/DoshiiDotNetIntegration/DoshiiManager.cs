@@ -423,10 +423,25 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// call this method to accept an order created by an order ahead partner, 
+        /// this method will test that the order on doshii has not changed since it was original received by the pos. 
+        /// It is the responsibility of the pos to ensure that the products on the order were not changed during the confirmation process as this will not 
+        /// be checked by this method. 
+        /// </summary>
+        /// <param name="orderToAccept"></param>
+        /// <returns></returns>
         public bool AcceptOrderAheadCreation(Order orderToAccept)
         {
+            Order orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
             List<Transaction> transactionList = GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();
-            //test orderToAccept is equal to the order on Doshii and that the order on Doshii exists. 
+
+            //test on doshii has changed. 
+            if (orderOnDoshii.Version != orderToAccept.Version)
+            {
+                return false;
+            }
+            
             orderToAccept.Status = "accepted";
             try
             {
@@ -434,6 +449,7 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exception ex)
             {
+                return false;
                 //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
                 //if we get an error response at this point we should prob cancel the order on the pos and not continue and cancel the payments. 
             }
@@ -455,6 +471,10 @@ namespace DoshiiDotNetIntegration
             return true;
         }
 
+        /// <summary>
+        /// call this method to reject an order created by an order ahead partner,
+        /// </summary>
+        /// <param name="orderToReject"></param>
         public void RejectOrderAheadCreation(Order orderToReject)
         {
             List<Transaction> transactionList = GetTransactionFromDoshiiOrderId(orderToReject.DoshiiId).ToList();
