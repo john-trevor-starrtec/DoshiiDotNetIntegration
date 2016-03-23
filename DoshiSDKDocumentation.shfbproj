@@ -13,7 +13,7 @@
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
-    <FrameworkVersion>.NET Framework 4.0</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
     <OutputPath>DoshiiDotNetIntegration\DoshiiDotNetIntegration\bin\Help\</OutputPath>
     <HtmlHelpName>Doshii SDK Documentation</HtmlHelpName>
     <Language>en-US</Language>
