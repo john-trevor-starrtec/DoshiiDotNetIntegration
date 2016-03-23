@@ -230,10 +230,10 @@ namespace DoshiiDotNetIntegration.Helpers
 		    Mapper.CreateMap<Order, JsonOrder>()
 		        .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
 		        .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
-				
+		    	
 			// src = JsonOrder, dest = Order
 		    Mapper.CreateMap<JsonOrder, Order>();
-
+                
             // src = Order, dest = JsonOrder
             Mapper.CreateMap<Order, JsonOrderToPut>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))

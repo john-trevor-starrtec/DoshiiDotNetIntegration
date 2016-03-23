@@ -99,11 +99,11 @@ namespace DoshiiDotNetIntegration.Models.Json
 		public string Uri { get; set; }
 
         /// <summary>
-        /// The URI of the order
+        /// the dateTime the order is Required
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "requiredAt")]
-        public string RequiredAt { get; set; }
+        public DateTime RequiredAt { get; set; }
 
         private List<JsonOrderProduct> _items;
         
