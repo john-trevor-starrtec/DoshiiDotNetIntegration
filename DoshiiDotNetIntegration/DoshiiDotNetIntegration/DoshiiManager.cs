@@ -423,10 +423,10 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public void AcceptOrderAheadCreation(Order orderToAccept)
+        public bool AcceptOrderAheadCreation(Order orderToAccept)
         {
             List<Transaction> transactionList = GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();
-            //test orderToAccept is equal to the order on Doshii
+            //test orderToAccept is equal to the order on Doshii and that the order on Doshii exists. 
             orderToAccept.Status = "accepted";
             try
             {
@@ -452,6 +452,7 @@ namespace DoshiiDotNetIntegration
                     //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
                 }
             }
+            return true;
         }
 
         public void RejectOrderAheadCreation(Order orderToReject)

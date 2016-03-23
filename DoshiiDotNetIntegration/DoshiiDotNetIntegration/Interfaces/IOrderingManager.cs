@@ -97,7 +97,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// The pos must check that the order can be made on the pos, and that the transactions total the correct amount for payment of the order in full
         /// The pos cannot modify the <see cref="Transaction"/> objects in the transaction list, during this process as the amount has already been confirmed with the consumer.
         /// If the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and call <see cref="DoshiiManager.AcceptOrderAheadCreation"/> with the order, and the
-        /// order should be made on the pos. The transaction should not be recorded on the POS during this method. The
+        /// if the response from <see cref="DoshiiManager.AcceptOrderAheadCreation"/> is successful - if the response is false this could indicate that the order has been canceled or changed on doshii and the pos will receive another create notification if necessary.
+        /// The transaction should not be recorded on the POS during this method. The
         /// he Pos will receive a call to <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> to record the transaction
         /// If the <see cref="Order"/> or the <see cref="Transaction"/> is rejected the pos should call <see cref="DoshiiManager.RejectOrderAheadCreation"/> with the order.
         /// </summary>
@@ -113,8 +114,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
         /// The pos must check that the order can be made on the pos.
-        /// if the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and call <see cref="DoshiiManager.AcceptOrderAheadCreation"/> with the order, and the 
-        /// order should be made on the pos. 
+        /// if the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and call <see cref="DoshiiManager.AcceptOrderAheadCreation"/> with the order, 
+        /// if the response from <see cref="DoshiiManager.AcceptOrderAheadCreation"/> is successful - if the response is false this could indicate that the order has been canceled or changed on doshii and the pos will receive another create notification if necessary.
         /// If the <see cref="Order"/> is rejected the pos should call <see cref="DoshiiManager.RejectOrderAheadCreation"/> with the order.
         /// </summary>
         /// <param name="order">
@@ -128,7 +129,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// The pos must check that the order can be made on the pos, and that the transactions total the correct amount for payment of the order in full
         /// The pos cannot modify the <see cref="Transaction"/> objects in the transaction list, during this process as the amount has already been confirmed with the consumer.
         /// If the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and and call <see cref="DoshiiManager.AcceptOrderAheadCreation"/> with the order, and the
-        /// order should be made on the pos. The transaction should not be recorded on the POS during this method. The
+        /// order should be made on the pos if the response from <see cref="DoshiiManager.AcceptOrderAheadCreation"/> is successful - if the response is false this could indicate that the order has been canceled or changed on doshii and the pos will receive another create notification if necessary. 
+        /// The transaction should not be recorded on the POS during this method. The
         /// he Pos will receive a call to <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> to record the transaction
         /// If the <see cref="Order"/> or the <see cref="Transaction"/> is rejected the pos should call <see cref="DoshiiManager.RejectOrderAheadCreation"/> with the order.
         /// </summary>
@@ -145,7 +147,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
         /// The pos must check that the order can be made on the pos.
         /// if the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and call <see cref="DoshiiManager.AcceptOrderAheadCreation"/> with the order, and the 
-        /// order should be made on the pos. 
+        /// order should be made on the pos if the response from <see cref="DoshiiManager.AcceptOrderAheadCreation"/> is successful - if the response is false this could indicate that the order has been canceled or changed on doshii and the pos will receive another create notification if necessary.. 
         /// If the <see cref="Order"/> is rejected the pos should call <see cref="DoshiiManager.RejectOrderAheadCreation"/> with the order.
         /// </summary>
         /// <param name="order">
