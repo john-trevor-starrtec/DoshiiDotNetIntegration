@@ -11,32 +11,33 @@ namespace DoshiiDotNetIntegration.Models
     /// The doshii representation of a product 
     /// A product is the highest level line item on orders.
     /// </summary>
-    [DataContract]
-    [Serializable]
-    public class Product : JsonSerializationBase<Product>
+    public class Product : ICloneable
     {
-        /// <summary>
-        /// The Doshii Id of the product.
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
-
-        /// <summary>
-        /// The POS Id of the product
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "pos_id")]
-        public string PosId { get; set; }
-
         /// <summary>
         /// The name of the product.
         /// This name will be displayed to Doshii users on the mobile app.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
+		/// <summary>
+		/// A description of the product that will be displayed on the mobile app
+		/// </summary>
+		public string Description { get; set; }
+
+		/// <summary>
+		/// The total price of the line item before surcounts are included qty * unit price. 
+		/// </summary>
+		public decimal TotalBeforeSurcounts { get; set; }
+
+        /// <summary>
+        /// The total price of the line item after surcounts are included qty * unit price + surcount. 
+        /// </summary>
+        public decimal TotalAfterSurcounts { get; set; }
+
+        /// <summary>
+        /// the unit price of the item 
+        /// </summary>
+        public decimal UnitPrice { get; set; }
 
         private List<string> _Tags;
         
@@ -46,8 +47,6 @@ namespace DoshiiDotNetIntegration.Models
         /// Products can be added manually to groups in the doshii dashboard,
         /// If this list is populated the product will be automatically added to the groups included, this will reduce setup time. 
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "tags")]
         public List<string> Tags 
         { 
             get
@@ -60,33 +59,16 @@ namespace DoshiiDotNetIntegration.Models
             }
             set
             {
-                _Tags = value;
+                _Tags = value.ToList<string>();
             }
         }
-
-        /// <summary>
-        /// The price the product will be sold for through the mobile app, 
-        /// This price is to be represented in cents. 
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "price")]
-        public string Price { get; set; }
-
-        /// <summary>
-        /// A description of the product that will be displayed on the mobile app
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "description")]
-        public string Description { get; set; }
 
         private List<ProductOptions> _ProductOptions;
         
         /// <summary>
         /// A list of ProductOptions the customer can choose from to modify the product they are ordering.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "product_options")]
-        public List<ProductOptions> ProductOptions {
+        public IEnumerable<ProductOptions> ProductOptions {
             get
             {
                 if (_ProductOptions == null)
@@ -97,143 +79,96 @@ namespace DoshiiDotNetIntegration.Models
             } 
             set
             {
-                _ProductOptions = value;
+                _ProductOptions = value.ToList<ProductOptions>();
             }
         }
 
-        /// <summary>
-        /// Additional instructions added by the customer
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "additional_instructions")]
-        public string AdditionalInstructions { get; set; }
+        private List<Surcount> _ProductSurcounts;
 
         /// <summary>
-        /// The reason the product was rejected by the pos
+        /// A list of Surcharges available / selected for this product on the product.
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "rejection_reason")]
-        public string RejectionReason { get; set; }
+        public IEnumerable<Surcount> ProductSurcounts
+        {
+            get
+            {
+                if (_ProductSurcounts == null)
+                {
+                    _ProductSurcounts = new List<Surcount>();
+                }
+                return _ProductSurcounts;
+            }
+            set
+            {
+                _ProductSurcounts = value.ToList<Surcount>();
+            }
+        }
+
+		/// <summary>
+		/// The obfuscated string representation of the version for the product.
+		/// </summary>
+		public string Version { get; set; }
+
+		/// <summary>
+		/// The POS Id of the product
+		/// </summary>
+		public string PosId { get; set; }
 
         /// <summary>
         /// The status of the item that is being ordered. 
         /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
+        public decimal Quantity { get; set; }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        public Product(){}
+        public Product()
+		{
+			_Tags = new List<string>();
+			_ProductOptions = new List<ProductOptions>();
+			Clear();
+		}
 
+		/// <summary>
+		/// Resets all property values to default settings.
+		/// </summary>
+		public void Clear()
+		{
+			Name = String.Empty;
+			Description = String.Empty;
+			TotalBeforeSurcounts = 0.0M;
+		    TotalAfterSurcounts = 0.0M;
+		    UnitPrice = 0.0M;
+			_Tags.Clear();
+			_ProductOptions.Clear();
+			Version = String.Empty;
+			PosId = String.Empty;
+            Quantity = 0.0M;
+		}
 
-        #region conditional json serialization
-        
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldSerializeAdditionalInstructions()
-        {
-            return false;
-        }
+		#region ICloneable Members
 
-        bool SerializeStatus = true;
+		/// <summary>
+		/// Returns a deep copy of the instance.
+		/// </summary>
+		/// <returns>A clone of the instance.</returns>
+		public object Clone()
+		{
+			var product = (Product)this.MemberwiseClone();
 
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldSerializeStatus()
-        {
-            return SerializeStatus;
-        }
+			var tags = new List<string>();
+			foreach (string tag in this.Tags)
+				tags.Add(tag);
+			product.Tags = tags;
 
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldSerializeId()
-        {
-            return false;
-        }
+			var options = new List<ProductOptions>();
+			foreach (var option in this.ProductOptions)
+				options.Add((ProductOptions)option.Clone());
+			product.ProductOptions = options;
 
-        public bool SerializeRejectionReason = false;
+			return product;
+		}
 
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldSerializeRejectionReason()
-        {
-            if (SerializeRejectionReason)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public string ToJsonStringForOrderConfirmation()
-        {
-            SerializeRejectionReason = true;
-            SerializeStatus = true;
-            SetSerializeForOrderForProductOptions(true);
-            return base.ToJsonString();
-        }
-
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public string ToJsonStringForOrder()
-        {
-            SerializeRejectionReason = false;
-            SerializeStatus = true;
-            SetSerializeForOrderForProductOptions(true);
-            return base.ToJsonString();
-        }
-
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <param name="isForOrder"></param>
-        public void SetSerializeForOrderForProductOptions(bool isForOrder)
-        {
-            foreach (ProductOptions po in ProductOptions)
-            {
-                po.SetSerializeForOrder(isForOrder);
-            }
-        }
-
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        public void SetSerializeSettingsForOrder()
-        {
-            SerializeRejectionReason = false;
-            SerializeStatus = true;
-            SetSerializeForOrderForProductOptions(true);
-        }
-
-        /// <summary>
-        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
-        /// </summary>
-        /// <returns></returns>
-        public string ToJsonStringForProductSync()
-        {
-            SerializeRejectionReason = false;
-            SerializeStatus = false;
-            SetSerializeForOrderForProductOptions(false);
-            return base.ToJsonString();
-        }
-        #endregion
-    }
+		#endregion
+	}
 }

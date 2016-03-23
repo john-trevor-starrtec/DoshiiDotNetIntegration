@@ -16,6 +16,7 @@
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,9 +54,11 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DoshiiDotNetIntegration">
-      <HintPath>..\DoshiiDotNetIntegration\bin\Release\DoshiiDotNetIntegration.dll</HintPath>
+    <Reference Include="AutoMapper, Version=4.2.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AutoMapper.4.2.1\lib\net45\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -68,7 +71,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="websocket-sharp">
-      <HintPath>..\packages\WebSocketSharp.1.0.3-rc4\lib\websocket-sharp.dll</HintPath>
+      <HintPath>..\packages\WebSocketSharp.1.0.3-rc9\lib\websocket-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Choose>
@@ -84,15 +87,22 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AutoMapperConfiguratorTest.cs" />
     <Compile Include="GenerateObjectsAndStringHelper.cs" />
     <Compile Include="HttpCommunicationTests.cs" />
-    <Compile Include="OperationLogicTest.cs" />
+    <Compile Include="DoshiiManagerTests.cs" />
     <Compile Include="SocketCommunicationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DoshiiDotNetIntegration\DoshiiDotNetIntegration.csproj">
+      <Project>{c415ea93-1d45-4678-8cd4-f810b9521143}</Project>
+      <Name>DoshiiDotNetIntegration</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

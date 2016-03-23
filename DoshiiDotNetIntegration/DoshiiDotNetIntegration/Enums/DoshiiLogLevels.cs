@@ -6,13 +6,13 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Enums
 {
     /// <summary>
-    /// the Log Levels for log entries made by doshii
+    /// The Log Levels for log entries made by Doshii.
     /// </summary>
     public enum DoshiiLogLevels
     {
-        /// <summary>
+		/// <summary>
         /// A message primarily used for debugging.
-        /// These messages should only be logged while debugging
+        /// These messages should only be logged to the POS logging mechanism while debugging.
         /// </summary>
         Debug = 1,
         
@@ -27,9 +27,13 @@ namespace DoshiiDotNetIntegration.Enums
         Warning = 3,
 
         /// <summary>
-        /// An error has occurred in the DoshiiDotNetIntegration.dll, these messages should always be logged. 
+        /// An error has occurred in the DoshiiDotNetIntegration.dll. These messages should always be logged in the POS logging mechanism.
         /// </summary>
-        Error = 4
+        Error = 4,
 
+		/// <summary>
+		/// A fatal error has occurred, causing the SDK to shut down. These messages should always be logged in the POS logging mechanism.
+		/// </summary>
+		Fatal = 5
     }
 }

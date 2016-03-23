@@ -1,11 +1,10 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
-using DoshiiDotNetIntegration;
-using DoshiiDotNetIntegration.CommunicationLogic;
+using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Models;
+using DoshiiDotNetIntegration.Models.Json;
 
 namespace DoshiiDotNetSDKTests
 {
@@ -29,77 +28,134 @@ namespace DoshiiDotNetSDKTests
         internal static string TestCheckinStatus = "TestCheckinStatus";
         internal static string TestGratuity = "TestGratuity";
         internal static Uri TestCheckinUrl = new Uri("c:\\impos\\");
-        internal static int TestOrderId = 123;
+        internal static string TestOrderId = "123";
         internal static int TestTimeOutValue = 600;
         internal static string TestProductId = "asd123";
-
+        internal static string TestTransactionId = "tran1234";
+        internal static string TestVersion = "asdfre";
         #endregion 
 
         #region responceMessages
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumerSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageSuccessNoData()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = GenerateConsumer1().ToJsonString(),
+                Data = "",
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+        
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionPending()
+        {
+            var transaction = GenerateTransactionPending();
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonTransaction>(transaction);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageConsumersSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionComplete()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+            var transaction = GenerateTransactionComplete();
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonTransaction>(transaction);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateConsumerList()),
+                Data = json,
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrderSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageConsumer()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+            var transaction = GenerateConsumer();
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonConsumer>(transaction);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = GenerateOrderAccepted().ToJsonString(),
+                Data = json,
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageOrdersSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionWaiting()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+            var transaction = GenerateTransactionWaiting();
+            var jsonTransaction = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(transaction);
+            string json = jsonTransaction.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateOrderList()),
+                Data = json,
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageTableAllocationSuccess()
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageOrderSuccess()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			var order = GenerateOrderAccepted();
+			var jsonOrder = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(order);
+			string json = jsonOrder.ToJsonString();
+
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = Newtonsoft.Json.JsonConvert.SerializeObject(GenerateTableAllocationList()),
+                Data = json,
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationSuccess()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageOrdersSuccess()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = Newtonsoft.Json.JsonConvert.SerializeObject(Mapper.Map<List<DoshiiDotNetIntegration.Models.Json.JsonOrder>>(GenerateOrderList())),
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTableAllocationSuccess()
+        {
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = Newtonsoft.Json.JsonConvert.SerializeObject(Mapper.Map<List<DoshiiDotNetIntegration.Models.Json.JsonTableAllocation>>(GenerateTableAllocationList())),
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessagePutTableAllocationSuccess()
+        {
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
@@ -109,9 +165,9 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessagePutTableAllocationFailure()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessagePutTableAllocationFailure()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.InternalServerError,
                 StatusDescription = "Internal Service Error",
@@ -121,22 +177,35 @@ namespace DoshiiDotNetSDKTests
             };
         }
 
-        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages GenerateResponceMessageSuccessfulOrder()
+		internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageSuccessfulOrder()
         {
-            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponceMessages()
+			var order = GenerateOrderAccepted();
+			var jsonOrder = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(order);
+			string json = jsonOrder.ToJsonString();
+
+			return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
             {
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
-                Data = GenerateOrderAccepted().ToJsonString(),
+                Data = json,
                 ErrorMessage = "",
                 Message = ""
             };
         }
 
+        internal static TableOrder GenerateTableOrder()
+        {
+            var tableOrder = new TableOrder()
+            {
+                Order = GenerateOrderAccepted(),
+                Table = GenerateTableAllocation()
+            };
+            return tableOrder;
+        }
         #endregion
 
         #region Generate TestObjects and TestValues
-
+        
         internal static List<DoshiiDotNetIntegration.Models.Product> GenerateProductList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.Product>();
@@ -152,16 +221,12 @@ namespace DoshiiDotNetSDKTests
             var optionsList = new List<DoshiiDotNetIntegration.Models.ProductOptions>();
             var product = new DoshiiDotNetIntegration.Models.Product()
             {
-                Id = "1",
                 PosId = "1",
                 Name = "Product1",
                 Tags = tagsList,
-                Price = "100",
+                UnitPrice = 1.0M,
                 Description = "The first Product",
                 ProductOptions = GenerateProductOptionList(),
-                AdditionalInstructions = "No aditional instructions",
-                RejectionReason = "",
-                Status = "pending"    
             };
             return product;
         }
@@ -173,16 +238,12 @@ namespace DoshiiDotNetSDKTests
             tagsList.Add("Product2Department");
             var product = new DoshiiDotNetIntegration.Models.Product()
             {
-                Id = "2",
                 PosId = "2",
                 Name = "Product2",
                 Tags = tagsList,
-                Price = "100",
+                UnitPrice = 1.0M,
                 Description = "The first Product",
                 ProductOptions = null,
-                AdditionalInstructions = "No aditional instructions",
-                RejectionReason = "",
-                Status = "pending"    
             };
             return product;
         }
@@ -200,7 +261,7 @@ namespace DoshiiDotNetSDKTests
             var variant = new DoshiiDotNetIntegration.Models.Variants()
             {
                 Name = "variant1",
-                Price = "10",
+                Price = 0.1M,
                 PosId = "var1"
             };
             return variant;
@@ -211,7 +272,7 @@ namespace DoshiiDotNetSDKTests
             var variant = new DoshiiDotNetIntegration.Models.Variants()
             {
                 Name = "variant2",
-                Price = "10",
+                Price = 0.1M,
                 PosId = "var2"
             };
             return variant;
@@ -233,27 +294,15 @@ namespace DoshiiDotNetSDKTests
                 Max = 0,
                 PosId = "10",
                 Variants = GenerateProductVarientList(),
-                Selected = new List<DoshiiDotNetIntegration.Models.Variants>()
             };
             return productOption;
         }
-
-        internal static DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.CheckInEventArgs GenerateCheckinEventArgs()
-        {
-            var checkInArgs = new DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.CheckInEventArgs();
-            checkInArgs.Consumer = GenerateConsumer1();
-            checkInArgs.CheckIn = checkInArgs.Consumer.CheckInId;
-            checkInArgs.MeerkatCustomerId = checkInArgs.Consumer.MeerkatConsumerId;
-            checkInArgs.Uri = TestCheckinUrl;
-            return checkInArgs;
-        }
-
 
         internal static List<DoshiiDotNetIntegration.Models.Order> GenerateOrderList()
         {
             var list = new List<DoshiiDotNetIntegration.Models.Order>();
             list.Add(GenerateOrderAccepted());
-            list.Add(GenerateOrderPending());
+            list.Add(GenerateDeliveryOrderPending());
             list.Add(GenerateOrderReadyToPay());
             list.Add(GenerateOrderCancelled());
             return list;
@@ -264,6 +313,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId,
+                DoshiiId = TestOrderId,
                 CheckinId = TestCheckinId,
                 Status = "accepted"
             };
@@ -275,6 +325,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId,
+                DoshiiId = TestOrderId,
                 CheckinId = TestCheckinId,
                 Status = "paid"
             };
@@ -286,19 +337,35 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId,
+                DoshiiId = TestOrderId,
                 CheckinId = TestCheckinId,
-                Status = "waiting for payment"
+                Status = "waiting_for_payment"
             };
             return order;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Order GenerateOrderPending()
+        internal static DoshiiDotNetIntegration.Models.Order GenerateDeliveryOrderPending()
         {
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId + 1,
+                DoshiiId = TestOrderId,
                 CheckinId = string.Format("{0}2",TestCheckinId),
-                Status = "pending"
+                Status = "pending",
+                Type = "delivery"
+            };
+            return order;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Order GeneratePickupOrderPending()
+        {
+            var order = new DoshiiDotNetIntegration.Models.Order()
+            {
+                Id = TestOrderId + 1,
+                DoshiiId = TestOrderId,
+                CheckinId = string.Format("{0}2", TestCheckinId),
+                Status = "pending",
+                Type = "pickup"
             };
             return order;
         }
@@ -308,6 +375,7 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId + 2,
+                DoshiiId = TestOrderId,
                 CheckinId = string.Format("{0}3", TestCheckinId),
                 Status = "pending"
             };
@@ -319,21 +387,11 @@ namespace DoshiiDotNetSDKTests
             var order = new DoshiiDotNetIntegration.Models.Order()
             {
                 Id = TestOrderId + 3,
+                DoshiiId = TestOrderId,
                 CheckinId = string.Format("{0}4", TestCheckinId),
                 Status = "cancelled"
             };
             return order;
-        }
-
-
-
-        internal static DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs GenerateTableAllocationEventArgs()
-        {
-            var allocationEventArgs = new DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs.TableAllocationEventArgs()
-            {
-                TableAllocation = GenerateTableAllocation()
-            };
-            return allocationEventArgs;
         }
 
         internal static List<DoshiiDotNetIntegration.Models.TableAllocation> GenerateTableAllocationList()
@@ -350,11 +408,7 @@ namespace DoshiiDotNetSDKTests
             {
                 Id = TestTableName,
                 Name = TestTableAllocationName,
-                CustomerId = TestCustomerId,
-                MeerkatConsumerId = TestCustomerId,
-                Status = TestTableAllocationStatus,
-                Checkin = GenerateCheckin(),
-                rejectionReason = DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.TableDoesNotExist
+                Status = TestTableAllocationStatus
             };
             return tableAllocation;
         }
@@ -365,84 +419,215 @@ namespace DoshiiDotNetSDKTests
             {
                 Id = string.Format("{0}2",TestTableName),
                 Name = string.Format("{0}2",TestTableAllocationName),
-                CustomerId = string.Format("{0}2",TestCustomerId),
-                MeerkatConsumerId = string.Format("{0}2",TestCustomerId),
-                Status = TestTableAllocationStatus,
-                Checkin = GenerateCheckin(),
-                rejectionReason = DoshiiDotNetIntegration.Enums.TableAllocationRejectionReasons.TableDoesNotExist
+                Status = TestTableAllocationStatus
             };
             return tableAllocation;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Checkin GenerateCheckin()
+        internal static Consumer GenerateConsumer()
         {
-            var checkin = new DoshiiDotNetIntegration.Models.Checkin()
+            var consumer = new Consumer()
             {
-                Id = TestCheckinId,
-                ConsumerId = TestCustomerId,
-                LocationId = TestLocationId,
-                Status = TestCheckinStatus,
-                ExpirationDate = DateTime.Now,
-                Gratuity = TestGratuity,
-                UpdatedAt = DateTime.Now,
-                MeerkatConsumerId = TestMeerkatConsumerId
+                Name = "testName",
+                PhoneNumber = "0402513654",
+                AddressLine1 = "address line 1",
+                AddressLine2 = "address line 2",
+                City = "Melbourne",
+                State = "vic",
+                PostalCode = "3004",
+                Country = "Au"
             };
-            return checkin;
-        }
-
-        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer1()
-        {
-            var consumer = new DoshiiDotNetIntegration.Models.Consumer();
-            consumer.CheckInId = "123";
-            consumer.Id = 1;
-            consumer.Name = "John Doe";
-            consumer.MeerkatConsumerId = "NC123NV";
-            consumer.PhotoUrl = new Uri("http://www.google.com");
             return consumer;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer2()
+
+        internal static List<DoshiiDotNetIntegration.Models.Transaction> GenerateTransactionList()
         {
-            var consumer = new DoshiiDotNetIntegration.Models.Consumer();
-            consumer.CheckInId = "456";
-            consumer.Id = 2;
-            consumer.Name = "Jayne Doe";
-            consumer.MeerkatConsumerId = "ACB123AB";
-            consumer.PhotoUrl = new Uri("http://www.google.com");
-            return consumer;
+            List<Transaction> transactionList = new List<Transaction>();
+            transactionList.Add(GenerateTransactionComplete());
+            transactionList.Add(GenerateTransactionPending());
+            transactionList.Add(GenerateTransactionWaiting());
+            return transactionList;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer3()
+        internal static DoshiiDotNetIntegration.Models.Transaction GenerateTransactionPending()
         {
-            var consumer = new DoshiiDotNetIntegration.Models.Consumer();
-            consumer.CheckInId = "789";
-            consumer.Id = 3;
-            consumer.Name = "Bulkan e";
-            consumer.MeerkatConsumerId = "axy765xa";
-            consumer.PhotoUrl = new Uri("http://www.google.com");
-            return consumer;
+            var transaction = new DoshiiDotNetIntegration.Models.Transaction()
+            {
+                Id = TestTransactionId,
+                OrderId = "1",
+                Reference = "TestTransaction",
+                Invoice = "1",
+                PaymentAmount = 10.0M,
+                AcceptLess = false,
+                PartnerInitiated = false,
+                Partner = "1",
+                Status = "pending"
+            };
+            return transaction;
         }
 
-        internal static DoshiiDotNetIntegration.Models.Consumer GenerateConsumer4()
+        internal static DoshiiDotNetIntegration.Models.Transaction GenerateTransactionWaiting()
         {
-            var consumer = new DoshiiDotNetIntegration.Models.Consumer();
-            consumer.CheckInId = "101";
-            consumer.Id = 4;
-            consumer.Name = "Mary Jane";
-            consumer.MeerkatConsumerId = "bgr531gb";
-            consumer.PhotoUrl = new Uri("http://www.google.com");
-            return consumer;
+            var transaction = new DoshiiDotNetIntegration.Models.Transaction()
+            {
+                Id = TestTransactionId,
+                OrderId = "1",
+                Reference = "waiting",
+                Invoice = "",
+                PaymentAmount = 10.0M,
+                AcceptLess = false,
+                PartnerInitiated = false,
+                Partner = "1",
+                Status = "waiting"
+            };
+            return transaction;
         }
 
-        internal static List<DoshiiDotNetIntegration.Models.Consumer> GenerateConsumerList()
+        internal static DoshiiDotNetIntegration.Models.Transaction GenerateTransactionComplete()
         {
-            var list = new List<DoshiiDotNetIntegration.Models.Consumer>();
-            list.Add(GenerateConsumer1());
-            list.Add(GenerateConsumer2());
-            list.Add(GenerateConsumer3());
-            list.Add(GenerateConsumer4());
-            return list;
+            var transaction = new DoshiiDotNetIntegration.Models.Transaction()
+            {
+                Id = TestTransactionId,
+                OrderId = "1",
+                Reference = "TestTransaction",
+                Invoice = "1",
+                PaymentAmount = 10.0M,
+                AcceptLess = false,
+                PartnerInitiated = false,
+                Partner = "1",
+                Status = "complete"
+            };
+            return transaction;
         }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_OrderStatus()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            testSocketMessageData.Order = Mapper.Map<JsonOrder>(GenerateDeliveryOrderPending()).ToJsonString();
+            testSocketMessageData.EventName = "order_status";
+            testSocketMessageData.OrderId = TestOrderId;
+            testSocketMessageData.Status = "pending";
+            testSocketMessageData.Uri = new Uri("http://www.TestDoshiiUri.com");
+            return testSocketMessageData;
+
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateBlankSocketMessage()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = new SocketMessage();
+            if (testSocketMessage.Emit == null)
+            {
+                testSocketMessage.Emit = new List<object>();
+            }
+            return testSocketMessage;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_OrderStatus()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            
+            testSocketMessage.Emit.Add("order_status");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_OrderStatus());
+            return testSocketMessage;
+        }
+
+        internal static OrderEventArgs GenerateOrderEventArgs_pending()
+        {
+            OrderEventArgs testOrderEventArgs = new OrderEventArgs();
+            testOrderEventArgs.Order = GenerateDeliveryOrderPending();
+            testOrderEventArgs.OrderId = TestOrderId;
+            testOrderEventArgs.Status = "pending";
+            return testOrderEventArgs;
+        }
+
+        internal static TransactionEventArgs GenerateTransactionEventArgs_pending(Transaction pendingTransaction)
+        {
+            TransactionEventArgs testtransactionEventArgs = new TransactionEventArgs();
+            testtransactionEventArgs.Transaction = pendingTransaction;
+            testtransactionEventArgs.Status = "pending";
+            testtransactionEventArgs.TransactionId = TestTransactionId;
+            return testtransactionEventArgs;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_TransactionCreated()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            testSocketMessageData.Order = Mapper.Map<JsonTransaction>(GenerateTransactionPending()).ToJsonString();
+            testSocketMessageData.EventName = "transaction_created";
+            testSocketMessageData.TransactionId = TestTransactionId;
+            testSocketMessageData.Status = "pending";
+            testSocketMessageData.Uri = new Uri("http://www.TestDoshiiUri.com");
+            return testSocketMessageData;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_TransactionCreated()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            testSocketMessage.Emit.Add("transaction_created");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_TransactionCreated());
+            return testSocketMessage;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_TransactionStatus()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            testSocketMessageData.Order = Mapper.Map<JsonTransaction>(GenerateTransactionPending()).ToJsonString();
+            testSocketMessageData.EventName = "transaction_status";
+            testSocketMessageData.TransactionId = TestTransactionId;
+            testSocketMessageData.Status = "pending";
+            testSocketMessageData.Uri = new Uri("http://www.TestDoshiiUri.com");
+            return testSocketMessageData;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_TransactionStatus()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            testSocketMessage.Emit.Add("transaction_status");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_TransactionStatus());
+            return testSocketMessage;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_Empty()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            return testSocketMessageData;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_Empty()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            testSocketMessage.Emit.Add("not_supported");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_Empty());
+            return testSocketMessage;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessageData GenerateSocketMessageData_AllData()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessageData testSocketMessageData = new SocketMessageData();
+            testSocketMessageData.Order = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonOrder>(GenerateOrderAccepted()).ToJsonString() ;
+            testSocketMessageData.CheckinId = TestCheckinId;
+            testSocketMessageData.Consumer = "Test Consumer";
+            testSocketMessageData.ConsumerId = TestCustomerId;
+            testSocketMessageData.EventName = "not_supported";
+            testSocketMessageData.Id = TestCheckinId;
+            testSocketMessageData.MeerkatConsumerId = TestMeerkatConsumerId;
+            testSocketMessageData.Name = TestTableName;
+            testSocketMessageData.OrderId = TestOrderId;
+            testSocketMessageData.Status = "pending";
+            testSocketMessageData.TransactionId = TestTransactionId;
+            testSocketMessageData.Uri = TestCheckinUrl;
+            return testSocketMessageData;
+        }
+
+        internal static DoshiiDotNetIntegration.Models.Json.SocketMessage GenerateSocketMessage_AllData()
+        {
+            DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateBlankSocketMessage();
+            testSocketMessage.Emit.Add("not_supported");
+            testSocketMessage.Emit.Add(GenerateSocketMessageData_Empty());
+            return testSocketMessage;
+        }
+
         #endregion
     }
 }
