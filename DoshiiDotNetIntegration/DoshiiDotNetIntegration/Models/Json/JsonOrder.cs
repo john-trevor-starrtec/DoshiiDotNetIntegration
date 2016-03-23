@@ -103,7 +103,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "requiredAt")]
-        public DateTime RequiredAt { get; set; }
+        public DateTime? RequiredAt { get; set; }
 
         private List<JsonOrderProduct> _items;
         
