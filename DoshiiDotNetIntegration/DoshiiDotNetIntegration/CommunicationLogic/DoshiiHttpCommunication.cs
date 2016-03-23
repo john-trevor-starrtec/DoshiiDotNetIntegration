@@ -1194,13 +1194,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     HttpWebResponse httpResponse = (HttpWebResponse)response;
                     //Console.WriteLine("Error code: {0}", httpResponse.StatusCode);
-					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, String.Format("Error code: {0}", httpResponse.StatusCode));
-                    string errorResponce;
+					string errorResponce;
                     using (Stream responceErrorData = response.GetResponseStream())
                     {
                         using (var reader = new StreamReader(responceErrorData))
                         {
                             errorResponce = reader.ReadToEnd();
+                            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, String.Format("Error code: {0}, ErrorResponse {1}", httpResponse.StatusCode, errorResponce));
                         }
                     }
                     if (httpResponse.StatusCode == HttpStatusCode.BadRequest || 

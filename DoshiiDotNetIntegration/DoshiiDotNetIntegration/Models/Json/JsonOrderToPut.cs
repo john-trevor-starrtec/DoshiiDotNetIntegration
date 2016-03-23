@@ -14,13 +14,6 @@ namespace DoshiiDotNetIntegration.Models.Json
     internal class JsonOrderToPut : JsonSerializationBase<JsonOrderToPut>
     {
         /// <summary>
-        /// id
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
-        
-        /// <summary>
         /// Order status
         /// </summary>
         [DataMember]
