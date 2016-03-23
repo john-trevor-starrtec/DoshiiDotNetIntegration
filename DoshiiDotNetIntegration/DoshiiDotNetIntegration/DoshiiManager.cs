@@ -382,7 +382,6 @@ namespace DoshiiDotNetIntegration
             {
                 transactionList = new List<Transaction>();
             }
-            Order orderReturnedFromPos = null;
             Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
             if (consumer == null)
             {
@@ -393,11 +392,11 @@ namespace DoshiiDotNetIntegration
                 
                 if (order.Type == "delivery")
                 {
-                    orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList);
+                    mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList);
                 }
                 else if (order.Type == "pickup")
                 {
-                    orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList);
+                    mOrderingManager.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList);
                 }
                 else
                 {
@@ -410,11 +409,11 @@ namespace DoshiiDotNetIntegration
                 if (order.Type == "delivery")
                 {
                     
-                    orderReturnedFromPos = mOrderingManager.ConfirmNewDeliveryOrder(order, consumer);
+                    mOrderingManager.ConfirmNewDeliveryOrder(order, consumer);
                 }
                 else if (order.Type == "pickup")
                 {
-                    orderReturnedFromPos = mOrderingManager.ConfirmNewPickupOrder(order, consumer);
+                    mOrderingManager.ConfirmNewPickupOrder(order, consumer);
                 }
                 else
                 {
@@ -422,41 +421,45 @@ namespace DoshiiDotNetIntegration
                 }
                 
             }
-            if (orderReturnedFromPos == null)
+        }
+
+        public void AcceptOrderAheadCreation(Order orderToAccept)
+        {
+            List<Transaction> transactionList = GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();
+            //test orderToAccept is equal to the order on Doshii
+            orderToAccept.Status = "accepted";
+            try
             {
-                RejectOrderFromOrderCreateMessage(order, transactionList);
+                ConfirmCreatedOrder(orderToAccept);
             }
-            else
+            catch (Exception ex)
             {
-                //set order status to accepted post to doshii
-                orderReturnedFromPos.Status = "accepted";
+                //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
+                //if we get an error response at this point we should prob cancel the order on the pos and not continue and cancel the payments. 
+            }
+            //If there are transactions set to waiting and get response - should call request payment
+            foreach (Transaction tran in transactionList)
+            {
+                RecordTransactionVersion(tran);
+                tran.OrderId = orderToAccept.Id;
+                tran.Status = "waiting";
                 try
                 {
-                    ConfirmCreatedOrder(orderReturnedFromPos);
+                    RequestPaymentForOrderExistingTransaction(tran);
                 }
                 catch (Exception ex)
                 {
                     //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
-                    //if we get an error response at this point we should prob cancel the order on the pos and not continue and cancel the payments. 
-                }
-                //If there are transactions set to waiting and get response - should call request payment
-                foreach (Transaction tran in transactionList)
-                {
-                    RecordTransactionVersion(tran);
-                    tran.OrderId = orderReturnedFromPos.Id;
-                    tran.Status = "waiting";
-                    try
-                    {
-                        RequestPaymentForOrderExistingTransaction(tran);
-                    }
-                    catch (Exception ex)
-                    {
-                        //although there could be an conflict exception from this method it is not currently possible for partners to update order ahead orders so for the time being we don't need to handle it. 
-                    }
                 }
             }
         }
 
+        public void RejectOrderAheadCreation(Order orderToReject)
+        {
+            List<Transaction> transactionList = GetTransactionFromDoshiiOrderId(orderToReject.DoshiiId).ToList();
+            //test order to accept is equal to the order on doshii
+            RejectOrderFromOrderCreateMessage(orderToReject, transactionList);
+        }
 
         internal virtual Consumer GetConsumerForOrderCreated(Order order, List<Transaction> transactionList)
         {

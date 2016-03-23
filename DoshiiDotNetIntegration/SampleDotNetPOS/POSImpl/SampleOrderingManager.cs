@@ -132,7 +132,7 @@ namespace SampleDotNetPOS.POSImpl
 			throw new OrderDoesNotExistOnPosException(String.Format("Order {0} does not exist!", posOrderId));
 		}
 
-        public Order ConfirmNewDeliveryOrder(Order order, Consumer consumer)
+        public void ConfirmNewDeliveryOrder(Order order, Consumer consumer)
         {
             if (mPresenter != null)
             {
@@ -140,13 +140,13 @@ namespace SampleDotNetPOS.POSImpl
 
 				mPresenter.AddOrUpdateOrder(order);
 
-                return order;
+                return;
             }
 
-            return null;
+            return;
         }
 
-        public Order ConfirmNewDeliveryOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList)
+        public void ConfirmNewDeliveryOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList)
         {
             if (mPresenter != null)
             {
@@ -158,26 +158,26 @@ namespace SampleDotNetPOS.POSImpl
 					mPresenter.AddOrUpdateTransaction(transaction);
 				}
 				
-                return order;
+                return;
             }
 
-            return null;
+            return;
         }
 
-        public Order ConfirmNewPickupOrder(Order order, Consumer consumer)
+        public void ConfirmNewPickupOrder(Order order, Consumer consumer)
         {
             if (mPresenter != null)
             {
                 mPresenter.LogMessage(typeof(SampleOrderingManager), String.Format("Accepting new order with doshiiID {0} without payment on the pos", order.DoshiiId), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Info);
 
 				mPresenter.AddOrUpdateOrder(order); 
-                return order;
+                return;
             }
 
-            return null;
+            return;
         }
 
-        public Order ConfirmNewPickupOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList)
+        public void ConfirmNewPickupOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList)
         {
             if (mPresenter != null)
             {
@@ -189,10 +189,10 @@ namespace SampleDotNetPOS.POSImpl
 					mPresenter.AddOrUpdateTransaction(transaction);
 				}
 
-                return order;
+                return;
             }
 
-            return null;
+            return;
         }
 
 		#endregion
