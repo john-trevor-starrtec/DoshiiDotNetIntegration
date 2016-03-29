@@ -1192,12 +1192,12 @@ namespace DoshiiDotNetIntegration
         /// if successful the full menu will be returned. 
         /// if unsuccessful null will be returned. 
         /// </returns>
-        public Menu PutMenu(Menu menu)
+        public Menu UpdateMenu(Menu menu)
         {
             Menu returnedMenu = null;
             try
             {
-               returnedMenu = m_HttpComs.PutMenu(menu);
+               returnedMenu = m_HttpComs.PostMenu(menu);
             }
             catch (Exception ex)
             {

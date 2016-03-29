@@ -598,14 +598,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="menu"></param>
         /// <returns></returns>
         /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
-        internal Menu PutMenu(Menu menu)
+        internal Menu PostMenu(Menu menu)
         {
             var returedMenu = new Menu();
             DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonMenu = Mapper.Map<JsonMenu>(menu);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu), WebRequestMethods.Http.Put, jsonMenu.ToJsonString());
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu), WebRequestMethods.Http.Post, jsonMenu.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
             {
