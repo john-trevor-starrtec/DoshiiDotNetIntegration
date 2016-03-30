@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using AutoMapper.Internal;
+using AutoMapper.Mappers;
+using AutoMapper;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
 using DoshiiDotNetIntegration.Models;
@@ -598,14 +600,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="menu"></param>
         /// <returns></returns>
         /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
-        internal Menu PutMenu(Menu menu)
+        internal Menu PostMenu(Menu menu)
         {
             var returedMenu = new Menu();
             DoshiHttpResponseMessage responseMessage;
             try
             {
                 var jsonMenu = Mapper.Map<JsonMenu>(menu);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu), WebRequestMethods.Http.Put, jsonMenu.ToJsonString());
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu), WebRequestMethods.Http.Post, jsonMenu.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -1194,13 +1196,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     HttpWebResponse httpResponse = (HttpWebResponse)response;
                     //Console.WriteLine("Error code: {0}", httpResponse.StatusCode);
-					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, String.Format("Error code: {0}", httpResponse.StatusCode));
-                    string errorResponce;
+					string errorResponce;
                     using (Stream responceErrorData = response.GetResponseStream())
                     {
                         using (var reader = new StreamReader(responceErrorData))
                         {
                             errorResponce = reader.ReadToEnd();
+                            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, String.Format("Error code: {0}, ErrorResponse {1}", httpResponse.StatusCode, errorResponce));
                         }
                     }
                     if (httpResponse.StatusCode == HttpStatusCode.BadRequest || 
