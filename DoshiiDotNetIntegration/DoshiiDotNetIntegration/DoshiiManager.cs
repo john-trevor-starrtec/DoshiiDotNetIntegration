@@ -862,22 +862,6 @@ namespace DoshiiDotNetIntegration
 		}
 
         /// <summary>
-        /// Retrieves the current menu from Doshii.
-        /// </summary>
-        /// <returns>The current list of orders available in Doshii.</returns>
-        public virtual Menu GetMenu()
-        {
-            try
-            {
-                return m_HttpComs.GetMenu();
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-        }
-
-        /// <summary>
         /// Retrieves the current unlinked order list from Doshii.
         /// </summary>
         /// <returns>The current list of orders available in Doshii.</returns>

@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using AutoMapper.Internal;
+using AutoMapper.Mappers;
+using AutoMapper;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
 using DoshiiDotNetIntegration.Models;
@@ -372,53 +374,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
             return retreivedOrderList;
         }
-
-        /// <summary>
-        /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
-        /// Gets all the current active orders in Doshii, if there are no active orders an empty list is returned. 
-        /// </summary>
-        /// <returns></returns>
-        internal virtual Menu GetMenu()
-        {
-            var retreivedMenu = new Menu();
-            DoshiHttpResponseMessage responseMessage;
-            try
-            {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu), WebRequestMethods.Http.Get);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-
-            if (responseMessage != null)
-            {
-                if (responseMessage.Status == HttpStatusCode.OK)
-                {
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonList = JsonConvert.DeserializeObject<JsonMenu>(responseMessage.Data);
-                        retreivedMenu = Mapper.Map<JsonMenu>(jsonList);
-                    }
-                    else
-                    {
-                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order)));
-                    }
-
-                }
-                else
-                {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order)));
-                }
-            }
-            else
-            {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
-            }
-
-            return retreivedMenu;
-        }
-
 
         /// <summary>
         /// DO NOT USE, All fields, properties, methods in this class are for internal use and should not be used by the POS.
