@@ -65,12 +65,21 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			// Mapping from Variants to JsonOrderVariants
 			// src = Variants, dest = JsonOrderVariants, opt = Mapping Option
-			Mapper.CreateMap<Variants, JsonVariants>()
+			Mapper.CreateMap<Variants, JsonOrderVariants>()
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
 
 			// src = JsonOrderVariants, dest = Variants
-			Mapper.CreateMap<JsonVariants, Variants>()
+			Mapper.CreateMap<JsonOrderVariants, Variants>()
 				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
+
+            // src = Variants, dest = JsonOrderVariants, opt = Mapping Option
+            Mapper.CreateMap<Variants, JsonMenuVariants>()
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
+
+            // src = JsonOrderVariants, dest = Variants
+            Mapper.CreateMap<JsonMenuVariants, Variants>()
+                .ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
 
 		/// <summary>

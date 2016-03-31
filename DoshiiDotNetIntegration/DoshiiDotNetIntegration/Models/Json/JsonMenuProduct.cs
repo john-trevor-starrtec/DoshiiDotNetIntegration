@@ -79,20 +79,20 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
         }
 
-        private List<JsonOrderSurcount> _ProductSurcounts;
+        private List<JsonMenuSurcount> _ProductSurcounts;
 
         /// <summary>
         /// A list of surcounts that can / are applied to the product.
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "surcounts")]
-        public List<JsonOrderSurcount> ProductSurcounts
+        public List<JsonMenuSurcount> ProductSurcounts
         {
             get
             {
                 if (_ProductSurcounts == null)
                 {
-                    _ProductSurcounts = new List<JsonOrderSurcount>();
+                    _ProductSurcounts = new List<JsonMenuSurcount>();
                 }
                 return _ProductSurcounts;
             }
@@ -124,5 +124,9 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "unitPrice")]
         public string UnitPrice { get; set; }
 
+        public bool ShouldSerializeVersion()
+        {
+            return (!string.IsNullOrEmpty(Version));
+        }
     }
 }

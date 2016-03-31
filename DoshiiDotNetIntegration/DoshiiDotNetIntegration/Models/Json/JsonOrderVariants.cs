@@ -17,7 +17,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract]
     [Serializable]
-	internal class JsonVariants : JsonSerializationBase<JsonVariants>
+	internal class JsonOrderVariants : JsonSerializationBase<JsonOrderVariants>
     {
         /// <summary>
         /// The name of the variant that will be displayed on the mobile app
