@@ -11,52 +11,52 @@ namespace DoshiiDotNetIntegration.Enums
     public enum EndPointPurposes
     {
 		/// <summary>
-        /// Requests about orders
+        /// Requests related to orders
         /// </summary>
         Order = 1,
 
         /// <summary>
-        /// Getting a table allocation
+        /// Requests for getting a table allocation
         /// </summary>
         GetTableAllocations = 2,
 
         /// <summary>
-        /// Delete the table allocation with the checkInId
+        /// Requests for deleting table allocations with a checkInId
         /// </summary>
         DeleteAllocationFromCheckin = 3,
 
         /// <summary>
-        /// request to get a transaction
+        /// Request related to transactions
         /// </summary>
         Transaction = 4,
 
         /// <summary>
-        /// request to get a list of transactions from the doshii order id
+        /// Requests for transactions where the order related to the transactions is currently unlinked to the pos. 
         /// </summary>
         TransactionFromDoshiiOrderId = 5,
 
         /// <summary>
-        /// Requests about orders from the doshii order id
+        /// Requests for orders where the order is currently unlinked to the pos.
         /// </summary>
         UnlinkedOrders = 6,
 
         /// <summary>
-        /// Request about the consumer from the checkinId
+        /// Request for a consumer with a checkinId.
         /// </summary>
         ConsumerFromCheckinId = 7,
 
         /// <summary>
-        /// Request about the consumer from the checkinId
+        /// Requests for a menu.
         /// </summary>
         Menu = 8,
 
         /// <summary>
-        /// Request about the consumer from the checkinId
+        /// Request for menu products.
         /// </summary>
         Products = 9,
 
         /// <summary>
-        /// Request about the consumer from the checkinId
+        /// Request for menu surcounts.
         /// </summary>
         Surcounts = 10
     }
