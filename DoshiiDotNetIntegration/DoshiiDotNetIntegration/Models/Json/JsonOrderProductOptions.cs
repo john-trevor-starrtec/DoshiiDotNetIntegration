@@ -28,20 +28,20 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "posId")]
         public string PosId { get; set; }
 
-		private List<JsonVariants> _Variants;
+		private List<JsonOrderVariants> _Variants;
 
         /// <summary>
         /// A List of Variants available to be selected from this list. 
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "variants")]
-		public List<JsonVariants> Variants 
+		public List<JsonOrderVariants> Variants 
         {
             get
             {
                 if (_Variants == null)
                 {
-					_Variants = new List<JsonVariants>();
+					_Variants = new List<JsonOrderVariants>();
                 }
                 return _Variants;
             }
