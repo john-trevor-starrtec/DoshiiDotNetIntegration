@@ -108,13 +108,13 @@
     <Compile Include="DoshiiManager.cs" />
     <Compile Include="Enums\DoshiiLogLevels.cs" />
     <Compile Include="Enums\EndPointPurposes.cs" />
+    <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
     <Compile Include="Exceptions\NullOrderReturnedException.cs" />
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\OrderUpdateException.cs" />
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
-    <Compile Include="Exceptions\TransactionRequestNotProcessedException.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
     <Compile Include="Interfaces\IDoshiiLogger.cs" />
     <Compile Include="Interfaces\IOrderingManager.cs" />

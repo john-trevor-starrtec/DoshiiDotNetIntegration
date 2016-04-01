@@ -14,7 +14,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 	/// details of the order to ensure that the order is current in Doshii. Once the partner captures the funds
 	/// to pay off the order, the Doshii SDK emits a 
 	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.RecordSuccessfulPayment(Transaction)"/>
-	/// call to finalise the payment. A payment cancelled by the partner will cause the SDK to emit a call to
+	/// call to finalize the payment. A payment canceled by the partner will cause the SDK to emit a call to
 	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.CancelPayment(Transaction)"/>, at which
 	/// point the POS should unlock the order without accepting payment.
 	/// </remarks>

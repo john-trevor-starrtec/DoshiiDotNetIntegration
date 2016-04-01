@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace DoshiiDotNetIntegration.Interfaces
 {
 	/// <summary>
-	/// Implementations of this interface are required to handle orders in Doshii.
+	/// Implementations of this interface is required to handle orders in Doshii.
 	/// The POS should implement this interface to accept new orders and updates to orders from Doshii.
 	/// Version control on orders is also managed through the POS implementation of this interface.
 	/// </summary>
@@ -69,8 +69,8 @@ namespace DoshiiDotNetIntegration.Interfaces
 
         /// <summary>
         /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the point of
-        /// sale that the checkin associated with an order has been changed. The <paramref name="checkinId"/> string must be persisted in
-        /// the POS against the order - the checkinId is the link between orders and tables in the doshii api. 
+        /// sale the checkin associated with an order stored on Doshii. The <paramref name="checkinId"/> string must be persisted in
+        /// the POS against the order - the checkinId is the link between orders and tables and also orders and consumers, in the doshii api. 
         /// </summary>
         /// <remarks>
         ///  </remarks>
@@ -98,8 +98,8 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// The pos cannot modify the <see cref="Transaction"/> objects in the transaction list, during this process as the amount has already been confirmed with the consumer.
         /// If the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and call <see cref="DoshiiManager.AcceptOrderAheadCreation"/> with the order, and the
         /// if the response from <see cref="DoshiiManager.AcceptOrderAheadCreation"/> is successful - if the response is false this could indicate that the order has been canceled or changed on doshii and the pos will receive another create notification if necessary.
-        /// The transaction should not be recorded on the POS during this method. The
-        /// he Pos will receive a call to <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> to record the transaction
+        /// The transaction should not be recorded on the POS during this method.
+        /// The Pos will receive a call to <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> to record the transaction
         /// If the <see cref="Order"/> or the <see cref="Transaction"/> is rejected the pos should call <see cref="DoshiiManager.RejectOrderAheadCreation"/> with the order.
         /// </summary>
         /// <param name="order">
