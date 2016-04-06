@@ -8,7 +8,7 @@ namespace DoshiiDotNetIntegration.Enums
     /// <summary>
     /// The possible actions for communication with the doshii restful API over HTTP
     /// </summary>
-    public enum EndPointPurposes
+    internal enum EndPointPurposes
     {
 		/// <summary>
         /// Requests related to orders
@@ -58,6 +58,11 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// Request for menu surcounts.
         /// </summary>
-        Surcounts = 10
+        Surcounts = 10,
+
+        /// <summary>
+        /// requests for location data
+        /// </summary>
+        Location = 11
     }
 }

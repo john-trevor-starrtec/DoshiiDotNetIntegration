@@ -121,6 +121,7 @@
     <Compile Include="Interfaces\IPaymentModuleManager.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
+    <Compile Include="Models\Json\JsonLocation.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
     <Compile Include="Models\Json\JsonUnlinkedOrderToPut.cs" />
     <Compile Include="Models\Json\JsonOrderToPut.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="Models\Json\JsonTableOrder.cs" />
     <Compile Include="Models\Json\SocketMessage.cs" />
     <Compile Include="Models\Json\SocketMessageData.cs" />
+    <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\Transaction.cs" />

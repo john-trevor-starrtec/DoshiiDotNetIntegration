@@ -6,7 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Models
 {
 	/// <summary>
-	/// This model class is a container that represents the order being placed with a table allocation.
+	/// This model is a container that represents the order being placed with a table allocation.
 	/// </summary>
 	public class TableOrder
 	{

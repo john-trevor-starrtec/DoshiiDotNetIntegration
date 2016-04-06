@@ -6,8 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Exceptions
 {
     /// <summary>
-    /// This exception will be thrown when there is a conflict during a PUT or a POST of an order to doshii.
-    /// This exception is handled by the Doshii SDK and does not need to be handled by the pos. 
+    /// This exception will be thrown when a method is called on <see cref="DoshiiManager"/> and <see cref="DoshiiManager.Initialize"/> has not been successfully called.
     /// </summary>
     public class DoshiiManagerNotInitializedException : Exception
     {

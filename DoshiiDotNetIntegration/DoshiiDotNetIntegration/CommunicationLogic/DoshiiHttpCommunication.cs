@@ -1117,7 +1117,58 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 #endregion
 
-#region comms helper methods
+#region Location
+        /// <summary>
+        /// This method is used to retrieve the location information for the connected pos from doshii,
+        /// </summary>
+        /// <returns>
+        /// The location information for the connected venue in doshii
+        /// </returns>
+        internal virtual Location GetLocation()
+        {
+            var retreivedLocation = new Location();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Location), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonLocation = JsonLocation.deseralizeFromJson(responseMessage.Data);
+                        retreivedLocation = Mapper.Map<Location>(jsonLocation);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Location)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Location)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Location)));
+            }
+
+            return retreivedLocation;
+        }
+
+#endregion
+
+        #region comms helper methods
 
         /// <summary>
         /// Generates a URL based on the base URL and the purpose of the message that is being sent. 
@@ -1191,6 +1242,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         newUrlbuilder.AppendFormat("/{0}", identification);
                     }
+                    break;
+                case EndPointPurposes.Location:
+                    newUrlbuilder.Append("/location");
                     break;
                default:
                     throw new NotSupportedException(purpose.ToString());

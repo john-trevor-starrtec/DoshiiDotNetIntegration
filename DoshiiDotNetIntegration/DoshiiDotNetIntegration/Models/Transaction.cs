@@ -9,7 +9,7 @@ namespace DoshiiDotNetIntegration.Models
 {
 
     /// <summary>
-    /// Payments that are made on the Doshii check
+    /// Transactions that are linked to orders in Doshii
     /// </summary>
     public class Transaction : ICloneable
     {

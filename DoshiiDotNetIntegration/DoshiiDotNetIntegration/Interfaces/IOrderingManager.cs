@@ -5,19 +5,20 @@ namespace DoshiiDotNetIntegration.Interfaces
 {
 	/// <summary>
 	/// Implementations of this interface is required to handle orders in Doshii.
-	/// The POS should implement this interface to accept new orders and updates to orders from Doshii.
-	/// Version control on orders is also managed through the POS implementation of this interface.
+	/// <para/>The POS should implement this interface to accept new orders and updates to orders from Doshii.
+    /// <para/>Version control on orders is also managed through the POS implementation of this interface.
 	/// </summary>
 	/// <remarks>
 	/// This interface is a core Doshii interface required for implementation on the POS side. 
-	/// <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this interface as a callback mechanism 
-	/// to the POS for basic order functions. It should be noted however that this interface is not
-	/// the handler for extension modules such as Order@Table which will be implemented in a separate
+    /// <para/><see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this interface as a callback mechanism 
+	/// to the POS for basic order functions. 
+    /// <para/>It should be noted however that this interface is not the handler for extension modules such as Order@Table which will be implemented in a separate
 	/// callback interface.
 	/// <para>
 	/// When a partner wishes to perform an action on an order in Doshii, the SDK emits a call to 
 	/// <see cref="DoshiiDotNetIntegration.Interfaces.IOrderingManager.RetrieveOrder(string)"/> to
-	/// retrieve the current state of the order in the POS. After a partner has mutated the order in Doshii
+	/// retrieve the current state of the order in the POS. 
+    /// <para/>After a partner has mutated the order in Doshii
 	/// in some way, the SDK emits a call to 
 	/// <see cref="DoshiiDotNetIntegration.Interfaces.IOrderingManager.RecordOrderVersion(string, string)"/>
 	/// to inform the POS of the update success. 
@@ -31,7 +32,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </summary>
 		/// <remarks>
 		/// POS implementations of this function are required to return the full details of the order with
-		/// the corresponding <paramref name="orderId"/>.
+        /// the corresponding <paramref name="posOrderId"/>.
 		/// </remarks>
 		/// <param name="posOrderId">The unique identifier of the order being queried in the POS.</param>
 		/// <returns>The order details </returns>
@@ -41,8 +42,8 @@ namespace DoshiiDotNetIntegration.Interfaces
 		DoshiiDotNetIntegration.Models.Order RetrieveOrder(string posOrderId);
 
 		/// <summary>
-		/// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the point of
-		/// sale that an order has been updated. The <paramref name="version"/> string must be persisted in
+		/// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the pos
+		/// that an order has been updated. The <paramref name="version"/> string must be persisted in
 		/// the POS and passed back when the POS updates an order. 
 		/// </summary>
 		/// <remarks>
@@ -68,12 +69,12 @@ namespace DoshiiDotNetIntegration.Interfaces
 		string RetrieveOrderVersion(string posOrderId);
 
         /// <summary>
-        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the point of
-        /// sale the checkin associated with an order stored on Doshii. The <paramref name="checkinId"/> string must be persisted in
-        /// the POS against the order - the checkinId is the link between orders and tables and also orders and consumers, in the doshii api. 
+        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the pos the checkin 
+        /// associated with an order stored on Doshii. The <paramref name="checkinId"/> string must be persisted in
+        /// the POS against the order - the checkinId is the link between orders and tables and also orders and consumers, in the doshii API. 
         /// </summary>
         /// <remarks>
-        ///  </remarks>
+        /// </remarks>
         /// <param name="posOrderId">The unique identifier of the order being updated in the POS.</param>
         /// <param name="checkinId">The current checkinId related to the order in Doshii.</param>
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
@@ -119,7 +120,15 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// If the <see cref="Order"/> is rejected the pos should call <see cref="DoshiiManager.RejectOrderAheadCreation"/> with the order.
         /// </summary>
         /// <param name="order">
-        /// the <see cref="Order"/> to be approved
+        /// The <see cref="Order"/> to be approved
+        /// </param>
+        /// <param name="consumer">
+        /// The <see cref="Consumer"/> associated with the order
+        /// <para/> The consumer object contains data including;
+        /// <item>The consumer address</item>
+        /// <item>The consumer phone number</item>
+        /// <item>The consumer name</item>
+        /// <item>Special notes relating to the order</item>
         /// </param>
         /// <returns></returns>
 	    void ConfirmNewDeliveryOrder(Order order, Consumer consumer);
@@ -140,6 +149,14 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="transactionList">
         /// A List of <see cref="Transaction"/> to be approved
         /// </param>
+        /// <param name="consumer">
+        /// The <see cref="Consumer"/> associated with the order
+        /// <para/> The consumer object contains data including;
+        /// <item>The consumer address</item>
+        /// <item>The consumer phone number</item>
+        /// <item>The consumer name</item>
+        /// <item>Special notes relating to the order</item>
+        /// </param>
         /// <returns></returns>
         void ConfirmNewPickupOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList);
 
@@ -152,6 +169,14 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="order">
         /// the <see cref="Order"/> to be approved
+        /// </param>
+        /// <param name="consumer">
+        /// The <see cref="Consumer"/> associated with the order
+        /// <para/> The consumer object contains data including;
+        /// <item>The consumer address</item>
+        /// <item>The consumer phone number</item>
+        /// <item>The consumer name</item>
+        /// <item>Special notes relating to the order</item>
         /// </param>
         /// <returns></returns>
         void ConfirmNewPickupOrder(Order order, Consumer consumer);

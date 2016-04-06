@@ -6,6 +6,9 @@ using WebSocketSharp;
 
 namespace DoshiiDotNetIntegration.Models
 {
+    /// <summary>
+    /// This class represents the pos menu as it is stored on Doshii
+    /// </summary>
     public class Menu
     {
         public Menu()
