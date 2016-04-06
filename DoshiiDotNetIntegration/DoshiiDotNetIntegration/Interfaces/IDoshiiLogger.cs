@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DoshiiDotNetIntegration.Enums;
 
 namespace DoshiiDotNetIntegration.Interfaces
 {
@@ -15,9 +16,9 @@ namespace DoshiiDotNetIntegration.Interfaces
 	{
 		/// <summary>
 		/// This method should log Doshii log messages in the POS logger.
-		/// This is the method that records all doshii logs. 
-		/// There is no separate file created for Doshii logs so they should be logged by the POS implementing the integration. 
-		/// Please check <see cref="DoshiiDotNetIntegration.Enums.DoshiiLogLevels"/> for the different log levels implemented by doshii. 
+		/// <para/>This is the method that records all doshii logs. 
+        /// <para/>There is no separate file created for Doshii logs so they should be logged by the POS implementing the integration. 
+        /// <para/>Please check <see cref="DoshiiDotNetIntegration.Enums.DoshiiLogLevels"/> for the different log levels implemented by doshii. 
 		/// </summary>
 		/// <param name="callingClass">The calling class for the logging mechanism.</param>
 		/// <param name="logLevel">The level of the log message to be applied.</param>

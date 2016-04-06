@@ -14,7 +14,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 	/// details of the order to ensure that the order is current in Doshii. Once the partner captures the funds
 	/// to pay off the order, the Doshii SDK emits a 
 	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.RecordSuccessfulPayment(Transaction)"/>
-	/// call to finalise the payment. A payment cancelled by the partner will cause the SDK to emit a call to
+	/// call to finalize the payment. A payment canceled by the partner will cause the SDK to emit a call to
 	/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.CancelPayment(Transaction)"/>, at which
 	/// point the POS should unlock the order without accepting payment.
 	/// </remarks>
@@ -30,17 +30,17 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="transaction">The payment details that has been initiated by the partner.</param>
 		/// <returns>A payment transaction detailing the current amount owing on the order; 
 		/// or <c>null</c> if the pos does not want the transaction from the partner to be processed for any reason.</returns>
-		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistException">Thrown when the referenced order does not exist.</exception>
+		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">Thrown when the referenced order does not exist.</exception>
 		Transaction ReadyToPay(Transaction transaction);
 
 		/// <summary>
 		/// The Doshii SDK will call this function to indicate that the partner has failed to claim payment for an order that
-		/// was previously locked using a call to <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string)"/>.
+		/// was previously locked using a call to <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay"/>.
 		/// The POS should return the order to its previous state prior to the 
-		/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(string)"/> call, allowing it to be edited
+		/// <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay"/> call, allowing it to be edited
 		/// once more from the POS.
 		/// </summary>
-		/// <param name="transaction">The details of the payment being cancelled.</param>
+		/// <param name="transaction">The details of the payment being canceled.</param>
 		void CancelPayment(Transaction transaction);
 
 		/// <summary>
@@ -63,7 +63,7 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <param name="transactionId">The unique doshii identifier of the transaction being updated in the POS.</param>
         /// <param name="version">The current version of the transaction in Doshii.</param>
         /// <exception cref="DoshiiDotNetIntegration.Exceptions.TransactionDoesNotExistOnPosException">This exception 
-        /// should be thrown when there is no transaction in the POS with the corresponding <paramref name="transactionId"/>.
+        /// should be thrown when there is no transaction in the POS with the corresponding <paramref name="transactionId"/></exception>.
         void RecordTransactionVersion(string transactionId, string version);
 
         /// <summary>

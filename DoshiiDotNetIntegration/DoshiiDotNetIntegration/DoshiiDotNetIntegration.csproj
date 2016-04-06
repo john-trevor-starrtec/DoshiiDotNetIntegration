@@ -93,9 +93,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="websocket-sharp, Version=1.0.2.36589, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\WebSocketSharp.1.0.3-rc9\lib\websocket-sharp.dll</HintPath>
+    <Reference Include="websocket-sharp">
+      <HintPath>..\lib\websocket-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -108,19 +107,23 @@
     <Compile Include="DoshiiManager.cs" />
     <Compile Include="Enums\DoshiiLogLevels.cs" />
     <Compile Include="Enums\EndPointPurposes.cs" />
+    <Compile Include="Enums\NamespaceDoc.cs" />
+    <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
+    <Compile Include="Exceptions\NamespaceDoc.cs" />
     <Compile Include="Exceptions\NullOrderReturnedException.cs" />
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\OrderUpdateException.cs" />
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
-    <Compile Include="Exceptions\TransactionRequestNotProcessedException.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
     <Compile Include="Interfaces\IDoshiiLogger.cs" />
     <Compile Include="Interfaces\IOrderingManager.cs" />
     <Compile Include="Interfaces\IPaymentModuleManager.cs" />
+    <Compile Include="Interfaces\NamespaceDoc.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
+    <Compile Include="Models\Json\JsonLocation.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
     <Compile Include="Models\Json\JsonUnlinkedOrderToPut.cs" />
     <Compile Include="Models\Json\JsonOrderToPut.cs" />
@@ -140,7 +143,9 @@
     <Compile Include="Models\Json\JsonTableOrder.cs" />
     <Compile Include="Models\Json\SocketMessage.cs" />
     <Compile Include="Models\Json\SocketMessageData.cs" />
+    <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Menu.cs" />
+    <Compile Include="Models\NamespaceDoc.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Product.cs" />
@@ -149,6 +154,7 @@
     <Compile Include="Models\TableAllocation.cs" />
     <Compile Include="Models\TableOrder.cs" />
     <Compile Include="Models\Variants.cs" />
+    <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

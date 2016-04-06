@@ -5,6 +5,9 @@ using System.Text;
 
 namespace DoshiiDotNetIntegration.Models
 {
+    /// <summary>
+    /// The consumer model represents the individual customer in Doshii.
+    /// </summary>
     public class Consumer
     {
         /// <summary>
