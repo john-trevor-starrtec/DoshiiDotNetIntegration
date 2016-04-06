@@ -71,7 +71,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="websocket-sharp">
-      <HintPath>..\packages\WebSocketSharp.1.0.3-rc9\lib\websocket-sharp.dll</HintPath>
+      <HintPath>..\lib\websocket-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Choose>
