@@ -108,8 +108,10 @@
     <Compile Include="DoshiiManager.cs" />
     <Compile Include="Enums\DoshiiLogLevels.cs" />
     <Compile Include="Enums\EndPointPurposes.cs" />
+    <Compile Include="Enums\NamespaceDoc.cs" />
     <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
+    <Compile Include="Exceptions\NamespaceDoc.cs" />
     <Compile Include="Exceptions\NullOrderReturnedException.cs" />
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\OrderUpdateException.cs" />
@@ -119,6 +121,7 @@
     <Compile Include="Interfaces\IDoshiiLogger.cs" />
     <Compile Include="Interfaces\IOrderingManager.cs" />
     <Compile Include="Interfaces\IPaymentModuleManager.cs" />
+    <Compile Include="Interfaces\NamespaceDoc.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
     <Compile Include="Models\Json\JsonLocation.cs" />
@@ -143,6 +146,7 @@
     <Compile Include="Models\Json\SocketMessageData.cs" />
     <Compile Include="Models\Location.cs" />
     <Compile Include="Models\Menu.cs" />
+    <Compile Include="Models\NamespaceDoc.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Product.cs" />
@@ -151,6 +155,7 @@
     <Compile Include="Models\TableAllocation.cs" />
     <Compile Include="Models\TableOrder.cs" />
     <Compile Include="Models\Variants.cs" />
+    <Compile Include="NamespaceDoc.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
