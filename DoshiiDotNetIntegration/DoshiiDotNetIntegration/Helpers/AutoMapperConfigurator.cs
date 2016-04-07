@@ -52,6 +52,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			    AutoMapperConfigurator.MapConsumerObjects();
 				AutoMapperConfigurator.MapOrderObjects();
                 AutoMapperConfigurator.MapMenuObjects();
+			    AutoMapperConfigurator.MapLocationObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
@@ -157,6 +158,20 @@ namespace DoshiiDotNetIntegration.Helpers
 
             // src = JsonMenu, dest = Menu
             Mapper.CreateMap<JsonMenu, Menu>();
+
+        }
+
+        /// <summary>
+        /// This function creates a bi-directional object mapping between the Location model objects and their
+        /// JSON equivalent data transfer objects.
+        /// </summary>
+        private static void MapLocationObjects()
+        {
+            // src = Locaiton, dest = JsonLocaiton
+            Mapper.CreateMap<Location, JsonLocation>();
+                
+            // src = JsonLocation, dest = Location
+            Mapper.CreateMap<JsonLocation, Location>();
 
         }
 

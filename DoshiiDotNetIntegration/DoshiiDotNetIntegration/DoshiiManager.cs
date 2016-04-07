@@ -1587,6 +1587,11 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         public Location GetLocation()
         {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetLocation"));
+            }
             try
             {
                 return m_HttpComs.GetLocation();
