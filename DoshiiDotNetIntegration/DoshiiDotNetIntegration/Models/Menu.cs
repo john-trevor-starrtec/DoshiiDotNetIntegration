@@ -11,6 +11,9 @@ namespace DoshiiDotNetIntegration.Models
     /// </summary>
     public class Menu
     {
+        /// <summary>
+        /// default constructor
+        /// </summary>
         public Menu()
         {
             _products = new List<Product>();

@@ -419,7 +419,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response order data was not null"));
@@ -743,7 +743,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         var jsonTransaction = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
@@ -803,7 +803,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         var jsonTransaction = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
@@ -920,7 +920,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         var jsonMenu = JsonConvert.DeserializeObject<JsonMenu>(responseMessage.Data);
@@ -974,7 +974,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         var jsonSurcount = JsonConvert.DeserializeObject<JsonMenuSurcount>(responseMessage.Data);
@@ -1058,7 +1058,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was OK"));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         var jsonProduct = JsonConvert.DeserializeObject<JsonMenuProduct>(responseMessage.Data);
@@ -1320,7 +1320,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponseMessage responceMessage = new DoshiHttpResponseMessage();
             try
             {
-				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: generating {0} request to endpoint {1}, with data {2}", method, url, data));
+				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: generating {0} request to endpoint {1}, with data {2}", method, url, data));
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
                 responceMessage.Status = response.StatusCode;
@@ -1334,7 +1334,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
                 if (responceMessage.Status == HttpStatusCode.OK || responceMessage.Status == HttpStatusCode.Created)
                 {
-					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: Successful response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
+					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: Successful response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
                 }
                 else if (responceMessage.Status == HttpStatusCode.BadRequest || 
                     responceMessage.Status == HttpStatusCode.Unauthorized || 
@@ -1367,7 +1367,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         using (var reader = new StreamReader(responceErrorData))
                         {
                             errorResponce = reader.ReadToEnd();
-                            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, String.Format("Error code: {0}, ErrorResponse {1}", httpResponse.StatusCode, errorResponce));
+                            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error, String.Format("Error code: {0}, ErrorResponse {1}", httpResponse.StatusCode, errorResponce));
                         }
                     }
                     if (httpResponse.StatusCode == HttpStatusCode.BadRequest || 

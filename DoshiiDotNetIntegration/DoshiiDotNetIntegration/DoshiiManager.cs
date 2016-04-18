@@ -258,7 +258,7 @@ namespace DoshiiDotNetIntegration
         /// </returns>
         internal virtual bool InitializeProcess(string socketUrl, string UrlBase, bool StartWebSocketConnection, int timeOutValueSecs)
         {
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, "Doshii: Initializing Doshii");
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, "Doshii: Initializing Doshii");
 
             m_HttpComs = new DoshiiHttpCommunication(UrlBase, AuthorizeToken, mLog, this);
 
@@ -266,7 +266,7 @@ namespace DoshiiDotNetIntegration
             {
                 try
                 {
-                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format(string.Format("socketUrl = {0}, timeOutValueSecs = {1}", socketUrl, timeOutValueSecs)));
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, string.Format(string.Format("socketUrl = {0}, timeOutValueSecs = {1}", socketUrl, timeOutValueSecs)));
                     m_SocketComs = new DoshiiWebSocketsCommunication(socketUrl, timeOutValueSecs, mLog, this);
                     mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format(string.Format("socket Comms are set")));
 
@@ -636,8 +636,7 @@ namespace DoshiiDotNetIntegration
         internal virtual void SocketComsTransactionCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.TransactionEventArgs e)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a transaction status event with status '{0}', for transaction Id '{1}', for order Id '{2}'", e.Transaction.Status, e.TransactionId, e.Transaction.OrderId));
-            Transaction transactionFromPos = null;
-			switch (e.Transaction.Status)
+            switch (e.Transaction.Status)
             {
                 case "pending":
                     HandelPendingTransactionReceived(e.Transaction);
@@ -719,8 +718,8 @@ namespace DoshiiDotNetIntegration
         /// to record the payment in the pos. 
         /// It is currently not supported to request a payment from doshii from the pos without first receiving an order with a 'ready to pay' status so this method should not be called directly from the POS
         /// </summary>
-        /// <param name="order">
-        /// The order that should be paid
+        /// <param name="transaction">
+        /// The transaction that should be paid
         /// </param>
         /// <returns>
         /// True on successful payment; false otherwise.
@@ -795,7 +794,7 @@ namespace DoshiiDotNetIntegration
         /// to record the payment in the pos. 
         /// It is currently not supported to request a payment from doshii from the pos without first receiving an order with a 'ready to pay' status so this method should not be called directly from the POS
         /// </summary>
-        /// <param name="order">
+        /// <param name="transaction">
         /// The order that should be paid
         /// </param>
         /// <returns>
@@ -1344,7 +1343,7 @@ namespace DoshiiDotNetIntegration
             }
             catch (OrderDoesNotExistOnPosException nex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, string.Format("Doshii: Attempted to update a checkinId for an order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", order.Id, order.CheckinId));
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: Attempted to update a checkinId for an order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", order.Id, order.CheckinId));
                 //maybe we should call reject order here. 
             }
             catch (Exception ex)

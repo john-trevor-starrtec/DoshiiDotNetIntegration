@@ -36,7 +36,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// </remarks>
 		/// <param name="posOrderId">The unique identifier of the order being queried in the POS.</param>
 		/// <returns>The order details </returns>
-		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistException">This exception 
+		/// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
 		/// should be thrown when there is no order in the POS with the corresponding 
 		/// <paramref name="posOrderId"/>.</exception>
 		DoshiiDotNetIntegration.Models.Order RetrieveOrder(string posOrderId);
@@ -108,6 +108,9 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </param>
         /// <param name="transactionList">
         /// A List of <see cref="Transaction"/> to be approved
+        /// </param>
+        /// /// <param name="consumer">
+        /// The <see cref="Consumer"/> associated with the order
         /// </param>
         /// <returns></returns>
         void ConfirmNewDeliveryOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList);

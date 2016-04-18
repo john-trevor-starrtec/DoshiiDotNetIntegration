@@ -157,7 +157,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 				throw new ArgumentException("SocketConnectionTimeOutValue is less than 10");
             }
 
-			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Debug, string.Format("instantiating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
+			mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Info, string.Format("instantiating doshiiwebSocketComunication with socketUrl - '{0}'", webSocketUrl));
                 
             if (string.IsNullOrWhiteSpace(webSocketUrl))
             {
