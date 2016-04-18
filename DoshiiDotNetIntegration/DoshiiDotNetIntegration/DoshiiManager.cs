@@ -711,11 +711,6 @@ namespace DoshiiDotNetIntegration
         
         /// <summary>
         /// This method requests a payment from Doshii
-        /// calls <see cref="m_DoshiiInterface.CheckOutConsumerWithCheckInId"/> when order update was reject by doshii for a reason that means it should not be retired. 
-        /// calls <see cref="m_DoshiiInterface.RecordFullCheckPaymentBistroMode(ref order) "/> 
-        /// or <see cref="m_DoshiiInterface.RecordPartialCheckPayment(ref order) "/> 
-        /// or <see cref="m_DoshiiInterface.RecordFullCheckPayment(ref order)"/>
-        /// to record the payment in the pos. 
         /// It is currently not supported to request a payment from doshii from the pos without first receiving an order with a 'ready to pay' status so this method should not be called directly from the POS
         /// </summary>
         /// <param name="transaction">
