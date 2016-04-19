@@ -15,7 +15,6 @@ DoshiiDotNetIntegration/packages/Microsoft.Bcl.Build.1.0.14/tools/Uninstall.ps1
 DoshiiDotNetIntegration/packages/Microsoft.Bcl.Build.1.0.14/License-Stable.rtf
 *.ps1
 /DoshiiDotNetIntegration/DoshiiDotNetIntegration/nuget.exe
-/DoshiiDotNetIntegration/DoshiiDotNetIntegration/DoshiiDotNetIntegration.nuspec
 /DoshiiDotNetIntegration/DoshiiDotNetIntegration/*.nupkg
 /DoshiiDotNetIntegration/packages/AutoMapper.4.2.1
 /DoshiiDotNetIntegration/packages/log4net.2.0.3
