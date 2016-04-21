@@ -52,6 +52,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			    AutoMapperConfigurator.MapConsumerObjects();
 				AutoMapperConfigurator.MapOrderObjects();
                 AutoMapperConfigurator.MapMenuObjects();
+			    AutoMapperConfigurator.MapLocationObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
@@ -160,6 +161,20 @@ namespace DoshiiDotNetIntegration.Helpers
 
         }
 
+        /// <summary>
+        /// This function creates a bi-directional object mapping between the Location model objects and their
+        /// JSON equivalent data transfer objects.
+        /// </summary>
+        private static void MapLocationObjects()
+        {
+            // src = Locaiton, dest = JsonLocaiton
+            Mapper.CreateMap<Location, JsonLocation>();
+                
+            // src = JsonLocation, dest = Location
+            Mapper.CreateMap<JsonLocation, Location>();
+
+        }
+
 		/// <summary>
 		/// This function creates a bi-directional object mapping between the Surcount model objects and their
 		/// JSON equivalent data transfer objects.
@@ -220,6 +235,10 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.Version, opt => opt.Ignore());
 		}
 
+        /// <summary>
+        /// This function creates a bi-directional object mapping between the Consumer model objects and their
+        /// JSON equivalent data transfer objects.
+        /// </summary>
 	    private static void MapConsumerObjects()
 	    {
             // src = Consumer, dest = JsonConsumer
@@ -238,10 +257,12 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = Order, dest = JsonOrder
 		    Mapper.CreateMap<Order, JsonOrder>()
 		        .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
 		        .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
 		    	
 			// src = JsonOrder, dest = Order
-		    Mapper.CreateMap<JsonOrder, Order>();
+		    Mapper.CreateMap<JsonOrder, Order>()
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
                 
             // src = Order, dest = JsonOrder
             Mapper.CreateMap<Order, JsonOrderToPut>()
@@ -367,5 +388,19 @@ namespace DoshiiDotNetIntegration.Helpers
 
             return 0.0M;
         }
+
+	    private static DateTime? ToLocalTime(DateTime? utcTime)
+	    {
+	        if (utcTime == null)
+	        {
+	            return null;
+	        }
+	        else
+	        {
+	            DateTime localTime = (DateTime) utcTime;
+	            return localTime.ToLocalTime();
+	        }
+            
+	    }
 	}
 }

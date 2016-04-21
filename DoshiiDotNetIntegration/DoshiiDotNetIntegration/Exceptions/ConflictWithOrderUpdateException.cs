@@ -6,13 +6,13 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Exceptions
 {
     /// <summary>
-    /// This exception will be thrown when there is a conflict during a PUT or a POST of an order to doshii.
-    /// This exception is handled by the Doshii SDK and does not need to be handled by the pos. 
+    /// This exception will be thrown when there is a conflict while attempting to update an order in doshii.
+    /// <para/>This exception is handled by the Doshii SDK and does not need to be handled by the pos. 
     /// </summary>
-    public class ConflictWithOrderUpdateException : Exception
+    internal class ConflictWithOrderUpdateException : Exception
     {
-        public ConflictWithOrderUpdateException() : base() { }
-        public ConflictWithOrderUpdateException(string message) : base(message) { }
-        public ConflictWithOrderUpdateException(string message, Exception ex) : base(message, ex) { }
+        internal ConflictWithOrderUpdateException() : base() { }
+        internal ConflictWithOrderUpdateException(string message) : base(message) { }
+        internal ConflictWithOrderUpdateException(string message, Exception ex) : base(message, ex) { }
     }
 }

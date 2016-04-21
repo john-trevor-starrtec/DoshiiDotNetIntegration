@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoshiiDotNetIntegration", "DoshiiDotNetIntegration\DoshiiDotNetIntegration.csproj", "{C415EA93-1D45-4678-8CD4-F810B9521143}"
 EndProject
@@ -50,7 +50,6 @@ Global
 		{5D151107-1C16-4EC6-9414-C7D59E5DA174}.Release|x86.ActiveCfg = Release|x86
 		{5D151107-1C16-4EC6-9414-C7D59E5DA174}.Release|x86.Build.0 = Release|x86
 		{33747A66-DC54-4ADB-9265-BCD913CACF9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33747A66-DC54-4ADB-9265-BCD913CACF9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33747A66-DC54-4ADB-9265-BCD913CACF9C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{33747A66-DC54-4ADB-9265-BCD913CACF9C}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{33747A66-DC54-4ADB-9265-BCD913CACF9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
