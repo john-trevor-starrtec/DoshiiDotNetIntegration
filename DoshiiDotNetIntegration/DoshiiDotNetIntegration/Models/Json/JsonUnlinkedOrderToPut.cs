@@ -11,7 +11,7 @@ namespace DoshiiDotNetIntegration.Models.Json
     /// </summary>
     [DataContract]
     [Serializable]
-    internal class JsonUnlinkedOrderToPut : JsonSerializationBase<JsonOrderToPut>
+    internal class JsonUnlinkedOrderToPut : JsonSerializationBase<JsonUnlinkedOrderToPut>
     {
         /// <summary>
         /// id
@@ -80,6 +80,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializeVersion()
         {
             return (!string.IsNullOrEmpty(Version));
+        }
+
+        public bool ShouldSerializeId()
+        {
+            return (!string.IsNullOrEmpty(Id));
         }
 
         #endregion

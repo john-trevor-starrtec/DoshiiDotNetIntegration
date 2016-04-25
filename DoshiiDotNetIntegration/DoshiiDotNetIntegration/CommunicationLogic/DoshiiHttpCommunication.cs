@@ -367,7 +367,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// The order that was returned from the PUT request to Doshii. 
         /// </returns>
-        internal Order PutConfirmOrderCreated(Order order)
+        internal Order PutOrderCreatedResult(Order order)
         {
             var returnOrder = new Order();
             DoshiHttpResponseMessage responseMessage;
