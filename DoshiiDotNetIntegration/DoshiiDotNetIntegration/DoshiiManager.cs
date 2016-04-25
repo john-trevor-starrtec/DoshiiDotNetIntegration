@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 
@@ -221,6 +222,7 @@ namespace DoshiiDotNetIntegration
             urlBase = FormatBaseUrl(urlBase);
 			string socketUrl = BuildSocketUrl(urlBase, token);
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
+            RefreshAllOrders();
             return m_IsInitalized;
         }
 
@@ -381,6 +383,7 @@ namespace DoshiiDotNetIntegration
             try
             {
                 //check unassigned orders
+                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Info, "Refreshing all orders.");
                 IEnumerable<Order> unassignedOrderList;
                 unassignedOrderList = GetUnlinkedOrders();
                 foreach (Order order in unassignedOrderList)
@@ -519,7 +522,7 @@ namespace DoshiiDotNetIntegration
             orderToAccept.Status = "accepted";
             try
             {
-                ConfirmCreatedOrder(orderToAccept);
+                PutOrderCreatedResult(orderToAccept);
             }
             catch (Exception ex)
             {
@@ -606,7 +609,7 @@ namespace DoshiiDotNetIntegration
             order.Status = "rejected";
             try
             {
-                UpdateOrder(order);
+                PutOrderCreatedResult(order);
             }
             catch (Exception ex)
             {
@@ -1202,9 +1205,16 @@ namespace DoshiiDotNetIntegration
         /// The order to be confirmed. 
         /// </param>
         /// <returns></returns>
-        internal virtual Order ConfirmCreatedOrder(Order order)
+        internal virtual Order PutOrderCreatedResult(Order order)
         {
-            order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
+            try
+            {
+                order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
+            }
+            catch (OrderDoesNotExistOnPosException ex)
+            {
+                
+            }
             var jsonOrder = Mapper.Map<JsonOrder>(order);
             mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", jsonOrder.ToJsonString()));
 
@@ -1212,7 +1222,7 @@ namespace DoshiiDotNetIntegration
 
             try
             {
-                returnedOrder = m_HttpComs.PutConfirmOrderCreated(order);
+                returnedOrder = m_HttpComs.PutOrderCreatedResult(order);
                 if (returnedOrder.Id == "0" && returnedOrder.DoshiiId == "0")
                 {
                     mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an doshiiOrderId while updating order with id {0}", order.Id));
