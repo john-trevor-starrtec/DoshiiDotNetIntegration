@@ -984,7 +984,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             if (!m_IsInitalized)
             {

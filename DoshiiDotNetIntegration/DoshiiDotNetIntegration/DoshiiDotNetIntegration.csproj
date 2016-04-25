@@ -112,6 +112,7 @@
     <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
     <Compile Include="Exceptions\NamespaceDoc.cs" />
+    <Compile Include="Exceptions\NotValidCurrencyAmountException.cs" />
     <Compile Include="Exceptions\NullOrderReturnedException.cs" />
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\OrderUpdateException.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\NamespaceDoc.cs" />
     <Compile Include="Models\Order.cs" />
+    <Compile Include="Models\OrderWithNoPriceProperties.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductOptions.cs" />

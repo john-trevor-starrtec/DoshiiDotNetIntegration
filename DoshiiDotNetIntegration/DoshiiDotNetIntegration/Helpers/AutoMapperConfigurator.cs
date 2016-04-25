@@ -4,6 +4,7 @@ using DoshiiDotNetIntegration.Models.Json;
 using System;
 using System.Globalization;
 using System.Linq;
+using DoshiiDotNetIntegration.Exceptions;
 
 namespace DoshiiDotNetIntegration.Helpers
 {
@@ -301,6 +302,26 @@ namespace DoshiiDotNetIntegration.Helpers
 
 			// src = JsonTableOrder, dest = TableOrder
 			Mapper.CreateMap<JsonTableOrder, TableOrder>();
+
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<OrderWithNoPriceProperties, JsonOrder>()
+                .ForMember(dest => dest.Items, opt => opt.Ignore())
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
+                .ForMember(dest => dest.Surcounts, opt => opt.Ignore());
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonOrder, OrderWithNoPriceProperties>()
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
+
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<OrderWithNoPriceProperties, Order>()
+                .ForMember(dest => dest.Items, opt => opt.Ignore())
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
+                .ForMember(dest => dest.Surcounts, opt => opt.Ignore());
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<Order, OrderWithNoPriceProperties>()
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
 		}
 
 		/// <summary>
@@ -343,12 +364,17 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			if (!String.IsNullOrEmpty(cents))
 			{
-				int result;
-				if (Int32.TryParse(cents, out result))
-					return result / AutoMapperConfigurator.CentsPerDollar;
+				decimal result;
+			    if (Decimal.TryParse(cents, out result))
+			    {
+			        return result/AutoMapperConfigurator.CentsPerDollar;
+			    }
+			    else
+			    {
+			        throw new NotValidCurrencyAmountException(string.Format("{0} cannot be converted into a decimal amount.", cents));
+			    }
 			}
-
-			return 0.0M;
+            return 0.0M;
 		}
 
 		/// <summary>
