@@ -492,7 +492,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>this method will test that the order on doshii has not changed since it was original received by the pos. 
         /// <para/>It is the responsibility of the pos to ensure that the products on the order were not changed during the confirmation process as this will not 
         /// <para/>be checked by this method. 
-        /// <para/>If this method is not successful then the order should not be commuted on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
+        /// <para/>If this method is not successful then the order should not be committed on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
         /// </summary>
         /// <param name="orderToAccept">
         /// The order that is being accepted
@@ -1207,17 +1207,25 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         internal virtual Order PutOrderCreatedResult(Order order)
         {
-            try
+            /*if (order.Status == "accepted")
             {
-                order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
-            }
-            catch (OrderDoesNotExistOnPosException ex)
-            {
-                
-            }
-            var jsonOrder = Mapper.Map<JsonOrder>(order);
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", jsonOrder.ToJsonString()));
+                try
+                {
+                    order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
+                }
+                catch (OrderDoesNotExistOnPosException ex)
+                {
 
+                }
+            }*/
+            if (order.Status == "accepted")
+            {
+                if (order.Id == null || string.IsNullOrEmpty(order.Id))
+                {
+                    throw new OrderUpdateException("the pos must set an order.Id for accepted orders.");
+                }
+            }
+            
             var returnedOrder = new Order();
 
             try
