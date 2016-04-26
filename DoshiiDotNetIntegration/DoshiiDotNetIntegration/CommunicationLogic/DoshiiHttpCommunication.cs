@@ -184,7 +184,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         {
                             retreivedOrder = Mapper.Map<Order>(jsonOrder);
                         }
-                        catch (NotValidCurrencyAmountException ex)
+                        catch (Exception ex)
                         {
                             mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error,
                                 string.Format(
@@ -403,8 +403,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
 
             var dto = new JsonOrder();
-            returnOrder = HandleOrderResponse<Order, JsonOrder>(order.Id, responseMessage, out dto);
-
+            if (order.Status != "rejected")
+            {
+                returnOrder = HandleOrderResponse<Order, JsonOrder>(order.Id, responseMessage, out dto);
+            }
+            
             return returnOrder;
         }
 
