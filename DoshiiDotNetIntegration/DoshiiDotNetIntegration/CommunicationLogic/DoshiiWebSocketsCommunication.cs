@@ -383,17 +383,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case "order_created":
                     CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
                     orderStatusEventArgs.Order = m_DoshiiLogic.GetOrderFromDoshiiOrderId(messageData.Id);
-                    orderStatusEventArgs.TransactionList = m_DoshiiLogic.GetTransactionFromDoshiiOrderId(messageData.Id);
-                    orderStatusEventArgs.OrderId = messageData.Id;
-                    orderStatusEventArgs.Status = messageData.Status;
+                    if (orderStatusEventArgs.Order != null)
+                    {
+                        orderStatusEventArgs.TransactionList = m_DoshiiLogic.GetTransactionFromDoshiiOrderId(messageData.Id);
+                        orderStatusEventArgs.OrderId = messageData.Id;
+                        orderStatusEventArgs.Status = messageData.Status;
 
-                    if (OrderCreatedEvent != null)
-                    {
-                        OrderCreatedEvent(this, orderStatusEventArgs);
-                    }
-                    else
-                    {
-                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the OrderCreateEvent"));
+                        if (OrderCreatedEvent != null)
+                        {
+                            OrderCreatedEvent(this, orderStatusEventArgs);
+                        }
+                        else
+                        {
+                            mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the OrderCreateEvent"));
+                        }
                     }
                     
                     break;

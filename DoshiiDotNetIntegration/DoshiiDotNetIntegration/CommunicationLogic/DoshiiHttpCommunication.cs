@@ -173,7 +173,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 throw rex;
             }
 
-
             if (responseMessage != null)
             {
                 if (responseMessage.Status == HttpStatusCode.OK)
@@ -181,11 +180,29 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
                         var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
-                        retreivedOrder = Mapper.Map<Order>(jsonOrder);
+                        try
+                        {
+                            retreivedOrder = Mapper.Map<Order>(jsonOrder);
+                        }
+                        catch (Exception ex)
+                        {
+                            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error,
+                                string.Format(
+                                    "Doshii: An order received from Doshii could not be processed, A Price value in the order could not be converted into a decimal, the order will be rejected by the SDK: ",
+                                    jsonOrder));
+                            //reject the order. 
+                            var orderWithNoPricePropertiesToReject = Mapper.Map<OrderWithNoPriceProperties>(jsonOrder);
+                            var orderToReject = Mapper.Map<Order>(orderWithNoPricePropertiesToReject);
+                            m_DoshiiLogic.RejectOrderAheadCreation(orderToReject);
+                            retreivedOrder = null;
+                        }
                     }
                     else
                     {
-                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId)));
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning,
+                            string.Format(
+                                "Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response",
+                                GenerateUrl(Enums.EndPointPurposes.UnlinkedOrders, doshiiOrderId)));
                     }
 
                 }
@@ -307,7 +324,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             foreach (var partOrder in retreivedOrderList)
             {
                 Order newOrder = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
-                fullOrderList.Add(newOrder);
+                if (newOrder != null)
+                {
+                    fullOrderList.Add(newOrder);
+                }
             }
             return (IEnumerable<Order>)fullOrderList;
         }
@@ -383,8 +403,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
 
             var dto = new JsonOrder();
-            returnOrder = HandleOrderResponse<Order, JsonOrder>(order.Id, responseMessage, out dto);
-
+            if (order.Status != "rejected")
+            {
+                returnOrder = HandleOrderResponse<Order, JsonOrder>(order.Id, responseMessage, out dto);
+            }
+            
             return returnOrder;
         }
 
