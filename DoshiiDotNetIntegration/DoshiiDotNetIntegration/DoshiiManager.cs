@@ -222,7 +222,10 @@ namespace DoshiiDotNetIntegration
             urlBase = FormatBaseUrl(urlBase);
 			string socketUrl = BuildSocketUrl(urlBase, token);
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
-            RefreshAllOrders();
+            if (startWebSocketConnection)
+            {
+                RefreshAllOrders();
+            }
             return m_IsInitalized;
         }
 
