@@ -1380,34 +1380,50 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (WebException wex)
             {
-                using (WebResponse response = wex.Response)
+                if (wex.Response != null)
                 {
-                    HttpWebResponse httpResponse = (HttpWebResponse)response;
-                    //Console.WriteLine("Error code: {0}", httpResponse.StatusCode);
-					string errorResponce;
-                    using (Stream responceErrorData = response.GetResponseStream())
+                    using (WebResponse response = wex.Response)
                     {
-                        using (var reader = new StreamReader(responceErrorData))
+                        HttpWebResponse httpResponse = (HttpWebResponse) response;
+                        //Console.WriteLine("Error code: {0}", httpResponse.StatusCode);
+                        string errorResponce;
+                        using (Stream responceErrorData = response.GetResponseStream())
                         {
-                            errorResponce = reader.ReadToEnd();
-                            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error, String.Format("Error code: {0}, ErrorResponse {1}", httpResponse.StatusCode, errorResponce));
+                            using (var reader = new StreamReader(responceErrorData))
+                            {
+                                errorResponce = reader.ReadToEnd();
+                                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error,
+                                    String.Format("Error code: {0}, ErrorResponse {1}", httpResponse.StatusCode,
+                                        errorResponce));
+                            }
+                        }
+                        if (httpResponse.StatusCode == HttpStatusCode.BadRequest ||
+                            httpResponse.StatusCode == HttpStatusCode.Unauthorized ||
+                            httpResponse.StatusCode == HttpStatusCode.Forbidden ||
+                            httpResponse.StatusCode == HttpStatusCode.InternalServerError ||
+                            httpResponse.StatusCode == HttpStatusCode.NotFound ||
+                            httpResponse.StatusCode == HttpStatusCode.Conflict)
+                        {
+                            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error,
+                                string.Format(
+                                    "Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
+                                    method, url, data, errorResponce, wex));
+                            throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode, wex);
+                        }
+                        else
+                        {
+                            mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error,
+                                string.Format(
+                                    "Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
+                                    method, url, data, errorResponce, wex));
                         }
                     }
-                    if (httpResponse.StatusCode == HttpStatusCode.BadRequest || 
-                        httpResponse.StatusCode == HttpStatusCode.Unauthorized || 
-                        httpResponse.StatusCode == HttpStatusCode.Forbidden ||
-                        httpResponse.StatusCode == HttpStatusCode.InternalServerError || 
-                        httpResponse.StatusCode == HttpStatusCode.NotFound || 
-                        httpResponse.StatusCode == HttpStatusCode.Conflict)
-                    {
-						mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}", method, url, data, errorResponce, wex));
-                        throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode, wex);
-                    }
-                    else
-                    {
-						mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error, string.Format("Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}", method, url, data, errorResponce, wex));
-                    }
                 }
+                else
+                {
+                    throw new Exceptions.RestfulApiErrorResponseException("There was no response in the web exception while making a request.");
+                }
+                
             }
             catch (Exception ex)
             {

@@ -195,13 +195,13 @@ namespace DoshiiDotNetIntegration
 			
             if (string.IsNullOrWhiteSpace(urlBase))
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - required urlBase");
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required urlBase");
 				throw new ArgumentException("empty urlBase");
             }
 
             if (string.IsNullOrWhiteSpace(token))
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - required token");
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required token");
 				throw new ArgumentException("empty token");
             }
 
@@ -209,12 +209,12 @@ namespace DoshiiDotNetIntegration
 
 			if (timeout < 0)
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - timeoutvaluesecs must be minimum 0");
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - timeoutvaluesecs must be minimum 0");
                 throw new ArgumentException("timeoutvaluesecs < 0");
             }
 			else if (timeout == 0)
 			{
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, String.Format("Doshii will use default timeout of {0}", DoshiiManager.DefaultTimeout));
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, String.Format("Doshii: will use default timeout of {0}", DoshiiManager.DefaultTimeout));
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
@@ -224,7 +224,17 @@ namespace DoshiiDotNetIntegration
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
-                RefreshAllOrders();
+                try
+                {
+                    RefreshAllOrders();
+                }
+                catch (Exception ex)
+                {
+                    m_IsInitalized = false;
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: There was an exception refreshing all orders, Please check the baseUrl is correct", ex);
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed");
+                }
+                
             }
             return m_IsInitalized;
         }
