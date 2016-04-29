@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 
@@ -194,13 +195,13 @@ namespace DoshiiDotNetIntegration
 			
             if (string.IsNullOrWhiteSpace(urlBase))
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - required urlBase");
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required urlBase");
 				throw new ArgumentException("empty urlBase");
             }
 
             if (string.IsNullOrWhiteSpace(token))
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - required token");
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required token");
 				throw new ArgumentException("empty token");
             }
 
@@ -208,12 +209,12 @@ namespace DoshiiDotNetIntegration
 
 			if (timeout < 0)
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Initialization failed - timeoutvaluesecs must be minimum 0");
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - timeoutvaluesecs must be minimum 0");
                 throw new ArgumentException("timeoutvaluesecs < 0");
             }
 			else if (timeout == 0)
 			{
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, String.Format("Doshii will use default timeout of {0}", DoshiiManager.DefaultTimeout));
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, String.Format("Doshii: will use default timeout of {0}", DoshiiManager.DefaultTimeout));
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
@@ -221,6 +222,20 @@ namespace DoshiiDotNetIntegration
             urlBase = FormatBaseUrl(urlBase);
 			string socketUrl = BuildSocketUrl(urlBase, token);
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
+            if (startWebSocketConnection)
+            {
+                try
+                {
+                    RefreshAllOrders();
+                }
+                catch (Exception ex)
+                {
+                    m_IsInitalized = false;
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: There was an exception refreshing all orders, Please check the baseUrl is correct", ex);
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed");
+                }
+                
+            }
             return m_IsInitalized;
         }
 
@@ -381,6 +396,7 @@ namespace DoshiiDotNetIntegration
             try
             {
                 //check unassigned orders
+                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Info, "Refreshing all orders.");
                 IEnumerable<Order> unassignedOrderList;
                 unassignedOrderList = GetUnlinkedOrders();
                 foreach (Order order in unassignedOrderList)
@@ -489,7 +505,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>this method will test that the order on doshii has not changed since it was original received by the pos. 
         /// <para/>It is the responsibility of the pos to ensure that the products on the order were not changed during the confirmation process as this will not 
         /// <para/>be checked by this method. 
-        /// <para/>If this method is not successful then the order should not be commuted on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
+        /// <para/>If this method is not successful then the order should not be committed on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
         /// </summary>
         /// <param name="orderToAccept">
         /// The order that is being accepted
@@ -519,7 +535,7 @@ namespace DoshiiDotNetIntegration
             orderToAccept.Status = "accepted";
             try
             {
-                ConfirmCreatedOrder(orderToAccept);
+                PutOrderCreatedResult(orderToAccept);
             }
             catch (Exception ex)
             {
@@ -606,7 +622,7 @@ namespace DoshiiDotNetIntegration
             order.Status = "rejected";
             try
             {
-                UpdateOrder(order);
+                PutOrderCreatedResult(order);
             }
             catch (Exception ex)
             {
@@ -981,7 +997,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             if (!m_IsInitalized)
             {
@@ -1202,17 +1218,32 @@ namespace DoshiiDotNetIntegration
         /// The order to be confirmed. 
         /// </param>
         /// <returns></returns>
-        internal virtual Order ConfirmCreatedOrder(Order order)
+        internal virtual Order PutOrderCreatedResult(Order order)
         {
-            order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
-            var jsonOrder = Mapper.Map<JsonOrder>(order);
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos updating order - '{0}'", jsonOrder.ToJsonString()));
+            /*if (order.Status == "accepted")
+            {
+                try
+                {
+                    order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
+                }
+                catch (OrderDoesNotExistOnPosException ex)
+                {
 
+                }
+            }*/
+            if (order.Status == "accepted")
+            {
+                if (order.Id == null || string.IsNullOrEmpty(order.Id))
+                {
+                    throw new OrderUpdateException("the pos must set an order.Id for accepted orders.");
+                }
+            }
+            
             var returnedOrder = new Order();
 
             try
             {
-                returnedOrder = m_HttpComs.PutConfirmOrderCreated(order);
+                returnedOrder = m_HttpComs.PutOrderCreatedResult(order);
                 if (returnedOrder.Id == "0" && returnedOrder.DoshiiId == "0")
                 {
                     mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: order was returned from doshii without an doshiiOrderId while updating order with id {0}", order.Id));

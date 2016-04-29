@@ -4,6 +4,7 @@ using DoshiiDotNetIntegration.Models.Json;
 using System;
 using System.Globalization;
 using System.Linq;
+using DoshiiDotNetIntegration.Exceptions;
 
 namespace DoshiiDotNetIntegration.Helpers
 {
@@ -71,7 +72,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
 			// src = JsonOrderVariants, dest = Variants
 			Mapper.CreateMap<JsonOrderVariants, Variants>()
-				.ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
+                .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 
             // src = Variants, dest = JsonOrderVariants, opt = Mapping Option
             Mapper.CreateMap<Variants, JsonMenuVariants>()
@@ -80,7 +81,7 @@ namespace DoshiiDotNetIntegration.Helpers
             // src = JsonOrderVariants, dest = Variants
             Mapper.CreateMap<JsonMenuVariants, Variants>()
                 .ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Price)));
+                .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
 
 		/// <summary>
@@ -106,14 +107,17 @@ namespace DoshiiDotNetIntegration.Helpers
 				.ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.ToList<string>()));
 
 			// src = JsonOrderProduct, dest = Product
-		    Mapper.CreateMap<JsonOrderProduct, Product>()
-		        .ForMember(dest => dest.UnitPrice,
-		            opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
-		        .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => AutoMapperConfigurator.MapQuantity(src.Quantity)))
-		        .ForMember(dest => dest.TotalAfterSurcounts,
-		            opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.TotalAfterSurcounts)))
-		        .ForMember(dest => dest.TotalBeforeSurcounts,
-		            opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.TotalBeforeSurcounts)));
+		    
+            Mapper.CreateMap<JsonOrderProduct, Product>()
+            .ForMember(dest => dest.UnitPrice,
+                opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
+            .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => AutoMapperConfigurator.MapQuantity(src.Quantity)))
+            .ForMember(dest => dest.TotalAfterSurcounts,
+                opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.TotalAfterSurcounts)))
+            .ForMember(dest => dest.TotalBeforeSurcounts,
+                opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.TotalBeforeSurcounts)));
+		   
+            
                 
             // src = ProductOptions, dest = JsonOrderProductOptions
             Mapper.CreateMap<ProductOptions, JsonMenuProductOptions>()
@@ -139,7 +143,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
             // src = JsonOrderProduct, dest = Product
 		    Mapper.CreateMap<JsonMenuProduct, Product>()
-		        .ForMember(dest => dest.UnitPrice, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
+                .ForMember(dest => dest.UnitPrice, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.UnitPrice)))
                 .ForMember(dest => dest.TotalAfterSurcounts, opt => opt.Ignore())
                 .ForMember(dest => dest.TotalBeforeSurcounts, opt => opt.Ignore())
                 .ForMember(dest => dest.Quantity, opt => opt.Ignore());
@@ -187,7 +191,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
 			// src = JsonOrderSurcount, dest = Surcount
 			Mapper.CreateMap<JsonOrderSurcount, Surcount>()
-				.ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.Amount)));
+                .ForMember(dest => dest.Amount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Amount)));
 
             // src = Surcount, dest = JsonOrderSurcount
 		    Mapper.CreateMap<Surcount, JsonMenuSurcount>();
@@ -209,7 +213,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
 			// src = JsonTransaction, dest = Transaction
 			Mapper.CreateMap<JsonTransaction, Transaction>()
-				.ForMember(dest => dest.PaymentAmount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrency(src.PaymentAmount)));
+				.ForMember(dest => dest.PaymentAmount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.PaymentAmount)));
 		}
 
 		/// <summary>
@@ -301,6 +305,26 @@ namespace DoshiiDotNetIntegration.Helpers
 
 			// src = JsonTableOrder, dest = TableOrder
 			Mapper.CreateMap<JsonTableOrder, TableOrder>();
+
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<OrderWithNoPriceProperties, JsonOrder>()
+                .ForMember(dest => dest.Items, opt => opt.Ignore())
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
+                .ForMember(dest => dest.Surcounts, opt => opt.Ignore());
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonOrder, OrderWithNoPriceProperties>()
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
+
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<OrderWithNoPriceProperties, Order>()
+                .ForMember(dest => dest.Items, opt => opt.Ignore())
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
+                .ForMember(dest => dest.Surcounts, opt => opt.Ignore());
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<Order, OrderWithNoPriceProperties>()
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
 		}
 
 		/// <summary>
@@ -343,12 +367,17 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			if (!String.IsNullOrEmpty(cents))
 			{
-				int result;
-				if (Int32.TryParse(cents, out result))
-					return result / AutoMapperConfigurator.CentsPerDollar;
+				decimal result;
+			    if (Decimal.TryParse(cents, out result))
+			    {
+			        return result/AutoMapperConfigurator.CentsPerDollar;
+			    }
+			    else
+			    {
+			        throw new NotValidCurrencyAmountException(string.Format("{0} cannot be converted into a decimal amount.", cents));
+			    }
 			}
-
-			return 0.0M;
+            return 0.0M;
 		}
 
 		/// <summary>
@@ -368,7 +397,7 @@ namespace DoshiiDotNetIntegration.Helpers
 		/// <returns>The string representation of the number of cents represented by <paramref name="amount"/>.</returns>
 		private static string MapCurrencyToString(decimal amount)
 		{
-			int result = (int)Math.Floor(amount * AutoMapperConfigurator.CentsPerDollar);
+			decimal result = (decimal)Math.Floor(amount * AutoMapperConfigurator.CentsPerDollar);
 			return result.ToString();
 		}
 
