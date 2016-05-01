@@ -1,12 +1,6 @@
 /DoshiiDotNetIntegration/*.suo
 bin
 obj
-DoshiiDotNetIntegration/packages/Microsoft.Bcl.Build.1.0.14/content/portable-net40+win8+sl4+wp71+wpa81/_._
-DoshiiDotNetIntegration/packages/AutoMapper.4.1.1/AutoMapper.4.1.1.nupkg
-*.dll
-DoshiiDotNetIntegration/packages/AutoMapper.4.1.1/lib/dotnet/AutoMapper.xml
-*.XML
-*._
 DoshiiDotNetIntegration/packages/Microsoft.Bcl.1.1.10/License-Stable.rtf
 DoshiiDotNetIntegration/packages/Microsoft.Bcl.Build.1.0.14/Microsoft.Bcl.Build.1.0.14.nupkg
 *.nupkg
