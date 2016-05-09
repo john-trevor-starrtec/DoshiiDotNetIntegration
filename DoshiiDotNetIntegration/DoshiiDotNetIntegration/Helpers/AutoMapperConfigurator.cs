@@ -410,11 +410,17 @@ namespace DoshiiDotNetIntegration.Helpers
         {
             if (!String.IsNullOrEmpty(quantity))
             {
-                int result;
-                if (Int32.TryParse(quantity, out result))
+                decimal result;
+                if (Decimal.TryParse(quantity, out result))
+                {
                     return result;
+                }
+                else
+                {
+                    throw new NotValidCurrencyAmountException(string.Format("{0} cannot be converted into a decimal quantity.", quantity));
+                }
             }
-
+            
             return 0.0M;
         }
 

@@ -1123,7 +1123,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Menu, posId), DeleteMethod);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Products, posId), DeleteMethod);
             }
             catch (RestfulApiErrorResponseException rex)
             {
