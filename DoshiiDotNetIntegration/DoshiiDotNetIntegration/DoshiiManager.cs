@@ -780,7 +780,7 @@ namespace DoshiiDotNetIntegration
                 return false;
             }
 
-            if (returnedTransaction != null && returnedTransaction.Id == transaction.Id && returnedTransaction.Status == "complete")
+            if (returnedTransaction != null && returnedTransaction.Id == transaction.Id)
             {
 				var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
