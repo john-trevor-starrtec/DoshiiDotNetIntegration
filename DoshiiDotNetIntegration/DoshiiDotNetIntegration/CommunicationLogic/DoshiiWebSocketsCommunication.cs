@@ -93,6 +93,20 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </summary>
         internal virtual event TransactionUpdatedEventHandler TransactionUpdatedEvent;
 
+        internal delegate void MemberUpdatedEventHandler(object sender, CommunicationEventArgs.MemberEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when a member updated through doshii. 
+        /// </summary>
+        internal virtual event MemberUpdatedEventHandler MemberUpdatedEvent;
+
+        internal delegate void MemberCreatedEventHandler(object sender, CommunicationEventArgs.MemberEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when a member is created through doshii. 
+        /// </summary>
+        internal virtual event MemberCreatedEventHandler MemberCreatedEvent;
+
         internal delegate void SocketCommunicationEstablishedEventHandler(object sender, EventArgs e);
         
         /// <summary>
@@ -376,6 +390,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             messageData.Status = (string)dynamicSocketMessageData.status;
             messageData.Name = (string)dynamicSocketMessageData.name;
             messageData.Id = (string)dynamicSocketMessageData.id;
+            messageData.MemberId = (string)dynamicSocketMessageData.memberId;
             messageData.Uri = (Uri)dynamicSocketMessageData.Uri;
             
             switch (messageData.EventName)
@@ -430,6 +445,36 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
                     }
                     
+                    break;
+                case "member_created":
+                    CommunicationEventArgs.MemberEventArgs memberCreatedEventArgs = new MemberEventArgs();
+                    memberCreatedEventArgs.Member = m_DoshiiLogic.GetMember(messageData.MemberId);
+                    memberCreatedEventArgs.MemberId = messageData.MemberId;
+
+                    if (MemberCreatedEvent != null)
+                    {
+                        MemberCreatedEvent(this, memberCreatedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
+                    }
+
+                    break;
+                case "member_updated":
+                    CommunicationEventArgs.MemberEventArgs memberUpdatedEventArgs = new MemberEventArgs();
+                    memberUpdatedEventArgs.Member = m_DoshiiLogic.GetMember(messageData.MemberId);
+                    memberUpdatedEventArgs.MemberId = messageData.MemberId;
+
+                    if (MemberUpdatedEvent != null)
+                    {
+                        MemberUpdatedEvent(this, memberUpdatedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
+                    }
+
                     break;
                 default:
                     mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));

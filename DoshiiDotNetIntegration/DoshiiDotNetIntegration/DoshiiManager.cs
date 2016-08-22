@@ -122,6 +122,11 @@ namespace DoshiiDotNetIntegration
 		internal DoshiiLogManager mLog;
 
         /// <summary>
+        /// the membership manager
+        /// </summary>
+        private IMembershipModuleManager mMemberManager;
+
+        /// <summary>
         /// The unique token for the venue -- this can be retrieved from Doshii before enabling the integration.
         /// </summary>
         internal string AuthorizeToken { get; set; }
@@ -148,14 +153,25 @@ namespace DoshiiDotNetIntegration
 		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
 		/// <param name="logger">The logging mechanism callback to the POS.</param>
         /// <param name="orderingManager">The Ordering API callback mechanism</param>
-        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager)
+        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager)
         {
-			if (paymentManager == null)
-				throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
+            if (paymentManager == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IPaymentModuleManager needs to be instantiated as it is a core module");
+                throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
+            }
             if (orderingManager == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager needs to be instantiated as it is a core module");
                 throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
+            }
+            if (memberManager == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Membership module not supported - IMembershipModuleManager needs to be instantiated to implement the member functionality");
+            }    
 			mPaymentManager = paymentManager;
             mOrderingManager = orderingManager;
+            mMemberManager = memberManager;
             mLog = new DoshiiLogManager(logger);
 			AutoMapperConfigurator.Configure();
         }
@@ -345,6 +361,9 @@ namespace DoshiiDotNetIntegration
                 m_SocketComs.TransactionUpdatedEvent += new DoshiiWebSocketsCommunication.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
 				m_SocketComs.SocketCommunicationEstablishedEvent += new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
                 m_SocketComs.SocketCommunicationTimeoutReached += new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
+                m_SocketComs.MemberCreatedEvent += new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
+                m_SocketComs.MemberUpdatedEvent += new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+                
             }
         }
 
@@ -359,6 +378,8 @@ namespace DoshiiDotNetIntegration
             m_SocketComs.TransactionUpdatedEvent -= new DoshiiWebSocketsCommunication.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
             m_SocketComs.SocketCommunicationEstablishedEvent -= new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
             m_SocketComs.SocketCommunicationTimeoutReached -= new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
+            m_SocketComs.MemberCreatedEvent -= new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
+            m_SocketComs.MemberUpdatedEvent -= new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
         }
         #endregion
 
@@ -662,6 +683,34 @@ namespace DoshiiDotNetIntegration
                     throw new NotSupportedException(string.Format("cannot process transaction with state {0} from the API",e.Transaction.Status));
             }
 		}
+
+
+        internal virtual void SocketComsMemberCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with for member Id '{0}'", e.MemberId));
+            try
+            {
+                mMemberManager.CreateMember(e.Member);
+            }
+            catch(MemberExistOnPosException ex)
+            {
+                
+            }
+        }
+
+        internal virtual void SocketComsMemberUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with for member Id '{0}'", e.MemberId));
+            try
+            {
+                mMemberManager.UpdateMember(e.Member);
+            }
+            catch (MemberExistOnPosException ex)
+            {
+
+            }
+        }
+
 
         /// <summary>
         /// Handles a SocketComs_TransactionCreatedEvent, 

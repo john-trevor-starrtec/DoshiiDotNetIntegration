@@ -54,6 +54,8 @@ namespace DoshiiDotNetIntegration.Helpers
 				AutoMapperConfigurator.MapOrderObjects();
                 AutoMapperConfigurator.MapMenuObjects();
 			    AutoMapperConfigurator.MapLocationObjects();
+			    AutoMapperConfigurator.MapAddressObjects();
+                AutoMapperConfigurator.MapMemberObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
@@ -83,6 +85,27 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
                 .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
+
+
+        private static void MapAddressObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = Address, dest = JsonAddress, opt = Mapping Option
+            Mapper.CreateMap<Address, JsonAddress>();
+                
+            // src = JsonAddress, dest = Address
+            Mapper.CreateMap<JsonAddress, Address>();
+        }
+
+        private static void MapMemberObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = Member, dest = JsonMember, opt = Mapping Option
+            Mapper.CreateMap<Member, JsonMember>();
+                
+            // src = JsonAddress, dest = Address
+            Mapper.CreateMap<JsonMember, Member>();
+        }
 
 		/// <summary>
 		/// This function creates a bi-directional object mapping between the Product model objects and their
@@ -437,5 +460,10 @@ namespace DoshiiDotNetIntegration.Helpers
 	        }
             
 	    }
+
+        private static string MapIntegerToString(int value)
+        {
+            return value.ToString();
+        }
 	}
 }
