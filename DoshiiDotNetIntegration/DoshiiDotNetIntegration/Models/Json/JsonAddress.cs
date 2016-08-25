@@ -10,7 +10,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    public class JsonAddress
+    internal class JsonAddress : JsonSerializationBase<JsonAddress>
     {
         /// <summary>
         /// Line 1 of the address

@@ -448,6 +448,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case "member_created":
                     CommunicationEventArgs.MemberEventArgs memberCreatedEventArgs = new MemberEventArgs();
+                    try
                     memberCreatedEventArgs.Member = m_DoshiiLogic.GetMember(messageData.MemberId);
                     memberCreatedEventArgs.MemberId = messageData.MemberId;
 

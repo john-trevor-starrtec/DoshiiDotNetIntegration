@@ -1324,9 +1324,58 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
+        #region Membership
+
+        public virtual Member GetMember(string memberId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetOrder"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetOrder"));
+            }
+            try
+            {
+                return m_HttpComs.GetMember(memberId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual IEnumerable<Member> GetMembers()
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetOrders"));
+            }
+            if (mMemberManager == null)
+            {
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetOrder"));
+            }
+            try
+            {
+                return m_HttpComs.GetMembers();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        #endregion
+
         #region tableAllocation and consumers
 
-		/// <summary>
+        /// <summary>
 		/// Called by POS to add a table allocation to an order.
 		/// </summary>
 		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
@@ -1687,6 +1736,12 @@ namespace DoshiiDotNetIntegration
         {
             throw new DoshiiManagerNotInitializedException(
                 string.Format("You must initialize the DoshiiManager instance before calling {0}", methodName));
+        }
+
+        private void ThrowDoshiiMembershipNotInitializedException(string methodName)
+        {
+            throw new DoshiiMembershipManagerNotInitializedException(
+                string.Format("You must initialize the DoshiiMembership module before calling {0}", methodName));
         }
 
         #region IDisposable Members

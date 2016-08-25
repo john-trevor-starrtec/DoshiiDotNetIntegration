@@ -857,7 +857,100 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 #endregion
 
-#region consumers
+        #region Member methods
+
+        internal virtual Member GetMember(string memberId)
+        {
+            var retreivedMember = new Member();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Members, memberId), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonMember = JsonMember.deseralizeFromJson(responseMessage.Data);
+                        retreivedMember = Mapper.Map<Member>(jsonMember);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Members, memberId)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Members, memberId)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Members, memberId)));
+            }
+
+            return retreivedMember;
+        }
+
+        internal virtual IEnumerable<Member> GetMembers()
+        {
+            var retreivedMemberList = new List<Member>();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Members), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonMember>>(responseMessage.Data);
+                        retreivedMemberList = Mapper.Map<List<Member>>(jsonList);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Members)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Members)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Members)));
+            }
+
+            List<Member> fullMemberList = new List<Member>();
+            foreach (var partmember in retreivedMemberList)
+            {
+                Member newMember = GetMember(partmember.Id);
+                fullMemberList.Add(newMember);
+            }
+            return (IEnumerable<Member>)fullMemberList;
+        }
+
+        #endregion
+
+        #region consumers
         /// <summary>
         /// This method is use to get a consumer from Doshii that corresponds with the checkinId 
         /// </summary>
@@ -1269,6 +1362,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case EndPointPurposes.Location:
                     newUrlbuilder.Append("/location");
                     break;
+                case EndPointPurposes.Members:
+                    newUrlbuilder.Append("/members");
+                    if (!string.IsNullOrWhiteSpace(identification))
+                    {
+                        newUrlbuilder.AppendFormat("/{0}", identification);
+                    }
+                    break;
+
                default:
                     throw new NotSupportedException(purpose.ToString());
             }

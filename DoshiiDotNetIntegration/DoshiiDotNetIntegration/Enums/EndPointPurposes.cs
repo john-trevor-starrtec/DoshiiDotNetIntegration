@@ -63,6 +63,11 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// requests for location data
         /// </summary>
-        Location = 11
+        Location = 11,
+
+        /// <summary>
+        /// requests for member data
+        /// </summary>
+        Members = 12
     }
 }

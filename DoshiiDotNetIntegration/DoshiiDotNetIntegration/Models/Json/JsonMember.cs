@@ -10,7 +10,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 {
     [DataContract]
     [Serializable]
-    public class JsonMember
+    internal class JsonMember : JsonSerializationBase<JsonMember>
     {
         [DataMember]
         [JsonProperty(PropertyName = "id")]
@@ -30,7 +30,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "address")]
-        public Address Address { get; set; }
+        public JsonAddress Address { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "points")]
