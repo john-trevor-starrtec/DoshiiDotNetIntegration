@@ -25,7 +25,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Email { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "phoneNumber")]
+        [JsonProperty(PropertyName = "phone")]
         public string PhoneNumber { get; set; }
 
         [DataMember]
@@ -33,11 +33,32 @@ namespace DoshiiDotNetIntegration.Models.Json
         public JsonAddress Address { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "points")]
-        public decimal Points { get; set; }
+        [JsonProperty(PropertyName = "updatedAt")]
+        public DateTime? UpdatedAt { get; set; }
 
         [DataMember]
-        [JsonProperty(PropertyName = "version")]
-        public string Version { get; set; }
+        [JsonProperty(PropertyName = "createdAt")]
+        public DateTime? CreatedAt { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "uri")]
+        public string Uri { get; set; }
+
+        private List<App> _Apps;
+
+        [DataMember]
+        [JsonProperty(PropertyName = "apps")]
+        public List<App> Apps
+        {
+            get
+            {
+                if (_Apps == null)
+                {
+                    _Apps = new List<App>();
+                }
+                return _Apps;
+            }
+            set { _Apps = value; }
+        }
     }
 }

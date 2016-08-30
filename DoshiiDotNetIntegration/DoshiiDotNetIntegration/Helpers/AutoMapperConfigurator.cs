@@ -55,6 +55,7 @@ namespace DoshiiDotNetIntegration.Helpers
                 AutoMapperConfigurator.MapMenuObjects();
 			    AutoMapperConfigurator.MapLocationObjects();
 			    AutoMapperConfigurator.MapAddressObjects();
+                AutoMapperConfigurator.MapAppObjects();
                 AutoMapperConfigurator.MapMemberObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
@@ -101,10 +102,36 @@ namespace DoshiiDotNetIntegration.Helpers
         {
             // Mapping from Variants to JsonOrderVariants
             // src = Member, dest = JsonMember, opt = Mapping Option
-            Mapper.CreateMap<Member, JsonMember>();
+            Mapper.CreateMap<Member, JsonMember>()
+                .ForMember(dest => dest.Apps, opt => opt.MapFrom(src => src.Apps.ToList<App>()));
                 
             // src = JsonAddress, dest = Address
             Mapper.CreateMap<JsonMember, Member>();
+
+            // Mapping from Variants to JsonOrderVariants
+            // src = Member, dest = JsonMember, opt = Mapping Option
+            Mapper.CreateMap<Member, JsonMemberToUpdate>();
+
+            // src = JsonAddress, dest = Address
+            Mapper.CreateMap<JsonMemberToUpdate, Member>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Uri, opt => opt.Ignore())
+                .ForMember(dest => dest.Apps, opt => opt.Ignore());
+
+        }
+
+        private static void MapAppObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = App, dest = JsonApp, opt = Mapping Option
+            Mapper.CreateMap<App, JsonApp>()
+                .ForMember(dest => dest.Points, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Points)));
+
+            // src = JsonApp, dest = App
+            Mapper.CreateMap<JsonApp, App>()
+                .ForMember(dest => dest.Points, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Points)));
         }
 
 		/// <summary>
@@ -371,7 +398,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			return DateTime.MinValue;
 		}
 
-		/// <summary>
+	    /// <summary>
 		/// Converts the supplied <paramref name="cents"/> integer string into a decimal monetary value.
 		/// This relies upon <paramref name="cents"/> being a non-empty string representation of a number of cents.
 		/// The result will contain dollars and cents representation.

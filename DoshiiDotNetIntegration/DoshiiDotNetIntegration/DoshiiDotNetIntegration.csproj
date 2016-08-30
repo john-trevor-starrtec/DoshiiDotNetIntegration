@@ -129,12 +129,16 @@
     <Compile Include="Interfaces\IPaymentModuleManager.cs" />
     <Compile Include="Interfaces\NamespaceDoc.cs" />
     <Compile Include="Models\Address.cs" />
+    <Compile Include="Models\App.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\Json\JsonAddress.cs" />
+    <Compile Include="Models\Json\JsonApp.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
     <Compile Include="Models\Json\JsonLocation.cs" />
+    <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
+    <Compile Include="Models\Json\JsonReward.cs" />
     <Compile Include="Models\Json\JsonUnlinkedOrderToPut.cs" />
     <Compile Include="Models\Json\JsonOrderToPut.cs" />
     <Compile Include="Models\Json\JsonOrder.cs" />
@@ -159,6 +163,7 @@
     <Compile Include="Models\NamespaceDoc.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderWithNoPriceProperties.cs" />
+    <Compile Include="Models\Reward.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductOptions.cs" />

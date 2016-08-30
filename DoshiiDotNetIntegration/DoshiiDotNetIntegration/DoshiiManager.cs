@@ -687,27 +687,43 @@ namespace DoshiiDotNetIntegration
 
         internal virtual void SocketComsMemberCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with for member Id '{0}'", e.MemberId));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with member Id '{0}'", e.MemberId));
             try
             {
                 mMemberManager.CreateMember(e.Member);
             }
             catch(MemberExistOnPosException ex)
             {
-                
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed due to member already existing, now attempting to update existing member.", e.MemberId));
+                try
+                {
+                    mMemberManager.UpdateMember(e.Member);
+                }
+                catch (MemberDoesNotExistOnPosException nex)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed.", e.MemberId));
+                }
             }
         }
 
         internal virtual void SocketComsMemberUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with for member Id '{0}'", e.MemberId));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member updated event for member Id '{0}'", e.MemberId));
             try
             {
                 mMemberManager.UpdateMember(e.Member);
             }
-            catch (MemberExistOnPosException ex)
+            catch (MemberDoesNotExistOnPosException ex)
             {
-
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
+                try
+                {
+                    mMemberManager.CreateMember(e.Member);
+                }
+                catch (MemberExistOnPosException nex)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed", e.MemberId));
+                }
             }
         }
 
@@ -1370,6 +1386,9 @@ namespace DoshiiDotNetIntegration
                 throw rex;
             }
         }
+
+
+
 
         #endregion
 

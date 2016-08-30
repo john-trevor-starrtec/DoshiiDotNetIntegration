@@ -22,34 +22,6 @@ namespace DoshiiDotNetIntegration.Interfaces
     {
         DoshiiDotNetIntegration.Models.Member RetrieveMember(string DoshiiMemberId);
         
-        /// <summary>
-        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the pos
-        /// that a member has been updated. The <paramref name="version"/> string must be persisted in
-        /// the POS and passed back when the POS updates a member. 
-        /// </summary>
-        /// <remarks>
-        /// The current <paramref name="version"/> is used by Doshii for conflict resolution, but the POS is 
-        /// the final arbiter on the state of an member.
-        /// </remarks>
-        /// <param name="DoshiiMemberId">The unique identifier of the order being updated in the POS.</param>
-        /// <param name="version">The current version of the member in Doshii.</param>
-        /// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
-        /// should be thrown when there is no member in the POS with the corresponding 
-        /// <paramref name="DoshiiMemberId"/>.</exception>
-        void RecordMemberVersion(string DoshiiMemberId, string version);
-
-        /// <summary>
-        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to request the current
-        /// version of a member in the POS.
-        /// </summary>
-        /// <param name="DoshiiMemberId">The unique identifier of the member being queried on the POS.</param>
-        /// <returns>The current version of the member in the POS.</returns>
-        /// <exception cref="DoshiiDotNetIntegration.Exceptions.OrderDoesNotExistOnPosException">This exception 
-        /// should be thrown when there is no order in the POS with the corresponding 
-        /// <paramref name="posOrderId"/>.</exception>
-        string RetrieveMemberVersion(string DoshiiMemberId);
-
-
         bool CreateMember(Member newMember);
 
         bool UpdateMember(Member updatedMember);

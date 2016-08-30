@@ -12,9 +12,28 @@ namespace DoshiiDotNetIntegration.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public string PhoneNumber { get; set; }
+        public string Phone { get; set; }
         public Address Address { get; set; }
-        public decimal Points { get; set; }
-        public string Version { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public Uri Uri { get; set; }
+
+        private List<App> _Apps;
+
+        public IEnumerable<App> Apps
+        {
+            get
+            {
+                if (_Apps == null)
+                {
+                    _Apps = new List<App>();
+                }
+                return _Apps;
+            }
+            set
+            {
+                _Apps = value.ToList<App>();
+            }
+        }
     }
 }

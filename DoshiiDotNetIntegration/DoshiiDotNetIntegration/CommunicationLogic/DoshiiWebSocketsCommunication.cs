@@ -449,8 +449,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 case "member_created":
                     CommunicationEventArgs.MemberEventArgs memberCreatedEventArgs = new MemberEventArgs();
                     try
-                    memberCreatedEventArgs.Member = m_DoshiiLogic.GetMember(messageData.MemberId);
-                    memberCreatedEventArgs.MemberId = messageData.MemberId;
+                    {
+                        memberCreatedEventArgs.Member = m_DoshiiLogic.GetMember(messageData.MemberId);
+                        memberCreatedEventArgs.MemberId = messageData.MemberId;
+                    }
+                    catch
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving member updates but the Member module has not been initialized."));
+                    }
+                    
 
                     if (MemberCreatedEvent != null)
                     {
@@ -458,14 +465,21 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     }
                     else
                     {
-                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the memberCreatedEventArgs"));
                     }
 
                     break;
                 case "member_updated":
                     CommunicationEventArgs.MemberEventArgs memberUpdatedEventArgs = new MemberEventArgs();
-                    memberUpdatedEventArgs.Member = m_DoshiiLogic.GetMember(messageData.MemberId);
-                    memberUpdatedEventArgs.MemberId = messageData.MemberId;
+                    try
+                    {
+                        memberUpdatedEventArgs.Member = m_DoshiiLogic.GetMember(messageData.MemberId);
+                        memberUpdatedEventArgs.MemberId = messageData.MemberId;
+                    }
+                    catch
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving member updates but the Member module has not been initialized."));
+                    }
 
                     if (MemberUpdatedEvent != null)
                     {
