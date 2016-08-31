@@ -1037,7 +1037,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return returnedMember;
         }
 
-        internal Member DeleteMember(Member member)
+        internal bool DeleteMember(Member member)
         {
             var returnedMember = new Member();
             DoshiHttpResponseMessage responseMessage;
@@ -1057,15 +1057,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 if (responseMessage.Status == HttpStatusCode.OK)
                 {
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
-                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
-                    {
-                        var jsonMember = JsonConvert.DeserializeObject<JsonMenuProduct>(responseMessage.Data);
-                        returnedMember = Mapper.Map<Member>(jsonMember);
-                    }
-                    else
-                    {
-                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Members, member.Id)));
-                    }
+                    return true;
+                    
 
                 }
                 else
@@ -1078,7 +1071,82 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(EndPointPurposes.Members, member.Id)));
                 throw new NullOrderReturnedException();
             }
-            return returnedMember;
+            return false;
+        }
+
+        internal virtual IEnumerable<Reward> GetRewardsForMember(string memberId)
+        {
+            var retreivedRewardList = new List<Reward>();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewards), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonReward>>(responseMessage.Data);
+                        retreivedRewardList = Mapper.Map<List<Reward>>(jsonList);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.MemberRewards, memberId)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.MemberRewards, memberId)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.MemberRewards, memberId)));
+            }
+
+            return retreivedRewardList;
+        }
+
+        internal bool RedeemRewardForMember(string memberId, string rewardId)
+        {
+            
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewards, memberId, rewardId), WebRequestMethods.Http.Put);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
+                    return true;
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberRewards, memberId, rewardId)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberRewards, memberId, rewardId)));
+                throw new NullOrderReturnedException();
+            }
+            return false;
         }
 
         #endregion
@@ -1432,7 +1500,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// The Url required to make the desiered request. 
         /// </returns>
-        internal string GenerateUrl(EndPointPurposes purpose, string identification = "")
+        internal string GenerateUrl(EndPointPurposes purpose, string identification = "", string secondIdentification = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
 
@@ -1502,8 +1570,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         newUrlbuilder.AppendFormat("/{0}", identification);
                     }
                     break;
-
-               default:
+                case EndPointPurposes.MemberRewards:
+                    newUrlbuilder.AppendFormat("/members/{0}/rewards", identification);
+                    if (!string.IsNullOrWhiteSpace(secondIdentification))
+                    {
+                        newUrlbuilder.AppendFormat("/{0}", secondIdentification);
+                    }
+                    break;
+                default:
                     throw new NotSupportedException(purpose.ToString());
             }
 

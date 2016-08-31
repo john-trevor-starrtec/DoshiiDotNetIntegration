@@ -163,6 +163,7 @@
     <Compile Include="Models\NamespaceDoc.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderWithNoPriceProperties.cs" />
+    <Compile Include="Models\RedeemOrderResult.cs" />
     <Compile Include="Models\Reward.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Product.cs" />

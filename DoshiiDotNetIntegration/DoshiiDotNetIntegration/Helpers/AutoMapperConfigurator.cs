@@ -57,43 +57,28 @@ namespace DoshiiDotNetIntegration.Helpers
 			    AutoMapperConfigurator.MapAddressObjects();
                 AutoMapperConfigurator.MapAppObjects();
                 AutoMapperConfigurator.MapMemberObjects();
+                AutoMapperConfigurator.MapRewardObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
 		}
 
-		/// <summary>
-		/// This function creates a bi-directional object mapping between the Variants model object and its
-		/// JSON equivalent data transfer object.
-		/// </summary>
-		private static void MapVariantsObjects()
-		{
-			// Mapping from Variants to JsonOrderVariants
-			// src = Variants, dest = JsonOrderVariants, opt = Mapping Option
-			Mapper.CreateMap<Variants, JsonOrderVariants>()
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
+        private static void MapRewardObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = Reward, dest = JsonReward, opt = Mapping Option
+            Mapper.CreateMap<Reward, JsonReward>();
 
-			// src = JsonOrderVariants, dest = Variants
-			Mapper.CreateMap<JsonOrderVariants, Variants>()
-                .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
-
-            // src = Variants, dest = JsonOrderVariants, opt = Mapping Option
-            Mapper.CreateMap<Variants, JsonMenuVariants>()
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
-
-            // src = JsonOrderVariants, dest = Variants
-            Mapper.CreateMap<JsonMenuVariants, Variants>()
-                .ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
-                .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
-		}
-
-
+            // src = JsonReward, dest = Reward
+            Mapper.CreateMap<JsonReward, Reward>();
+        }
+        
         private static void MapAddressObjects()
         {
             // Mapping from Variants to JsonOrderVariants
             // src = Address, dest = JsonAddress, opt = Mapping Option
             Mapper.CreateMap<Address, JsonAddress>();
-                
+
             // src = JsonAddress, dest = Address
             Mapper.CreateMap<JsonAddress, Address>();
         }
@@ -104,9 +89,11 @@ namespace DoshiiDotNetIntegration.Helpers
             // src = Member, dest = JsonMember, opt = Mapping Option
             Mapper.CreateMap<Member, JsonMember>()
                 .ForMember(dest => dest.Apps, opt => opt.MapFrom(src => src.Apps.ToList<App>()));
-                
+
             // src = JsonAddress, dest = Address
-            Mapper.CreateMap<JsonMember, Member>();
+            Mapper.CreateMap<JsonMember, Member>()
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)));
 
             // Mapping from Variants to JsonOrderVariants
             // src = Member, dest = JsonMember, opt = Mapping Option
@@ -134,7 +121,34 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.Points, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Points)));
         }
 
+
 		/// <summary>
+		/// This function creates a bi-directional object mapping between the Variants model object and its
+		/// JSON equivalent data transfer object.
+		/// </summary>
+		private static void MapVariantsObjects()
+		{
+			// Mapping from Variants to JsonOrderVariants
+			// src = Variants, dest = JsonOrderVariants, opt = Mapping Option
+			Mapper.CreateMap<Variants, JsonOrderVariants>()
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
+
+			// src = JsonOrderVariants, dest = Variants
+			Mapper.CreateMap<JsonOrderVariants, Variants>()
+                .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
+
+            // src = Variants, dest = JsonOrderVariants, opt = Mapping Option
+            Mapper.CreateMap<Variants, JsonMenuVariants>()
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Price)));
+
+            // src = JsonOrderVariants, dest = Variants
+            Mapper.CreateMap<JsonMenuVariants, Variants>()
+                .ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
+                .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
+		}
+
+
+        /// <summary>
 		/// This function creates a bi-directional object mapping between the Product model objects and their
 		/// JSON equivalent data transfer objects.
 		/// </summary>

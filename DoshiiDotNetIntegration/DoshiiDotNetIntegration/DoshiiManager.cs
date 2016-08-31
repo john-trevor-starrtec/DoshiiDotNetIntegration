@@ -1347,13 +1347,13 @@ namespace DoshiiDotNetIntegration
             if (!m_IsInitalized)
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetOrder"));
+                    "GetMember"));
             }
             if (mMemberManager == null)
             {
 
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetOrder"));
+                    "GetMember"));
             }
             try
             {
@@ -1370,12 +1370,12 @@ namespace DoshiiDotNetIntegration
             if (!m_IsInitalized)
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetOrders"));
+                    "GetMembers"));
             }
             if (mMemberManager == null)
             {
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "GetOrder"));
+                    "GetMembers"));
             }
             try
             {
@@ -1387,7 +1387,79 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        public virtual bool DeleteMember(Member member)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "DeleteMember"));
+            }
+            if (mMemberManager == null)
+            {
 
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "DeleteMember"));
+            }
+            try
+            {
+                return m_HttpComs.DeleteMember(member);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+
+        public virtual IEnumerable<Reward> GetRewardsForMember(string memberId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetRewardsForMember"));
+            }
+            if (mMemberManager == null)
+            {
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetRewardsForMember"));
+            }
+            try
+            {
+                return m_HttpComs.GetRewardsForMember(memberId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+        
+        
+        
+        public virtual Order RedeemRewardForMember(Member member, Reward reward, Order order)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMember"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMember"));
+            }
+            try
+            {
+                if (m_HttpComs.RedeemRewardForMember(member.Id, reward.Id))
+                {
+                    //get refreshed order From Doshii
+                }
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
 
 
         #endregion

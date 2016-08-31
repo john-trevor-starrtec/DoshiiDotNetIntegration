@@ -68,6 +68,13 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// requests for member data
         /// </summary>
-        Members = 12
+        Members = 12,
+
+        /// <summary>
+        /// requests for member reqard data
+        /// </summary>
+        MemberRewards = 13,
+
+        
     }
 }
