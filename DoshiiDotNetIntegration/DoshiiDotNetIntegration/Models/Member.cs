@@ -17,6 +17,7 @@ namespace DoshiiDotNetIntegration.Models
         public DateTime? UpdatedAt { get; set; }
         public DateTime? CreatedAt { get; set; }
         public Uri Uri { get; set; }
+        public string Ref { get; set; }
 
         private List<App> _Apps;
 

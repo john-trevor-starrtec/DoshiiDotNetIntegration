@@ -1217,6 +1217,108 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return false;
         }
 
+        internal bool RedeemPointsForMember(PointsRedeem pr, Member member)
+        {
+            DoshiHttpResponseMessage responseMessage;
+            //create redeem points object
+            try
+            {
+                var jsonPointsRedeem = Mapper.Map<JsonPointsRedeem>(pr);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeem, member.Id), WebRequestMethods.Http.Post, jsonPointsRedeem.ToJsonString());
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
+                    return true;
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeem, member.Id)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeem, member.Id)));
+                throw new NullOrderReturnedException();
+            }
+            return false;
+        }
+
+        internal bool RedeemPointsForMemberConfirm(Member member)
+        {
+            DoshiHttpResponseMessage responseMessage;
+            //create redeem points object
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, member.Id), WebRequestMethods.Http.Put);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
+                    return true;
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, member.Id)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, member.Id)));
+                throw new NullOrderReturnedException();
+            }
+            return false;
+        }
+
+        internal bool RedeemPointsForMemberCancel(Member member)
+        {
+            DoshiHttpResponseMessage responseMessage;
+            //create redeem points object
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id), WebRequestMethods.Http.Put);
+            }
+            catch (RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Debug, string.Format("Doshii: The Response message was not null"));
+
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
+                    return true;
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id)));
+                throw new NullOrderReturnedException();
+            }
+            return false;
+        }
         #endregion
 
         #region consumers
@@ -1649,6 +1751,15 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case EndPointPurposes.MemberRewardsRedeemCancel:
                     newUrlbuilder.AppendFormat("/members/{0}/rewards/{1}/cancel", identification, secondIdentification);
+                    break;
+                case EndPointPurposes.MemberPointsRedeem:
+                    newUrlbuilder.AppendFormat("/members/{0}/points/redeem", identification);
+                    break;
+                case EndPointPurposes.MemberPointsRedeemConfirm:
+                    newUrlbuilder.AppendFormat("/members/{0}/points/confirm", identification);
+                    break;
+                case EndPointPurposes.MemberPointsRedeemCancel:
+                    newUrlbuilder.AppendFormat("/members/{0}/points/cancel", identification);
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());

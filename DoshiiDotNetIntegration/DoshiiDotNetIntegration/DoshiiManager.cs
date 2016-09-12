@@ -1411,6 +1411,37 @@ namespace DoshiiDotNetIntegration
         }
 
 
+        public virtual Member UpdateMember(Member member)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "UpdateMember"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "UpdateMember"));
+            }
+            try
+            {
+                if (string.IsNullOrEmpty(member.Id))
+                {
+                    return m_HttpComs.PostMember(member);
+                }
+                else
+                {
+                    return m_HttpComs.PutMember(member);
+                }
+                
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
         public virtual IEnumerable<Reward> GetRewardsForMember(string memberId)
         {
             if (!m_IsInitalized)
@@ -1521,7 +1552,90 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        public virtual bool RedeemPointsForMember(Member member, App app, Order order, int points)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMember"));
+            }
+            if (mMemberManager == null)
+            {
 
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMember"));
+            }
+            
+            try
+            {
+                order = UpdateOrder(order);
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
+                return false;
+            }
+            PointsRedeem pr = new PointsRedeem()
+            {
+                AppId = app.Id,
+                OrderId = order.Id,
+                Points = points
+            };
+            try
+            {
+                return m_HttpComs.RedeemPointsForMember(pr, member);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemPointsForMemberConfirm(Member member)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMemberConfirm"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMemberConfirm"));
+            }
+            try
+            {
+                return m_HttpComs.RedeemPointsForMemberConfirm(member);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemPointsForMemberCancel(Member member)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMemberCancel"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMemberCancel"));
+            }
+            try
+            {
+                return m_HttpComs.RedeemPointsForMemberCancel(member);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
         #endregion
 
         #region tableAllocation and consumers

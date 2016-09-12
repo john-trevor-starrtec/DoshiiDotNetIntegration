@@ -89,6 +89,12 @@ namespace DoshiiDotNetIntegration.Enums
         /// requests for member reqard data
         /// </summary>
         MemberRewardsRedeemCancel = 16,
+
+        MemberPointsRedeem = 17,
+
+        MemberPointsRedeemConfirm = 18,
+
+        MemberPointsRedeemCancel = 19
         
     }
 }

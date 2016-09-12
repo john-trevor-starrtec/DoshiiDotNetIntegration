@@ -58,11 +58,24 @@ namespace DoshiiDotNetIntegration.Helpers
                 AutoMapperConfigurator.MapAppObjects();
                 AutoMapperConfigurator.MapMemberObjects();
                 AutoMapperConfigurator.MapRewardObjects();
+                AutoMapperConfigurator.MapPointsRedeemObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
 		}
 
+        private static void MapPointsRedeemObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = PointsRedeem, dest = JsonPointsRedeem, opt = Mapping Option
+            Mapper.CreateMap<PointsRedeem, JsonPointsRedeem>()
+                .ForMember(dest => dest.Points, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Points)));
+
+            // src = JsonPointsRedeem, dest = PointsRedeem
+            Mapper.CreateMap<JsonPointsRedeem, PointsRedeem>()
+                .ForMember(dest => dest.Points, opt => opt.MapFrom(src => AutoMapperConfigurator.MapInteger(src.Points)));
+        }
+        
         private static void MapRewardObjects()
         {
             // Mapping from Variants to JsonOrderVariants
@@ -550,6 +563,28 @@ namespace DoshiiDotNetIntegration.Helpers
             {
                 return MapPercentage(value);
             }
+        }
+
+        private static int MapInteger(string value)
+        {
+            if (!String.IsNullOrEmpty(value))
+            {
+                int result;
+                if (int.TryParse(value, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    throw new NotValidCurrencyAmountException(string.Format("{0} cannot be converted into a decimal amount.", value));
+                }
+            }
+            return 0;
+        }
+
+        private static string MapIntegerToString(int value)
+        {
+            return value.ToString();
         }
 	}
 }

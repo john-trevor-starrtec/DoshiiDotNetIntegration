@@ -44,6 +44,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "uri")]
         public string Uri { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "ref")]
+        public string Ref { get; set; }
+
         private List<App> _Apps;
 
         [DataMember]
