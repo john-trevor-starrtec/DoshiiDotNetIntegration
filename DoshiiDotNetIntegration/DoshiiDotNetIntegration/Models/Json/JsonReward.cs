@@ -25,6 +25,14 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Description { get; set; }
 
         [DataMember]
+        [JsonProperty(PropertyName = "surcountType")]
+        public string SurcountType { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "surcountAmount")]
+        public string SurcountAmount { get; set; }
+
+        [DataMember]
         [JsonProperty(PropertyName = "appName")]
         public string AppName { get; set; }
 

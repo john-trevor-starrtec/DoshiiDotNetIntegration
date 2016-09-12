@@ -1434,8 +1434,16 @@ namespace DoshiiDotNetIntegration
         }
         
         
-        
-        public virtual Order RedeemRewardForMember(Member member, Reward reward, Order order)
+        /// <summary>
+        /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the order. 
+        /// </summary>
+        /// <param name="member"></param>
+        /// <param name="reward"></param>
+        /// <param name="order"></param>
+        /// <returns>
+        /// true - when the reward can be redeemed - the pos must then apply the reward to the order, accept payment for the order from the customer and then call rewardConfirm to confirm the use of the redard. 
+        /// </returns>
+        public virtual bool RedeemRewardForMember(Member member, Reward reward, Order order)
         {
             if (!m_IsInitalized)
             {
@@ -1450,10 +1458,62 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                if (m_HttpComs.RedeemRewardForMember(member.Id, reward.Id))
-                {
-                    //get refreshed order From Doshii
-                }
+                UpdateOrder(order);
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
+                return false;
+            }
+            try
+            {
+                return m_HttpComs.RedeemRewardForMember(member.Id, reward.Id);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemRewardForMemberCancel(Member member, Reward reward, Order order)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMemberCancel"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMemberCancel"));
+            }
+            try
+            {
+                return m_HttpComs.RedeemRewardForMemberCancel(member.Id, reward.Id);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemRewardForMemberConfirm(Member member, Reward reward, Order order)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMemberConfirm"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMemberConfirm"));
+            }
+            try
+            {
+                return m_HttpComs.RedeemRewardForMemberConfirm(member.Id, reward.Id);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {

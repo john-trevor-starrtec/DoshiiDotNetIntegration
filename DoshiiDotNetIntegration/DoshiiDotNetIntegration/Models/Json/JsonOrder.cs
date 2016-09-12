@@ -48,6 +48,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "invoiceId")]
         public string InvoiceId{ get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "memberId")]
+        public string MemberId { get; set; }
         
         /// <summary>
         /// The CheckinId the order is associated with

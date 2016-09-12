@@ -67,10 +67,12 @@ namespace DoshiiDotNetIntegration.Helpers
         {
             // Mapping from Variants to JsonOrderVariants
             // src = Reward, dest = JsonReward, opt = Mapping Option
-            Mapper.CreateMap<Reward, JsonReward>();
+            Mapper.CreateMap<Reward, JsonReward>()
+                .ForMember(dest => dest.SurcountAmount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapSurchargeAmountToString(src.SurcountAmount, src.SurcountType)));
 
             // src = JsonReward, dest = Reward
-            Mapper.CreateMap<JsonReward, Reward>();
+            Mapper.CreateMap<JsonReward, Reward>()
+                .ForMember(dest => dest.SurcountAmount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapSurchargeAmountToDouble(src.SurcountAmount, src.SurcountType)));
         }
         
         private static void MapAddressObjects()
@@ -444,6 +446,24 @@ namespace DoshiiDotNetIntegration.Helpers
             return 0.0M;
 		}
 
+
+        private static decimal MapPercentage(string percentage)
+        {
+            if (!String.IsNullOrEmpty(percentage))
+            {
+                decimal result;
+                if (Decimal.TryParse(percentage, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    throw new NotValidCurrencyAmountException(string.Format("{0} cannot be converted into a decimal amount.", percentage));
+                }
+            }
+            return 0.0M;
+        }
+
 		/// <summary>
 		/// Converts the supplied <paramref name="amount"/> into an integer representation of the number of cents.
 		/// </summary>
@@ -464,6 +484,11 @@ namespace DoshiiDotNetIntegration.Helpers
 			decimal result = (decimal)Math.Floor(amount * AutoMapperConfigurator.CentsPerDollar);
 			return result.ToString();
 		}
+
+        private static string MapPercentageToString(decimal amount)
+        {
+            return amount.ToString();
+        }
 
         private static string MapQuantityToString(decimal quantity)
         {
@@ -502,9 +527,29 @@ namespace DoshiiDotNetIntegration.Helpers
             
 	    }
 
-        private static string MapIntegerToString(int value)
+        private static string MapSurchargeAmountToString(decimal value, string rewardType)
         {
-            return value.ToString();
+            decimal result;
+            if (rewardType == "absolute")
+            {
+                return MapCurrencyToString(value);
+            }
+            else
+            {
+                return MapPercentageToString(value);
+            }
+        }
+
+        private static decimal MapSurchargeAmountToDouble(string value, string rewardType)
+        {
+            if (rewardType == "absolute")
+            {
+                return MapCurrency(value);
+            }
+            else
+            {
+                return MapPercentage(value);
+            }
         }
 	}
 }

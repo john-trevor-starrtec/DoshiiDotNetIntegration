@@ -75,6 +75,20 @@ namespace DoshiiDotNetIntegration.Enums
         /// </summary>
         MemberRewards = 13,
 
+        /// <summary>
+        /// requests for member reqard data
+        /// </summary>
+        MemberRewardsRedeem = 14,
+
+        /// <summary>
+        /// requests for member reqard data
+        /// </summary>
+        MemberRewardsRedeemConfirm = 15,
+
+        /// <summary>
+        /// requests for member reqard data
+        /// </summary>
+        MemberRewardsRedeemCancel = 16,
         
     }
 }

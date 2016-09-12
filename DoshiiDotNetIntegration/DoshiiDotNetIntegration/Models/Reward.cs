@@ -15,6 +15,9 @@ namespace DoshiiDotNetIntegration.Models
         public string Name { get; set; }
         public string Description { get; set; }
 
+        public string SurcountType { get; set; }
+        public decimal SurcountAmount { get; set; }
+        
         public string AppName { get; set; }
 
         public DateTime? UpdatedAt { get; set; }

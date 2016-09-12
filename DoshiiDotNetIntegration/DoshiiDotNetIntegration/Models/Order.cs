@@ -63,7 +63,10 @@ namespace DoshiiDotNetIntegration.Models
         /// Unique identifier for the invoice once the order is paid for.
         /// </summary>
         public string InvoiceId{ get; set; }
-        
+
+
+        public string MemberId { get; set; }
+
         /// <summary>
         /// The CheckinId the order is associated with, the doshii system uses this checkinId to relate tables to orders, to delete a table allocation you must have the
         /// order checkIn Id. 
