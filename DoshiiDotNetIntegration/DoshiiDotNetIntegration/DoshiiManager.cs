@@ -127,9 +127,19 @@ namespace DoshiiDotNetIntegration
         private IMembershipModuleManager mMemberManager;
 
         /// <summary>
-        /// The unique token for the venue -- this can be retrieved from Doshii before enabling the integration.
+        /// The unique LocationId for the venue -- this can be retrieved from Doshii before enabling the integration.
         /// </summary>
-        internal string AuthorizeToken { get; set; }
+        internal string LocationId { get; set; }
+
+        /// <summary>
+        /// The Pos vendor name retrieved from Doshii.
+        /// </summary>
+        internal string Vendor { get; set; }
+
+        /// <summary>
+        /// This is unique for every POS company and should be retrieved from Doshii dashboard
+        /// </summary>
+        internal string SecretKey { get; set; }
 
         /// <summary>
         /// Gets the current Doshii version information.
@@ -205,7 +215,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the initialize procedure was unsuccessful.
         /// </returns>
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with one of the paramaters.</exception>
-        public virtual bool Initialize(string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        public virtual bool Initialize(string token, string locationId, string vendor, string secretKey, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}token {0}, {3}BaseUrl: {1}", token, urlBase, CurrentVersion(), Environment.NewLine));
 			
@@ -217,8 +227,26 @@ namespace DoshiiDotNetIntegration
 
             if (string.IsNullOrWhiteSpace(token))
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required token");
-				throw new ArgumentException("empty token");
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required token");
+                throw new ArgumentException("empty token");
+            }
+            
+            if (string.IsNullOrWhiteSpace(locationId))
+            {
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
+                throw new ArgumentException("empty locationId");
+            }
+
+            if (string.IsNullOrWhiteSpace(vendor))
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required vendor");
+                throw new ArgumentException("empty vendor");
+            }
+
+            if (string.IsNullOrWhiteSpace(secretKey))
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required secretKey");
+                throw new ArgumentException("empty secretKey");
             }
 
 			int timeout = timeOutValueSecs;
@@ -234,7 +262,9 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
-			AuthorizeToken = token;
+			LocationId = locationId;
+            Vendor = vendor;
+            SecretKey = secretKey;
             urlBase = FormatBaseUrl(urlBase);
 			string socketUrl = BuildSocketUrl(urlBase, token);
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
@@ -291,7 +321,7 @@ namespace DoshiiDotNetIntegration
         {
             mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, "Doshii: Initializing Doshii");
 
-            m_HttpComs = new DoshiiHttpCommunication(UrlBase, AuthorizeToken, mLog, this);
+            m_HttpComs = new DoshiiHttpCommunication(UrlBase, LocationId, Vendor, SecretKey, mLog, this);
 
             if (StartWebSocketConnection)
             {
