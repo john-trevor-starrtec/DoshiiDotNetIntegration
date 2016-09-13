@@ -404,6 +404,24 @@ namespace DoshiiDotNetIntegration.Helpers
             // src = JsonOrder, dest = Order
             Mapper.CreateMap<Order, OrderWithNoPriceProperties>()
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
+
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Order, JsonOrderIdSimple>();
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonOrderIdSimple, Order>()
+             .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
+             .ForMember(dest => dest.Type, opt => opt.Ignore())
+             .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())
+             .ForMember(dest => dest.CheckinId, opt => opt.Ignore())
+             .ForMember(dest => dest.LocationId, opt => opt.Ignore())
+             .ForMember(dest => dest.Uri, opt => opt.Ignore())
+             .ForMember(dest => dest.RequiredAt, opt => opt.Ignore())
+             .ForMember(dest => dest.Items, opt => opt.Ignore())
+             .ForMember(dest => dest.MemberId, opt => opt.Ignore())
+             .ForMember(dest => dest.Status, opt => opt.Ignore())
+             .ForMember(dest => dest.Surcounts, opt => opt.Ignore())
+             .ForMember(dest => dest.Version, opt => opt.Ignore());
 		}
 
 		/// <summary>

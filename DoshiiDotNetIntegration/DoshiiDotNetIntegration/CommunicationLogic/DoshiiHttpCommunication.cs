@@ -1066,8 +1066,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                var jsonMember = Mapper.Map<JsonMemberToUpdate>(member);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Members, member.Id), DoshiiHttpCommunication.DeleteMethod, jsonMember.ToJsonString());
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Members, member.Id), DoshiiHttpCommunication.DeleteMethod);
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -1138,13 +1137,14 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedRewardList;
         }
 
-        internal bool RedeemRewardForMember(string memberId, string rewardId)
+        internal bool RedeemRewardForMember(string memberId, string rewardId, Order order)
         {
             
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewardsRedeem, memberId, rewardId), WebRequestMethods.Http.Post);
+                var jsonOrderIdSimple = Mapper.Map<JsonOrderIdSimple>(order);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewardsRedeem, memberId, rewardId), WebRequestMethods.Http.Post, jsonOrderIdSimple.ToJsonString());
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -1172,13 +1172,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return false;
         }
 
-        internal bool RedeemRewardForMemberCancel(string memberId, string rewardId)
+        internal bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
 
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewardsRedeemCancel, memberId, rewardId), WebRequestMethods.Http.Put);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewardsRedeemCancel, memberId, rewardId), WebRequestMethods.Http.Put, "{ \"reason\": \""+cancelReason+"\"}");
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -1309,13 +1309,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return false;
         }
 
-        internal bool RedeemPointsForMemberCancel(Member member)
+        internal bool RedeemPointsForMemberCancel(Member member, string cancelReason)
         {
             DoshiHttpResponseMessage responseMessage;
             //create redeem points object
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id), WebRequestMethods.Http.Put);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id), WebRequestMethods.Http.Put, "{ \"reason\": \""+cancelReason+"\"}");
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -1882,10 +1882,11 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     responceMessage.Status == HttpStatusCode.Forbidden || 
                     responceMessage.Status == HttpStatusCode.InternalServerError || 
                     responceMessage.Status == HttpStatusCode.NotFound || 
-                    responceMessage.Status == HttpStatusCode.Conflict)
+                    responceMessage.Status == HttpStatusCode.Conflict ||
+                    responceMessage.Status == (HttpStatusCode)456) //Upstream rejected
                 {
 					mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: Failed response from {0} request to endpoint {1}, with data {2} , responceCode - {3}, responceData - {4}", method, url, data, responceMessage.Status.ToString(), responceMessage.Data));
-                    throw new Exceptions.RestfulApiErrorResponseException(responceMessage.Status);
+                    throw new Exceptions.RestfulApiErrorResponseException(responceMessage.Status, responceMessage.Message);
                 }
                 else
                 {

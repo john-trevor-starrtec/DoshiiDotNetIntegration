@@ -393,7 +393,6 @@ namespace DoshiiDotNetIntegration
                 m_SocketComs.SocketCommunicationTimeoutReached += new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
                 m_SocketComs.MemberCreatedEvent += new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
                 m_SocketComs.MemberUpdatedEvent += new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
-                
             }
         }
 
@@ -1528,7 +1527,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.RedeemRewardForMember(member.Id, reward.Id);
+                return m_HttpComs.RedeemRewardForMember(member.Id, reward.Id, order);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -1536,7 +1535,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual bool RedeemRewardForMemberCancel(Member member, Reward reward, Order order)
+        public virtual bool RedeemRewardForMemberCancel(Member member, Reward reward, Order order, string cancelReason)
         {
             if (!m_IsInitalized)
             {
@@ -1551,7 +1550,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.RedeemRewardForMemberCancel(member.Id, reward.Id);
+                return m_HttpComs.RedeemRewardForMemberCancel(member.Id, reward.Id, cancelReason);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -1644,7 +1643,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual bool RedeemPointsForMemberCancel(Member member)
+        public virtual bool RedeemPointsForMemberCancel(Member member, string cancelReason)
         {
             if (!m_IsInitalized)
             {
@@ -1659,7 +1658,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.RedeemPointsForMemberCancel(member);
+                return m_HttpComs.RedeemPointsForMemberCancel(member, cancelReason);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {

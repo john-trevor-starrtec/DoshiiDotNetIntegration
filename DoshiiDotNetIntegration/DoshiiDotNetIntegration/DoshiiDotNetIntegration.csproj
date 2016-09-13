@@ -142,6 +142,7 @@
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
+    <Compile Include="Models\Json\JsonOrderIdSimple.cs" />
     <Compile Include="Models\Json\JsonPointsRedeem.cs" />
     <Compile Include="Models\Json\JsonReward.cs" />
     <Compile Include="Models\Json\JsonUnlinkedOrderToPut.cs" />
