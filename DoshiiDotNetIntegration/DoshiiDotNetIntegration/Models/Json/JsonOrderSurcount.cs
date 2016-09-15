@@ -44,5 +44,9 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "posId")]
         public string Id { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "rewardId")]
+        public string RewardId { get; set; }
     }
 }

@@ -54,6 +54,8 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string Id { get; set; }
 
+        public string RewardId { get; set; }
+
 		#region ICloneable Members
 
 		/// <summary>

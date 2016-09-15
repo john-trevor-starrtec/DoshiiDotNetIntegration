@@ -277,6 +277,7 @@ namespace DoshiiDotNetIntegration.Helpers
                 
             // src = JsonOrderSurcount, dest = Surcount
             Mapper.CreateMap<JsonMenuSurcount, Surcount>()
+                .ForMember(dest => dest.RewardId, opt => opt.Ignore())
                 .ForMember(dest => dest.Amount, opt => opt.Ignore());
 		}
 
