@@ -215,9 +215,9 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the initialize procedure was unsuccessful.
         /// </returns>
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with one of the paramaters.</exception>
-        public virtual bool Initialize(string token, string locationId, string vendor, string secretKey, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        public virtual bool Initialize(string locationId, string vendor, string secretKey, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}token {0}, {3}BaseUrl: {1}", token, urlBase, CurrentVersion(), Environment.NewLine));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", locationId, urlBase, CurrentVersion(), Environment.NewLine, vendor, secretKey));
 			
             if (string.IsNullOrWhiteSpace(urlBase))
             {
@@ -225,12 +225,6 @@ namespace DoshiiDotNetIntegration
 				throw new ArgumentException("empty urlBase");
             }
 
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required token");
-                throw new ArgumentException("empty token");
-            }
-            
             if (string.IsNullOrWhiteSpace(locationId))
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
@@ -266,7 +260,7 @@ namespace DoshiiDotNetIntegration
             Vendor = vendor;
             SecretKey = secretKey;
             urlBase = FormatBaseUrl(urlBase);
-			string socketUrl = BuildSocketUrl(urlBase, token);
+			string socketUrl = BuildSocketUrl(urlBase, CreateToken());
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
@@ -321,7 +315,7 @@ namespace DoshiiDotNetIntegration
         {
             mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, "Doshii: Initializing Doshii");
 
-            m_HttpComs = new DoshiiHttpCommunication(UrlBase, LocationId, Vendor, SecretKey, mLog, this);
+            m_HttpComs = new DoshiiHttpCommunication(UrlBase, mLog, this);
 
             if (StartWebSocketConnection)
             {
@@ -2036,6 +2030,20 @@ namespace DoshiiDotNetIntegration
         {
             throw new DoshiiMembershipManagerNotInitializedException(
                 string.Format("You must initialize the DoshiiMembership module before calling {0}", methodName));
+        }
+
+        public string CreateToken()
+        {
+            var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var now = Math.Round((DateTime.UtcNow - unixEpoch).TotalSeconds);
+
+            var payload = new Dictionary<string, object>()
+            {
+                {"locationId", LocationId}, //locationId of the location connected to Doshii
+                {"timestamp", now}
+            };
+
+            return JWT.JsonWebToken.Encode(payload, SecretKey, JWT.JwtHashAlgorithm.HS256);
         }
 
         #region IDisposable Members

@@ -38,22 +38,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 		internal DoshiiManager m_DoshiiLogic { get; private set; }
 
         /// <summary>
-        /// The location Id of the location connected to Doshii
-        /// </summary>
-		internal string m_LocationId { get; private set; }
-
-        /// <summary>
-        /// The POS vendor name retreived from Doshii dachboard
-        /// </summary>
-        internal string m_Vendor { get; private set; }
-
-
-        /// <summary>
-        /// The POS vendor secret key that is provided to the pos vendor by Doshii
-        /// </summary>
-        internal string m_SecretKey { get; private set; }
-
-		/// <summary>
 		/// The logging callback mechanism for the POS.
 		/// </summary>
 		internal DoshiiLogManager mLog { get; private set; }
@@ -73,7 +57,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="doshiiLogic">
         /// the <see cref="DoshiiManager"/> that controls the operation of the SDK.
         /// </param>
-		internal DoshiiHttpCommunication(string urlBase, string locationId, string vendor, string secretKey, DoshiiLogManager logManager, DoshiiManager doshiiLogic)
+		internal DoshiiHttpCommunication(string urlBase, DoshiiLogManager logManager, DoshiiManager doshiiLogic)
         {
             if (doshiiLogic == null)
             {
@@ -88,33 +72,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             m_DoshiiLogic = doshiiLogic;
 			mLog = logManager;
 
-            mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Instantiating DoshiiHttpCommunication Class with; urlBase - '{0}', locationId - '{1}', vendor - '{2}', secretKey - '{3}'", urlBase, locationId, vendor, secretKey));
+            mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Instantiating DoshiiHttpCommunication Class with; urlBase - '{0}', locationId - '{1}', vendor - '{2}', secretKey - '{3}'", urlBase, doshiiLogic.LocationId, doshiiLogic.Vendor, doshiiLogic.SecretKey));
             if (string.IsNullOrWhiteSpace(urlBase))
             {
 				mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Error, string.Format("Instantiating DoshiiHttpCommunication Class with a blank urlBase - '{0}'", urlBase));
                 throw new ArgumentException("blank URL");
             
             }
-            if (string.IsNullOrWhiteSpace(locationId))
-            {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Error, string.Format("Instantiating DoshiiHttpCommunication Class with a blank locationId - '{0}'", locationId));
-                throw new ArgumentException("blank locationId");
-            }
-            if (string.IsNullOrWhiteSpace(vendor))
-            {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Error, string.Format("Instantiating DoshiiHttpCommunication Class with a blank vendor - '{0}'", vendor));
-                throw new ArgumentException("blank vendor");
-            }
-            if (string.IsNullOrWhiteSpace(secretKey))
-            {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Error, string.Format("Instantiating DoshiiHttpCommunication Class with a blank secretKey - '{0}'", secretKey));
-                throw new ArgumentException("blank secretKey");
-            }
+            
             
             m_DoshiiUrlBase = urlBase;
-            m_LocationId = locationId;
-            m_Vendor = vendor;
-            m_SecretKey = secretKey;
         }
 
         #region order methods
@@ -1830,8 +1797,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             HttpWebRequest request = null;
             request = (HttpWebRequest)WebRequest.Create(url);
             request.KeepAlive = false;
-            request.Headers.Add("authorization", CreateToken());
-            request.Headers.Add("vendor", m_Vendor);
+            request.Headers.Add("authorization", m_DoshiiLogic.CreateToken());
+            request.Headers.Add("vendor", m_DoshiiLogic.Vendor);
             request.ContentType = "application/json";
 
 
@@ -1953,19 +1920,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return responceMessage;
         }
 
-        private string CreateToken()
-        {
-            var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var now = Math.Round((DateTime.UtcNow - unixEpoch).TotalSeconds);
-
-            var payload = new Dictionary<string, object>()
-            {
-                {"locationId", m_LocationId}, //locationId of the location connected to Doshii
-                {"timestamp", now}
-            };
-             
-            return JWT.JsonWebToken.Encode(payload, m_SecretKey, JWT.JwtHashAlgorithm.HS256);
-        }
+        
 
 #endregion
 
