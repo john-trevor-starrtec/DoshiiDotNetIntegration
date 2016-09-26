@@ -713,14 +713,14 @@ namespace DoshiiDotNetIntegration
             mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with member Id '{0}'", e.MemberId));
             try
             {
-                mMemberManager.CreateMember(e.Member);
+                mMemberManager.CreateMemberOnPos(e.Member);
             }
             catch(MemberExistOnPosException ex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed due to member already existing, now attempting to update existing member.", e.MemberId));
                 try
                 {
-                    mMemberManager.UpdateMember(e.Member);
+                    mMemberManager.UpdateMemberOnPos(e.Member);
                 }
                 catch (MemberDoesNotExistOnPosException nex)
                 {
@@ -734,14 +734,14 @@ namespace DoshiiDotNetIntegration
             mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member updated event for member Id '{0}'", e.MemberId));
             try
             {
-                mMemberManager.UpdateMember(e.Member);
+                mMemberManager.UpdateMemberOnPos(e.Member);
             }
             catch (MemberDoesNotExistOnPosException ex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
                 try
                 {
-                    mMemberManager.CreateMember(e.Member);
+                    mMemberManager.CreateMemberOnPos(e.Member);
                 }
                 catch (MemberExistOnPosException nex)
                 {
@@ -1465,7 +1465,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual IEnumerable<Reward> GetRewardsForMember(string memberId)
+        public virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
         {
             if (!m_IsInitalized)
             {
@@ -1479,7 +1479,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.GetRewardsForMember(memberId);
+                return m_HttpComs.GetRewardsForMember(memberId, orderId, orderTotal);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {

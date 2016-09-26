@@ -1063,13 +1063,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return false;
         }
 
-        internal virtual IEnumerable<Reward> GetRewardsForMember(string memberId)
+        internal virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
         {
             var retreivedRewardList = new List<Reward>();
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberRewards), WebRequestMethods.Http.Get);
+                responseMessage = MakeRequest(string.Format("{0}?orderId={1}&orderTotal={2}", GenerateUrl(EndPointPurposes.MemberRewards),orderId,orderTotal), WebRequestMethods.Http.Get);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {

@@ -35,6 +35,8 @@ namespace DoshiiDotNetIntegration.Models
 			_surcounts.Clear();
 			Version = String.Empty;
 			Uri = String.Empty;
+		    MemberId = string.Empty;
+		    Phase = string.Empty;
 			_items.Clear();
 		    RequiredAt = null;
 		}
@@ -66,6 +68,11 @@ namespace DoshiiDotNetIntegration.Models
 
 
         public string MemberId { get; set; }
+
+        /// <summary>
+        /// Free text representation of where the Order is in the it's lifecycle at the venue. 
+        /// </summary>
+        public string Phase { get; set; }
 
         /// <summary>
         /// The CheckinId the order is associated with, the doshii system uses this checkinId to relate tables to orders, to delete a table allocation you must have the

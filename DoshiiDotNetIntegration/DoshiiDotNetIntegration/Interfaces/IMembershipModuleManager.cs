@@ -20,12 +20,34 @@ namespace DoshiiDotNetIntegration.Interfaces
     /// </remarks>
     public interface IMembershipModuleManager
     {
+        /// <summary>
+        /// This method should retreive the doshii member from the pos. 
+        /// </summary>
+        /// <param name="DoshiiMemberId"></param>
+        /// <returns></returns>
         DoshiiDotNetIntegration.Models.Member RetrieveMember(string DoshiiMemberId);
         
-        bool CreateMember(Member newMember);
+        /// <summary>
+        /// This method should create a doshii member on the pos
+        /// </summary>
+        /// <param name="newMember"></param>
+        /// <returns></returns>
+        bool CreateMemberOnPos(Member newMember);
 
-        bool UpdateMember(Member updatedMember);
+        /// <summary>
+        /// This method should update a doshii member of the pos. 
+        /// </summary>
+        /// <param name="updatedMember"></param>
+        /// <returns></returns>
+        bool UpdateMemberOnPos(Member updatedMember);
 
+        /// <summary>
+        /// This method should update a doshii member of the pos. 
+        /// </summary>
+        /// <param name="updatedMember"></param>
+        /// <returns></returns>
+        bool DeleteMemberOnPos(Member deletedMember);
 
+        
     }
 }
