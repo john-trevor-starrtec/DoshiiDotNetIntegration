@@ -9,6 +9,11 @@ namespace DoshiiDotNetIntegration.Models
 {
     public class Member
     {
+        public Member()
+        {
+            Address = new Address();
+        }
+        
         public string Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
