@@ -25,7 +25,14 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </summary>
         /// <param name="DoshiiMemberId"></param>
         /// <returns></returns>
-        DoshiiDotNetIntegration.Models.Member RetrieveMember(string DoshiiMemberId);
+        DoshiiDotNetIntegration.Models.Member RetrieveMemberFromPos(string DoshiiMemberId);
+
+        /// <summary>
+        /// This method should retreive all the doshii member from the pos. 
+        /// </summary>
+        /// <param name="DoshiiMemberId"></param>
+        /// <returns></returns>
+        IEnumerable<DoshiiDotNetIntegration.Models.Member> GetMembersFromPos();
         
         /// <summary>
         /// This method should create a doshii member on the pos
