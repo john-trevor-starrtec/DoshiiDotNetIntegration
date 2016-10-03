@@ -32,6 +32,7 @@ namespace DoshiiDotNetIntegration.Models
 		    Type = String.Empty;
 		    Id = String.Empty;
 			Amount = 0.0M;
+		    RewardId = string.Empty;
 		}
 
         /// <summary>
