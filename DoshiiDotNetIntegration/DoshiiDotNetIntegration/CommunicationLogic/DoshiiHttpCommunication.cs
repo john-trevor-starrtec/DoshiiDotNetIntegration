@@ -72,7 +72,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             m_DoshiiLogic = doshiiLogic;
 			mLog = logManager;
 
-            mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Instantiating DoshiiHttpCommunication Class with; urlBase - '{0}', locationId - '{1}', vendor - '{2}', secretKey - '{3}'", urlBase, doshiiLogic.LocationId, doshiiLogic.Vendor, doshiiLogic.SecretKey));
+            mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Debug, string.Format("Instantiating DoshiiHttpCommunication Class with; urlBase - '{0}', locationId - '{1}', vendor - '{2}', secretKey - '{3}'", urlBase, doshiiLogic.LocationToken, doshiiLogic.Vendor, doshiiLogic.SecretKey));
             if (string.IsNullOrWhiteSpace(urlBase))
             {
 				mLog.LogMessage(typeof(DoshiiHttpCommunication), Enums.DoshiiLogLevels.Error, string.Format("Instantiating DoshiiHttpCommunication Class with a blank urlBase - '{0}'", urlBase));

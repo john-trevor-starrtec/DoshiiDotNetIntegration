@@ -129,7 +129,7 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// The unique LocationId for the venue -- this can be retrieved from Doshii before enabling the integration.
         /// </summary>
-        internal string LocationId { get; set; }
+        internal string LocationToken { get; set; }
 
         /// <summary>
         /// The Pos vendor name retrieved from Doshii.
@@ -256,7 +256,7 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
-			LocationId = locationId;
+			LocationToken = locationId;
             Vendor = vendor;
             SecretKey = secretKey;
             urlBase = FormatBaseUrl(urlBase);
@@ -2074,15 +2074,17 @@ namespace DoshiiDotNetIntegration
         public string CreateToken()
         {
             var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            //var now = Math.Round((DateTime.Now - unixEpoch).TotalSeconds);
             var now = Math.Round((DateTime.UtcNow - unixEpoch).TotalSeconds);
 
             var payload = new Dictionary<string, object>()
             {
-                {"locationId", LocationId}, //locationId of the location connected to Doshii
+                //{"locationId", LocationId}, //locationId of the location connected to Doshii
+                {"locationToken", LocationToken},
                 {"timestamp", now}
             };
 
-            return JWT.JsonWebToken.Encode(payload, SecretKey, JWT.JwtHashAlgorithm.HS256);
+            return string.Format("Bearer {0}", JWT.JsonWebToken.Encode(payload, SecretKey, JWT.JwtHashAlgorithm.HS256));
         }
 
         #region IDisposable Members
