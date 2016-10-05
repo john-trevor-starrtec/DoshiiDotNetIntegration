@@ -215,9 +215,9 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the initialize procedure was unsuccessful.
         /// </returns>
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with one of the paramaters.</exception>
-        public virtual bool Initialize(string locationId, string vendor, string secretKey, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        public virtual bool Initialize(string locationToken, string vendor, string secretKey, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", locationId, urlBase, CurrentVersion(), Environment.NewLine, vendor, secretKey));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", locationToken, urlBase, CurrentVersion(), Environment.NewLine, vendor, secretKey));
 			
             if (string.IsNullOrWhiteSpace(urlBase))
             {
@@ -225,10 +225,10 @@ namespace DoshiiDotNetIntegration
 				throw new ArgumentException("empty urlBase");
             }
 
-            if (string.IsNullOrWhiteSpace(locationId))
+            if (string.IsNullOrWhiteSpace(locationToken))
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
-                throw new ArgumentException("empty locationId");
+                throw new ArgumentException("empty locationToken");
             }
 
             if (string.IsNullOrWhiteSpace(vendor))
@@ -256,11 +256,11 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
-			LocationToken = locationId;
+			LocationToken = locationToken;
             Vendor = vendor;
             SecretKey = secretKey;
             urlBase = FormatBaseUrl(urlBase);
-			string socketUrl = BuildSocketUrl(urlBase, CreateToken());
+            string socketUrl = BuildSocketUrl(urlBase, LocationToken);
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
@@ -348,13 +348,13 @@ namespace DoshiiDotNetIntegration
 		/// <returns>The URL for the web socket connection in Doshii.</returns>
 		internal virtual string BuildSocketUrl(string baseApiUrl, string token)
 		{
-			// baseApiUrl is for example https://sandbox.doshii.co/pos/api/v2
+			// baseApiUrl is for example https://sandbox.doshii.co/pos/v3
 			// require socket url of wss://sandbox.doshii.co/pos/socket?token={token} in this example
 			// so first, replace http with ws (this handles situation where using http/ws instead of https/wss
 			string result = baseApiUrl.Replace("http", "ws");
 
 			// next remove the /api/v2 section of the url
-			int index = result.IndexOf("/api");
+			int index = result.IndexOf("/v");
 			if (index > 0 && index < result.Length)
 			{
 				result = result.Remove(index);
@@ -363,7 +363,7 @@ namespace DoshiiDotNetIntegration
 		    index = result.IndexOf(".");
             if (index > 0 && index < result.Length)
             {
-                result = result.Insert(index - 1,"-socket");
+                result = result.Insert(index,"-socket");
             }
 
 			// finally append the socket endpoint and token parameter to the url and return the result
