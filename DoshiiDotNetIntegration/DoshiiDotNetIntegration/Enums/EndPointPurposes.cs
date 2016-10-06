@@ -94,7 +94,9 @@ namespace DoshiiDotNetIntegration.Enums
 
         MemberPointsRedeemConfirm = 18,
 
-        MemberPointsRedeemCancel = 19
+        MemberPointsRedeemCancel = 19,
+
+        Checkins = 20
         
     }
 }

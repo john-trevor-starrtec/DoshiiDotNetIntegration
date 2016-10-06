@@ -59,10 +59,29 @@ namespace DoshiiDotNetIntegration.Helpers
                 AutoMapperConfigurator.MapMemberObjects();
                 AutoMapperConfigurator.MapRewardObjects();
                 AutoMapperConfigurator.MapPointsRedeemObjects();
+                AutoMapperConfigurator.MapCheckInObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
 		}
+
+        private static void MapCheckInObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Checkin, JsonCheckin>()
+                .ForMember(dest => dest.TableNames, opt => opt.MapFrom(src => src.TableNames.ToList<string>()))
+                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToUtcTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToUtcTime(src.CreatedAt)))
+                .ForMember(dest => dest.CompletedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToUtcTime(src.CompletedAt)));
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonCheckin, Checkin>()
+                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)))
+                .ForMember(dest => dest.CompletedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CompletedAt)));
+        }
 
         private static void MapPointsRedeemObjects()
         {
@@ -73,7 +92,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
             // src = JsonPointsRedeem, dest = PointsRedeem
             Mapper.CreateMap<JsonPointsRedeem, PointsRedeem>()
-                .ForMember(dest => dest.Points, opt => opt.MapFrom(src => AutoMapperConfigurator.MapInteger(src.Points)));
+                .ForMember(dest => dest.Points, opt => opt.MapFrom(src => AutoMapperConfigurator.MapStringToInteger(src.Points)));
         }
         
         private static void MapRewardObjects()
@@ -559,6 +578,20 @@ namespace DoshiiDotNetIntegration.Helpers
             
 	    }
 
+        private static DateTime? ToUtcTime(DateTime? localTime)
+        {
+            if (localTime == null)
+            {
+                return null;
+            }
+            else
+            {
+                DateTime utcTime = (DateTime)localTime;
+                return utcTime.ToUniversalTime();
+            }
+
+        }
+
         private static string MapSurchargeAmountToString(decimal value, string rewardType)
         {
             decimal result;
@@ -584,7 +617,7 @@ namespace DoshiiDotNetIntegration.Helpers
             }
         }
 
-        private static int MapInteger(string value)
+        private static int MapStringToInteger(string value)
         {
             if (!String.IsNullOrEmpty(value))
             {

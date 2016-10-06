@@ -105,11 +105,6 @@ namespace DoshiiDotNetIntegration.Models
         }
 
 		/// <summary>
-		/// The obfuscated string representation of the version for the product.
-		/// </summary>
-		public string Version { get; set; }
-
-		/// <summary>
 		/// The POS Id of the product
 		/// </summary>
 		public string PosId { get; set; }
@@ -141,7 +136,6 @@ namespace DoshiiDotNetIntegration.Models
 		    UnitPrice = 0.0M;
 			_Tags.Clear();
 			_ProductOptions.Clear();
-			Version = String.Empty;
 			PosId = String.Empty;
             Quantity = 0.0M;
 		}

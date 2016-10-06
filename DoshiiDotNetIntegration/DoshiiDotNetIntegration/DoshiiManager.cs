@@ -1314,17 +1314,6 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         internal virtual Order PutOrderCreatedResult(Order order)
         {
-            /*if (order.Status == "accepted")
-            {
-                try
-                {
-                    order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
-                }
-                catch (OrderDoesNotExistOnPosException ex)
-                {
-
-                }
-            }*/
             if (order.Status == "accepted")
             {
                 if (order.Id == null || string.IsNullOrEmpty(order.Id))
@@ -1706,26 +1695,25 @@ namespace DoshiiDotNetIntegration
 		/// Called by POS to add a table allocation to an order.
 		/// </summary>
 		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
-		/// <param name="tableName">The table to add in Doshii.</param>
+        /// <param name="tableNames">A list of the tables to add to the allocaiton, if you want to remove the table allocaiton you should pass an empty list into this param.</param>
 		/// <returns>The current order details in Doshii after upload.</returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-		public bool AddTableAllocation(string posOrderId, string tableName)
+        public bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames)
 		{
             if (!m_IsInitalized)
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "AddTableAllocation"));
             }
-            TableAllocation table = new TableAllocation();
-            table.Name = tableName;
 
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", table.Name, posOrderId));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", tableNames[0], posOrderId));
 
             Order order = null;
 			try
 			{
 				order = mOrderingManager.RetrieveOrder(posOrderId);
 			    order.Version = mOrderingManager.RetrieveOrderVersion(posOrderId);
+			    order.CheckinId = mOrderingManager.RetrieveCheckinIdForOrder(posOrderId);
 			    order.Status = "accepted";
 			}
 			catch (OrderDoesNotExistOnPosException dne)
@@ -1733,52 +1721,83 @@ namespace DoshiiDotNetIntegration
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during table allocation");
 			    throw dne;
 			}
-			
-			if (order == null)
-			{
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
-				throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during table allocation", new NullOrderReturnedException());
+
+            if (order == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
+                throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during table allocation", new NullOrderReturnedException());
             }
 
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now", table.Name, posOrderId));
-
-			var tableOrder = new TableOrder();
-			tableOrder.Order = order; 
-			tableOrder.Table = table; 
-
-			try
-			{
-				Order returnedOrder = m_HttpComs.PutOrderWithTableAllocation(tableOrder);
-			    if (returnedOrder != null)
-			    {
-			        RecordOrderCheckinId(returnedOrder);
-			        return true;
-			    }
-			    else
-			    {
-			        return false;
-			    }
-			}
-			catch (RestfulApiErrorResponseException rex)
-			{
-			    if (rex.StatusCode == HttpStatusCode.Conflict)
-			    {
-			        mLog.LogMessage(typeof (DoshiiManager), DoshiiLogLevels.Warning,
-			            string.Format("There was a conflict updating order.id {0} during table allocaiton", order.Id.ToString()));
-			        throw new ConflictWithOrderUpdateException(
-			            string.Format("There was a conflict updating order.id {0} during table Allocation", order.Id.ToString()));
-			    }
-			    else
-			    {
-                    throw new OrderUpdateException("Update order with table allocaiton not successful", rex);
-			    }
+            if (!string.IsNullOrEmpty(order.CheckinId))
+            {
+                return ModifyTableAllocation(order.CheckinId, tableNames);
+            }
+            
+            //create checkin
+            Checkin checkinCreateResult = null;
+            try
+            {
+                Checkin newCheckin = new Checkin();
+                newCheckin.TableNames = tableNames;
+                checkinCreateResult = m_HttpComs.PostCheckin(newCheckin);
+                if (checkinCreateResult == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an error generating a new checkin through Doshii, the table allocation could not be completed."));
+                    return false;
+                }
             }
             catch (Exception ex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation order.Id{0} : {1}", order.Id, ex));
                 throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for order.Id{0}", order.Id), ex);
             }
-		}
+            
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now"));
+
+            order.CheckinId = checkinCreateResult.Id;
+            Order returnedOrder = UpdateOrder(order);
+            if (returnedOrder != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        private bool ModifyTableAllocation(string checkinId, List<string> tableNames)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "AddTableAllocation"));
+            }
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos modifying table allocation table '{0}' to checkin '{1}'", tableNames[0], checkinId));
+
+            //create checkin
+            Checkin checkinCreateResult = null;
+            try
+            {
+                Checkin newCheckin = new Checkin();
+                newCheckin.TableNames = tableNames;
+                newCheckin.Id = checkinId;
+                checkinCreateResult = m_HttpComs.PutCheckin(newCheckin);
+                if (checkinCreateResult == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an error modifying a checkin through Doshii, modifying the table allocation could not be completed."));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation  for checkin {0} : {1}", checkinId, ex));
+                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for for checkin {0}", checkinId), ex);
+            }
+            return true;
+        }
 
         /// <summary>
         /// Calls the appropriate callback method in <see cref="Interfaces.IOrderingManager"/> to record the checkinId for an order on the pos. 
@@ -1786,54 +1805,50 @@ namespace DoshiiDotNetIntegration
         /// <param name="order">
         /// The order that need to be recorded. 
         /// </param>
-        internal virtual void RecordOrderCheckinId(Order order)
+        internal virtual void RecordOrderCheckinId(string posOrderId, string checkinId)
         {
             try
             {
-                mOrderingManager.RecordCheckinForOrder(order.Id, order.CheckinId);
+                mOrderingManager.RecordCheckinForOrder(posOrderId, checkinId);
             }
             catch (OrderDoesNotExistOnPosException nex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: Attempted to update a checkinId for an order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", order.Id, order.CheckinId));
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: Attempted to update a checkinId for an order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", posOrderId, checkinId));
                 //maybe we should call reject order here. 
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a checkinId for an order on the pos, Order.Id - {0}, checkinId - {1}, {2}", order.Id, order.CheckinId, ex.ToString()));
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a checkinId for an order on the pos, Order.Id - {0}, checkinId - {1}, {2}", posOrderId, checkinId, ex.ToString()));
                 //maybe we should call reject order here. 
             }
         }
 
-        /// <summary>
-        /// Deletes a table Allocation from Doshii
-        /// </summary>
-        /// <param name="posOrderId">
-        /// The orderId of the order to be dealocated. 
-        /// </param>
-        /// <returns>
-        /// True if successful
-        /// False if unsuccessful
-        /// </returns>
-        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        /// <exception cref="OrderUpdateException">Thrown when there is an error updating the order</exception>
-        public virtual bool DeleteTableAllocation(string posOrderId)
+        public virtual bool CloseCheckin(string checkinId)
         {
             if (!m_IsInitalized)
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteTableAllocation"));
+                    "AddTableAllocation"));
             }
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for Order Id - '{0}'",posOrderId));
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos closing checkin '{0}'", checkinId));
+
+            Checkin checkinCreateResult = null;
             try
             {
-                string checkinId = mOrderingManager.RetrieveCheckinIdForOrder(posOrderId);
-                return m_HttpComs.DeleteTableAllocation(checkinId);
+                checkinCreateResult = m_HttpComs.DeleteCheckin(checkinId);
+                if (checkinCreateResult == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an error attempting to close a checkin."));
+                    return false;
+                }
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to delete a table allocation order.Id{0} : {1}", posOrderId, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting to delete a table allocaiton for order.Id{0}", posOrderId), ex);
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to close checkin {0} - {1}", checkinId, ex));
+                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
             }
+            return true;
         }
 
         #endregion

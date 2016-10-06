@@ -132,17 +132,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
 		/// <summary>
-		/// The version of the product in Doshii.
-		/// </summary>
-		[DataMember]
-		[JsonProperty(PropertyName = "version")]
-		public string Version { get; set; }
-
-		/// <summary>
 		/// The POS Id of the product
 		/// </summary>
 		[DataMember]
-		[JsonProperty(PropertyName = "posid")]
+		[JsonProperty(PropertyName = "posId")]
 		public string PosId { get; set; }
 
 		
