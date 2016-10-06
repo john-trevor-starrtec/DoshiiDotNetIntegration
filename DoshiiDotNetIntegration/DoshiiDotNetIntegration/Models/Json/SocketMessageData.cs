@@ -92,6 +92,13 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "transactionId")]
         public string TransactionId { get; set; }
 
+        /// <summary>
+        /// DO NOT USE, the internal methods will set this value correctly and it should not be changed by the POS.
+        /// The MemberId associated with the message
+        /// </summary>
+        [JsonProperty(PropertyName = "memberId")]
+        public string MemberId { get; set; }
+
 
     }
 }

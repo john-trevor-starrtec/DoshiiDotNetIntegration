@@ -35,7 +35,7 @@ namespace DoshiiDotNetSDKTests
             orderingManager = MockRepository.GenerateMock<IOrderingManager>();
             _Logger = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IDoshiiLogger>();
             LogManager = new DoshiiLogManager(_Logger);
-            _manager = new DoshiiManager(paymentManager, _Logger, orderingManager);
+            _manager = new DoshiiManager(paymentManager, _Logger, orderingManager, null);
             _mockManager = MockRepository.GeneratePartialMock<DoshiiManager>(paymentManager, _Logger, orderingManager);
 
             token = "QGkXTui42O5VdfSFid_nrFZ4u7A";
@@ -56,14 +56,14 @@ namespace DoshiiDotNetSDKTests
 		[ExpectedException(typeof(ArgumentNullException))]
 		public void ContsuctNullPaymentManager()
 		{
-			var man = new DoshiiManager(null, _Logger, orderingManager);
+			var man = new DoshiiManager(null, _Logger, orderingManager, null);
 		}
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
         public void ContsuctNullOrderManager()
         {
-            var man = new DoshiiManager(paymentManager, _Logger, null);
+            var man = new DoshiiManager(paymentManager, _Logger, null, null);
         }
         
         [Test]

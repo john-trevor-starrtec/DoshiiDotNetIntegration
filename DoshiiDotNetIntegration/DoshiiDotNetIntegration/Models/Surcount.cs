@@ -32,6 +32,7 @@ namespace DoshiiDotNetIntegration.Models
 		    Type = String.Empty;
 		    Id = String.Empty;
 			Amount = 0.0M;
+		    RewardId = string.Empty;
 		}
 
         /// <summary>
@@ -53,6 +54,8 @@ namespace DoshiiDotNetIntegration.Models
         /// The posId for the product
         /// </summary>
         public string Id { get; set; }
+
+        public string RewardId { get; set; }
 
 		#region ICloneable Members
 

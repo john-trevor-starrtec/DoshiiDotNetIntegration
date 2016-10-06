@@ -77,7 +77,7 @@ namespace SampleDotNetPOS
 			mLog = new SampleDoshiiLogger(this);
 			mPaymentManager = new SamplePaymentModuleManager();
             mOrderingManager = new SampleOrderingManager(this);
-			mManager = new DoshiiManager(mPaymentManager, mLog, mOrderingManager);
+			mManager = new DoshiiManager(mPaymentManager, mLog, mOrderingManager, null);
 			mOrders = new List<Order>();
 			mPayments = new List<Transaction>();
 

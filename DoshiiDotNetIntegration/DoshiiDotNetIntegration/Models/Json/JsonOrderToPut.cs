@@ -20,6 +20,26 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "phase")]
+        public string Phase { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "memberId")]
+        public string MemberId { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "checkinId")]
+        public string CheckinId { get; set; }
+
+        /// <summary>
+        /// An obfuscated string representation of the version of the order in Doshii.
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "version")]
+        public string Version { get; set; }
+
+
         private List<JsonOrderSurcount> _surcounts;
 
 		/// <summary>
@@ -41,13 +61,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 			set { _surcounts = value; }
 		}
         
-        /// <summary>
-		/// An obfuscated string representation of the version of the order in Doshii.
-		/// </summary>
-		[DataMember]
-		[JsonProperty(PropertyName = "version")]
-		public string Version { get; set; }
-
+        
 		private List<JsonOrderProduct> _items;
         
         /// <summary>
@@ -89,6 +103,21 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializeVersion()
         {
             return (!string.IsNullOrEmpty(Version));
+        }
+
+        public bool ShouldSerializePhase()
+        {
+            return (!string.IsNullOrEmpty(Phase));
+        }
+
+        public bool ShouldSerializeMemberId()
+        {
+            return (!string.IsNullOrEmpty(MemberId));
+        }
+
+        public bool ShouldSerializeCheckinId()
+        {
+            return (!string.IsNullOrEmpty(CheckinId));
         }
 
         #endregion
