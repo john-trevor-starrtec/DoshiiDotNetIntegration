@@ -22,11 +22,15 @@ namespace DoshiiDotNetSDKTests
         DoshiiDotNetIntegration.Interfaces.IDoshiiLogger _Logger;
         DoshiiDotNetIntegration.DoshiiLogManager LogManager;
         DoshiiManager _manager;
-        string token = "";
+        string locationToken = "";
         string urlBase = "";
         bool startWebSocketsConnection;
         int socketTimeOutSecs = 600;
         DoshiiManager _mockManager;
+        string vendor = "testVendor";
+        string secretKey = "wer";
+        string checkinId = "checkinId";
+        
         
         [SetUp]
         public void Init()
@@ -38,8 +42,8 @@ namespace DoshiiDotNetSDKTests
             _manager = new DoshiiManager(paymentManager, _Logger, orderingManager, null);
             _mockManager = MockRepository.GeneratePartialMock<DoshiiManager>(paymentManager, _Logger, orderingManager);
 
-            token = "QGkXTui42O5VdfSFid_nrFZ4u7A";
-            urlBase = "https://alpha.corp.doshii.co/pos/api/v1";
+            locationToken = "QGkXTui42O5VdfSFid_nrFZ4u7A";
+            urlBase = "https://sandbox.doshii.co/pos/v3";
             startWebSocketsConnection = false;
             socketTimeOutSecs = 600;
         }
@@ -47,8 +51,8 @@ namespace DoshiiDotNetSDKTests
 		[Test]
 		public void BuildSocketUrl()
 		{
-			string expectedResult = String.Format("wss://alpha.corp.doshii.co/pos/socket?token={0}", token);
-			string actualResult = _manager.BuildSocketUrl(urlBase, token);
+            string expectedResult = String.Format("wss://alpha.corp.doshii.co/pos/socket?token={0}", locationToken);
+            string actualResult = _manager.BuildSocketUrl(urlBase, locationToken);
 			Assert.AreEqual(expectedResult, actualResult);
 		}
 
@@ -70,21 +74,35 @@ namespace DoshiiDotNetSDKTests
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoUrlBase()
         {
-            _manager.Initialize(token, "", startWebSocketsConnection, socketTimeOutSecs);
+            _manager.Initialize(locationToken, vendor, secretKey, "", startWebSocketsConnection, socketTimeOutSecs);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Initialze_NoVendor()
+        {
+            _manager.Initialize(locationToken, "", secretKey, urlBase, startWebSocketsConnection, socketTimeOutSecs);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Initialze_NoSecretKey()
+        {
+            _manager.Initialize(locationToken, vendor, "", urlBase, startWebSocketsConnection, socketTimeOutSecs);
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoSocketTimeOutValue()
         {
-            _manager.Initialize(token, urlBase, startWebSocketsConnection, -1);
+            _manager.Initialize(locationToken, vendor, secretKey, urlBase, startWebSocketsConnection, -1);
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentException))]
         public void Initialze_NoToken()
         {
-            _manager.Initialize("", urlBase, startWebSocketsConnection, socketTimeOutSecs);
+            _manager.Initialize("", vendor, secretKey, urlBase, startWebSocketsConnection, socketTimeOutSecs);
         }
 
         [Test]
@@ -118,7 +136,7 @@ namespace DoshiiDotNetSDKTests
                     x.InitializeProcess(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<bool>.Is.Anything,
                         Arg<int>.Is.Equal(DoshiiManager.DefaultTimeout))).Return(true);
 
-            _mockManager.Initialize(token, urlBase, startWebSocketsConnection, 0);
+            _mockManager.Initialize(locationToken, vendor, secretKey, urlBase, startWebSocketsConnection, 0);
             _mockManager.VerifyAllExpectations();
         }
 
@@ -128,18 +146,18 @@ namespace DoshiiDotNetSDKTests
 
             _mockManager.Stub(
                 x =>
-                    x.InitializeProcess(Arg<String>.Is.Equal(string.Format("{0}?token={1}", String.Format("{0}/socket", urlBase.Replace("http", "ws")), token)), Arg<String>.Is.Anything, Arg<bool>.Is.Anything,
+                    x.InitializeProcess(Arg<String>.Is.Equal(GenerateObjectsAndStringHelper.BuildSocketUrl(urlBase, locationToken)), Arg<String>.Is.Anything, Arg<bool>.Is.Anything,
                         Arg<int>.Is.Anything)).Return(true);
 
-            _mockManager.Initialize(token, urlBase, startWebSocketsConnection, 0);
-            Assert.AreEqual(_mockManager.AuthorizeToken, token);
+            _mockManager.Initialize(locationToken, vendor, secretKey, urlBase, startWebSocketsConnection, 0);
+            Assert.AreEqual(_mockManager.LocationToken, locationToken);
         }
 
         [Test]
         public void InitialzeProcess_HttpAndSocketsAreInitialized()
         {
-            _mockManager.AuthorizeToken = token;
-            _mockManager.InitializeProcess(String.Format("{0}/socket", urlBase.Replace("http", "ws")), urlBase, true, 30);
+            _mockManager.LocationToken = locationToken;
+            _mockManager.InitializeProcess(GenerateObjectsAndStringHelper.BuildSocketUrl(urlBase, locationToken), urlBase, true, 30);
             Assert.AreNotEqual(_mockManager.SocketComs, null);
             Assert.AreNotEqual(_mockManager.m_HttpComs, null);
         }
@@ -147,9 +165,9 @@ namespace DoshiiDotNetSDKTests
         [Test]
         public void InitialzeProcess_SocketsNotInitialized()
         {
-            _mockManager.AuthorizeToken = token;
+            _mockManager.LocationToken = locationToken;
             _mockManager.SocketComs = null;
-            _mockManager.InitializeProcess(String.Format("{0}/socket", urlBase.Replace("http", "ws")), urlBase, false, 30);
+            _mockManager.InitializeProcess(GenerateObjectsAndStringHelper.BuildSocketUrl(urlBase, locationToken), urlBase, false, 30);
             Assert.AreEqual(_mockManager.SocketComs, null);
             
         }
@@ -163,9 +181,9 @@ namespace DoshiiDotNetSDKTests
             _Logger.Expect(
                 x =>
                     x.LogDoshiiMessage(Arg<Type>.Is.Equal(typeof(DoshiiManager)), Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Error), Arg<String>.Is.Anything, Arg<Exception>.Is.Anything));
-            
-            _mockManager.AuthorizeToken = token;
-            _mockManager.InitializeProcess(String.Format("{0}/socket", urlBase.Replace("http", "ws")), urlBase, true, 30);
+
+            _mockManager.LocationToken = locationToken;
+            _mockManager.InitializeProcess(GenerateObjectsAndStringHelper.BuildSocketUrl(urlBase, locationToken), urlBase, true, 30);
 
             _Logger.VerifyAllExpectations();
         }
@@ -538,7 +556,7 @@ namespace DoshiiDotNetSDKTests
             orderingManager.Expect(x => x.RecordCheckinForOrder(order.Id, order.CheckinId))
                 .Throw(new OrderDoesNotExistOnPosException());
 
-            _mockManager.RecordOrderCheckinId(order);
+            _mockManager.RecordOrderCheckinId(order.Id, checkinId);
         }
 
         [Test]
@@ -548,7 +566,7 @@ namespace DoshiiDotNetSDKTests
             orderingManager.Expect(x => x.RecordCheckinForOrder(order.Id, order.CheckinId))
                 .Throw(new Exception());
 
-            _mockManager.RecordOrderCheckinId(order);
+            _mockManager.RecordOrderCheckinId(order.Id, checkinId);
         }
 
 
@@ -1019,7 +1037,7 @@ namespace DoshiiDotNetSDKTests
                 .Throw(new OrderDoesNotExistOnPosException());
 
 
-            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation().Name);
+            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string>{ GenerateObjectsAndStringHelper.GenerateTableAllocation().Name});
         }
 
         [Test]
@@ -1034,7 +1052,7 @@ namespace DoshiiDotNetSDKTests
             orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
                 .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
-            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation().Name);
+            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string> { GenerateObjectsAndStringHelper.GenerateTableAllocation().Name });
         }
 
         [Test]
@@ -1049,12 +1067,12 @@ namespace DoshiiDotNetSDKTests
             orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
                 .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
-            _mockManager.AddTableAllocation(GenerateObjectsAndStringHelper.TestOrderId, GenerateObjectsAndStringHelper.GenerateTableAllocation().Name);
+            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string> { GenerateObjectsAndStringHelper.GenerateTableAllocation().Name });
         }
 
         [Test]
         [ExpectedException(typeof(OrderUpdateException))]
-        public void DeleteTableAllocaiton_RestfulApiErrorResponseException()
+        public void RemoveTableAllocaitonFromCheckin_RestfulApiErrorResponseException()
         {
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             _mockManager.m_HttpComs = MockHttpComs;
@@ -1062,12 +1080,12 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Stub(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
                 .Throw(new RestfulApiErrorResponseException(HttpStatusCode.BadRequest));
 
-            _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
+            _mockManager.ModifyTableAllocation(checkinId, new List<string>());
         }
 
         [Test]
         [ExpectedException(typeof(OrderUpdateException))]
-        public void DeleteTableAllocaiton_Exception()
+        public void RemoveTableAllocaitonFromCheckin_Exception()
         {
             var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
             _mockManager.m_HttpComs = MockHttpComs;
@@ -1075,7 +1093,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Stub(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
                 .Throw(new Exception());
 
-            _mockManager.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId);
+            _mockManager.ModifyTableAllocation(checkinId, new List<string>());
         }
     }
 }

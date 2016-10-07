@@ -101,9 +101,9 @@ namespace SampleDotNetPOS
 		/// </summary>
 		/// <param name="apiAddress">The selected API address in the view.</param>
 		/// <param name="locationToken">The entered location token in the view.</param>
-		public void Initialise(string apiAddress, string locationToken)
+		public void Initialise(string apiAddress, string vendor, string secretKey, string locationToken)
 		{
-			mManager.Initialize(SampleDotNetPOSPresenter.AuthToken, apiAddress, true, 0);
+			mManager.Initialize(SampleDotNetPOSPresenter.AuthToken, vendor, secretKey, apiAddress, true, 0);
 
 			// refresh the order list in memory
 			mOrders = mManager.GetOrders().ToList<Order>();
