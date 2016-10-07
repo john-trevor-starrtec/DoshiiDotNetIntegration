@@ -2047,6 +2047,112 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
+        #region Tables
+
+        public virtual Table GetTable(string tableName)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetTable"));
+            }
+            try
+            {
+                return m_HttpComs.GetTable(tableName);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual List<Table> GetTables()
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetTables"));
+            }
+            try
+            {
+                return m_HttpComs.GetTables().ToList();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual Table CreateTable(Table table)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "CreateTable"));
+            }
+            try
+            {
+                return m_HttpComs.PostTable(table);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual Table UpdateTable(Table table)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "UpdateTable"));
+            }
+            try
+            {
+                return m_HttpComs.PutTable(table);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual Table DeleteTable(Table table)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "DeleteTable"));
+            }
+            try
+            {
+                return m_HttpComs.DeleteTable(table);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual Table ReplaceTableListOnDoshii(List<Table> tableList)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "ReplaceTableListOnDoshii"));
+            }
+            try
+            {
+                return m_HttpComs.PutTables(tableList);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+#endregion
+
         /// <summary>
         /// This method is used to get the location information from doshii,
         /// <para/>This should be used to get the DoshiiId for the location - this is the string that can be given to partners to allow them to communicate with this venue through Doshii

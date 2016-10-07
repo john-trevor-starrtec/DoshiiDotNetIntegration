@@ -60,11 +60,35 @@ namespace DoshiiDotNetIntegration.Helpers
                 AutoMapperConfigurator.MapRewardObjects();
                 AutoMapperConfigurator.MapPointsRedeemObjects();
                 AutoMapperConfigurator.MapCheckInObjects();
+                AutoMapperConfigurator.MapTableCriteraObjects();
+                AutoMapperConfigurator.MapTableObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
 		}
 
+        private static void MapTableObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Table, JsonTable>()
+                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)));
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonTable, Table>()
+                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)));
+
+        }
+        
+        private static void MapTableCriteraObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<TableCriteria, JsonTableCriteria>();
+                
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonTableCriteria, TableCriteria>();
+                
+        }
+        
         private static void MapCheckInObjects()
         {
             // src = Order, dest = JsonOrder

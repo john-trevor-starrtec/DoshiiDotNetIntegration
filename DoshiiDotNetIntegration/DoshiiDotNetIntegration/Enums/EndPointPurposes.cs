@@ -96,7 +96,9 @@ namespace DoshiiDotNetIntegration.Enums
 
         MemberPointsRedeemCancel = 19,
 
-        Checkins = 20
+        Checkins = 20,
+
+        Tables = 21
         
     }
 }

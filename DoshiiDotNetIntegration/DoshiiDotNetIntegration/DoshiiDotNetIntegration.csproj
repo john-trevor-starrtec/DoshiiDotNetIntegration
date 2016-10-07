@@ -145,6 +145,8 @@
     <Compile Include="Models\Json\JsonOrderIdSimple.cs" />
     <Compile Include="Models\Json\JsonPointsRedeem.cs" />
     <Compile Include="Models\Json\JsonCheckin.cs" />
+    <Compile Include="Models\Json\JsonTableCriteria.cs" />
+    <Compile Include="Models\Json\JsonTable.cs" />
     <Compile Include="Models\Json\JsonReward.cs" />
     <Compile Include="Models\Json\JsonUnlinkedOrderToPut.cs" />
     <Compile Include="Models\Json\JsonOrderToPut.cs" />
@@ -173,7 +175,9 @@
     <Compile Include="Models\PointsRedeem.cs" />
     <Compile Include="Models\RedeemOrderResult.cs" />
     <Compile Include="Models\Checkin.cs" />
+    <Compile Include="Models\Table.cs" />
     <Compile Include="Models\Reward.cs" />
+    <Compile Include="Models\TableCriteria.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\ProductOptions.cs" />
