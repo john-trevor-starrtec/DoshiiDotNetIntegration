@@ -629,5 +629,31 @@ namespace DoshiiDotNetSDKTests
         }
 
         #endregion
+
+        public static string BuildSocketUrl(string baseApiUrl, string token)
+        {
+            // baseApiUrl is for example https://sandbox.doshii.co/pos/v3
+            // require socket url of wss://sandbox.doshii.co/pos/socket?token={token} in this example
+            // so first, replace http with ws (this handles situation where using http/ws instead of https/wss
+            string result = baseApiUrl.Replace("http", "ws");
+
+            // next remove the /api/v2 section of the url
+            int index = result.IndexOf("/v");
+            if (index > 0 && index < result.Length)
+            {
+                result = result.Remove(index);
+            }
+
+            index = result.IndexOf(".");
+            if (index > 0 && index < result.Length)
+            {
+                result = result.Insert(index, "-socket");
+            }
+
+            // finally append the socket endpoint and token parameter to the url and return the result
+            result = String.Format("{0}/socket?token={1}", result, token);
+
+            return result;
+        }
     }
 }

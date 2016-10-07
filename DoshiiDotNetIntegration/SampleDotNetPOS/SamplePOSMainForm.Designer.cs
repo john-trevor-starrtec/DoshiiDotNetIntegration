@@ -42,6 +42,10 @@
             this.pnlCommands = new System.Windows.Forms.Panel();
             this.btnViewOrders = new System.Windows.Forms.Button();
             this.btnTestLogging = new System.Windows.Forms.Button();
+            this.txbSecretKey = new System.Windows.Forms.TextBox();
+            this.txbVendorName = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.ssStatusBar.SuspendLayout();
             this.pnlTop.SuspendLayout();
             this.pnlCommands.SuspendLayout();
@@ -81,6 +85,10 @@
             // 
             // pnlTop
             // 
+            this.pnlTop.Controls.Add(this.label2);
+            this.pnlTop.Controls.Add(this.label1);
+            this.pnlTop.Controls.Add(this.txbVendorName);
+            this.pnlTop.Controls.Add(this.txbSecretKey);
             this.pnlTop.Controls.Add(this.btnInitialise);
             this.pnlTop.Controls.Add(this.tbxLocationToken);
             this.pnlTop.Controls.Add(this.lblLocationToken);
@@ -89,12 +97,12 @@
             this.pnlTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTop.Location = new System.Drawing.Point(0, 0);
             this.pnlTop.Name = "pnlTop";
-            this.pnlTop.Size = new System.Drawing.Size(784, 41);
+            this.pnlTop.Size = new System.Drawing.Size(784, 80);
             this.pnlTop.TabIndex = 1;
             // 
             // btnInitialise
             // 
-            this.btnInitialise.Location = new System.Drawing.Point(697, 5);
+            this.btnInitialise.Location = new System.Drawing.Point(697, 40);
             this.btnInitialise.Name = "btnInitialise";
             this.btnInitialise.Size = new System.Drawing.Size(75, 23);
             this.btnInitialise.TabIndex = 4;
@@ -144,10 +152,10 @@
             // rtbLog
             // 
             this.rtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtbLog.Location = new System.Drawing.Point(0, 41);
+            this.rtbLog.Location = new System.Drawing.Point(0, 80);
             this.rtbLog.Name = "rtbLog";
             this.rtbLog.ReadOnly = true;
-            this.rtbLog.Size = new System.Drawing.Size(784, 331);
+            this.rtbLog.Size = new System.Drawing.Size(784, 292);
             this.rtbLog.TabIndex = 2;
             this.rtbLog.Text = "";
             // 
@@ -180,6 +188,38 @@
             this.btnTestLogging.Text = "TEST LOG";
             this.btnTestLogging.UseVisualStyleBackColor = true;
             this.btnTestLogging.Click += new System.EventHandler(this.btnTestLogging_Click);
+            // 
+            // txbSecretKey
+            // 
+            this.txbSecretKey.Location = new System.Drawing.Point(363, 43);
+            this.txbSecretKey.Name = "txbSecretKey";
+            this.txbSecretKey.Size = new System.Drawing.Size(328, 20);
+            this.txbSecretKey.TabIndex = 5;
+            // 
+            // txbVendorName
+            // 
+            this.txbVendorName.Location = new System.Drawing.Point(116, 44);
+            this.txbVendorName.Name = "txbVendorName";
+            this.txbVendorName.Size = new System.Drawing.Size(150, 20);
+            this.txbVendorName.TabIndex = 6;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(13, 46);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(97, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "POS vendor name:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(295, 47);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(62, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Secret Key:";
             // 
             // SamplePOSMainForm
             // 
@@ -219,6 +259,10 @@
 		private System.Windows.Forms.ToolStripStatusLabel lblOrderCount;
 		private System.Windows.Forms.ToolStripStatusLabel lblPaymentCount;
 		private System.Windows.Forms.Button btnViewOrders;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txbVendorName;
+        private System.Windows.Forms.TextBox txbSecretKey;
 	}
 }
 

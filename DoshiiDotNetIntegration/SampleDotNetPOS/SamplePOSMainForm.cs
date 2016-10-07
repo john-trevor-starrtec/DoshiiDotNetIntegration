@@ -271,7 +271,7 @@ namespace SampleDotNetPOS
 					return;
 				}
 
-				mPresenter.Initialise(SelectedPosApiUrl, LocationToken);
+				mPresenter.Initialise(SelectedPosApiUrl, txbVendorName.Text, txbSecretKey.Text, LocationToken);
 
 				EnableDisableControls(false);
 			}

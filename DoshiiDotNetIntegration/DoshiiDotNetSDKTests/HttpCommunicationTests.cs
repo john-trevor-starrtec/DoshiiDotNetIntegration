@@ -39,42 +39,34 @@ namespace DoshiiDotNetSDKTests
             _manager = MockRepository.GenerateMock<DoshiiManager>(PaymentManager, Logger, OrderingManager);
             _manager.mLog = LogManager;
             MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            HttpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            HttpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
         public void Constructor_NoUrl()
         {
-            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication("", GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication("", LogManager, _manager);
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentNullException))]
         public void Constructor_OperationLogic()
         {
-            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, null);
+            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, null);
         }
 
 		[Test]
 		[ExpectedException(typeof(ArgumentNullException))]
 		public void Constructor_NoLogger()
 		{
-			var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, null, _manager);
+			var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, null, _manager);
 		}
 
-        [Test]
-		[ExpectedException(typeof(ArgumentException))]
-        public void Constructor_NoToken()
-        {
-            var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, "", LogManager, _manager);
-        }
-
-		[Test]
+       [Test]
 		public void Constructor_AllParamatersCorrect()
 		{
-			var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-			Assert.AreEqual(httpComs.m_Token, GenerateObjectsAndStringHelper.TestToken);
+			var httpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
 			Assert.AreEqual(httpComs.m_DoshiiLogic, _manager);
 			Assert.AreEqual(httpComs.mLog, LogManager);
 			Assert.AreEqual(httpComs.m_DoshiiUrlBase, GenerateObjectsAndStringHelper.TestBaseUrl);

@@ -51,22 +51,6 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         #region serializeMembers
 
-        public override string ToJsonString()
-        {
-            string json = "";
-            try
-            {
-                json = JsonConvert.SerializeObject(new { order = this });
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-            return json;
-
-        }
-
         public bool ShouldSerializeUri()
         {
             return false;
@@ -89,7 +73,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         public bool ShouldSerializeCovers()
         {
-            return (!string.IsNullOrEmpty(Covers));
+            return (Covers != "0");
         }
 
         public bool ShouldSerializeConsumer()
@@ -105,6 +89,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializeRef()
         {
             return (!string.IsNullOrEmpty(Ref));
+        }
+
+        public bool ShouldSerializeId()
+        {
+            return false;
         }
         
         #endregion

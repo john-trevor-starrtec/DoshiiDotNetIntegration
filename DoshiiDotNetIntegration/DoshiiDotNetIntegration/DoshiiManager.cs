@@ -1766,8 +1766,13 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-
-        private bool ModifyTableAllocation(string checkinId, List<string> tableNames)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="checkinId"></param>
+        /// <param name="tableNames">to remove an allocaiton from a checkin add this as an empty list. </param>
+        /// <returns></returns>
+        public bool ModifyTableAllocation(string checkinId, List<string> tableNames)
         {
             if (!m_IsInitalized)
             {
