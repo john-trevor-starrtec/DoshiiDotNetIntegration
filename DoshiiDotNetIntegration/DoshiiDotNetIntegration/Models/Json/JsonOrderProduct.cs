@@ -138,7 +138,10 @@ namespace DoshiiDotNetIntegration.Models.Json
 		[JsonProperty(PropertyName = "posId")]
 		public string PosId { get; set; }
 
-		
+        public bool ShouldSerializePosId()
+        {
+            return (!string.IsNullOrEmpty(PosId));
+        }
 
    }
 }
