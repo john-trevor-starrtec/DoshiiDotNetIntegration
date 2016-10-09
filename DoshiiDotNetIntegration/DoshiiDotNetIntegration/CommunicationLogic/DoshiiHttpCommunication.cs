@@ -1895,7 +1895,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
+                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
                         returnedTable = Mapper.Map<Table>(jsonTable);
                     }
                     else
@@ -1941,7 +1941,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
+                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
                         returnedTable = Mapper.Map<Table>(jsonTable);
                     }
                     else
@@ -1991,7 +1991,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
+                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
                         returnedTable = Mapper.Map<Table>(jsonTable);
                     }
                     else
@@ -2014,13 +2014,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return returnedTable;
         }
 
-        internal virtual Table DeleteTable(Table table)
+        internal virtual Table DeleteTable(string tableName)
         {
             DoshiHttpResponseMessage responseMessage;
             Table returnedTable = null;
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Tables, table.Name), DeleteMethod);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Tables, tableName), DeleteMethod);
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -2036,23 +2036,23 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
+                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
                         returnedTable = Mapper.Map<Table>(jsonTable);
                     }
                     else
                     {
-                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Tables, table.Name)));
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Tables, tableName)));
                     }
 
                 }
                 else
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.Tables, table.Name)));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'DELETE' request to {0} was not successful", GenerateUrl(EndPointPurposes.Tables, tableName)));
                 }
             }
             else
             {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(EndPointPurposes.Tables, table.Name)));
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(EndPointPurposes.Tables, tableName)));
                 throw new NullOrderReturnedException();
             }
 
@@ -2081,7 +2081,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonTable = JsonConvert.DeserializeObject<JsonTransaction>(responseMessage.Data);
+                        var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
                         returnedTable = Mapper.Map<Table>(jsonTable);
                     }
                     else
@@ -2410,7 +2410,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                                 string.Format(
                                     "Doshii: A  WebException was thrown while attempting a {0} request to endpoint {1}, with data {2}, error Response {3}, exception {4}",
                                     method, url, data, errorResponce, wex));
-                            throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode, wex);
+                            throw new Exceptions.RestfulApiErrorResponseException(httpResponse.StatusCode, errorResponce, wex);
                         }
                         else
                         {

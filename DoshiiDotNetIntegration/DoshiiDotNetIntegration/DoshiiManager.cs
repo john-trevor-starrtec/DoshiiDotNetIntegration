@@ -2117,7 +2117,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual Table DeleteTable(Table table)
+        public virtual Table DeleteTable(string tableName)
         {
             if (!m_IsInitalized)
             {
@@ -2126,7 +2126,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.DeleteTable(table);
+                return m_HttpComs.DeleteTable(tableName);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {

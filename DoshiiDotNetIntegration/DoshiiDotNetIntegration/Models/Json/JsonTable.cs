@@ -18,7 +18,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "maxCovers")]
-        public string Covers { get; set; }
+        public int Covers { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "isActive")]
