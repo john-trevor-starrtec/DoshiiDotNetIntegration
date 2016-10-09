@@ -1698,7 +1698,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="tableNames">A list of the tables to add to the allocaiton, if you want to remove the table allocaiton you should pass an empty list into this param.</param>
 		/// <returns>The current order details in Doshii after upload.</returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames)
+        public bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
 		{
             if (!m_IsInitalized)
             {
@@ -1730,7 +1730,7 @@ namespace DoshiiDotNetIntegration
 
             if (!string.IsNullOrEmpty(order.CheckinId))
             {
-                return ModifyTableAllocation(order.CheckinId, tableNames);
+                return ModifyTableAllocation(order.CheckinId, tableNames, covers);
             }
             
             //create checkin
@@ -1739,6 +1739,7 @@ namespace DoshiiDotNetIntegration
             {
                 Checkin newCheckin = new Checkin();
                 newCheckin.TableNames = tableNames;
+                newCheckin.Covers = covers;
                 checkinCreateResult = m_HttpComs.PostCheckin(newCheckin);
                 if (checkinCreateResult == null)
                 {
@@ -1772,7 +1773,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="checkinId"></param>
         /// <param name="tableNames">to remove an allocaiton from a checkin add this as an empty list. </param>
         /// <returns></returns>
-        public bool ModifyTableAllocation(string checkinId, List<string> tableNames)
+        public bool ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
         {
             if (!m_IsInitalized)
             {
@@ -1789,6 +1790,7 @@ namespace DoshiiDotNetIntegration
                 Checkin newCheckin = new Checkin();
                 newCheckin.TableNames = tableNames;
                 newCheckin.Id = checkinId;
+                newCheckin.Covers = covers;
                 checkinCreateResult = m_HttpComs.PutCheckin(newCheckin);
                 if (checkinCreateResult == null)
                 {

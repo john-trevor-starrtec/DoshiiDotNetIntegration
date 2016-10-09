@@ -1400,7 +1400,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonCheckin = JsonConsumer.deseralizeFromJson(responseMessage.Data);
+                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
                         retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
                     }
                     else
@@ -1443,7 +1443,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonCheckin = JsonConsumer.deseralizeFromJson(responseMessage.Data);
+                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
                         retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
                     }
                     else
@@ -1527,7 +1527,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonCheckin = JsonConsumer.deseralizeFromJson(responseMessage.Data);
+                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
                         retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
                     }
                     else
