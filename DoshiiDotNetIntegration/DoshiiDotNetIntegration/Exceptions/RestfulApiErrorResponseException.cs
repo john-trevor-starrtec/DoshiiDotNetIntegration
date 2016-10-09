@@ -20,5 +20,6 @@ namespace DoshiiDotNetIntegration.Exceptions
         public RestfulApiErrorResponseException(HttpStatusCode code, string message) : base(message) { StatusCode = code; }
         public RestfulApiErrorResponseException(string message) : base(message) { }
         public RestfulApiErrorResponseException(string message, Exception ex) : base(message, ex) { }
+        public RestfulApiErrorResponseException(HttpStatusCode code, string message, Exception ex) : base(message, ex) { StatusCode = code; }
     }
 }

@@ -70,12 +70,12 @@ namespace DoshiiDotNetIntegration.Helpers
         private static void MapTableObjects()
         {
             // src = Order, dest = JsonOrder
-            Mapper.CreateMap<Table, JsonTable>()
-                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)));
+            Mapper.CreateMap<Table, JsonTable>();
+                //.ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)));
 
             // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonTable, Table>()
-                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)));
+            Mapper.CreateMap<JsonTable, Table>();
+            //.ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)));
 
         }
         
