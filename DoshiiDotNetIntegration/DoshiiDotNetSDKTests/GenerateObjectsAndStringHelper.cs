@@ -29,6 +29,7 @@ namespace DoshiiDotNetSDKTests
         internal static string TestGratuity = "TestGratuity";
         internal static Uri TestCheckinUrl = new Uri("c:\\impos\\");
         internal static string TestOrderId = "123";
+        internal static int TestCovers = 2;
         internal static int TestTimeOutValue = 600;
         internal static string TestProductId = "asd123";
         internal static string TestTransactionId = "tran1234";

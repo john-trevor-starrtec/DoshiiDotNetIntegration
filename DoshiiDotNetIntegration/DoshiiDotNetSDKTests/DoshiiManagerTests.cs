@@ -1037,7 +1037,7 @@ namespace DoshiiDotNetSDKTests
                 .Throw(new OrderDoesNotExistOnPosException());
 
 
-            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string>{ GenerateObjectsAndStringHelper.GenerateTableAllocation().Name});
+            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string> { GenerateObjectsAndStringHelper.GenerateTableAllocation().Name }, GenerateObjectsAndStringHelper.TestCovers);
         }
 
         [Test]
@@ -1052,7 +1052,7 @@ namespace DoshiiDotNetSDKTests
             orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
                 .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
-            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string> { GenerateObjectsAndStringHelper.GenerateTableAllocation().Name });
+            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string> { GenerateObjectsAndStringHelper.GenerateTableAllocation().Name }, GenerateObjectsAndStringHelper.TestCovers);
         }
 
         [Test]
@@ -1067,7 +1067,7 @@ namespace DoshiiDotNetSDKTests
             orderingManager.Stub(x => x.RetrieveOrder(GenerateObjectsAndStringHelper.TestOrderId))
                 .Return(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
 
-            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string> { GenerateObjectsAndStringHelper.GenerateTableAllocation().Name });
+            _mockManager.SetTableAllocationWithoutCheckin(GenerateObjectsAndStringHelper.TestOrderId, new List<string> { GenerateObjectsAndStringHelper.GenerateTableAllocation().Name }, GenerateObjectsAndStringHelper.TestCovers);
         }
 
         [Test]
@@ -1080,7 +1080,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Stub(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
                 .Throw(new RestfulApiErrorResponseException(HttpStatusCode.BadRequest));
 
-            _mockManager.ModifyTableAllocation(checkinId, new List<string>());
+            _mockManager.ModifyTableAllocation(checkinId, new List<string>(), GenerateObjectsAndStringHelper.TestCovers);
         }
 
         [Test]
@@ -1093,7 +1093,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Stub(x => x.DeleteTableAllocation(GenerateObjectsAndStringHelper.TestOrderId))
                 .Throw(new Exception());
 
-            _mockManager.ModifyTableAllocation(checkinId, new List<string>());
+            _mockManager.ModifyTableAllocation(checkinId, new List<string>(), GenerateObjectsAndStringHelper.TestCovers);
         }
     }
 }
