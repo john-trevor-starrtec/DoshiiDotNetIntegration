@@ -518,31 +518,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return PutPostOrder(order, WebRequestMethods.Http.Put);
         }
 
-        /// <summary>
-        /// This method should be used to create or update an order on Doshii that has a table allocation. 
-        /// </summary>
-        /// <param name="tableOrder">The details of the order and table allocation to present to Doshii.</param>
-        /// <returns>The order details returned from Doshii.</returns>
-        ///<exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal virtual Order PutOrderWithTableAllocation(TableOrder tableOrder)
-        {
-            DoshiHttpResponseMessage responseMessage;
-            string orderIdentifier = tableOrder.Order.Id;
-            try
-            {
-                var jsonTableOrder = Mapper.Map<JsonTableOrder>(tableOrder);
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Order, orderIdentifier), WebRequestMethods.Http.Put, jsonTableOrder.ToJsonString());
-            }
-            catch (RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
-
-            var dto = new JsonOrder();
-            return HandleOrderResponse<Order, JsonOrder>(orderIdentifier, responseMessage, out dto);
-        }
-
-
+        
         /// <summary>
         /// Deletes a table allocation from doshii for the provided checkinId. 
         /// </summary>
@@ -1433,7 +1409,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
-                throw rex;
+                throw new CheckinUpdateException("Exception updating checkin", rex);
             }
 
 
@@ -2308,6 +2284,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             {
 				mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error, string.Format("MakeRequest was called without a URL"));
                 throw new NotSupportedException("request with blank URL");
+            }
+
+            if (string.IsNullOrWhiteSpace(method))
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error, string.Format("MakeRequest was called without a HTTP method"));
+                throw new NotSupportedException("request with blank HTTP method");
             }
 
             HttpWebRequest request = null;

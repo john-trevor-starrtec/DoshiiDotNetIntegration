@@ -27,6 +27,14 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "phase")]
+        public string Phase { get; set; }
+
+        [DataMember]
+        [JsonProperty(PropertyName = "memberId")]
+        public string MemberId { get; set; }
+
         private List<JsonOrderSurcount> _surcounts;
 
 		/// <summary>
