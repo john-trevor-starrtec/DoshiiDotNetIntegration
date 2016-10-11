@@ -1442,6 +1442,14 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateMember"));
             }
+            if (string.IsNullOrEmpty(member.Name))
+            {
+                throw new MemberIncompleteException("member name is blank");
+            }
+            if (string.IsNullOrEmpty(member.Email))
+            {
+                throw new MemberIncompleteException("member email is blank");
+            }
             try
             {
                 if (string.IsNullOrEmpty(member.Id))
@@ -1489,21 +1497,32 @@ namespace DoshiiDotNetIntegration
                 List<Member> DoshiiMembersList = GetMembers().ToList();
                 List<Member> PosMembersList = mMemberManager.GetMembersFromPos().ToList();
 
+                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
                 var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
-                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
+                
+                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInDoshii)
+                {
+                    mMemberManager.DeleteMemberOnPos(mem);
+                }
+                
+                var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersInPos)
+                {
+                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
+                    if (!mem.Equals(posMember))
+                    {
+                        mMemberManager.UpdateMemberOnPos(mem);
+                    }
+                }
 
+                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
                 foreach (var mem in membersNotInPos)
                 {
                     mMemberManager.CreateMemberOnPos(mem);
                 }
 
-                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
-                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
-
-                foreach (var mem in membersNotInDoshii)
-                {
-                    mMemberManager.DeleteMemberOnPos(mem);
-                }
+                
                 return true;
             }
             catch(Exception ex)

@@ -975,7 +975,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonMember = JsonConvert.DeserializeObject<JsonMenuProduct>(responseMessage.Data);
+                        var jsonMember = JsonConvert.DeserializeObject<JsonMember>(responseMessage.Data);
                         returnedMember = Mapper.Map<Member>(jsonMember);
                     }
                     else
@@ -1019,7 +1019,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Info, string.Format("Doshii: The Response message was OK"));
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonMember = JsonConvert.DeserializeObject<JsonMenuProduct>(responseMessage.Data);
+                        var jsonMember = JsonConvert.DeserializeObject<JsonMember>(responseMessage.Data);
                         returnedMember = Mapper.Map<Member>(jsonMember);
                     }
                     else

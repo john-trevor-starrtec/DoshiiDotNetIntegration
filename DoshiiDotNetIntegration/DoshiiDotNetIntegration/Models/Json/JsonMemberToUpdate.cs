@@ -22,10 +22,15 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "phone")]
-        public string PhoneNumber { get; set; }
+        public string Phone { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "address")]
         public JsonAddress Address { get; set; }
+
+        public bool ShouldSerializePhone()
+        {
+            return (!string.IsNullOrEmpty(Phone));
+        }
     }
 }
