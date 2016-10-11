@@ -117,12 +117,14 @@
     <Compile Include="Exceptions\DoshiiMembershipManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
+    <Compile Include="Exceptions\MemberIncompleteException.cs" />
     <Compile Include="Exceptions\MemberExistOnPosException.cs" />
     <Compile Include="Exceptions\NamespaceDoc.cs" />
     <Compile Include="Exceptions\NotValidCurrencyAmountException.cs" />
     <Compile Include="Exceptions\NullOrderReturnedException.cs" />
     <Compile Include="Exceptions\MemberDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
+    <Compile Include="Exceptions\CheckinUpdateException.cs" />
     <Compile Include="Exceptions\OrderUpdateException.cs" />
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />

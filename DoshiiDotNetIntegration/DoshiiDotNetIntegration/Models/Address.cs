@@ -61,5 +61,51 @@ namespace DoshiiDotNetIntegration.Models
             PostalCode = string.Empty;
             Country = string.Empty;
         }
+
+        public override bool Equals(System.Object obj)
+        {
+            // Check if the object is a RecommendationDTO.
+            // The initial null check is unnecessary as the cast will result in null
+            // if obj is null to start with.
+            var addressToTest = obj as Address;
+
+            if (addressToTest == null)
+            {
+                // If it is null then it is not equal to this instance.
+                return false;
+            }
+
+            if (this.Line1 != addressToTest.Line1)
+            {
+                return false;
+            }
+
+            if (this.Line2 != addressToTest.Line2)
+            {
+                return false;
+            }
+            
+            if (this.City != addressToTest.City)
+            {
+                return false;
+            }
+            
+            if (this.State != addressToTest.State)
+            {
+                return false;
+            }
+            
+            if (this.PostalCode != addressToTest.PostalCode)
+            {
+                return false;
+            }
+
+            if (this.Country != addressToTest.Country)
+            {
+                return false;
+            }
+            return true;
+
+        }
     }
 }

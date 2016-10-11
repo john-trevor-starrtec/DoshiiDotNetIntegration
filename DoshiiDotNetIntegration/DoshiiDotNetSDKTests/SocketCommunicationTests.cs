@@ -6,6 +6,7 @@ using System.ComponentModel.Design;
 using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Enums;
+using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.Json;
 using WebSocketSharp;
@@ -23,6 +24,7 @@ namespace DoshiiDotNetSDKTests
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication SocketComs;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication MockSocketComs;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication MockHttpComs;
+        IMembershipModuleManager MemberbershipManager;
 
         [SetUp]
         public void Init()
@@ -31,8 +33,10 @@ namespace DoshiiDotNetSDKTests
 			LogManager = new DoshiiLogManager(_Logger);
 			PaymentManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager>();
             OrderingManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IOrderingManager>();
-            _manager = MockRepository.GeneratePartialMock<DoshiiManager>(PaymentManager, _Logger, OrderingManager);
-            MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            MemberbershipManager = MockRepository.GenerateMock<IMembershipModuleManager>();
+            _manager = MockRepository.GeneratePartialMock<DoshiiManager>(PaymentManager, _Logger, OrderingManager, MemberbershipManager);
+            
+            MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
             MockSocketComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
             SocketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
             _manager.m_HttpComs = MockHttpComs;

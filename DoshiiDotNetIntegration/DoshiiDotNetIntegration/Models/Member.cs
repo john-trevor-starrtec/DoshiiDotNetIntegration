@@ -41,5 +41,57 @@ namespace DoshiiDotNetIntegration.Models
                 _Apps = value.ToList<App>();
             }
         }
+
+        public override bool Equals(System.Object obj)
+        {
+            // Check if the object is a RecommendationDTO.
+            // The initial null check is unnecessary as the cast will result in null
+            // if obj is null to start with.
+            var memberToTest = obj as Member;
+
+            if (memberToTest == null)
+            {
+                // If it is null then it is not equal to this instance.
+                return false;
+            }
+
+             
+            if (this.Id != memberToTest.Id)
+            {
+                return false;
+            }
+             
+            if (this.Name != memberToTest.Name)
+            {
+                return false;
+            }
+             
+            if (this.Email != memberToTest.Email)
+            {
+                return false;
+            }
+             
+            if (this.Phone != memberToTest.Phone)
+            {
+                return false;
+            }
+             
+            if (!this.Address.Equals(Address))
+            {
+                return false;
+            }
+             
+            if (this.Uri != memberToTest.Uri)
+            {
+                return false;
+            }
+
+            if (this.Ref != memberToTest.Ref)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

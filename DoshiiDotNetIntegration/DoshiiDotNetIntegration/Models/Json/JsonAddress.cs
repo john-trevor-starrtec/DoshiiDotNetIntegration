@@ -54,5 +54,35 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "country")]
         public string Country { get; set; }
 
+
+        public bool ShouldSerializeLine1()
+        {
+            return (!string.IsNullOrEmpty(Line1));
+        }
+
+        public bool ShouldSerializeLine2()
+        {
+            return (!string.IsNullOrEmpty(Line2));
+        }
+
+        public bool ShouldSerializeCity()
+        {
+            return (!string.IsNullOrEmpty(City));
+        }
+
+        public bool ShouldSerializeState()
+        {
+            return (!string.IsNullOrEmpty(State));
+        }
+
+        public bool ShouldSerializePostalCode()
+        {
+            return (!string.IsNullOrEmpty(PostalCode));
+        }
+
+        public bool ShouldSerializePostalCountry()
+        {
+            return (!string.IsNullOrEmpty(Country));
+        }
     }
 }

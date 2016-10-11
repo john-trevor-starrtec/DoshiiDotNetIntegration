@@ -20,6 +20,11 @@ namespace DoshiiDotNetIntegration.Models
 			Clear();
 		}
 
+
+        public string Phase { get; set; }
+
+        public string MemberId { get; set; }
+
 		/// <summary>
 		/// Resets all property values to default settings.
 		/// </summary>
@@ -34,6 +39,7 @@ namespace DoshiiDotNetIntegration.Models
 			Version = String.Empty;
 			Uri = String.Empty;
 			RequiredAt = null;
+		    Phase = string.Empty;
 		}
 
         /// <summary>

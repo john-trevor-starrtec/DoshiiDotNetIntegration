@@ -26,7 +26,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "phone")]
-        public string PhoneNumber { get; set; }
+        public string Phone { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "address")]

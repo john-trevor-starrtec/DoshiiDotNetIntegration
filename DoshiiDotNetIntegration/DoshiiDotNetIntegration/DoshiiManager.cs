@@ -78,6 +78,12 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         private bool m_IsInitalized = false;
 
+        internal virtual bool IsInitalized
+        {
+            get { return m_IsInitalized; }
+            set { m_IsInitalized = value; }
+        }
+
 		/// <summary>
         /// Holds an instance of CommunicationLogic.DoshiiWebSocketsCommunication class for interacting with the Doshii webSocket connection
         /// </summary>
@@ -165,11 +171,17 @@ namespace DoshiiDotNetIntegration
         /// <param name="orderingManager">The Ordering API callback mechanism</param>
         public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager)
         {
+            if (logger == null)
+            {
+                throw new ArgumentNullException("logger", "IDoshiiLogger needs to be instantiated as it is a core module");
+            }
+            mLog = new DoshiiLogManager(logger);
             if (paymentManager == null)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IPaymentModuleManager needs to be instantiated as it is a core module");
                 throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
             }
+            
             if (orderingManager == null)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager needs to be instantiated as it is a core module");
@@ -182,7 +194,7 @@ namespace DoshiiDotNetIntegration
 			mPaymentManager = paymentManager;
             mOrderingManager = orderingManager;
             mMemberManager = memberManager;
-            mLog = new DoshiiLogManager(logger);
+            
 			AutoMapperConfigurator.Configure();
         }
 
@@ -1442,6 +1454,14 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateMember"));
             }
+            if (string.IsNullOrEmpty(member.Name))
+            {
+                throw new MemberIncompleteException("member name is blank");
+            }
+            if (string.IsNullOrEmpty(member.Email))
+            {
+                throw new MemberIncompleteException("member email is blank");
+            }
             try
             {
                 if (string.IsNullOrEmpty(member.Id))
@@ -1489,21 +1509,32 @@ namespace DoshiiDotNetIntegration
                 List<Member> DoshiiMembersList = GetMembers().ToList();
                 List<Member> PosMembersList = mMemberManager.GetMembersFromPos().ToList();
 
+                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
                 var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
-                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
+                
+                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInDoshii)
+                {
+                    mMemberManager.DeleteMemberOnPos(mem);
+                }
+                
+                var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersInPos)
+                {
+                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
+                    if (!mem.Equals(posMember))
+                    {
+                        mMemberManager.UpdateMemberOnPos(mem);
+                    }
+                }
 
+                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
                 foreach (var mem in membersNotInPos)
                 {
                     mMemberManager.CreateMemberOnPos(mem);
                 }
 
-                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
-                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
-
-                foreach (var mem in membersNotInDoshii)
-                {
-                    mMemberManager.DeleteMemberOnPos(mem);
-                }
+                
                 return true;
             }
             catch(Exception ex)
@@ -1750,7 +1781,7 @@ namespace DoshiiDotNetIntegration
             catch (Exception ex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation order.Id{0} : {1}", order.Id, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for order.Id{0}", order.Id), ex);
+                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown during a attempting to create a checkin for order.Id{0}", order.Id), ex);
             }
             
 			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now"));
@@ -1781,7 +1812,17 @@ namespace DoshiiDotNetIntegration
                     "AddTableAllocation"));
             }
 
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos modifying table allocation table '{0}' to checkin '{1}'", tableNames[0], checkinId));
+            StringBuilder tableNameStringBuilder = new StringBuilder();
+            for (int i = 0; i < tableNames.Count(); i++)
+            {
+                if (i > 0)
+                {
+                    tableNameStringBuilder.Append(", ");
+                }
+                tableNameStringBuilder.Append(tableNames[i]);
+            }
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos modifying table allocation table '{0}' to checkin '{1}'", tableNameStringBuilder, checkinId));
 
             //create checkin
             Checkin checkinCreateResult = null;
@@ -1801,7 +1842,7 @@ namespace DoshiiDotNetIntegration
             catch (Exception ex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation  for checkin {0} : {1}", checkinId, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for for checkin {0}", checkinId), ex);
+                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for for checkin {0}", checkinId), ex);
             }
             return true;
         }

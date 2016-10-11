@@ -13,6 +13,7 @@ using DoshiiDotNetIntegration.CommunicationLogic;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Models.Json;
 using DoshiiDotNetIntegration.Helpers;
+using DoshiiDotNetIntegration.Interfaces;
 using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetSDKTests
@@ -27,6 +28,7 @@ namespace DoshiiDotNetSDKTests
         DoshiiDotNetIntegration.Interfaces.IOrderingManager OrderingManager;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication HttpComs;
         DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication MockHttpComs;
+        DoshiiDotNetIntegration.Interfaces.IMembershipModuleManager MembershipManager;
 
         [SetUp]
         public void Init()
@@ -36,9 +38,10 @@ namespace DoshiiDotNetSDKTests
             LogManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.DoshiiLogManager>(Logger); //new DoshiiLogManager(Logger);
 			PaymentManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager>();
             OrderingManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IOrderingManager>();
-            _manager = MockRepository.GenerateMock<DoshiiManager>(PaymentManager, Logger, OrderingManager);
+            MembershipManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IMembershipModuleManager>();
+            _manager = MockRepository.GenerateMock<DoshiiManager>(PaymentManager, Logger, OrderingManager, MembershipManager);
             _manager.mLog = LogManager;
-            MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
+            MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
             HttpComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
         }
 
@@ -253,24 +256,6 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        public void GetOrders_ReturnedOrdersAreRetreivedOrders()
-        {
-            var orderListInput = GenerateObjectsAndStringHelper.GenerateOrderList();
-            var orderList = GenerateObjectsAndStringHelper.GenerateOrderList();
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageOrderSuccess();
-            responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(orderList);
-            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-
-            var orderResponse = MockHttpComs.GetOrders();
-            List<Order> orderResponseList = orderResponse.ToList();
-
-            Assert.AreEqual(orderListInput[0].Id, orderResponseList[0].Id);
-            Assert.AreEqual(orderListInput[1].Id, orderResponseList[1].Id);
-            Assert.AreEqual(orderListInput[2].Id, orderResponseList[2].Id);
-            Assert.AreEqual(orderListInput[3].Id, orderResponseList[3].Id);
-        }
-
-        [Test]
         public void GetOrders_ReturnedOrderDataIsBlank()
         {
             var OrderInputList = GenerateObjectsAndStringHelper.GenerateOrderList();
@@ -306,24 +291,6 @@ namespace DoshiiDotNetSDKTests
 
             MockHttpComs.GetUnlinkedOrders();
 
-        }
-
-        [Test]
-        public void GetUnlinkedOrders_ReturnedOrdersAreRetreivedOrders()
-        {
-            var orderListInput = GenerateObjectsAndStringHelper.GenerateOrderList();
-            var orderList = GenerateObjectsAndStringHelper.GenerateOrderList();
-            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageOrderSuccess();
-            responseMessage.Data = Newtonsoft.Json.JsonConvert.SerializeObject(orderList);
-            MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(responseMessage);
-
-            var orderResponse = MockHttpComs.GetUnlinkedOrders();
-            List<Order> orderResponseList = orderResponse.ToList();
-
-            Assert.AreEqual(orderListInput[0].Id, orderResponseList[0].Id);
-            Assert.AreEqual(orderListInput[1].Id, orderResponseList[1].Id);
-            Assert.AreEqual(orderListInput[2].Id, orderResponseList[2].Id);
-            Assert.AreEqual(orderListInput[3].Id, orderResponseList[3].Id);
         }
 
         [Test]
@@ -757,16 +724,6 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Stub(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Return(null);
 
             MockHttpComs.PutTransaction(transactionInput);
-
-        }
-
-        [Test]
-        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException))]
-        public void CreateOrderWithTableAllocaiton_MakeRequestThrowsException()
-        {
-            MockHttpComs.Expect(x => x.MakeRequest(Arg<String>.Is.Anything, Arg<String>.Is.Anything, Arg<String>.Is.Anything)).IgnoreArguments().Throw(new DoshiiDotNetIntegration.Exceptions.RestfulApiErrorResponseException()).Repeat.Once();
-
-            MockHttpComs.PutOrderWithTableAllocation(GenerateObjectsAndStringHelper.GenerateTableOrder());
 
         }
 

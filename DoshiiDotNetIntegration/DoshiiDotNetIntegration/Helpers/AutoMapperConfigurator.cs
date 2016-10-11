@@ -163,7 +163,8 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Uri, opt => opt.Ignore())
-                .ForMember(dest => dest.Apps, opt => opt.Ignore());
+                .ForMember(dest => dest.Apps, opt => opt.Ignore())
+                .ForMember(dest => dest.Ref, opt => opt.Ignore());
 
         }
 
@@ -465,7 +466,8 @@ namespace DoshiiDotNetIntegration.Helpers
              .ForMember(dest => dest.MemberId, opt => opt.Ignore())
              .ForMember(dest => dest.Status, opt => opt.Ignore())
              .ForMember(dest => dest.Surcounts, opt => opt.Ignore())
-             .ForMember(dest => dest.Version, opt => opt.Ignore());
+             .ForMember(dest => dest.Version, opt => opt.Ignore())
+             .ForMember(dest => dest.Phase, opt => opt.Ignore());
 		}
 
 		/// <summary>
