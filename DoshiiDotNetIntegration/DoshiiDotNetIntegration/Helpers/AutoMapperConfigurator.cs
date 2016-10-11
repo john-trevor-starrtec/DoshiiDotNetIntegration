@@ -163,8 +163,7 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Uri, opt => opt.Ignore())
-                .ForMember(dest => dest.Apps, opt => opt.Ignore())
-                .ForMember(dest => dest.Ref, opt => opt.Ignore());
+                .ForMember(dest => dest.Apps, opt => opt.Ignore());
 
         }
 

@@ -28,6 +28,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "address")]
         public JsonAddress Address { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "ref")]
+        public string Ref { get; set; }
+
         public bool ShouldSerializePhone()
         {
             return (!string.IsNullOrEmpty(Phone));
