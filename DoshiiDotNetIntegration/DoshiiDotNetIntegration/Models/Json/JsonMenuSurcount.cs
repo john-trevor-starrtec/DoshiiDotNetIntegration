@@ -37,5 +37,12 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "posId")]
         public string Id { get; set; }
+
+        /// <summary>
+        /// The Amount / value of the surcount in cents. 
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "amount")]
+        public string Amount { get; set; }
     }
 }

@@ -313,13 +313,41 @@ namespace DoshiiDotNetIntegration
 			// so first, replace http with ws (this handles situation where using http/ws instead of https/wss
 			string result = baseApiUrl.Replace("http", "ws");
 
-			// next remove the /api/v2 section of the url
-			int index = result.IndexOf("/api");
-			if (index > 0 && index < result.Length)
-			{
-				result = result.Remove(index);
-			}
-
+		    if (result.ToLower().Contains("api"))
+		    {
+                // next remove the /api/v2 section of the url
+                int index = result.IndexOf("/api");
+                if (index > 0 && index < result.Length)
+                {
+                    result = result.Remove(index);
+                }
+                if (result.ToLower().Contains("sandbox"))
+		        {
+                    index = result.IndexOf(".");
+                    if (index > 0 && index < result.Length)
+                    {
+                        result = result.Insert(index, "-socket");
+                    }
+		        }
+		    }
+		    else
+		    {
+                // next remove the /api/v2 section of the url
+                int index = result.IndexOf("/v");
+                if (index > 0 && index < result.Length)
+                {
+                    result = result.Remove(index);
+                }
+                if (result.ToLower().Contains("sandbox"))
+                {
+                    index = result.IndexOf(".");
+                    if (index > 0 && index < result.Length)
+                    {
+                        result = result.Insert(index, "-socket");
+                    }
+                }
+            }
+            
 			// finally append the socket endpoint and token parameter to the url and return the result
 			result = String.Format("{0}/socket?token={1}", result, token);
 
