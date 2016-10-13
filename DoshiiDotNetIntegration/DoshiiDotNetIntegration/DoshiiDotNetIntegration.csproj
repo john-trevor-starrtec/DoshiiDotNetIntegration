@@ -121,7 +121,7 @@
     <Compile Include="Exceptions\MemberExistOnPosException.cs" />
     <Compile Include="Exceptions\NamespaceDoc.cs" />
     <Compile Include="Exceptions\NotValidCurrencyAmountException.cs" />
-    <Compile Include="Exceptions\NullOrderReturnedException.cs" />
+    <Compile Include="Exceptions\NullResponseDataReturnedException.cs" />
     <Compile Include="Exceptions\MemberDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\OrderDoesNotExistOnPosException.cs" />
     <Compile Include="Exceptions\CheckinUpdateException.cs" />

@@ -335,7 +335,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The order returned from the request. 
         /// </returns>
         /// <exception cref="System.NotSupportedException">Currently thrown when the method is not <see cref="System.Net.WebRequestMethods.Http.Put"/>.</exception>
-        private Order PutPostOrder(Order order, string method)
+        internal virtual Order PutPostOrder(Order order, string method)
         {
             if (!method.Equals(WebRequestMethods.Http.Put))
             {
@@ -377,7 +377,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// The order that was returned from the PUT request to Doshii. 
         /// </returns>
-        internal Order PutOrderCreatedResult(Order order)
+        internal virtual Order PutOrderCreatedResult(Order order)
         {
             var returnOrder = new Order();
             DoshiHttpResponseMessage responseMessage;
@@ -419,7 +419,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <param name="responseMessage">The current response message to be parsed.</param>
         /// <param name="jsonDto">When this function returns, this output parameter will be the data transfer object used in communication with the API.</param>
         /// <returns>The details of the order in the Doshii API.</returns>
-        private T HandleOrderResponse<T, DTO>(string orderId, DoshiHttpResponseMessage responseMessage, out DTO jsonDto)
+        internal T HandleOrderResponse<T, DTO>(string orderId, DoshiHttpResponseMessage responseMessage, out DTO jsonDto)
         {
             jsonDto = default(DTO); // null since its an object
             T returnObj = default(T); // null since its an object
@@ -453,7 +453,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
 
             UpdateOrderVersion<T>(returnObj);
@@ -474,7 +474,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <typeparam name="T">The type of model object being updated. In this case, the type should be a derivative of an
         /// <see cref="DoshiiDotNetIntegration.Models.Order"/> or a class that contains a reference to an order.</typeparam>
         /// <param name="orderDetails">The details of the order.</param>
-        private void UpdateOrderVersion<T>(T orderDetails)
+        internal virtual void UpdateOrderVersion<T>(T orderDetails)
         {
             if (orderDetails != null)
             {
@@ -489,7 +489,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             }
         }
 
-        private void UpdateOrderCheckin<T>(T orderDetails)
+        internal virtual void UpdateOrderCheckin<T>(T orderDetails)
         {
             if (orderDetails != null)
             {
@@ -770,7 +770,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
 
             return returnedTransaction;
@@ -830,7 +830,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Transaction, transaction.Id)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
 
             return returnedTransaction;
@@ -929,7 +929,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
 
-        internal Member PutMember(Member member)
+        internal virtual Member PutMember(Member member)
         {
             var returnedMember = new Member();
             DoshiHttpResponseMessage responseMessage;
@@ -968,12 +968,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.Members, member.Id)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return returnedMember;
         }
 
-        internal Member PostMember(Member member)
+        internal virtual Member PostMember(Member member)
         {
             var returnedMember = new Member();
             DoshiHttpResponseMessage responseMessage;
@@ -1012,12 +1012,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.Members)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return returnedMember;
         }
 
-        internal bool DeleteMember(Member member)
+        internal virtual bool DeleteMember(Member member)
         {
             var returnedMember = new Member();
             DoshiHttpResponseMessage responseMessage;
@@ -1048,7 +1048,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(EndPointPurposes.Members, member.Id)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return false;
         }
@@ -1094,7 +1094,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedRewardList;
         }
 
-        internal bool RedeemRewardForMember(string memberId, string rewardId, Order order)
+        internal virtual bool RedeemRewardForMember(string memberId, string rewardId, Order order)
         {
             
             DoshiHttpResponseMessage responseMessage;
@@ -1124,12 +1124,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberRewardsRedeem, memberId, rewardId)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return false;
         }
 
-        internal bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
+        internal virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
 
             DoshiHttpResponseMessage responseMessage;
@@ -1158,12 +1158,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberRewardsRedeemCancel, memberId, rewardId)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return false;
         }
 
-        internal bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
+        internal virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
 
             DoshiHttpResponseMessage responseMessage;
@@ -1192,12 +1192,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberRewardsRedeemConfirm, memberId, rewardId)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return false;
         }
 
-        internal bool RedeemPointsForMember(PointsRedeem pr, Member member)
+        internal virtual bool RedeemPointsForMember(PointsRedeem pr, Member member)
         {
             DoshiHttpResponseMessage responseMessage;
             //create redeem points object
@@ -1227,12 +1227,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeem, member.Id)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return false;
         }
 
-        internal bool RedeemPointsForMemberConfirm(Member member)
+        internal virtual bool RedeemPointsForMemberConfirm(Member member)
         {
             DoshiHttpResponseMessage responseMessage;
             //create redeem points object
@@ -1261,12 +1261,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, member.Id)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return false;
         }
 
-        internal bool RedeemPointsForMemberCancel(Member member, string cancelReason)
+        internal virtual bool RedeemPointsForMemberCancel(Member member, string cancelReason)
         {
             DoshiHttpResponseMessage responseMessage;
             //create redeem points object
@@ -1295,7 +1295,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return false;
         }
@@ -1579,7 +1579,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The menu that was added to doshii. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal Menu PostMenu(Menu menu)
+        internal virtual Menu PostMenu(Menu menu)
         {
             var returedMenu = new Menu();
             DoshiHttpResponseMessage responseMessage;
@@ -1618,7 +1618,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Menu)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return returedMenu;
         }
@@ -1633,7 +1633,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The surcount that was updated on Doshii
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal Surcount PutSurcount(Surcount surcount)
+        internal virtual Surcount PutSurcount(Surcount surcount)
         {
             var returedSurcount = new Surcount();
             DoshiHttpResponseMessage responseMessage;
@@ -1672,7 +1672,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Surcounts, surcount.Id)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return returedSurcount;
         }
@@ -1685,7 +1685,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// </param>
         /// <returns></returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal bool DeleteSurcount(string posId)
+        internal virtual bool DeleteSurcount(string posId)
         {
             var returedMenu = new Menu();
             DoshiHttpResponseMessage responseMessage;
@@ -1717,7 +1717,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// The product that was added or updated. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal Product PutProduct(Product product)
+        internal virtual Product PutProduct(Product product)
         {
             var returnedProduct = new Product();
             DoshiHttpResponseMessage responseMessage;
@@ -1756,7 +1756,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(EndPointPurposes.Products, product.PosId)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
             return returnedProduct;
         }
@@ -1772,7 +1772,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// false if the product was not deleted. 
         /// </returns>
         /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
-        internal bool DeleteProduct(string posId)
+        internal virtual bool DeleteProduct(string posId)
         {
             var returedMenu = new Menu();
             DoshiHttpResponseMessage responseMessage;
@@ -1888,7 +1888,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Tables)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
 
             return returnedTable;
@@ -1934,7 +1934,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Tables, table.Name)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
 
             return returnedTable;
@@ -1984,7 +1984,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Tables)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
 
             return returnedTable;
@@ -2029,7 +2029,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'DELETE' and URL '{0}'", GenerateUrl(EndPointPurposes.Tables, tableName)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
 
             return returnedTable;
@@ -2074,7 +2074,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             else
             {
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Tables, tableName)));
-                throw new NullOrderReturnedException();
+                throw new NullResponseDataReturnedException();
             }
 
             return returnedTable;
@@ -2138,7 +2138,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// <returns>
         /// The Url required to make the desiered request. 
         /// </returns>
-        internal string GenerateUrl(EndPointPurposes purpose, string identification = "", string secondIdentification = "")
+        internal virtual string GenerateUrl(EndPointPurposes purpose, string identification = "", string secondIdentification = "")
         {
             StringBuilder newUrlbuilder = new StringBuilder();
 
