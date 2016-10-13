@@ -31,6 +31,7 @@ namespace DoshiiDotNetIntegration.Models
 			Name = String.Empty;
 		    Type = String.Empty;
 		    Id = String.Empty;
+		    Value = 0.0M;
 			Amount = 0.0M;
 		}
 
@@ -43,6 +44,8 @@ namespace DoshiiDotNetIntegration.Models
         /// The Amount / value of the surcount in cents. 
         /// </summary>
         public decimal Amount { get; set; }
+
+        public decimal Value { get; set; }
 
         /// <summary>
         /// The type of the surcount ('absolute' or 'percentage')
