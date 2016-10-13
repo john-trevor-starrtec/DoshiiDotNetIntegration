@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>DoshiiPosDotNetSDK</id>
-    <version>1.2.2</version>
-    <title>DoshiiPosDotNetSDK</title>
+    <id>lpcTestTest</id>
+    <version>1.2.3</version>
+    <title>lpcTestTest</title>
     <authors>DoshiiCorp</authors>
     <owners>DoshiiCorp</owners>
     <projectUrl>https://sandbox.doshii.co/docs/dot-net-sdk</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An SDK for pos solutions written in .NET to integration with the Doshii API</description>
-    <releaseNotes>Fixed logging levels</releaseNotes>
+    <releaseNotes>Fixed Socket Connection for sandbox</releaseNotes>
     <copyright>Copyright 2016</copyright>
-    <tags>DoshiiSDK Doshii</tags>
+    <tags>lpc</tags>
   </metadata>
   <files>
     <file src="..\libs\*.dll" target="lib" />
