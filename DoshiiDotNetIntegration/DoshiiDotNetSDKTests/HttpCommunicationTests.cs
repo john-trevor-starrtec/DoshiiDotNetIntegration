@@ -113,7 +113,7 @@ namespace DoshiiDotNetSDKTests
         }
 
        [Test]
-        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullOrderReturnedException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullResponseDataReturnedException))]
         public void PutOrder_NullOrderReturned_ExceptionThrown()
         {
             var order = GenerateObjectsAndStringHelper.GenerateOrderReadyToPay();
@@ -657,7 +657,7 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullOrderReturnedException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullResponseDataReturnedException))]
         public void PostWaitingTransaction_ResponseNull()
         {
             var transactionInput = GenerateObjectsAndStringHelper.GenerateTransactionWaiting();
@@ -717,7 +717,7 @@ namespace DoshiiDotNetSDKTests
         }
 
         [Test]
-        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullOrderReturnedException))]
+        [ExpectedException(typeof(DoshiiDotNetIntegration.Exceptions.NullResponseDataReturnedException))]
         public void PutWaitingTransaction_ResponseNull()
         {
             var transactionInput = GenerateObjectsAndStringHelper.GenerateTransactionWaiting();

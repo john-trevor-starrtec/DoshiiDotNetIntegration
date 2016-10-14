@@ -163,8 +163,7 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.Uri, opt => opt.Ignore())
-                .ForMember(dest => dest.Apps, opt => opt.Ignore())
-                .ForMember(dest => dest.Ref, opt => opt.Ignore());
+                .ForMember(dest => dest.Apps, opt => opt.Ignore());
 
         }
 
@@ -310,10 +309,12 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			// src = Surcount, dest = JsonOrderSurcount
 			Mapper.CreateMap<Surcount, JsonOrderSurcount>()
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Value)))
 				.ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Amount)));
 
 			// src = JsonOrderSurcount, dest = Surcount
 			Mapper.CreateMap<JsonOrderSurcount, Surcount>()
+                .ForMember(dest => dest.Value, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Value)))
                 .ForMember(dest => dest.Amount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Amount)));
 
             // src = Surcount, dest = JsonOrderSurcount
@@ -322,7 +323,8 @@ namespace DoshiiDotNetIntegration.Helpers
             // src = JsonOrderSurcount, dest = Surcount
             Mapper.CreateMap<JsonMenuSurcount, Surcount>()
                 .ForMember(dest => dest.RewardId, opt => opt.Ignore())
-                .ForMember(dest => dest.Amount, opt => opt.Ignore());
+                .ForMember(dest => dest.Amount, opt => opt.Ignore())
+                .ForMember(dest => dest.Value, opt => opt.Ignore());
 		}
 
 		/// <summary>

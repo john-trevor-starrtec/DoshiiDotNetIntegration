@@ -32,6 +32,13 @@ namespace DoshiiDotNetIntegration.Models.Json
         public string Amount { get; set; }
 
         /// <summary>
+        /// The Amount / value of the surcount in cents. 
+        /// </summary>
+        [DataMember]
+        [JsonProperty(PropertyName = "value")]
+        public string Value { get; set; }
+
+        /// <summary>
         /// The type of the surcount ('absolute' or 'percentage')
         /// </summary>
         [DataMember]

@@ -11,6 +11,7 @@ using AutoMapper;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
 using DoshiiDotNetIntegration.Models;
+using Rhino.Mocks.Constraints;
 
 namespace DoshiiDotNetSDKTests
 {
@@ -67,6 +68,13 @@ namespace DoshiiDotNetSDKTests
 
         [Test]
         [ExpectedException(typeof(ArgumentNullException))]
+        public void ContsuctNullLoggerManager()
+        {
+            var man = new DoshiiManager(paymentManager, null, orderingManager, null);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void ContsuctNullOrderManager()
         {
             var man = new DoshiiManager(paymentManager, _Logger, null, null);
@@ -105,6 +113,15 @@ namespace DoshiiDotNetSDKTests
         public void Initialze_NoToken()
         {
             _manager.Initialize("", vendor, secretKey, urlBase, startWebSocketsConnection, socketTimeOutSecs);
+        }
+
+        [Test]
+        public void Initialze_StartSocketConnectIsTrue()
+        {
+            _mockManager.Expect((x => x.InitializeProcess(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<bool>.Is.Anything, Arg<int>.Is.Anything))).Return(true);
+            _mockManager.Initialize(locationToken, vendor, secretKey, urlBase, true, socketTimeOutSecs);
+
+            _mockManager.VerifyAllExpectations();
         }
 
         [Test]
@@ -588,51 +605,7 @@ namespace DoshiiDotNetSDKTests
         }
 
 
-        /*[Test]
-        public void HandleDeliveryOrderCreated_withTransactions_Success()
-        {
-            List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
-            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
-            Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            orderingManager.Expect(x => x.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList)).Return(orderReturnedFromPos);
-            _mockManager.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
-            _mockManager.Expect(x => x.UpdateOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
-            MockHttpComs.Expect(x => x.PutOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
-            paymentManager.Stub(x => x.RecordTransactionVersion(transactionList[0].Id, transactionList[0].Version));
-            _mockManager.Expect(x => x.RecordTransactionVersion(transactionList[0]));
-            _mockManager.Expect(x => x.RequestPaymentForOrderExistingTransaction(transactionList[0])).Return(true);
-
-            _mockManager.HandleOrderCreated(order, transactionList);
-            orderingManager.VerifyAllExpectations();
-            _mockManager.VerifyAllExpectations();
-        }*/
-
-        /*[Test]
-        public void HandlePickupOrderCreated_withTransactions_Success()
-        {
-            List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
-            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
-            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
-            Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            orderingManager.Expect(x => x.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList)).Return(orderReturnedFromPos);
-            _mockManager.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
-            _mockManager.Expect(x => x.UpdateOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
-            MockHttpComs.Expect(x => x.PutOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
-            paymentManager.Stub(x => x.RecordTransactionVersion(transactionList[0].Id, transactionList[0].Version));
-            _mockManager.Expect(x => x.RecordTransactionVersion(transactionList[0]));
-            _mockManager.Expect(x => x.RequestPaymentForOrderExistingTransaction(transactionList[0])).Return(true);
-
-            _mockManager.HandleOrderCreated(order, transactionList);
-            orderingManager.VerifyAllExpectations();
-            _mockManager.VerifyAllExpectations();
-        }*/
+        
 
         [Test]
         public void HandleOrderCreated_withTransactions_WrongType()
@@ -814,47 +787,7 @@ namespace DoshiiDotNetSDKTests
             paymentManager.VerifyAllExpectations();
             _mockManager.VerifyAllExpectations();
         }
-
-        /*[Test]
-        public void HandleDeliveryOrderCreated_withoutTransactions_Success()
-        {
-            List<Transaction> transactionList = new List<Transaction>();
-            Order order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
-            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
-            Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            orderingManager.Expect(x => x.ConfirmNewDeliveryOrder(order, consumer)).Return(orderReturnedFromPos);
-            _mockManager.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
-            _mockManager.Expect(x => x.UpdateOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
-            MockHttpComs.Expect(x => x.PutOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
-            
-            _mockManager.HandleOrderCreated(order, transactionList);
-            orderingManager.VerifyAllExpectations();
-            _mockManager.VerifyAllExpectations();
-        }*/
-
-        /*[Test]
-        public void HandlePickupOrderCreated_withoutTransactions_Success()
-        {
-            List<Transaction> transactionList = new List<Transaction>();
-            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
-            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
-            Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
-            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, GenerateObjectsAndStringHelper.TestToken, LogManager, _manager);
-            _mockManager.m_HttpComs = MockHttpComs;
-
-            orderingManager.Expect(x => x.ConfirmNewPickupOrder(order, consumer)).Return(orderReturnedFromPos);
-            _mockManager.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
-            _mockManager.Expect(x => x.UpdateOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
-            MockHttpComs.Expect(x => x.PutOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
-
-            _mockManager.HandleOrderCreated(order, transactionList);
-            orderingManager.VerifyAllExpectations();
-            _mockManager.VerifyAllExpectations();
-        }*/
-
+        
         [Test]
         public void HandleDeliveryOrderCreated_withoutTransactions_PosReturnsNull()
         {
@@ -872,6 +805,248 @@ namespace DoshiiDotNetSDKTests
             _mockManager.HandleOrderCreated(order, transactionList);
             orderingManager.VerifyAllExpectations();
             _mockManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void HandleDeliveryOrderCreated_withTransactions_Success()
+        {
+            List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
+            Order order = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
+            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GenerateDeliveryOrderPending();
+            Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+
+            orderingManager.Expect(x => x.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList));
+            _mockManager.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
+            MockHttpComs.Expect(x => x.PutOrder(orderReturnedFromPos)).Return(orderReturnedFromPos);
+
+            _mockManager.HandleOrderCreated(order, transactionList);
+            orderingManager.VerifyAllExpectations();
+            _mockManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void HandlePickupOrderCreated_withTransactions_Success()
+        {
+            List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
+            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            orderingManager.Expect(x => x.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList));
+            _mockManager.Expect(x => x.GetConsumerForOrderCreated(order, transactionList)).Return(consumer);
+            
+            
+            _mockManager.HandleOrderCreated(order, transactionList);
+            orderingManager.VerifyAllExpectations();
+            _mockManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void AcceptOrderAheadCreation_withoutTransactions()
+        {
+            List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
+            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
+            
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.LocationToken = locationToken;
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.GetOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(order);
+            _mockManager.Expect(x => x.GetTransactionFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(new List<Transaction>());
+            _mockManager.Expect(x => x.PutOrderCreatedResult(orderReturnedFromPos)).Return(orderReturnedFromPos);
+
+            _mockManager.AcceptOrderAheadCreation(orderReturnedFromPos);
+            _mockManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void AcceptOrderAheadCreation_withTransactions()
+        {
+            List<Transaction> transactionList = GenerateObjectsAndStringHelper.GenerateTransactionList();
+            Order order = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            Consumer consumer = GenerateObjectsAndStringHelper.GenerateConsumer();
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.LocationToken = locationToken;
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.GetOrderFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(order);
+            _mockManager.Expect(x => x.GetTransactionFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(transactionList);
+            _mockManager.Expect(x => x.PutOrderCreatedResult(orderReturnedFromPos)).Return(orderReturnedFromPos);
+            _mockManager.Expect(x => x.RequestPaymentForOrderExistingTransaction(Arg<Transaction>.Is.Anything)).Return(true);
+            
+            _mockManager.AcceptOrderAheadCreation(orderReturnedFromPos);
+            _mockManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void RejectOrderAheadCreation_withTransactions()
+        {
+            Order orderReturnedFromPos = GenerateObjectsAndStringHelper.GeneratePickupOrderPending();
+            
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.LocationToken = locationToken;
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.GetTransactionFromDoshiiOrderId(orderReturnedFromPos.DoshiiId)).Return(GenerateObjectsAndStringHelper.GenerateTransactionList());
+            _mockManager.Expect(x => x.PutOrderCreatedResult(orderReturnedFromPos));
+            _mockManager.Expect(x => x.RejectPaymentForOrder(Arg<Transaction>.Is.Anything));
+            
+            _mockManager.RejectOrderAheadCreation(orderReturnedFromPos);
+            _mockManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void RecordPosTransactionOnDoshii()
+        {
+            Transaction transaction = GenerateObjectsAndStringHelper.GenerateTransactionWaiting();
+            
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(x => x.PostTransaction(transaction)).Return(transaction);
+
+            _mockManager.RecordPosTransactionOnDoshii(transaction);
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void PutOrderCreatedResult_Success()
+        {
+            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(x => x.PutOrderCreatedResult(order)).Return(order);
+
+            _mockManager.PutOrderCreatedResult(order);
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void PutOrderCreatedResult_SuccessfulOrderNoPosId()
+        {
+            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            order.Status = "accepted";
+            order.Id = null;
+            
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.PutOrderCreatedResult(order);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void PutOrderCreatedResult_SuccessfulOrder_ReturnedOrderNoPosId()
+        {
+            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            returnedOrder.Status = "accepted";
+            returnedOrder.Id = "0";
+            returnedOrder.DoshiiId = "0";
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Return(returnedOrder);
+
+            _mockManager.PutOrderCreatedResult(order);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void PutOrderCreatedResult_SuccessfulOrder_RestfulApiErrorResponseException()
+        {
+            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            returnedOrder.Status = "accepted";
+            returnedOrder.Id = "0";
+            returnedOrder.DoshiiId = "0";
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Throw(new RestfulApiErrorResponseException());
+
+            _mockManager.PutOrderCreatedResult(order);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ConflictWithOrderUpdateException))]
+        public void PutOrderCreatedResult_SuccessfulOrder_Conflict()
+        {
+            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            returnedOrder.Status = "accepted";
+            returnedOrder.Id = "0";
+            returnedOrder.DoshiiId = "0";
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Throw(new RestfulApiErrorResponseException(){StatusCode = HttpStatusCode.Conflict});
+
+            _mockManager.PutOrderCreatedResult(order);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void PutOrderCreatedResult_SuccessfulOrder_NullResponse()
+        {
+            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            returnedOrder.Status = "accepted";
+            returnedOrder.Id = "0";
+            returnedOrder.DoshiiId = "0";
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Throw(new NullResponseDataReturnedException());
+
+            _mockManager.PutOrderCreatedResult(order);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderUpdateException))]
+        public void PutOrderCreatedResult_SuccessfulOrder_GeneralException()
+        {
+            Order order = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            Order returnedOrder = GenerateObjectsAndStringHelper.GenerateOrderWaitingForPayment();
+            returnedOrder.Status = "accepted";
+            returnedOrder.Id = "0";
+            returnedOrder.DoshiiId = "0";
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _mockManager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(x => x.PutOrderCreatedResult(order)).Return(order).Throw(new Exception());
+
+            _mockManager.PutOrderCreatedResult(order);
         }
 
         [Test]
@@ -996,7 +1171,7 @@ namespace DoshiiDotNetSDKTests
 
             MockHttpComs.Stub(
                 x => x.PutOrder(Arg<Order>.Matches(o => o.Id == orderToUpdate.Id && o.Status == orderToUpdate.Status)))
-                .Throw(new NullOrderReturnedException());
+                .Throw(new NullResponseDataReturnedException());
 
             _mockManager.UpdateOrder(orderToUpdate);
         }
@@ -1016,6 +1191,494 @@ namespace DoshiiDotNetSDKTests
 
             _mockManager.UpdateOrder(orderToUpdate);
         }
+
+        [Test]
+        public void GetMember_Success()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(x => x.GetMember(GenerateObjectsAndStringHelper.TestMemberId));
+            
+            _mockManager.GetMember(GenerateObjectsAndStringHelper.TestMemberId);
+        
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void GetMember_Failed_WithException()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Throw(new RestfulApiErrorResponseException());
+
+            _mockManager.GetMember(GenerateObjectsAndStringHelper.TestMemberId);
+
+        }
+
+        [Test]
+        public void GetMember_Success_MakesRequest()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+            
+            MockHttpComs.Expect(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(responseMessage);
+
+            _mockManager.GetMember(GenerateObjectsAndStringHelper.TestMemberId);
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void GetMember_ManagerNotInitializedException()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+            _mockManager.mMemberManager = null;
+
+            _mockManager.GetMember(GenerateObjectsAndStringHelper.TestMemberId);
+
+        }
+
+
+        [Test]
+        public void GetMembers_Success()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(x => x.GetMembers());
+
+            _mockManager.GetMembers();
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void GetMembers_Failed_WithException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Throw(new RestfulApiErrorResponseException());
+
+            _mockManager.GetMembers();
+
+        }
+
+        [Test]
+        public void GetMembers_Success_MakesRequest()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMembersList();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(responseMessage);
+            MockHttpComs.Stub(x => x.GetMember(Arg<string>.Is.Anything))
+                .Repeat.Once()
+                .Return(GenerateObjectsAndStringHelper.GenerateMember1());
+            MockHttpComs.Stub(x => x.GetMember(Arg<string>.Is.Anything))
+                .Repeat.Once()
+                .Return(GenerateObjectsAndStringHelper.GenerateMember2());
+
+            _mockManager.GetMembers();
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void GetMembers_ManagerNotInitializedException()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+            _mockManager.mMemberManager = null;
+
+            _mockManager.GetMembers();
+
+        }
+
+        [Test]
+        public void DeleteMember_Success()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(x => x.DeleteMember(GenerateObjectsAndStringHelper.GenerateMember1())).Return(true);
+
+            _mockManager.DeleteMember(GenerateObjectsAndStringHelper.GenerateMember1());
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void DeleteMember_Failed_WithException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Throw(new RestfulApiErrorResponseException());
+
+            _mockManager.DeleteMember(GenerateObjectsAndStringHelper.GenerateMember1());
+
+        }
+
+        [Test]
+        public void DeleteMember_Success_MakesRequest()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(responseMessage);
+
+            _mockManager.DeleteMember(GenerateObjectsAndStringHelper.GenerateMember1());
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void DeleteMember_ManagerNotInitializedException()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+            _mockManager.mMemberManager = null;
+
+            _mockManager.DeleteMember(GenerateObjectsAndStringHelper.GenerateMember1());
+
+        }
+
+        [Test]
+        public void CreateMember_Success()
+        {
+            var member = GenerateObjectsAndStringHelper.GenerateMember1();
+            member.Id = "";
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(responseMessage);
+            MockHttpComs.Expect(x => x.PostMember(member)).Return(GenerateObjectsAndStringHelper.GenerateMember1());
+            
+            _mockManager.UpdateMember(member);
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void UpdateMember_Success()
+        {
+            var member = GenerateObjectsAndStringHelper.GenerateMember1();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(x => x.PutMember(GenerateObjectsAndStringHelper.GenerateMember1()));
+
+            _mockManager.UpdateMember(member);
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void UpdateMember_Failed_WithException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Throw(new RestfulApiErrorResponseException());
+
+            _mockManager.UpdateMember(GenerateObjectsAndStringHelper.GenerateMember1());
+
+        }
+
+        [Test]
+        public void UpdateMember_Success_MakesRequest()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(responseMessage);
+
+            _mockManager.UpdateMember(GenerateObjectsAndStringHelper.GenerateMember1());
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void UpdateMember_ManagerNotInitializedException()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+            _mockManager.mMemberManager = null;
+
+            _mockManager.UpdateMember(GenerateObjectsAndStringHelper.GenerateMember1());
+
+        }
+
+
+        [Test]
+        public void SyncMembersWithDoshii_DeleteMemberOnPos()
+        {
+            var posMemberList = GenerateObjectsAndStringHelper.GenerateMemberList();
+            var doshiiMemberList = GenerateObjectsAndStringHelper.GenerateMemberList();
+
+            doshiiMemberList.RemoveAt(0);
+
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.mMemberManager = membershipManager;
+            _mockManager.IsInitalized = true;
+            
+            _mockManager.Expect(x => x.GetMembers()).Return(doshiiMemberList);
+            membershipManager.Expect(x => x.GetMembersFromPos()).Return(posMemberList);
+            membershipManager.Expect(x => x.DeleteMemberOnPos(GenerateObjectsAndStringHelper.GenerateMember1()));
+            
+            _mockManager.SyncDoshiiMembersWithPosMembers();
+
+            _mockManager.VerifyAllExpectations();
+            membershipManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void SyncMembersWithDoshii_CreateMemberOnPos()
+        {
+            var posMemberList = GenerateObjectsAndStringHelper.GenerateMemberList();
+            var doshiiMemberList = GenerateObjectsAndStringHelper.GenerateMemberList();
+
+            posMemberList.RemoveAt(0);
+
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.mMemberManager = membershipManager;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.GetMembers()).Return(doshiiMemberList);
+            membershipManager.Expect(x => x.GetMembersFromPos()).Return(posMemberList);
+            membershipManager.Expect(x => x.CreateMemberOnPos(GenerateObjectsAndStringHelper.GenerateMember1()));
+
+            _mockManager.SyncDoshiiMembersWithPosMembers();
+
+            _mockManager.VerifyAllExpectations();
+            membershipManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void SyncMembersWithDoshii_UpdateMemberOnPos()
+        {
+            var posMemberList = GenerateObjectsAndStringHelper.GenerateMemberList();
+            var doshiiMemberList = GenerateObjectsAndStringHelper.GenerateMemberList();
+
+            doshiiMemberList[0].Email = "newemail@email.com";
+
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageMember();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.mMemberManager = membershipManager;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.GetMembers()).Return(doshiiMemberList);
+            membershipManager.Expect(x => x.GetMembersFromPos()).Return(posMemberList);
+            membershipManager.Expect(x => x.UpdateMemberOnPos(doshiiMemberList[0]));
+
+            _mockManager.SyncDoshiiMembersWithPosMembers();
+
+            _mockManager.VerifyAllExpectations();
+            membershipManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetRewardsForMember_Success()
+        {
+            var rewardsList = GenerateObjectsAndStringHelper.GenerateRewardList();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(x => x.GetRewardsForMember(GenerateObjectsAndStringHelper.GenerateMember1().Id, GenerateObjectsAndStringHelper.TestOrderId, 1000)).Return(rewardsList);
+
+            _mockManager.GetRewardsForMember(GenerateObjectsAndStringHelper.GenerateMember1().Id, GenerateObjectsAndStringHelper.TestOrderId, 1000);
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void GetRewardsForMember_Failed_WithException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Stub(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Throw(new RestfulApiErrorResponseException());
+
+            _mockManager.GetRewardsForMember(GenerateObjectsAndStringHelper.GenerateMember1().Id, GenerateObjectsAndStringHelper.TestOrderId, 1000);
+        }
+
+        [Test]
+        public void GetRewardsForMember_Success_MakesRequest()
+        {
+            var responseMessage = GenerateObjectsAndStringHelper.GenerateResponseMessageRewardsList();
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            MockHttpComs.Expect(
+                x => x.MakeRequest(Arg<string>.Is.Anything, Arg<string>.Is.Anything, Arg<string>.Is.Anything))
+                .Return(responseMessage);
+
+            _mockManager.GetRewardsForMember(GenerateObjectsAndStringHelper.GenerateMember1().Id, GenerateObjectsAndStringHelper.TestOrderId, 1000);
+
+            MockHttpComs.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void GetRewardsForMember_ManagerNotInitializedException()
+        {
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+            _mockManager.mMemberManager = null;
+
+            _mockManager.GetRewardsForMember(GenerateObjectsAndStringHelper.GenerateMember1().Id, GenerateObjectsAndStringHelper.TestOrderId, 1000);
+
+        }
+
+        [Test]
+        public void ReddemRewardForMember_returnedOrderIsNull()
+        {
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var member = GenerateObjectsAndStringHelper.GenerateMember1();
+            var reward = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.UpdateOrder(order)).Return(null);
+
+            var result = _mockManager.RedeemRewardForMember(member, reward, order);
+
+            _mockManager.VerifyAllExpectations();
+            Assert.AreEqual(false, result);
+        }
+
+        [Test]
+        public void ReddemRewardForMember_UpdateOrderThrowsException()
+        {
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var member = GenerateObjectsAndStringHelper.GenerateMember1();
+            var reward = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.UpdateOrder(order)).Throw(new Exception());
+
+            var result = _mockManager.RedeemRewardForMember(member, reward, order);
+
+            _mockManager.VerifyAllExpectations();
+            Assert.AreEqual(false, result);
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void ReddemRewardForMember_RedeemRewardForOrderThrowsException()
+        {
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var member = GenerateObjectsAndStringHelper.GenerateMember1();
+            var reward = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.UpdateOrder(order)).Return(order);
+            MockHttpComs.Expect(x => x.RedeemRewardForMember(member.Id, reward.Id, order)).Throw(new RestfulApiErrorResponseException());
+
+            _mockManager.RedeemRewardForMember(member, reward, order);
+        }
+
+        [Test]
+        public void ReddemRewardForMember_Success()
+        {
+            var order = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            var member = GenerateObjectsAndStringHelper.GenerateMember1();
+            var reward = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
+
+            var MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
+            _mockManager.m_HttpComs = MockHttpComs;
+            _mockManager.IsInitalized = true;
+
+            _mockManager.Expect(x => x.UpdateOrder(order)).Return(order);
+            MockHttpComs.Expect(x => x.RedeemRewardForMember(member.Id, reward.Id, order)).Return(true);
+
+            var result = _mockManager.RedeemRewardForMember(member, reward, order);
+
+            MockHttpComs.VerifyAllExpectations();
+            _mockManager.VerifyAllExpectations();
+            Assert.AreEqual(true, result);
+        }
+
 
         [Test]
         [ExpectedException(typeof(OrderDoesNotExistOnPosException))]

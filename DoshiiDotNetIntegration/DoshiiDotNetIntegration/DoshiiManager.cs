@@ -89,7 +89,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         private DoshiiWebSocketsCommunication m_SocketComs = null;
 
-        internal DoshiiWebSocketsCommunication SocketComs
+        internal virtual DoshiiWebSocketsCommunication SocketComs
         {
             get { return m_SocketComs; }
             set
@@ -130,7 +130,7 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// the membership manager
         /// </summary>
-        private IMembershipModuleManager mMemberManager;
+        internal IMembershipModuleManager mMemberManager { get; set; }
 
         /// <summary>
         /// The unique LocationId for the venue -- this can be retrieved from Doshii before enabling the integration.
@@ -291,7 +291,7 @@ namespace DoshiiDotNetIntegration
             return m_IsInitalized;
         }
 
-        private string FormatBaseUrl(string baseUrl)
+        internal virtual string FormatBaseUrl(string baseUrl)
         {
             char last = baseUrl[baseUrl.Length - 1];
             if (last == '/')
@@ -452,7 +452,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>partners to make payments when they create an order else the payment is expected to be made by the customer on receipt of the order. 
         /// </summary>
         /// <exception cref="RestfulApiErrorResponseException">Is thrown if there is an issue getting the orders from Doshii.</exception>
-        internal void RefreshAllOrders()
+        internal virtual void RefreshAllOrders()
         {
             
             try
@@ -577,7 +577,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the order was not recorded as accepted on Doshii.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public bool AcceptOrderAheadCreation(Order orderToAccept)
+        public virtual bool AcceptOrderAheadCreation(Order orderToAccept)
         {
             if (!m_IsInitalized)
             {
@@ -630,7 +630,7 @@ namespace DoshiiDotNetIntegration
         /// The pending Doshii order that will be rejected
         /// </param>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public void RejectOrderAheadCreation(Order orderToReject)
+        public virtual void RejectOrderAheadCreation(Order orderToReject)
         {
             if (!m_IsInitalized)
             {
@@ -804,7 +804,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="receivedTransaction">
         /// The pending transaction that needs to be processed. 
         /// </param>
-        internal void HandelPendingTransactionReceived(Transaction receivedTransaction)
+        internal virtual void HandelPendingTransactionReceived(Transaction receivedTransaction)
         {
             Transaction transactionFromPos = null;
             try
@@ -873,7 +873,7 @@ namespace DoshiiDotNetIntegration
                 mPaymentManager.CancelPayment(transaction);
                 return false;
             }
-            catch (NullOrderReturnedException)
+            catch (NullResponseDataReturnedException)
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", transaction.OrderId));
                 mPaymentManager.CancelPayment(transaction);
@@ -963,7 +963,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="version">
         /// the version of the order to be recorded.
         /// </param>
-        internal void RecordOrderVersion(string posOrderId, string version)
+        internal virtual void RecordOrderVersion(string posOrderId, string version)
         {
             try
             {
@@ -1014,7 +1014,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>Returns null if the request failed. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public Transaction RecordPosTransactionOnDoshii(Transaction transaction)
+        public virtual Transaction RecordPosTransactionOnDoshii(Transaction transaction)
         {
             if (!m_IsInitalized)
             {
@@ -1103,7 +1103,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        public virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             if (!m_IsInitalized)
             {
@@ -1303,7 +1303,7 @@ namespace DoshiiDotNetIntegration
             {
                 throw new OrderUpdateException("Update order not successful", rex);
             }
-            catch (NullOrderReturnedException Nex)
+            catch (NullResponseDataReturnedException Nex)
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
                 throw new OrderUpdateException(string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id), Nex);
@@ -1354,7 +1354,7 @@ namespace DoshiiDotNetIntegration
                 }
                 throw new OrderUpdateException("Update order not successful", rex);
             }
-            catch (NullOrderReturnedException Nex)
+            catch (NullResponseDataReturnedException Nex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
                 throw new OrderUpdateException(string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id), Nex);
@@ -1480,6 +1480,49 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        public virtual bool SyncDoshiiMembersWithPosMembers()
+        {
+            try
+            {
+                List<Member> DoshiiMembersList = GetMembers().ToList();
+                List<Member> PosMembersList = mMemberManager.GetMembersFromPos().ToList();
+
+                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
+                var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
+
+                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInDoshii)
+                {
+                    mMemberManager.DeleteMemberOnPos(mem);
+                }
+
+                var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersInPos)
+                {
+                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
+                    if (!mem.Equals(posMember))
+                    {
+                        mMemberManager.UpdateMemberOnPos(mem);
+                    }
+                }
+
+                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInPos)
+                {
+                    mMemberManager.CreateMemberOnPos(mem);
+                }
+
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
+                return false;
+            }
+        }
+
+
         public virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
         {
             if (!m_IsInitalized)
@@ -1501,51 +1544,6 @@ namespace DoshiiDotNetIntegration
                 throw rex;
             }
         }
-
-        public virtual bool SyncDoshiiMembersWithPosMembers()
-        {
-            try
-            {
-                List<Member> DoshiiMembersList = GetMembers().ToList();
-                List<Member> PosMembersList = mMemberManager.GetMembersFromPos().ToList();
-
-                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
-                var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
-                
-                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
-                foreach (var mem in membersNotInDoshii)
-                {
-                    mMemberManager.DeleteMemberOnPos(mem);
-                }
-                
-                var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
-                foreach (var mem in membersInPos)
-                {
-                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
-                    if (!mem.Equals(posMember))
-                    {
-                        mMemberManager.UpdateMemberOnPos(mem);
-                    }
-                }
-
-                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
-                foreach (var mem in membersNotInPos)
-                {
-                    mMemberManager.CreateMemberOnPos(mem);
-                }
-
-                
-                return true;
-            }
-            catch(Exception ex)
-            {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
-                return false;
-            }
-            
-            
-        }
-
 
         /// <summary>
         /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the order. 
@@ -1571,7 +1569,12 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                UpdateOrder(order);
+                var returnedOrder = UpdateOrder(order);
+                if (returnedOrder == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The order was not successfully sent to Doshii so the reward could not be redeemed."));
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -1729,7 +1732,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="tableNames">A list of the tables to add to the allocaiton, if you want to remove the table allocaiton you should pass an empty list into this param.</param>
 		/// <returns>The current order details in Doshii after upload.</returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
+        public virtual bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
 		{
             if (!m_IsInitalized)
             {
@@ -1756,7 +1759,7 @@ namespace DoshiiDotNetIntegration
             if (order == null)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
-                throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during table allocation", new NullOrderReturnedException());
+                throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during table allocation", new NullResponseDataReturnedException());
             }
 
             if (!string.IsNullOrEmpty(order.CheckinId))
@@ -1804,7 +1807,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="checkinId"></param>
         /// <param name="tableNames">to remove an allocaiton from a checkin add this as an empty list. </param>
         /// <returns></returns>
-        public bool ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
+        public virtual bool ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
         {
             if (!m_IsInitalized)
             {
@@ -1919,7 +1922,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public Menu UpdateMenu(Menu menu)
+        public virtual Menu UpdateMenu(Menu menu)
         {
             if (!m_IsInitalized)
             {
@@ -1956,7 +1959,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public Surcount UpdateSurcount(Surcount surcount)
+        public virtual Surcount UpdateSurcount(Surcount surcount)
         {
             if (!m_IsInitalized)
             {
@@ -1997,7 +2000,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public Product UpdateProduct(Product product)
+        public virtual Product UpdateProduct(Product product)
         {
             if (!m_IsInitalized)
             {
@@ -2038,7 +2041,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>false if the surcount was not deleted
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public bool DeleteSurcount(string posId)
+        public virtual bool DeleteSurcount(string posId)
         {
             if (!m_IsInitalized)
             {
@@ -2068,7 +2071,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the product was not deleted
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public bool DeleteProduct(string posId)
+        public virtual bool DeleteProduct(string posId)
         {
             if (!m_IsInitalized)
             {
@@ -2204,7 +2207,7 @@ namespace DoshiiDotNetIntegration
         /// The location object representing this venue.
         /// <para/>Null will be returned if there is an error retrieving the location from doshii. 
         /// </returns>
-        public Location GetLocation()
+        public virtual Location GetLocation()
         {
             if (!m_IsInitalized)
             {
@@ -2228,7 +2231,7 @@ namespace DoshiiDotNetIntegration
         /// The name of the method that has been called before Initialize. 
         /// </param>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        private void ThrowDoshiiManagerNotInitializedException(string methodName)
+        internal virtual void ThrowDoshiiManagerNotInitializedException(string methodName)
         {
             throw new DoshiiManagerNotInitializedException(
                 string.Format("You must initialize the DoshiiManager instance before calling {0}", methodName));
@@ -2240,7 +2243,7 @@ namespace DoshiiDotNetIntegration
                 string.Format("You must initialize the DoshiiMembership module before calling {0}", methodName));
         }
 
-        public string CreateToken()
+        public virtual string CreateToken()
         {
             var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             //var now = Math.Round((DateTime.Now - unixEpoch).TotalSeconds);
@@ -2261,7 +2264,7 @@ namespace DoshiiDotNetIntegration
         /// <summary>
 		/// Cleanly disposes of the memory allocated to the instance's member variables.
 		/// </summary>
-		public void Dispose()
+		public virtual void Dispose()
 		{
 			mPaymentManager = null;
 			mLog.Dispose();
