@@ -130,7 +130,7 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// the membership manager
         /// </summary>
-        private IMembershipModuleManager mMemberManager;
+        internal IMembershipModuleManager mMemberManager { get; set; }
 
         /// <summary>
         /// The unique LocationId for the venue -- this can be retrieved from Doshii before enabling the integration.
@@ -1480,6 +1480,49 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        public virtual bool SyncDoshiiMembersWithPosMembers()
+        {
+            try
+            {
+                List<Member> DoshiiMembersList = GetMembers().ToList();
+                List<Member> PosMembersList = mMemberManager.GetMembersFromPos().ToList();
+
+                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
+                var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
+
+                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInDoshii)
+                {
+                    mMemberManager.DeleteMemberOnPos(mem);
+                }
+
+                var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersInPos)
+                {
+                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
+                    if (!mem.Equals(posMember))
+                    {
+                        mMemberManager.UpdateMemberOnPos(mem);
+                    }
+                }
+
+                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInPos)
+                {
+                    mMemberManager.CreateMemberOnPos(mem);
+                }
+
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
+                return false;
+            }
+        }
+
+
         public virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
         {
             if (!m_IsInitalized)
@@ -1501,51 +1544,6 @@ namespace DoshiiDotNetIntegration
                 throw rex;
             }
         }
-
-        public virtual bool SyncDoshiiMembersWithPosMembers()
-        {
-            try
-            {
-                List<Member> DoshiiMembersList = GetMembers().ToList();
-                List<Member> PosMembersList = mMemberManager.GetMembersFromPos().ToList();
-
-                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
-                var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
-                
-                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
-                foreach (var mem in membersNotInDoshii)
-                {
-                    mMemberManager.DeleteMemberOnPos(mem);
-                }
-                
-                var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
-                foreach (var mem in membersInPos)
-                {
-                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
-                    if (!mem.Equals(posMember))
-                    {
-                        mMemberManager.UpdateMemberOnPos(mem);
-                    }
-                }
-
-                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
-                foreach (var mem in membersNotInPos)
-                {
-                    mMemberManager.CreateMemberOnPos(mem);
-                }
-
-                
-                return true;
-            }
-            catch(Exception ex)
-            {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
-                return false;
-            }
-            
-            
-        }
-
 
         /// <summary>
         /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the order. 
@@ -1571,7 +1569,12 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                UpdateOrder(order);
+                var returnedOrder = UpdateOrder(order);
+                if (returnedOrder == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The order was not successfully sent to Doshii so the reward could not be redeemed."));
+                    return false;
+                }
             }
             catch (Exception ex)
             {
