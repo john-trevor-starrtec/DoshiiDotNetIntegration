@@ -1614,7 +1614,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId, Order order)
+        public virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
             if (!m_IsInitalized)
             {
@@ -1654,6 +1654,11 @@ namespace DoshiiDotNetIntegration
             try
             {
                 order = UpdateOrder(order);
+                if (order == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was a problem updating the order on Doshii, so the points can't re redeemed."));
+                    return false;
+                }
             }
             catch (Exception ex)
             {

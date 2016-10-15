@@ -37,6 +37,9 @@ namespace DoshiiDotNetSDKTests
         internal static string TestTransactionId = "tran1234";
         internal static string TestVersion = "asdfre";
         internal static string TestMemberId = "345";
+        internal static string TestRewardId = "654";
+        internal static string TestCancelResaon = "consumer changed their mind.";
+        internal static int TestMemberPoints = 250;
         #endregion 
 
         #region responceMessages
@@ -158,6 +161,20 @@ namespace DoshiiDotNetSDKTests
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
                 Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageSuccess()
+        {
+            var order = GenerateOrderAccepted();
+            
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = "",
                 ErrorMessage = "",
                 Message = ""
             };
