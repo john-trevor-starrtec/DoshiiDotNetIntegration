@@ -150,9 +150,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// If an order if found matching the orderId the order is returned,
         /// If on order matching the orderId is not found a new order is returned. 
         /// </returns>
-        internal virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual OrderWithConsumer GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
-            var retreivedOrder = new Order();
+            var retreivedOrder = new OrderWithConsumer();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -169,17 +169,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
+                        var jsonOrder = JsonOrderWithConsumer.deseralizeFromJson(responseMessage.Data);
                         try
                         {
-                            retreivedOrder = Mapper.Map<Order>(jsonOrder);
+                            retreivedOrder = Mapper.Map<OrderWithConsumer>(jsonOrder);
                         }
                         catch (Exception ex)
                         {
                             mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error,
                                 string.Format(
                                     "Doshii: An order received from Doshii could not be processed, A Price value in the order could not be converted into a decimal, the order will be rejected by the SDK: ",
-                                    jsonOrder));
+                                    jsonOrder),ex);
                             //reject the order. 
                             var orderWithNoPricePropertiesToReject = Mapper.Map<OrderWithNoPriceProperties>(jsonOrder);
                             var orderToReject = Mapper.Map<Order>(orderWithNoPricePropertiesToReject);
@@ -272,9 +272,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// A list of all currently active unlinked orders from Doshii
         /// If there are no current active unlinked orders an empty list is returned.  
         /// </returns>
-        internal virtual IEnumerable<Order> GetUnlinkedOrders()
+        internal virtual IEnumerable<OrderWithConsumer> GetUnlinkedOrders()
         {
-            var retreivedOrderList = new List<Order>();
+            var retreivedOrderList = new List<OrderWithConsumer>();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -291,8 +291,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrder>>(responseMessage.Data);
-                        retreivedOrderList = Mapper.Map<List<Order>>(jsonList);
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrderWithConsumer>>(responseMessage.Data);
+                        retreivedOrderList = Mapper.Map<List<OrderWithConsumer>>(jsonList);
                     }
                     else
                     {
@@ -310,16 +310,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
             }
 
-            List<Order> fullOrderList = new List<Order>();
+            var fullOrderList = new List<OrderWithConsumer>();
             foreach (var partOrder in retreivedOrderList)
             {
-                Order newOrder = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
+                OrderWithConsumer newOrder = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
                 if (newOrder != null)
                 {
                     fullOrderList.Add(newOrder);
                 }
             }
-            return (IEnumerable<Order>)fullOrderList;
+            return (IEnumerable<OrderWithConsumer>)fullOrderList;
         }
 
         /// <summary>

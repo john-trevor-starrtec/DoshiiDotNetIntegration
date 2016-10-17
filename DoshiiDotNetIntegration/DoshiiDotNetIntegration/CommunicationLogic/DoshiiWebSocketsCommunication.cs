@@ -72,7 +72,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         #region events
 
-		internal delegate void OrderCreatedEventHandler(object sender, CommunicationEventArgs.OrderEventArgs e);
+		internal delegate void OrderCreatedEventHandler(object sender, CommunicationEventArgs.OrderCreatedEventArgs e);
         
         /// <summary>
         /// Event will be raised when the state of an order created message is received from Doshii.
@@ -396,7 +396,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             switch (messageData.EventName)
             {
                 case "order_created":
-                    CommunicationEventArgs.OrderEventArgs orderStatusEventArgs = new CommunicationEventArgs.OrderEventArgs();
+                    var orderStatusEventArgs = new CommunicationEventArgs.OrderCreatedEventArgs();
                     orderStatusEventArgs.Order = m_DoshiiLogic.GetOrderFromDoshiiOrderId(messageData.Id);
                     if (orderStatusEventArgs.Order != null)
                     {

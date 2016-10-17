@@ -104,6 +104,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommunicationLogic\CommunicationEventArgs\MemberEventArgs.cs" />
+    <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderCreatedEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\TransactionEventArgs.cs" />
     <Compile Include="CommunicationLogic\DoshiHttpResponseMessage.cs" />
     <Compile Include="CommunicationLogic\DoshiiHttpCommunication.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
     <Compile Include="Models\Json\JsonMember.cs" />
     <Compile Include="Models\Json\JsonMenu.cs" />
+    <Compile Include="Models\Json\JsonOrderWithConsumer.cs" />
     <Compile Include="Models\Json\JsonOrderIdSimple.cs" />
     <Compile Include="Models\Json\JsonPointsRedeem.cs" />
     <Compile Include="Models\Json\JsonCheckin.cs" />
@@ -172,6 +174,7 @@
     <Compile Include="Models\Member.cs" />
     <Compile Include="Models\Menu.cs" />
     <Compile Include="Models\NamespaceDoc.cs" />
+    <Compile Include="Models\OrderWithConsumer.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderWithNoPriceProperties.cs" />
     <Compile Include="Models\PointsRedeem.cs" />

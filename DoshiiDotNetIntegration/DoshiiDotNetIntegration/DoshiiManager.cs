@@ -459,9 +459,9 @@ namespace DoshiiDotNetIntegration
             {
                 //check unassigned orders
                 mLog.LogMessage(this.GetType(), DoshiiLogLevels.Info, "Refreshing all orders.");
-                IEnumerable<Order> unassignedOrderList;
+                IEnumerable<OrderWithConsumer> unassignedOrderList;
                 unassignedOrderList = GetUnlinkedOrders();
-                foreach (Order order in unassignedOrderList)
+                foreach (OrderWithConsumer order in unassignedOrderList)
                 {
                     if (order.Status == "pending")
                     {
@@ -496,7 +496,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        internal virtual void SocketComsOrderCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
+        internal virtual void SocketComsOrderCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderCreatedEventArgs e)
         {
 			if (!String.IsNullOrEmpty(e.Order.Id))
             {
@@ -515,48 +515,50 @@ namespace DoshiiDotNetIntegration
         /// <param name="transactionList">
         /// The transaction list for the new created order. 
         /// </param>
-        internal virtual void HandleOrderCreated(Order order, List<Transaction> transactionList)
+        internal virtual void HandleOrderCreated(OrderWithConsumer orderWithConsumer, List<Transaction> transactionList)
         {
+            var orderWithoutConsumer = Mapper.Map<Order>(orderWithConsumer);
             if (transactionList == null)
             {
                 transactionList = new List<Transaction>();
             }
-            Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
-            if (consumer == null)
+            if (orderWithConsumer.Consumer == null)
             {
+                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: An order created event was received with DoshiiId - {0} but the order does not have a consumer, the Order has been rejected", orderWithoutConsumer.DoshiiId));
+                RejectOrderFromOrderCreateMessage(orderWithoutConsumer, transactionList);
                 return;
             }
             if (transactionList.Count > 0)
             {
-                
-                if (order.Type == "delivery")
+
+                if (orderWithConsumer.Type == "delivery")
                 {
-                    mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList);
+                    mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
                 }
-                else if (order.Type == "pickup")
+                else if (orderWithConsumer.Type == "pickup")
                 {
-                    mOrderingManager.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList);
+                    mOrderingManager.ConfirmNewPickupOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
                 }
                 else
                 {
-                    RejectOrderFromOrderCreateMessage(order, transactionList);
+                    RejectOrderFromOrderCreateMessage(orderWithoutConsumer, transactionList);
                 }
                 
             }
             else
             {
-                if (order.Type == "delivery")
+                if (orderWithConsumer.Type == "delivery")
                 {
-                    
-                    mOrderingManager.ConfirmNewDeliveryOrder(order, consumer);
+
+                    mOrderingManager.ConfirmNewDeliveryOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
                 }
-                else if (order.Type == "pickup")
+                else if (orderWithConsumer.Type == "pickup")
                 {
-                    mOrderingManager.ConfirmNewPickupOrder(order, consumer);
+                    mOrderingManager.ConfirmNewPickupOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
                 }
                 else
                 {
-                    RejectOrderFromOrderCreateMessage(order, transactionList);
+                    RejectOrderFromOrderCreateMessage(orderWithoutConsumer, transactionList);
                 }
                 
             }
@@ -585,7 +587,7 @@ namespace DoshiiDotNetIntegration
                     "AcceptOrderAheadCreation"));
             }
             
-            Order orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
+            OrderWithConsumer orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
             List<Transaction> transactionList = GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();
 
             //test on doshii has changed. 
@@ -663,7 +665,7 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("There was an exception when retreiving the consumer for a pending order doshiiOrderId - {0}. The order will be rejected", order.Id), ex);
+                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception when retreiving the consumer for a pending order doshiiOrderId - {0}. The order will be rejected", order.Id), ex);
                 RejectOrderFromOrderCreateMessage(order, transactionList);
                 return null;
             }
@@ -1103,7 +1105,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual OrderWithConsumer GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             if (!m_IsInitalized)
             {
@@ -1155,7 +1157,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If there are no unlinkedOrders a blank IEnumerable is returned.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual IEnumerable<Order> GetUnlinkedOrders()
+        internal virtual IEnumerable<OrderWithConsumer> GetUnlinkedOrders()
         {
             if (!m_IsInitalized)
             {
