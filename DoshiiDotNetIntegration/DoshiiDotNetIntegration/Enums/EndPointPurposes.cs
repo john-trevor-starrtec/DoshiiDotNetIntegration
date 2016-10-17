@@ -63,6 +63,42 @@ namespace DoshiiDotNetIntegration.Enums
         /// <summary>
         /// requests for location data
         /// </summary>
-        Location = 11
+        Location = 11,
+
+        /// <summary>
+        /// requests for member data
+        /// </summary>
+        Members = 12,
+
+        /// <summary>
+        /// requests for member reqard data
+        /// </summary>
+        MemberRewards = 13,
+
+        /// <summary>
+        /// requests for member reqard data
+        /// </summary>
+        MemberRewardsRedeem = 14,
+
+        /// <summary>
+        /// requests for member reqard data
+        /// </summary>
+        MemberRewardsRedeemConfirm = 15,
+
+        /// <summary>
+        /// requests for member reqard data
+        /// </summary>
+        MemberRewardsRedeemCancel = 16,
+
+        MemberPointsRedeem = 17,
+
+        MemberPointsRedeemConfirm = 18,
+
+        MemberPointsRedeemCancel = 19,
+
+        Checkins = 20,
+
+        Tables = 21
+        
     }
 }

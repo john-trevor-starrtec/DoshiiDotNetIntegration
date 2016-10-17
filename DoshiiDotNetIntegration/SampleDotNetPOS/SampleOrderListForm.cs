@@ -84,7 +84,6 @@ namespace SampleDotNetPOS
 				item.Description,
 				item.UnitPrice.ToString("c"),
 				String.Join(";", item.Tags),
-				item.Version,
 				item.PosId
 			);
 			dgvOrderItems.Rows[index].Tag = item;

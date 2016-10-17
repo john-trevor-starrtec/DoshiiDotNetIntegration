@@ -78,12 +78,18 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         private bool m_IsInitalized = false;
 
+        internal virtual bool IsInitalized
+        {
+            get { return m_IsInitalized; }
+            set { m_IsInitalized = value; }
+        }
+
 		/// <summary>
         /// Holds an instance of CommunicationLogic.DoshiiWebSocketsCommunication class for interacting with the Doshii webSocket connection
         /// </summary>
         private DoshiiWebSocketsCommunication m_SocketComs = null;
 
-        internal DoshiiWebSocketsCommunication SocketComs
+        internal virtual DoshiiWebSocketsCommunication SocketComs
         {
             get { return m_SocketComs; }
             set
@@ -122,9 +128,24 @@ namespace DoshiiDotNetIntegration
 		internal DoshiiLogManager mLog;
 
         /// <summary>
-        /// The unique token for the venue -- this can be retrieved from Doshii before enabling the integration.
+        /// the membership manager
         /// </summary>
-        internal string AuthorizeToken { get; set; }
+        internal IMembershipModuleManager mMemberManager { get; set; }
+
+        /// <summary>
+        /// The unique LocationId for the venue -- this can be retrieved from Doshii before enabling the integration.
+        /// </summary>
+        internal string LocationToken { get; set; }
+
+        /// <summary>
+        /// The Pos vendor name retrieved from Doshii.
+        /// </summary>
+        internal string Vendor { get; set; }
+
+        /// <summary>
+        /// This is unique for every POS company and should be retrieved from Doshii dashboard
+        /// </summary>
+        internal string SecretKey { get; set; }
 
         /// <summary>
         /// Gets the current Doshii version information.
@@ -148,15 +169,32 @@ namespace DoshiiDotNetIntegration
 		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
 		/// <param name="logger">The logging mechanism callback to the POS.</param>
         /// <param name="orderingManager">The Ordering API callback mechanism</param>
-        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager)
+        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager)
         {
-			if (paymentManager == null)
-				throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
+            if (logger == null)
+            {
+                throw new ArgumentNullException("logger", "IDoshiiLogger needs to be instantiated as it is a core module");
+            }
+            mLog = new DoshiiLogManager(logger);
+            if (paymentManager == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IPaymentModuleManager needs to be instantiated as it is a core module");
+                throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
+            }
+            
             if (orderingManager == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager needs to be instantiated as it is a core module");
                 throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
+            }
+            if (memberManager == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Membership module not supported - IMembershipModuleManager needs to be instantiated to implement the member functionality");
+            }    
 			mPaymentManager = paymentManager;
             mOrderingManager = orderingManager;
-            mLog = new DoshiiLogManager(logger);
+            mMemberManager = memberManager;
+            
 			AutoMapperConfigurator.Configure();
         }
 
@@ -189,9 +227,9 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the initialize procedure was unsuccessful.
         /// </returns>
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with one of the paramaters.</exception>
-        public virtual bool Initialize(string token, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        public virtual bool Initialize(string locationToken, string vendor, string secretKey, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
         {
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}token {0}, {3}BaseUrl: {1}", token, urlBase, CurrentVersion(), Environment.NewLine));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", locationToken, urlBase, CurrentVersion(), Environment.NewLine, vendor, secretKey));
 			
             if (string.IsNullOrWhiteSpace(urlBase))
             {
@@ -199,10 +237,22 @@ namespace DoshiiDotNetIntegration
 				throw new ArgumentException("empty urlBase");
             }
 
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(locationToken))
             {
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required token");
-				throw new ArgumentException("empty token");
+				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
+                throw new ArgumentException("empty locationToken");
+            }
+
+            if (string.IsNullOrWhiteSpace(vendor))
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required vendor");
+                throw new ArgumentException("empty vendor");
+            }
+
+            if (string.IsNullOrWhiteSpace(secretKey))
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required secretKey");
+                throw new ArgumentException("empty secretKey");
             }
 
 			int timeout = timeOutValueSecs;
@@ -218,9 +268,11 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
-			AuthorizeToken = token;
+			LocationToken = locationToken;
+            Vendor = vendor;
+            SecretKey = secretKey;
             urlBase = FormatBaseUrl(urlBase);
-			string socketUrl = BuildSocketUrl(urlBase, token);
+            string socketUrl = BuildSocketUrl(urlBase, LocationToken);
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
@@ -239,7 +291,7 @@ namespace DoshiiDotNetIntegration
             return m_IsInitalized;
         }
 
-        private string FormatBaseUrl(string baseUrl)
+        internal virtual string FormatBaseUrl(string baseUrl)
         {
             char last = baseUrl[baseUrl.Length - 1];
             if (last == '/')
@@ -275,7 +327,7 @@ namespace DoshiiDotNetIntegration
         {
             mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, "Doshii: Initializing Doshii");
 
-            m_HttpComs = new DoshiiHttpCommunication(UrlBase, AuthorizeToken, mLog, this);
+            m_HttpComs = new DoshiiHttpCommunication(UrlBase, mLog, this);
 
             if (StartWebSocketConnection)
             {
@@ -308,17 +360,23 @@ namespace DoshiiDotNetIntegration
 		/// <returns>The URL for the web socket connection in Doshii.</returns>
 		internal virtual string BuildSocketUrl(string baseApiUrl, string token)
 		{
-			// baseApiUrl is for example https://sandbox.doshii.co/pos/api/v2
+			// baseApiUrl is for example https://sandbox.doshii.co/pos/v3
 			// require socket url of wss://sandbox.doshii.co/pos/socket?token={token} in this example
 			// so first, replace http with ws (this handles situation where using http/ws instead of https/wss
 			string result = baseApiUrl.Replace("http", "ws");
 
 			// next remove the /api/v2 section of the url
-			int index = result.IndexOf("/api");
+			int index = result.IndexOf("/v");
 			if (index > 0 && index < result.Length)
 			{
 				result = result.Remove(index);
 			}
+
+		    index = result.IndexOf(".");
+            if (index > 0 && index < result.Length)
+            {
+                result = result.Insert(index,"-socket");
+            }
 
 			// finally append the socket endpoint and token parameter to the url and return the result
 			result = String.Format("{0}/socket?token={1}", result, token);
@@ -345,6 +403,8 @@ namespace DoshiiDotNetIntegration
                 m_SocketComs.TransactionUpdatedEvent += new DoshiiWebSocketsCommunication.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
 				m_SocketComs.SocketCommunicationEstablishedEvent += new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
                 m_SocketComs.SocketCommunicationTimeoutReached += new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
+                m_SocketComs.MemberCreatedEvent += new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
+                m_SocketComs.MemberUpdatedEvent += new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
             }
         }
 
@@ -359,6 +419,8 @@ namespace DoshiiDotNetIntegration
             m_SocketComs.TransactionUpdatedEvent -= new DoshiiWebSocketsCommunication.TransactionUpdatedEventHandler(SocketComsTransactionUpdatedEventHandler);
             m_SocketComs.SocketCommunicationEstablishedEvent -= new DoshiiWebSocketsCommunication.SocketCommunicationEstablishedEventHandler(SocketComsConnectionEventHandler);
             m_SocketComs.SocketCommunicationTimeoutReached -= new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
+            m_SocketComs.MemberCreatedEvent -= new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
+            m_SocketComs.MemberUpdatedEvent -= new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
         }
         #endregion
 
@@ -390,7 +452,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>partners to make payments when they create an order else the payment is expected to be made by the customer on receipt of the order. 
         /// </summary>
         /// <exception cref="RestfulApiErrorResponseException">Is thrown if there is an issue getting the orders from Doshii.</exception>
-        internal void RefreshAllOrders()
+        internal virtual void RefreshAllOrders()
         {
             
             try
@@ -515,7 +577,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the order was not recorded as accepted on Doshii.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public bool AcceptOrderAheadCreation(Order orderToAccept)
+        public virtual bool AcceptOrderAheadCreation(Order orderToAccept)
         {
             if (!m_IsInitalized)
             {
@@ -568,7 +630,7 @@ namespace DoshiiDotNetIntegration
         /// The pending Doshii order that will be rejected
         /// </param>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public void RejectOrderAheadCreation(Order orderToReject)
+        public virtual void RejectOrderAheadCreation(Order orderToReject)
         {
             if (!m_IsInitalized)
             {
@@ -663,6 +725,50 @@ namespace DoshiiDotNetIntegration
             }
 		}
 
+
+        internal virtual void SocketComsMemberCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with member Id '{0}'", e.MemberId));
+            try
+            {
+                mMemberManager.CreateMemberOnPos(e.Member);
+            }
+            catch(MemberExistOnPosException ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed due to member already existing, now attempting to update existing member.", e.MemberId));
+                try
+                {
+                    mMemberManager.UpdateMemberOnPos(e.Member);
+                }
+                catch (MemberDoesNotExistOnPosException nex)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed.", e.MemberId));
+                }
+            }
+        }
+
+        internal virtual void SocketComsMemberUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: received a member updated event for member Id '{0}'", e.MemberId));
+            try
+            {
+                mMemberManager.UpdateMemberOnPos(e.Member);
+            }
+            catch (MemberDoesNotExistOnPosException ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update member with Id '{0}' on pos failed due to member not currently existing, now attempting to create existing member.", e.MemberId));
+                try
+                {
+                    mMemberManager.CreateMemberOnPos(e.Member);
+                }
+                catch (MemberExistOnPosException nex)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create member with Id '{0}' on pos failed", e.MemberId));
+                }
+            }
+        }
+
+
         /// <summary>
         /// Handles a SocketComs_TransactionCreatedEvent, 
         /// Calls the appropriate method on the PaymentInterface to act on the transaction depending on the transaction status. 
@@ -698,7 +804,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="receivedTransaction">
         /// The pending transaction that needs to be processed. 
         /// </param>
-        internal void HandelPendingTransactionReceived(Transaction receivedTransaction)
+        internal virtual void HandelPendingTransactionReceived(Transaction receivedTransaction)
         {
             Transaction transactionFromPos = null;
             try
@@ -767,7 +873,7 @@ namespace DoshiiDotNetIntegration
                 mPaymentManager.CancelPayment(transaction);
                 return false;
             }
-            catch (NullOrderReturnedException)
+            catch (NullResponseDataReturnedException)
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a postTransaction for order.Id{0}", transaction.OrderId));
                 mPaymentManager.CancelPayment(transaction);
@@ -857,7 +963,7 @@ namespace DoshiiDotNetIntegration
         /// <param name="version">
         /// the version of the order to be recorded.
         /// </param>
-        internal void RecordOrderVersion(string posOrderId, string version)
+        internal virtual void RecordOrderVersion(string posOrderId, string version)
         {
             try
             {
@@ -908,7 +1014,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>Returns null if the request failed. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public Transaction RecordPosTransactionOnDoshii(Transaction transaction)
+        public virtual Transaction RecordPosTransactionOnDoshii(Transaction transaction)
         {
             if (!m_IsInitalized)
             {
@@ -997,7 +1103,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        internal virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        public virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             if (!m_IsInitalized)
             {
@@ -1197,7 +1303,7 @@ namespace DoshiiDotNetIntegration
             {
                 throw new OrderUpdateException("Update order not successful", rex);
             }
-            catch (NullOrderReturnedException Nex)
+            catch (NullResponseDataReturnedException Nex)
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
                 throw new OrderUpdateException(string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id), Nex);
@@ -1220,17 +1326,6 @@ namespace DoshiiDotNetIntegration
         /// <returns></returns>
         internal virtual Order PutOrderCreatedResult(Order order)
         {
-            /*if (order.Status == "accepted")
-            {
-                try
-                {
-                    order.Version = mOrderingManager.RetrieveOrderVersion(order.Id);
-                }
-                catch (OrderDoesNotExistOnPosException ex)
-                {
-
-                }
-            }*/
             if (order.Status == "accepted")
             {
                 if (order.Id == null || string.IsNullOrEmpty(order.Id))
@@ -1259,7 +1354,7 @@ namespace DoshiiDotNetIntegration
                 }
                 throw new OrderUpdateException("Update order not successful", rex);
             }
-            catch (NullOrderReturnedException Nex)
+            catch (NullResponseDataReturnedException Nex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id));
                 throw new OrderUpdateException(string.Format("Doshii: a Null response was returned during a putOrder for order.Id{0}", order.Id), Nex);
@@ -1275,32 +1370,389 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
+        #region Membership
+
+        public virtual Member GetMember(string memberId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetMember"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetMember"));
+            }
+            try
+            {
+                return m_HttpComs.GetMember(memberId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual IEnumerable<Member> GetMembers()
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetMembers"));
+            }
+            if (mMemberManager == null)
+            {
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetMembers"));
+            }
+            try
+            {
+                return m_HttpComs.GetMembers();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool DeleteMember(Member member)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "DeleteMember"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "DeleteMember"));
+            }
+            try
+            {
+                return m_HttpComs.DeleteMember(member);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+
+        public virtual Member UpdateMember(Member member)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "UpdateMember"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "UpdateMember"));
+            }
+            if (string.IsNullOrEmpty(member.Name))
+            {
+                throw new MemberIncompleteException("member name is blank");
+            }
+            if (string.IsNullOrEmpty(member.Email))
+            {
+                throw new MemberIncompleteException("member email is blank");
+            }
+            try
+            {
+                if (string.IsNullOrEmpty(member.Id))
+                {
+                    return m_HttpComs.PostMember(member);
+                }
+                else
+                {
+                    return m_HttpComs.PutMember(member);
+                }
+                
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool SyncDoshiiMembersWithPosMembers()
+        {
+            try
+            {
+                List<Member> DoshiiMembersList = GetMembers().ToList();
+                List<Member> PosMembersList = mMemberManager.GetMembersFromPos().ToList();
+
+                var doshiiMembersHashSet = new HashSet<string>(DoshiiMembersList.Select(p => p.Id));
+                var posMembersHashSet = new HashSet<string>(PosMembersList.Select(p => p.Id));
+
+                var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInDoshii)
+                {
+                    mMemberManager.DeleteMemberOnPos(mem);
+                }
+
+                var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersInPos)
+                {
+                    Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
+                    if (!mem.Equals(posMember))
+                    {
+                        mMemberManager.UpdateMemberOnPos(mem);
+                    }
+                }
+
+                var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
+                foreach (var mem in membersNotInPos)
+                {
+                    mMemberManager.CreateMemberOnPos(mem);
+                }
+
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception while attempting to sync Doshii members with the pos"), ex);
+                return false;
+            }
+        }
+
+
+        public virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetRewardsForMember"));
+            }
+            if (mMemberManager == null)
+            {
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetRewardsForMember"));
+            }
+            try
+            {
+                return m_HttpComs.GetRewardsForMember(memberId, orderId, orderTotal);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        /// <summary>
+        /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the order. 
+        /// </summary>
+        /// <param name="member"></param>
+        /// <param name="reward"></param>
+        /// <param name="order"></param>
+        /// <returns>
+        /// true - when the reward can be redeemed - the pos must then apply the reward to the order, accept payment for the order from the customer and then call rewardConfirm to confirm the use of the redard. 
+        /// </returns>
+        public virtual bool RedeemRewardForMember(Member member, Reward reward, Order order)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMember"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMember"));
+            }
+            try
+            {
+                var returnedOrder = UpdateOrder(order);
+                if (returnedOrder == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: The order was not successfully sent to Doshii so the reward could not be redeemed."));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
+                return false;
+            }
+            try
+            {
+                return m_HttpComs.RedeemRewardForMember(member.Id, reward.Id, order);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMemberCancel"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMemberCancel"));
+            }
+            try
+            {
+                return m_HttpComs.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMemberConfirm"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemRewardForMemberConfirm"));
+            }
+            try
+            {
+                return m_HttpComs.RedeemRewardForMemberConfirm(memberId, rewardId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemPointsForMember(Member member, App app, Order order, int points)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMember"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMember"));
+            }
+            
+            try
+            {
+                order = UpdateOrder(order);
+                if (order == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was a problem updating the order on Doshii, so the points can't re redeemed."));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception putting and order to Doshii for a rewards redeem"), ex);
+                return false;
+            }
+            PointsRedeem pr = new PointsRedeem()
+            {
+                AppId = app.Id,
+                OrderId = order.Id,
+                Points = points
+            };
+            try
+            {
+                return m_HttpComs.RedeemPointsForMember(pr, member);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemPointsForMemberConfirm(Member member)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMemberConfirm"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMemberConfirm"));
+            }
+            try
+            {
+                return m_HttpComs.RedeemPointsForMemberConfirm(member);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual bool RedeemPointsForMemberCancel(Member member, string cancelReason)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMemberCancel"));
+            }
+            if (mMemberManager == null)
+            {
+
+                ThrowDoshiiMembershipNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RedeemPointsForMemberCancel"));
+            }
+            try
+            {
+                return m_HttpComs.RedeemPointsForMemberCancel(member, cancelReason);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+        #endregion
+
         #region tableAllocation and consumers
 
-		/// <summary>
+        /// <summary>
 		/// Called by POS to add a table allocation to an order.
 		/// </summary>
 		/// <param name="posOrderId">The unique identifier of the order on the POS.</param>
-		/// <param name="tableName">The table to add in Doshii.</param>
+        /// <param name="tableNames">A list of the tables to add to the allocaiton, if you want to remove the table allocaiton you should pass an empty list into this param.</param>
 		/// <returns>The current order details in Doshii after upload.</returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-		public bool AddTableAllocation(string posOrderId, string tableName)
+        public virtual bool SetTableAllocationWithoutCheckin(string posOrderId, List<string> tableNames, int covers)
 		{
             if (!m_IsInitalized)
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "AddTableAllocation"));
             }
-            TableAllocation table = new TableAllocation();
-            table.Name = tableName;
 
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", table.Name, posOrderId));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", tableNames[0], posOrderId));
 
             Order order = null;
 			try
 			{
 				order = mOrderingManager.RetrieveOrder(posOrderId);
 			    order.Version = mOrderingManager.RetrieveOrderVersion(posOrderId);
+			    order.CheckinId = mOrderingManager.RetrieveCheckinIdForOrder(posOrderId);
 			    order.Status = "accepted";
 			}
 			catch (OrderDoesNotExistOnPosException dne)
@@ -1308,52 +1760,100 @@ namespace DoshiiDotNetIntegration
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during table allocation");
 			    throw dne;
 			}
-			
-			if (order == null)
-			{
-				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
-				throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during table allocation", new NullOrderReturnedException());
+
+            if (order == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
+                throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during table allocation", new NullResponseDataReturnedException());
             }
 
-			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now", table.Name, posOrderId));
-
-			var tableOrder = new TableOrder();
-			tableOrder.Order = order; 
-			tableOrder.Table = table; 
-
-			try
-			{
-				Order returnedOrder = m_HttpComs.PutOrderWithTableAllocation(tableOrder);
-			    if (returnedOrder != null)
-			    {
-			        RecordOrderCheckinId(returnedOrder);
-			        return true;
-			    }
-			    else
-			    {
-			        return false;
-			    }
-			}
-			catch (RestfulApiErrorResponseException rex)
-			{
-			    if (rex.StatusCode == HttpStatusCode.Conflict)
-			    {
-			        mLog.LogMessage(typeof (DoshiiManager), DoshiiLogLevels.Warning,
-			            string.Format("There was a conflict updating order.id {0} during table allocaiton", order.Id.ToString()));
-			        throw new ConflictWithOrderUpdateException(
-			            string.Format("There was a conflict updating order.id {0} during table Allocation", order.Id.ToString()));
-			    }
-			    else
-			    {
-                    throw new OrderUpdateException("Update order with table allocaiton not successful", rex);
-			    }
+            if (!string.IsNullOrEmpty(order.CheckinId))
+            {
+                return ModifyTableAllocation(order.CheckinId, tableNames, covers);
+            }
+            
+            //create checkin
+            Checkin checkinCreateResult = null;
+            try
+            {
+                Checkin newCheckin = new Checkin();
+                newCheckin.TableNames = tableNames;
+                newCheckin.Covers = covers;
+                checkinCreateResult = m_HttpComs.PostCheckin(newCheckin);
+                if (checkinCreateResult == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an error generating a new checkin through Doshii, the table allocation could not be completed."));
+                    return false;
+                }
             }
             catch (Exception ex)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation order.Id{0} : {1}", order.Id, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for order.Id{0}", order.Id), ex);
+                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown during a attempting to create a checkin for order.Id{0}", order.Id), ex);
             }
-		}
+            
+			mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now"));
+
+            order.CheckinId = checkinCreateResult.Id;
+            Order returnedOrder = UpdateOrder(order);
+            if (returnedOrder != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="checkinId"></param>
+        /// <param name="tableNames">to remove an allocaiton from a checkin add this as an empty list. </param>
+        /// <returns></returns>
+        public virtual bool ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "AddTableAllocation"));
+            }
+
+            StringBuilder tableNameStringBuilder = new StringBuilder();
+            for (int i = 0; i < tableNames.Count(); i++)
+            {
+                if (i > 0)
+                {
+                    tableNameStringBuilder.Append(", ");
+                }
+                tableNameStringBuilder.Append(tableNames[i]);
+            }
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos modifying table allocation table '{0}' to checkin '{1}'", tableNameStringBuilder, checkinId));
+
+            //create checkin
+            Checkin checkinCreateResult = null;
+            try
+            {
+                Checkin newCheckin = new Checkin();
+                newCheckin.TableNames = tableNames;
+                newCheckin.Id = checkinId;
+                newCheckin.Covers = covers;
+                checkinCreateResult = m_HttpComs.PutCheckin(newCheckin);
+                if (checkinCreateResult == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an error modifying a checkin through Doshii, modifying the table allocation could not be completed."));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation  for checkin {0} : {1}", checkinId, ex));
+                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for for checkin {0}", checkinId), ex);
+            }
+            return true;
+        }
 
         /// <summary>
         /// Calls the appropriate callback method in <see cref="Interfaces.IOrderingManager"/> to record the checkinId for an order on the pos. 
@@ -1361,54 +1861,50 @@ namespace DoshiiDotNetIntegration
         /// <param name="order">
         /// The order that need to be recorded. 
         /// </param>
-        internal virtual void RecordOrderCheckinId(Order order)
+        internal virtual void RecordOrderCheckinId(string posOrderId, string checkinId)
         {
             try
             {
-                mOrderingManager.RecordCheckinForOrder(order.Id, order.CheckinId);
+                mOrderingManager.RecordCheckinForOrder(posOrderId, checkinId);
             }
             catch (OrderDoesNotExistOnPosException nex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: Attempted to update a checkinId for an order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", order.Id, order.CheckinId));
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, string.Format("Doshii: Attempted to update a checkinId for an order that does not exist on the Pos, Order.id - {0}, checkinId - {1}", posOrderId, checkinId));
                 //maybe we should call reject order here. 
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a checkinId for an order on the pos, Order.Id - {0}, checkinId - {1}, {2}", order.Id, order.CheckinId, ex.ToString()));
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: Exception while attempting to update a checkinId for an order on the pos, Order.Id - {0}, checkinId - {1}, {2}", posOrderId, checkinId, ex.ToString()));
                 //maybe we should call reject order here. 
             }
         }
 
-        /// <summary>
-        /// Deletes a table Allocation from Doshii
-        /// </summary>
-        /// <param name="posOrderId">
-        /// The orderId of the order to be dealocated. 
-        /// </param>
-        /// <returns>
-        /// True if successful
-        /// False if unsuccessful
-        /// </returns>
-        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        /// <exception cref="OrderUpdateException">Thrown when there is an error updating the order</exception>
-        public virtual bool DeleteTableAllocation(string posOrderId)
+        public virtual bool CloseCheckin(string checkinId)
         {
             if (!m_IsInitalized)
             {
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "DeleteTableAllocation"));
+                    "AddTableAllocation"));
             }
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos DeAllocating table for Order Id - '{0}'",posOrderId));
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos closing checkin '{0}'", checkinId));
+
+            Checkin checkinCreateResult = null;
             try
             {
-                string checkinId = mOrderingManager.RetrieveCheckinIdForOrder(posOrderId);
-                return m_HttpComs.DeleteTableAllocation(checkinId);
+                checkinCreateResult = m_HttpComs.DeleteCheckin(checkinId);
+                if (checkinCreateResult == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an error attempting to close a checkin."));
+                    return false;
+                }
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to delete a table allocation order.Id{0} : {1}", posOrderId, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown during a attempting to delete a table allocaiton for order.Id{0}", posOrderId), ex);
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to close checkin {0} - {1}", checkinId, ex));
+                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
             }
+            return true;
         }
 
         #endregion
@@ -1431,7 +1927,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public Menu UpdateMenu(Menu menu)
+        public virtual Menu UpdateMenu(Menu menu)
         {
             if (!m_IsInitalized)
             {
@@ -1468,7 +1964,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public Surcount UpdateSurcount(Surcount surcount)
+        public virtual Surcount UpdateSurcount(Surcount surcount)
         {
             if (!m_IsInitalized)
             {
@@ -1509,7 +2005,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If unsuccessful null will be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public Product UpdateProduct(Product product)
+        public virtual Product UpdateProduct(Product product)
         {
             if (!m_IsInitalized)
             {
@@ -1550,7 +2046,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>false if the surcount was not deleted
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public bool DeleteSurcount(string posId)
+        public virtual bool DeleteSurcount(string posId)
         {
             if (!m_IsInitalized)
             {
@@ -1580,7 +2076,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the product was not deleted
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public bool DeleteProduct(string posId)
+        public virtual bool DeleteProduct(string posId)
         {
             if (!m_IsInitalized)
             {
@@ -1602,6 +2098,112 @@ namespace DoshiiDotNetIntegration
 
         #endregion
 
+        #region Tables
+
+        public virtual Table GetTable(string tableName)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetTable"));
+            }
+            try
+            {
+                return m_HttpComs.GetTable(tableName);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual List<Table> GetTables()
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetTables"));
+            }
+            try
+            {
+                return m_HttpComs.GetTables().ToList();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual Table CreateTable(Table table)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "CreateTable"));
+            }
+            try
+            {
+                return m_HttpComs.PostTable(table);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual Table UpdateTable(Table table)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "UpdateTable"));
+            }
+            try
+            {
+                return m_HttpComs.PutTable(table);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual Table DeleteTable(string tableName)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "DeleteTable"));
+            }
+            try
+            {
+                return m_HttpComs.DeleteTable(tableName);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        public virtual Table ReplaceTableListOnDoshii(List<Table> tableList)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "ReplaceTableListOnDoshii"));
+            }
+            try
+            {
+                return m_HttpComs.PutTables(tableList);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+#endregion
+
         /// <summary>
         /// This method is used to get the location information from doshii,
         /// <para/>This should be used to get the DoshiiId for the location - this is the string that can be given to partners to allow them to communicate with this venue through Doshii
@@ -1610,7 +2212,7 @@ namespace DoshiiDotNetIntegration
         /// The location object representing this venue.
         /// <para/>Null will be returned if there is an error retrieving the location from doshii. 
         /// </returns>
-        public Location GetLocation()
+        public virtual Location GetLocation()
         {
             if (!m_IsInitalized)
             {
@@ -1634,10 +2236,32 @@ namespace DoshiiDotNetIntegration
         /// The name of the method that has been called before Initialize. 
         /// </param>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        private void ThrowDoshiiManagerNotInitializedException(string methodName)
+        internal virtual void ThrowDoshiiManagerNotInitializedException(string methodName)
         {
             throw new DoshiiManagerNotInitializedException(
                 string.Format("You must initialize the DoshiiManager instance before calling {0}", methodName));
+        }
+
+        private void ThrowDoshiiMembershipNotInitializedException(string methodName)
+        {
+            throw new DoshiiMembershipManagerNotInitializedException(
+                string.Format("You must initialize the DoshiiMembership module before calling {0}", methodName));
+        }
+
+        public virtual string CreateToken()
+        {
+            var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            //var now = Math.Round((DateTime.Now - unixEpoch).TotalSeconds);
+            var now = Math.Round((DateTime.UtcNow - unixEpoch).TotalSeconds);
+
+            var payload = new Dictionary<string, object>()
+            {
+                //{"locationId", LocationId}, //locationId of the location connected to Doshii
+                {"locationToken", LocationToken},
+                {"timestamp", now}
+            };
+
+            return string.Format("Bearer {0}", JWT.JsonWebToken.Encode(payload, SecretKey, JWT.JwtHashAlgorithm.HS256));
         }
 
         #region IDisposable Members
@@ -1645,7 +2269,7 @@ namespace DoshiiDotNetIntegration
         /// <summary>
 		/// Cleanly disposes of the memory allocated to the instance's member variables.
 		/// </summary>
-		public void Dispose()
+		public virtual void Dispose()
 		{
 			mPaymentManager = null;
 			mLog.Dispose();

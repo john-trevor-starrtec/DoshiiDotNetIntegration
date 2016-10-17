@@ -54,10 +54,131 @@ namespace DoshiiDotNetIntegration.Helpers
 				AutoMapperConfigurator.MapOrderObjects();
                 AutoMapperConfigurator.MapMenuObjects();
 			    AutoMapperConfigurator.MapLocationObjects();
+			    AutoMapperConfigurator.MapAddressObjects();
+                AutoMapperConfigurator.MapAppObjects();
+                AutoMapperConfigurator.MapMemberObjects();
+                AutoMapperConfigurator.MapRewardObjects();
+                AutoMapperConfigurator.MapPointsRedeemObjects();
+                AutoMapperConfigurator.MapCheckInObjects();
+                AutoMapperConfigurator.MapTableCriteraObjects();
+                AutoMapperConfigurator.MapTableObjects();
 
 				AutoMapperConfigurator.IsConfigured = true;
 			}
 		}
+
+        private static void MapTableObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Table, JsonTable>();
+                //.ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)));
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonTable, Table>();
+            //.ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)));
+
+        }
+        
+        private static void MapTableCriteraObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<TableCriteria, JsonTableCriteria>();
+                
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonTableCriteria, TableCriteria>();
+                
+        }
+        
+        private static void MapCheckInObjects()
+        {
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Checkin, JsonCheckin>()
+                .ForMember(dest => dest.TableNames, opt => opt.MapFrom(src => src.TableNames.ToList<string>()))
+                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToUtcTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToUtcTime(src.CreatedAt)))
+                .ForMember(dest => dest.CompletedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToUtcTime(src.CompletedAt)));
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonCheckin, Checkin>()
+                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)))
+                .ForMember(dest => dest.CompletedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CompletedAt)));
+        }
+
+        private static void MapPointsRedeemObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = PointsRedeem, dest = JsonPointsRedeem, opt = Mapping Option
+            Mapper.CreateMap<PointsRedeem, JsonPointsRedeem>()
+                .ForMember(dest => dest.Points, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Points)));
+
+            // src = JsonPointsRedeem, dest = PointsRedeem
+            Mapper.CreateMap<JsonPointsRedeem, PointsRedeem>()
+                .ForMember(dest => dest.Points, opt => opt.MapFrom(src => AutoMapperConfigurator.MapStringToInteger(src.Points)));
+        }
+        
+        private static void MapRewardObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = Reward, dest = JsonReward, opt = Mapping Option
+            Mapper.CreateMap<Reward, JsonReward>()
+                .ForMember(dest => dest.SurcountAmount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapSurchargeAmountToString(src.SurcountAmount, src.SurcountType)));
+
+            // src = JsonReward, dest = Reward
+            Mapper.CreateMap<JsonReward, Reward>()
+                .ForMember(dest => dest.SurcountAmount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapSurchargeAmountToDouble(src.SurcountAmount, src.SurcountType)));
+        }
+        
+        private static void MapAddressObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = Address, dest = JsonAddress, opt = Mapping Option
+            Mapper.CreateMap<Address, JsonAddress>();
+
+            // src = JsonAddress, dest = Address
+            Mapper.CreateMap<JsonAddress, Address>();
+        }
+
+        private static void MapMemberObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = Member, dest = JsonMember, opt = Mapping Option
+            Mapper.CreateMap<Member, JsonMember>()
+                .ForMember(dest => dest.Apps, opt => opt.MapFrom(src => src.Apps.ToList<App>()));
+
+            // src = JsonAddress, dest = Address
+            Mapper.CreateMap<JsonMember, Member>()
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)));
+
+            // Mapping from Variants to JsonOrderVariants
+            // src = Member, dest = JsonMember, opt = Mapping Option
+            Mapper.CreateMap<Member, JsonMemberToUpdate>();
+
+            // src = JsonAddress, dest = Address
+            Mapper.CreateMap<JsonMemberToUpdate, Member>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Uri, opt => opt.Ignore())
+                .ForMember(dest => dest.Apps, opt => opt.Ignore());
+
+        }
+
+        private static void MapAppObjects()
+        {
+            // Mapping from Variants to JsonOrderVariants
+            // src = App, dest = JsonApp, opt = Mapping Option
+            Mapper.CreateMap<App, JsonApp>()
+                .ForMember(dest => dest.Points, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Points)));
+
+            // src = JsonApp, dest = App
+            Mapper.CreateMap<JsonApp, App>()
+                .ForMember(dest => dest.Points, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Points)));
+        }
+
 
 		/// <summary>
 		/// This function creates a bi-directional object mapping between the Variants model object and its
@@ -84,7 +205,8 @@ namespace DoshiiDotNetIntegration.Helpers
                 .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
 
-		/// <summary>
+
+        /// <summary>
 		/// This function creates a bi-directional object mapping between the Product model objects and their
 		/// JSON equivalent data transfer objects.
 		/// </summary>
@@ -187,10 +309,12 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			// src = Surcount, dest = JsonOrderSurcount
 			Mapper.CreateMap<Surcount, JsonOrderSurcount>()
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Value)))
 				.ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Amount)));
 
 			// src = JsonOrderSurcount, dest = Surcount
 			Mapper.CreateMap<JsonOrderSurcount, Surcount>()
+                .ForMember(dest => dest.Value, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Value)))
                 .ForMember(dest => dest.Amount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Amount)));
 
             // src = Surcount, dest = JsonOrderSurcount
@@ -198,7 +322,9 @@ namespace DoshiiDotNetIntegration.Helpers
                 
             // src = JsonOrderSurcount, dest = Surcount
             Mapper.CreateMap<JsonMenuSurcount, Surcount>()
-                .ForMember(dest => dest.Amount, opt => opt.Ignore());
+                .ForMember(dest => dest.RewardId, opt => opt.Ignore())
+                .ForMember(dest => dest.Amount, opt => opt.Ignore())
+                .ForMember(dest => dest.Value, opt => opt.Ignore());
 		}
 
 		/// <summary>
@@ -325,6 +451,25 @@ namespace DoshiiDotNetIntegration.Helpers
             // src = JsonOrder, dest = Order
             Mapper.CreateMap<Order, OrderWithNoPriceProperties>()
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
+
+            // src = Order, dest = JsonOrder
+            Mapper.CreateMap<Order, JsonOrderIdSimple>();
+
+            // src = JsonOrder, dest = Order
+            Mapper.CreateMap<JsonOrderIdSimple, Order>()
+             .ForMember(dest => dest.DoshiiId, opt => opt.Ignore())
+             .ForMember(dest => dest.Type, opt => opt.Ignore())
+             .ForMember(dest => dest.InvoiceId, opt => opt.Ignore())
+             .ForMember(dest => dest.CheckinId, opt => opt.Ignore())
+             .ForMember(dest => dest.LocationId, opt => opt.Ignore())
+             .ForMember(dest => dest.Uri, opt => opt.Ignore())
+             .ForMember(dest => dest.RequiredAt, opt => opt.Ignore())
+             .ForMember(dest => dest.Items, opt => opt.Ignore())
+             .ForMember(dest => dest.MemberId, opt => opt.Ignore())
+             .ForMember(dest => dest.Status, opt => opt.Ignore())
+             .ForMember(dest => dest.Surcounts, opt => opt.Ignore())
+             .ForMember(dest => dest.Version, opt => opt.Ignore())
+             .ForMember(dest => dest.Phase, opt => opt.Ignore());
 		}
 
 		/// <summary>
@@ -348,7 +493,7 @@ namespace DoshiiDotNetIntegration.Helpers
 			return DateTime.MinValue;
 		}
 
-		/// <summary>
+	    /// <summary>
 		/// Converts the supplied <paramref name="cents"/> integer string into a decimal monetary value.
 		/// This relies upon <paramref name="cents"/> being a non-empty string representation of a number of cents.
 		/// The result will contain dollars and cents representation.
@@ -380,6 +525,24 @@ namespace DoshiiDotNetIntegration.Helpers
             return 0.0M;
 		}
 
+
+        private static decimal MapPercentage(string percentage)
+        {
+            if (!String.IsNullOrEmpty(percentage))
+            {
+                decimal result;
+                if (Decimal.TryParse(percentage, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    throw new NotValidCurrencyAmountException(string.Format("{0} cannot be converted into a decimal amount.", percentage));
+                }
+            }
+            return 0.0M;
+        }
+
 		/// <summary>
 		/// Converts the supplied <paramref name="amount"/> into an integer representation of the number of cents.
 		/// </summary>
@@ -400,6 +563,11 @@ namespace DoshiiDotNetIntegration.Helpers
 			decimal result = (decimal)Math.Floor(amount * AutoMapperConfigurator.CentsPerDollar);
 			return result.ToString();
 		}
+
+        private static string MapPercentageToString(decimal amount)
+        {
+            return amount.ToString();
+        }
 
         private static string MapQuantityToString(decimal quantity)
         {
@@ -437,5 +605,66 @@ namespace DoshiiDotNetIntegration.Helpers
 	        }
             
 	    }
+
+        private static DateTime? ToUtcTime(DateTime? localTime)
+        {
+            if (localTime == null)
+            {
+                return null;
+            }
+            else
+            {
+                DateTime utcTime = (DateTime)localTime;
+                return utcTime.ToUniversalTime();
+            }
+
+        }
+
+        private static string MapSurchargeAmountToString(decimal value, string rewardType)
+        {
+            decimal result;
+            if (rewardType == "absolute")
+            {
+                return MapCurrencyToString(value);
+            }
+            else
+            {
+                return MapPercentageToString(value);
+            }
+        }
+
+        private static decimal MapSurchargeAmountToDouble(string value, string rewardType)
+        {
+            if (rewardType == "absolute")
+            {
+                return MapCurrency(value);
+            }
+            else
+            {
+                return MapPercentage(value);
+            }
+        }
+
+        private static int MapStringToInteger(string value)
+        {
+            if (!String.IsNullOrEmpty(value))
+            {
+                int result;
+                if (int.TryParse(value, out result))
+                {
+                    return result;
+                }
+                else
+                {
+                    throw new NotValidCurrencyAmountException(string.Format("{0} cannot be converted into a decimal amount.", value));
+                }
+            }
+            return 0;
+        }
+
+        private static string MapIntegerToString(int value)
+        {
+            return value.ToString();
+        }
 	}
 }

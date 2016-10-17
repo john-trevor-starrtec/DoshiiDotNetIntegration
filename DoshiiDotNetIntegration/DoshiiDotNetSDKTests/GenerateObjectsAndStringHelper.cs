@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.Deployment.Internal;
 using System.Net;
 using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 using DoshiiDotNetIntegration.Models;
 using DoshiiDotNetIntegration.Models.Json;
+using Newtonsoft.Json;
 
 namespace DoshiiDotNetSDKTests
 {
@@ -29,10 +31,15 @@ namespace DoshiiDotNetSDKTests
         internal static string TestGratuity = "TestGratuity";
         internal static Uri TestCheckinUrl = new Uri("c:\\impos\\");
         internal static string TestOrderId = "123";
+        internal static int TestCovers = 2;
         internal static int TestTimeOutValue = 600;
         internal static string TestProductId = "asd123";
         internal static string TestTransactionId = "tran1234";
         internal static string TestVersion = "asdfre";
+        internal static string TestMemberId = "345";
+        internal static string TestRewardId = "654";
+        internal static string TestCancelResaon = "consumer changed their mind.";
+        internal static int TestMemberPoints = 250;
         #endregion 
 
         #region responceMessages
@@ -48,7 +55,53 @@ namespace DoshiiDotNetSDKTests
                 Message = ""
             };
         }
-        
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMembersList()
+        {
+            var membersList = GenerateMemberList();
+            string json = JsonConvert.SerializeObject(membersList);
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageRewardsList()
+        {
+            var rewardList = GenerateRewardList();
+            string json = JsonConvert.SerializeObject(rewardList);
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageMember()
+        {
+            var member = GenerateMember1();
+            var jsonMember = Mapper.Map<DoshiiDotNetIntegration.Models.Json.JsonMember>(member);
+            string json = jsonMember.ToJsonString();
+
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
         internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageTransactionPending()
         {
             var transaction = GenerateTransactionPending();
@@ -108,6 +161,20 @@ namespace DoshiiDotNetSDKTests
                 Status = HttpStatusCode.OK,
                 StatusDescription = "OK",
                 Data = json,
+                ErrorMessage = "",
+                Message = ""
+            };
+        }
+
+        internal static DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage GenerateResponseMessageSuccess()
+        {
+            var order = GenerateOrderAccepted();
+            
+            return new DoshiiDotNetIntegration.CommunicationLogic.DoshiHttpResponseMessage()
+            {
+                Status = HttpStatusCode.OK,
+                StatusDescription = "OK",
+                Data = "",
                 ErrorMessage = "",
                 Message = ""
             };
@@ -450,6 +517,139 @@ namespace DoshiiDotNetSDKTests
             return transactionList;
         }
 
+        internal static List<Reward> GenerateRewardList()
+        {
+            var rewardList = new List<Reward>();
+            rewardList.Add(GenerateRewardAbsolute());
+            rewardList.Add(GenerateRewardPercentage());
+            return rewardList;
+        }
+
+        internal static Reward GenerateRewardPercentage()
+        {
+            var reward = new Reward()
+            {
+                AppName = "Collect",
+                CreatedAt = DateTime.Now,
+                Description = "10% off",
+                Id = "1",
+                Name = "10%",
+                SurcountAmount = 10,
+                SurcountType = "percentage",
+                UpdatedAt = DateTime.Now,
+                Uri = new Uri("http://www.test.com")
+
+            };
+            return reward;
+        }
+
+        internal static Reward GenerateRewardAbsolute()
+        {
+            var reward = new Reward()
+            {
+                AppName = "Collect",
+                CreatedAt = DateTime.Now,
+                Description = "$5 off",
+                Id = "2",
+                Name = "$5",
+                SurcountAmount = 5,
+                SurcountType = "absolute",
+                UpdatedAt = DateTime.Now,
+                Uri = new Uri("http://www.test.com")
+
+            };
+            return reward;
+        }
+        
+        internal static List<Member> GenerateMemberList()
+        {
+            var memberList = new List<Member>();
+            memberList.Add(GenerateMember1());
+            memberList.Add(GenerateMember2());
+            return memberList;
+        }
+
+        internal static Member GenerateMember1()
+        {
+            var member = new Member()
+            {
+                Address = GenerateAddress1(),
+                Apps = GenerateAppList(),
+                CreatedAt = DateTime.Now,
+                Email = "teste@test.com.au",
+                Id = "1",
+                Name = "Test Name",
+                Phone = "1236547898",
+                Ref = "1234",
+                UpdatedAt = DateTime.Now,
+                Uri = new Uri("http://www.test.com")
+            };
+            return member;
+        }
+
+        internal static Member GenerateMember2()
+        {
+            var member = new Member()
+            {
+                Address = GenerateAddress1(),
+                Apps = GenerateAppList(),
+                CreatedAt = DateTime.Now,
+                Email = "test2@test.com.au",
+                Id = "2",
+                Name = "another Name",
+                Phone = "12398747898",
+                Ref = "4567",
+                UpdatedAt = DateTime.Now,
+                Uri = new Uri("http://www.test.com")
+            };
+            return member;
+        }
+
+
+        internal static List<App> GenerateAppList()
+        {
+            var appList = new List<App>();
+            appList.Add(GenerateApp1());
+            appList.Add(GenerateApp2());
+            return appList;
+        }
+
+        internal static App GenerateApp1()
+        {
+            var app = new App()
+            {
+                Id = "1",
+                Name = "Ordering App",
+                Points = 123
+            };
+            return app;
+        }
+
+        internal static App GenerateApp2()
+        {
+            var app = new App()
+            {
+                Id = "2",
+                Name = "Membership App",
+                Points = 123
+            };
+            return app;
+        }
+        internal static Address GenerateAddress1()
+        {
+            var address = new Address()
+            {
+                City = "Melbourne",
+                Country = "Australia",
+                Line1 = "34 smith street",
+                Line2 = "",
+                PostalCode = "3013",
+                State = "vic"
+            };
+            return address;
+        }
+
+
         internal static DoshiiDotNetIntegration.Models.Transaction GenerateTransactionPending()
         {
             var transaction = new DoshiiDotNetIntegration.Models.Transaction()
@@ -629,5 +829,31 @@ namespace DoshiiDotNetSDKTests
         }
 
         #endregion
+
+        public static string BuildSocketUrl(string baseApiUrl, string token)
+        {
+            // baseApiUrl is for example https://sandbox.doshii.co/pos/v3
+            // require socket url of wss://sandbox.doshii.co/pos/socket?token={token} in this example
+            // so first, replace http with ws (this handles situation where using http/ws instead of https/wss
+            string result = baseApiUrl.Replace("http", "ws");
+
+            // next remove the /api/v2 section of the url
+            int index = result.IndexOf("/v");
+            if (index > 0 && index < result.Length)
+            {
+                result = result.Remove(index);
+            }
+
+            index = result.IndexOf(".");
+            if (index > 0 && index < result.Length)
+            {
+                result = result.Insert(index, "-socket");
+            }
+
+            // finally append the socket endpoint and token parameter to the url and return the result
+            result = String.Format("{0}/socket?token={1}", result, token);
+
+            return result;
+        }
     }
 }

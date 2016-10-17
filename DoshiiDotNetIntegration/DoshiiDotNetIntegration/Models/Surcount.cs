@@ -31,7 +31,9 @@ namespace DoshiiDotNetIntegration.Models
 			Name = String.Empty;
 		    Type = String.Empty;
 		    Id = String.Empty;
+		    Value = 0.0M;
 			Amount = 0.0M;
+		    RewardId = string.Empty;
 		}
 
         /// <summary>
@@ -44,6 +46,8 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public decimal Amount { get; set; }
 
+        public decimal Value { get; set; }
+
         /// <summary>
         /// The type of the surcount ('absolute' or 'percentage')
         /// </summary>
@@ -53,6 +57,8 @@ namespace DoshiiDotNetIntegration.Models
         /// The posId for the product
         /// </summary>
         public string Id { get; set; }
+
+        public string RewardId { get; set; }
 
 		#region ICloneable Members
 

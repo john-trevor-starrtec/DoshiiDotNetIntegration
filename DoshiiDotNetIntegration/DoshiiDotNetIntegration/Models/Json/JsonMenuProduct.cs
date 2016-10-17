@@ -103,13 +103,6 @@ namespace DoshiiDotNetIntegration.Models.Json
         }
 
 		/// <summary>
-		/// The version of the product in Doshii.
-		/// </summary>
-		[DataMember]
-		[JsonProperty(PropertyName = "version")]
-		public string Version { get; set; }
-
-		/// <summary>
 		/// The POS Id of the product
 		/// </summary>
 		[DataMember]
@@ -124,9 +117,5 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "unitPrice")]
         public string UnitPrice { get; set; }
 
-        public bool ShouldSerializeVersion()
-        {
-            return (!string.IsNullOrEmpty(Version));
-        }
     }
 }
