@@ -1059,7 +1059,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(string.Format("{0}?orderId={1}&orderTotal={2}", GenerateUrl(EndPointPurposes.MemberRewards),orderId,orderTotal), WebRequestMethods.Http.Get);
+                responseMessage = MakeRequest(string.Format("{0}?orderId={1}&orderTotal={2}", GenerateUrl(EndPointPurposes.MemberRewards, memberId),orderId,orderTotal), WebRequestMethods.Http.Get);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
