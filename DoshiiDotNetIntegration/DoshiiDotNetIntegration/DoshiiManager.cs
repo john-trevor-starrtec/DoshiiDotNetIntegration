@@ -1683,7 +1683,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual bool RedeemPointsForMemberConfirm(Member member)
+        public virtual bool RedeemPointsForMemberConfirm(string memberId)
         {
             if (!m_IsInitalized)
             {
@@ -1698,7 +1698,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.RedeemPointsForMemberConfirm(member);
+                return m_HttpComs.RedeemPointsForMemberConfirm(memberId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -1706,7 +1706,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual bool RedeemPointsForMemberCancel(Member member, string cancelReason)
+        public virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
             if (!m_IsInitalized)
             {
@@ -1721,7 +1721,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.RedeemPointsForMemberCancel(member, cancelReason);
+                return m_HttpComs.RedeemPointsForMemberCancel(memberId, cancelReason);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
