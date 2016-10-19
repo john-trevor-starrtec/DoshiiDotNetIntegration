@@ -16,7 +16,7 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// id
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "id")]
+        [JsonProperty(PropertyName = "orderId")]
         public string Id { get; set; }
     }
 }

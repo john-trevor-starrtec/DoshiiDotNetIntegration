@@ -384,7 +384,17 @@ namespace DoshiiDotNetIntegration.Helpers
 		/// </summary>
 		private static void MapOrderObjects()
 		{
-			// src = Order, dest = JsonOrder
+            Mapper.CreateMap<OrderWithConsumer, JsonOrderWithConsumer>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
+                .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
+
+            Mapper.CreateMap<JsonOrderWithConsumer, OrderWithConsumer>()
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
+            
+            Mapper.CreateMap<OrderWithConsumer, Order>();
+                
+            // src = Order, dest = JsonOrder
 		    Mapper.CreateMap<Order, JsonOrder>()
 		        .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))

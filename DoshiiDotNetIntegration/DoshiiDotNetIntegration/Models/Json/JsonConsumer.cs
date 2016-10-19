@@ -39,50 +39,16 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// the consumers phone number
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "phoneNumber")]
-        public string PhoneNumber { get; set; }
+        [JsonProperty(PropertyName = "phone")]
+        public string Phone { get; set; }
 
-        /// <summary>
-        /// the consumers address line 1
-        /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "addressLine1")]
-        public string AddressLine1 { get; set; }
+        [JsonProperty(PropertyName = "email")]
+        public string Email { get; set; }
 
-        /// <summary>
-        /// the consumers address line 1
-        /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "addressLine2")]
-        public string AddressLine2 { get; set; }
-
-        /// <summary>
-        /// the consumers address city
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "city")]
-        public string City { get; set; }
-
-        /// <summary>
-        /// the consumers address state
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "state")]
-        public string State { get; set; }
-
-        /// <summary>
-        /// the consumers address postal code
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "postalCode")]
-        public string PostalCode { get; set; }
-
-        /// <summary>
-        /// the consumers address country
-        /// </summary>
-        [DataMember]
-        [JsonProperty(PropertyName = "country")]
-        public string Country { get; set; }
+        [JsonProperty(PropertyName = "address")]
+        public Address Address { get; set; }
 
         /// <summary>
         /// Notes specific to this order, 
