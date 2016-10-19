@@ -112,6 +112,11 @@ namespace DoshiiDotNetIntegration
 		private IPaymentModuleManager mPaymentManager;
 
         /// <summary>
+        /// The Doshii configuration interface provided by the Pos. 
+        /// </summary>
+        private IDoshiiConfiguration mDoshiiConfiguration;
+
+        /// <summary>
         /// The basic ordering manager is a core module manager for the Doshii platform.
         /// </summary>
         private IOrderingManager mOrderingManager;
@@ -148,16 +153,21 @@ namespace DoshiiDotNetIntegration
 		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
 		/// <param name="logger">The logging mechanism callback to the POS.</param>
         /// <param name="orderingManager">The Ordering API callback mechanism</param>
-        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager)
+        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IDoshiiConfiguration configuration = null)
         {
 			if (paymentManager == null)
 				throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
             if (orderingManager == null)
                 throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
-			mPaymentManager = paymentManager;
-            mOrderingManager = orderingManager;
             mLog = new DoshiiLogManager(logger);
-			AutoMapperConfigurator.Configure();
+            if (configuration == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Info, "Doshii: Doshii was initialized without a IDoshiiconfiguration interface. ");
+            }
+            mPaymentManager = paymentManager;
+            mOrderingManager = orderingManager;
+            mDoshiiConfiguration = configuration;
+            AutoMapperConfigurator.Configure();
         }
 
         /// <summary>
@@ -220,7 +230,17 @@ namespace DoshiiDotNetIntegration
 
 			AuthorizeToken = token;
             urlBase = FormatBaseUrl(urlBase);
-			string socketUrl = BuildSocketUrl(urlBase, token);
+			
+            string socketUrl = BuildSocketUrl(urlBase, token);
+            
+            if (mDoshiiConfiguration != null)
+            {
+                string posProvidedSocketUrl = mDoshiiConfiguration.GetSocketUrlFromPos();
+                if (!string.IsNullOrEmpty(posProvidedSocketUrl))
+                {
+                    socketUrl = AppendTokenToSocketAddress(FormatBaseUrl(posProvidedSocketUrl),token);
+                }
+            }
             m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
@@ -349,11 +369,16 @@ namespace DoshiiDotNetIntegration
             }
             
 			// finally append the socket endpoint and token parameter to the url and return the result
-			result = String.Format("{0}/socket?token={1}", result, token);
-
-			return result;
+		    return AppendTokenToSocketAddress(string.Format("{0}/socket", result), token);
+            //result = String.Format("{0}/socket?token={1}", result, token);
 		}
 
+
+        internal string AppendTokenToSocketAddress(string socketAddress, string token)
+        {
+            return string.Format("{0}?token={1}{1}", socketAddress, token);
+        }
+        
         /// <summary>
         /// Subscribes to the socket communication events 
         /// </summary>

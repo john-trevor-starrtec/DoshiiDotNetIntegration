@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>DoshiiPosDotNetSDK</id>
-    <version>1.2.3</version>
-    <title>DoshiiPosDotNetSDK</title>
+    <id>lpcTestTest</id>
+    <version>1.2.6</version>
+    <title>lpcTestTest</title>
     <authors>DoshiiCorp</authors>
     <owners>DoshiiCorp</owners>
     <projectUrl>https://sandbox.doshii.co/docs/dot-net-sdk</projectUrl>
