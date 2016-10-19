@@ -376,7 +376,7 @@ namespace DoshiiDotNetIntegration
 
         internal string AppendTokenToSocketAddress(string socketAddress, string token)
         {
-            return string.Format("{0}?token={1}{1}", socketAddress, token);
+            return string.Format("{0}?token={1}", socketAddress, token);
         }
         
         /// <summary>
