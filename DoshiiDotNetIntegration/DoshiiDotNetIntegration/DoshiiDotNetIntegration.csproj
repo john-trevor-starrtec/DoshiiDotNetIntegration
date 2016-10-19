@@ -130,6 +130,7 @@
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
+    <Compile Include="Interfaces\IDoshiiConfiguration.cs" />
     <Compile Include="Interfaces\IDoshiiLogger.cs" />
     <Compile Include="Interfaces\IMembershipModuleManager.cs" />
     <Compile Include="Interfaces\IOrderingManager.cs" />

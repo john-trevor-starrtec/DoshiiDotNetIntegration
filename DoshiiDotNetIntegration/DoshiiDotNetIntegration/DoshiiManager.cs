@@ -117,6 +117,8 @@ namespace DoshiiDotNetIntegration
 		/// </summary>
 		private IPaymentModuleManager mPaymentManager;
 
+        internal IDoshiiConfiguration mDoshiiConfiguration;
+
         /// <summary>
         /// The basic ordering manager is a core module manager for the Doshii platform.
         /// </summary>
@@ -169,7 +171,7 @@ namespace DoshiiDotNetIntegration
 		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
 		/// <param name="logger">The logging mechanism callback to the POS.</param>
         /// <param name="orderingManager">The Ordering API callback mechanism</param>
-        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager)
+        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager, IDoshiiConfiguration configuration)
         {
             if (logger == null)
             {
@@ -181,16 +183,21 @@ namespace DoshiiDotNetIntegration
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IPaymentModuleManager needs to be instantiated as it is a core module");
                 throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
             }
-            
             if (orderingManager == null)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager needs to be instantiated as it is a core module");
                 throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
             }
+            if (configuration == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IDoshiiConfiguration needs to be instantiated as it is a core module");
+                throw new ArgumentNullException("configuration", "IDoshiiConfiguration needs to be instantiated as it is a core module");
+            }
             if (memberManager == null)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Membership module not supported - IMembershipModuleManager needs to be instantiated to implement the member functionality");
-            }    
+            }
+            mDoshiiConfiguration = configuration;
 			mPaymentManager = paymentManager;
             mOrderingManager = orderingManager;
             mMemberManager = memberManager;
@@ -227,35 +234,35 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the initialize procedure was unsuccessful.
         /// </returns>
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with one of the paramaters.</exception>
-        public virtual bool Initialize(string locationToken, string vendor, string secretKey, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        public virtual bool Initialize(bool startWebSocketConnection)
         {
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", locationToken, urlBase, CurrentVersion(), Environment.NewLine, vendor, secretKey));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", mDoshiiConfiguration.GetLocationTokenFromPos(), mDoshiiConfiguration.GetBaseUrlFromPos(), CurrentVersion(), Environment.NewLine, mDoshiiConfiguration.GetVendorFromPos(), mDoshiiConfiguration.GetSecretKeyFromPos()));
 			
-            if (string.IsNullOrWhiteSpace(urlBase))
+            if (string.IsNullOrWhiteSpace(mDoshiiConfiguration.GetBaseUrlFromPos()))
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required urlBase");
 				throw new ArgumentException("empty urlBase");
             }
 
-            if (string.IsNullOrWhiteSpace(locationToken))
+            if (string.IsNullOrWhiteSpace(mDoshiiConfiguration.GetLocationTokenFromPos()))
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
                 throw new ArgumentException("empty locationToken");
             }
 
-            if (string.IsNullOrWhiteSpace(vendor))
+            if (string.IsNullOrWhiteSpace(mDoshiiConfiguration.GetVendorFromPos()))
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required vendor");
                 throw new ArgumentException("empty vendor");
             }
 
-            if (string.IsNullOrWhiteSpace(secretKey))
+            if (string.IsNullOrWhiteSpace(mDoshiiConfiguration.GetSecretKeyFromPos()))
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required secretKey");
                 throw new ArgumentException("empty secretKey");
             }
 
-			int timeout = timeOutValueSecs;
+			int timeout = mDoshiiConfiguration.GetSocketTimeOutFromPos();
 
 			if (timeout < 0)
             {
@@ -268,12 +275,11 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
-			LocationToken = locationToken;
-            Vendor = vendor;
-            SecretKey = secretKey;
-            urlBase = FormatBaseUrl(urlBase);
-            string socketUrl = BuildSocketUrl(urlBase, LocationToken);
-            m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
+			LocationToken = mDoshiiConfiguration.GetLocationTokenFromPos();
+            Vendor = mDoshiiConfiguration.GetVendorFromPos();
+            SecretKey = mDoshiiConfiguration.GetSecretKeyFromPos();
+            string socketUrl = BuildSocketUrl(FormatBaseUrl(mDoshiiConfiguration.GetSocketUrlFromPos()), LocationToken);
+            m_IsInitalized = InitializeProcess(socketUrl, FormatBaseUrl(mDoshiiConfiguration.GetBaseUrlFromPos()), startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
                 try
@@ -358,31 +364,11 @@ namespace DoshiiDotNetIntegration
 		/// <param name="baseApiUrl">The base URL for the API. This is an HTTP address that points to the Doshii POS API, including version.</param>
 		/// <param name="token">The Doshii authentication token for the POS implementation in the API.</param>
 		/// <returns>The URL for the web socket connection in Doshii.</returns>
-		internal virtual string BuildSocketUrl(string baseApiUrl, string token)
+		internal virtual string BuildSocketUrl(string socketUrl, string token)
 		{
-			// baseApiUrl is for example https://sandbox.doshii.co/pos/v3
-			// require socket url of wss://sandbox.doshii.co/pos/socket?token={token} in this example
-			// so first, replace http with ws (this handles situation where using http/ws instead of https/wss
-			string result = baseApiUrl.Replace("http", "ws");
-
-			// next remove the /api/v2 section of the url
-			int index = result.IndexOf("/v");
-			if (index > 0 && index < result.Length)
-			{
-				result = result.Remove(index);
-			}
-
-		    index = result.IndexOf(".");
-            if (index > 0 && index < result.Length)
-            {
-                result = result.Insert(index,"-socket");
-            }
-
 			// finally append the socket endpoint and token parameter to the url and return the result
-			result = String.Format("{0}/socket?token={1}", result, token);
-
-			return result;
-		}
+            return String.Format("{0}?token={1}", socketUrl, token);
+        }
 
         /// <summary>
         /// Subscribes to the socket communication events 
