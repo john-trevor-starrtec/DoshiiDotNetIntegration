@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
+using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 
 namespace DoshiiDotNetIntegration
 {
@@ -135,6 +136,11 @@ namespace DoshiiDotNetIntegration
         internal IMembershipModuleManager mMemberManager { get; set; }
 
         /// <summary>
+        /// The reservation manager.
+        /// </summary>
+        private IReservationManager mReservationManager;
+
+        /// <summary>
         /// The unique LocationId for the venue -- this can be retrieved from Doshii before enabling the integration.
         /// </summary>
         internal string LocationToken { get; set; }
@@ -168,10 +174,12 @@ namespace DoshiiDotNetIntegration
         /// Constructor.
         /// After the constructor is called it MUST be followed by a call to <see cref="Initialize"/> to start communication with the Doshii API
         /// </summary>
-		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
-		/// <param name="logger">The logging mechanism callback to the POS.</param>
+        /// <param name="paymentManager">The Transaction API callback mechanism.</param>
+        /// <param name="logger">The logging mechanism callback to the POS.</param>
         /// <param name="orderingManager">The Ordering API callback mechanism</param>
-        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager, IDoshiiConfiguration configuration)
+        /// <param name="memberManager">The Member API callback mechanism</param>
+        /// <param name="reservationManager">The Reservation API callback mechanism</param>
+        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager, IReservationManager reservationManager, IDoshiiConfiguration configuration)
         {
             if (logger == null)
             {
@@ -197,11 +205,16 @@ namespace DoshiiDotNetIntegration
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Membership module not supported - IMembershipModuleManager needs to be instantiated to implement the member functionality");
             }
+            if (reservationManager == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Reservation module not supported - IReservationManager needs to be instantiated to implement the reservation functionality");
+            }
             mDoshiiConfiguration = configuration;
 			mPaymentManager = paymentManager;
             mOrderingManager = orderingManager;
             mMemberManager = memberManager;
-            
+            mReservationManager = reservationManager;
+
 			AutoMapperConfigurator.Configure();
         }
 
@@ -391,6 +404,9 @@ namespace DoshiiDotNetIntegration
                 m_SocketComs.SocketCommunicationTimeoutReached += new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
                 m_SocketComs.MemberCreatedEvent += new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
                 m_SocketComs.MemberUpdatedEvent += new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+                m_SocketComs.BookingCreatedEvent += new DoshiiWebSocketsCommunication.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
+                m_SocketComs.BookingUpdatedEvent += new DoshiiWebSocketsCommunication.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
+                m_SocketComs.BookingDeletedEvent += new DoshiiWebSocketsCommunication.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
             }
         }
 
@@ -407,6 +423,9 @@ namespace DoshiiDotNetIntegration
             m_SocketComs.SocketCommunicationTimeoutReached -= new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
             m_SocketComs.MemberCreatedEvent -= new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
             m_SocketComs.MemberUpdatedEvent -= new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+            m_SocketComs.BookingCreatedEvent -= new DoshiiWebSocketsCommunication.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
+            m_SocketComs.BookingUpdatedEvent -= new DoshiiWebSocketsCommunication.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
+            m_SocketComs.BookingDeletedEvent -= new DoshiiWebSocketsCommunication.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
         }
         #endregion
 
@@ -756,6 +775,61 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        internal virtual void SocketComsBookingCreatedEventHandler(object sender, BookingEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking created event for booking id '{0}'", e.BookingId));
+            try
+            {
+                mReservationManager.CreateBookingOnPos(e.Booking);
+            }
+            catch (BookingExistOnPosException bex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed due to booking already existing, now attempting to update existing booking.", e.BookingId));
+                try
+                {
+                    mReservationManager.UpdateBookingOnPos(e.Booking);
+                }
+                catch (BookingDoesNotExistOnPosException nex)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed.", e.BookingId));
+                }
+            }
+        }
+
+        internal virtual void SocketComsBookingUpdatedEventHandler(object sender, BookingEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking updated event for booking id '{0}'", e.BookingId));
+            try
+            {
+                mReservationManager.UpdateBookingOnPos(e.Booking);
+            }
+            catch (BookingDoesNotExistOnPosException bex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed due to booking already existing, now attempting to create new booking.", e.BookingId));
+                try
+                {
+                    mReservationManager.CreateBookingOnPos(e.Booking);
+                }
+                catch (BookingExistOnPosException nex)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed.", e.BookingId));
+                }
+            }
+        }
+
+        internal virtual void SocketComsBookingDeletedEventHandler(object sender, BookingEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking deleted event for booking id '{0}'", e.BookingId));
+            try
+            {
+                mReservationManager.DeleteBookingOnPos(e.Booking);
+            }
+            catch (BookingDoesNotExistOnPosException bex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete booking with Id '{0}' on pos failed due to booking not existing.", e.BookingId));
+            }
+
+        }
 
         /// <summary>
         /// Handles a SocketComs_TransactionCreatedEvent, 
@@ -2190,7 +2264,160 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-#endregion
+        #endregion
+
+        #region Reservations and Bookings
+
+        /// <summary>
+        /// This method is used to get a booking for a specific id.
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <returns></returns>
+        public virtual Booking GetBooking(String bookingId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBooking"));
+            }
+            try
+            {
+                return m_HttpComs.GetBooking(bookingId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        /// <summary>
+        /// This method is used to get all bookings within a specified date range.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
+        public virtual List<Booking> GetBookings(DateTime from, DateTime to)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBookings"));
+            }
+            try
+            {
+                return m_HttpComs.GetBookings(from, to).ToList();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        /// <summary>
+        /// This method is used by the POS to seat a checkin with a booking.
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <param name="checkin"></param>
+        /// <returns>True if the booking could be seated.</returns>
+        public bool SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "SeatBooking"));
+            }
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Seating Booking '{0}'", bookingId));
+
+            Order order = null;
+            if (posOrderId != null)
+            {
+                try
+                {
+                    order = mOrderingManager.RetrieveOrder(posOrderId);
+                    order.Version = mOrderingManager.RetrieveOrderVersion(posOrderId);
+                    order.CheckinId = mOrderingManager.RetrieveCheckinIdForOrder(posOrderId);
+                    order.Status = "accepted";
+                }
+                catch (OrderDoesNotExistOnPosException dne)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during seating");
+                    throw dne;
+                }
+
+                if (order == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during seating");
+                    throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during seating", new NullOrderReturnedException());
+                }
+
+                if (!String.IsNullOrEmpty(order.CheckinId))
+                {
+                    try
+                    {
+                        Checkin orderCheckin = m_HttpComs.GetCheckin(order.CheckinId);
+                        if (orderCheckin != null)
+                        {
+                            if (orderCheckin.Id.CompareTo(checkin.Id) != 0)
+                            {
+                                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Order checkin id not equal to booking checkin id");
+                                throw new BookingCheckinException("Doshii: Order checkin id != booking checkin id");
+                            }
+                            if (orderCheckin.Covers != checkin.Covers)
+                            {
+                                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Order covers not equal to booking covers");
+                                throw new BookingCheckinException("Doshii: Order covers != booking covers");
+                            }
+                            if (orderCheckin.Consumer.CompareTo(checkin.Consumer) != 0)
+                            {
+                                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Order consumer not equal to booking consumer");
+                                throw new BookingCheckinException("Doshii: Order consumer != booking consumer");
+                            }
+                            if (orderCheckin.TableNames.All(o => checkin.TableNames.Contains(o)) && orderCheckin.TableNames.Count == checkin.TableNames.Count)
+                            {
+                                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Order Tables not equal to booking tables");
+                                throw new BookingCheckinException("Doshii: Order tables != booking tables");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: an exception was thrown getting the checking", ex);
+                        throw ex;
+                    }
+                }
+            }
+
+            Checkin bookingCheckin = null;
+            try
+            {
+                bookingCheckin = m_HttpComs.SeatBooking(bookingId, checkin);
+                if (bookingCheckin == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an error generating a new checkin through Doshii, the seat booking could not be completed."));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a seat booking Id{0} : {1}", bookingId, ex));
+                throw new BookingUpdateException(string.Format("Doshii: a exception was thrown during an attempt to seat a booking. Id{0}", bookingId), ex);
+            }
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Booking Seated."));
+
+            mReservationManager.RecordCheckinForBooking(bookingId, bookingCheckin.Id);
+
+            if (order != null)
+            {
+                order.CheckinId = bookingCheckin.Id;
+                Order returnedOrder = UpdateOrder(order);
+                if (returnedOrder == null)
+                    return false;
+            }
+
+            return true;
+        }
+
+        #endregion
 
         /// <summary>
         /// This method is used to get the location information from doshii,
