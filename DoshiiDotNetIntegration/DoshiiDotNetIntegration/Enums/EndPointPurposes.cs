@@ -98,7 +98,13 @@ namespace DoshiiDotNetIntegration.Enums
 
         Checkins = 20,
 
-        Tables = 21
-        
+        Tables = 21,
+
+        Booking = 22,
+
+        Bookings = 23,
+
+        BookingsCheckin = 24,
+
     }
 }

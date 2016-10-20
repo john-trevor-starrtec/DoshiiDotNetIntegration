@@ -102,6 +102,26 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
 
         internal delegate void MemberCreatedEventHandler(object sender, CommunicationEventArgs.MemberEventArgs e);
 
+        internal delegate void BookingCreatedEventHandler(object sender, CommunicationEventArgs.BookingEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when a booking is created through doshii.
+        /// </summary>
+        internal virtual event BookingCreatedEventHandler BookingCreatedEvent;
+
+        internal delegate void BookingUpdatedEventHandler(object sender, CommunicationEventArgs.BookingEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when a booking is updated through doshii.
+        /// </summary>
+        internal virtual event BookingUpdatedEventHandler BookingUpdatedEvent;
+
+        internal delegate void BookingDeletedEventHandler(object sender, CommunicationEventArgs.BookingEventArgs e);
+
+        /// <summary>
+        /// Event will be raised when a booking is deleted through doshii.
+        /// </summary>
+        internal virtual event BookingDeletedEventHandler BookingDeletedEvent;
         /// <summary>
         /// Event will be raised when a member is created through doshii. 
         /// </summary>
@@ -391,6 +411,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             messageData.Name = (string)dynamicSocketMessageData.name;
             messageData.Id = (string)dynamicSocketMessageData.id;
             messageData.MemberId = (string)dynamicSocketMessageData.memberId;
+            messageData.BookingId = (string)dynamicSocketMessageData.bookingId;
             messageData.Uri = (Uri)dynamicSocketMessageData.Uri;
             
             switch (messageData.EventName)
@@ -490,6 +511,66 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                         mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the TransactionUpdatedEvent"));
                     }
 
+                    break;
+                case "booking_created":
+                    CommunicationEventArgs.BookingEventArgs bookingCreatedEventArgs = new BookingEventArgs();
+                    try
+                    {
+                        bookingCreatedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.BookingId);
+                        bookingCreatedEventArgs.BookingId = messageData.BookingId;
+                    }
+                    catch
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."));
+                    }
+                    if (BookingCreatedEvent != null)
+                    {
+                        BookingCreatedEvent(this, bookingCreatedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the BookingCreatedEvent"));
+                    }
+                    break;
+                case "booking_updated":
+                    CommunicationEventArgs.BookingEventArgs bookingUpdatedEventArgs = new BookingEventArgs();
+                    try
+                    {
+                        bookingUpdatedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.BookingId);
+                        bookingUpdatedEventArgs.BookingId = messageData.BookingId;
+                    }
+                    catch
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."));
+                    }
+                    if (BookingUpdatedEvent != null)
+                    {
+                        BookingUpdatedEvent(this, bookingUpdatedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the BookingUpdatedEvent"));
+                    }
+                    break;
+                case "booking_deleted":
+                    CommunicationEventArgs.BookingEventArgs bookingDeletedEventArgs = new BookingEventArgs();
+                    try
+                    {
+                        bookingDeletedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.BookingId);
+                        bookingDeletedEventArgs.BookingId = messageData.BookingId;
+                    }
+                    catch
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."));
+                    }
+                    if (BookingDeletedEvent != null)
+                    {
+                        BookingDeletedEvent(this, bookingDeletedEventArgs);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("no subscriber has subscribed to the BookingDeletedEvent"));
+                    }
                     break;
                 default:
                     mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Warning, string.Format("Doshii: Received socket message is not a supported message. messageType - '{0}'", messageData.EventName));

@@ -103,6 +103,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommunicationLogic\CommunicationEventArgs\BookingEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\MemberEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderCreatedEventArgs.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\TransactionEventArgs.cs" />
@@ -115,6 +116,10 @@
     <Compile Include="Enums\DoshiiLogLevels.cs" />
     <Compile Include="Enums\EndPointPurposes.cs" />
     <Compile Include="Enums\NamespaceDoc.cs" />
+    <Compile Include="Exceptions\BookingCheckinException.cs" />
+    <Compile Include="Exceptions\BookingDoesNotExistOnPosException.cs" />
+    <Compile Include="Exceptions\BookingExistOnPosException.cs" />
+    <Compile Include="Exceptions\BookingUpdateException.cs" />
     <Compile Include="Exceptions\DoshiiMembershipManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\DoshiiManagerNotInitializedException.cs" />
     <Compile Include="Exceptions\ConflictWithOrderUpdateException.cs" />
@@ -130,17 +135,22 @@
     <Compile Include="Exceptions\RestfulApiErrorResponseException.cs" />
     <Compile Include="Exceptions\TransactionDoesNotExistOnPosException.cs" />
     <Compile Include="Helpers\AutoMapperConfigurator.cs" />
+    <Compile Include="Helpers\ConsumerExtension.cs" />
+    <Compile Include="Helpers\DateTimeExtension.cs" />
     <Compile Include="Interfaces\IDoshiiConfiguration.cs" />
     <Compile Include="Interfaces\IDoshiiLogger.cs" />
     <Compile Include="Interfaces\IMembershipModuleManager.cs" />
     <Compile Include="Interfaces\IOrderingManager.cs" />
     <Compile Include="Interfaces\IPaymentModuleManager.cs" />
+    <Compile Include="Interfaces\IReservationManager.cs" />
     <Compile Include="Interfaces\NamespaceDoc.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\App.cs" />
+    <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Consumer.cs" />
     <Compile Include="Models\Json\JsonAddress.cs" />
     <Compile Include="Models\Json\JsonApp.cs" />
+    <Compile Include="Models\Json\JsonBooking.cs" />
     <Compile Include="Models\Json\JsonConsumer.cs" />
     <Compile Include="Models\Json\JsonLocation.cs" />
     <Compile Include="Models\Json\JsonMemberToUpdate.cs" />
