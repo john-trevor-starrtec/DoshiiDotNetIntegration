@@ -12,6 +12,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using JWT;
+using DoshiiDotNetIntegration.Helpers;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
@@ -2121,7 +2122,130 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedtableList;
         }
 
-#endregion
+        #endregion
+
+        #region Bookings
+
+        internal Checkin SeatBooking(string bookingId, Checkin checkin)
+        {
+            DoshiHttpResponseMessage responseMessage;
+            var retreivedCheckin = new Checkin();
+
+            try
+            {
+                var jsonCheckin = Mapper.Map<JsonCheckin>(checkin);
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.BookingsCheckin, bookingId), WebRequestMethods.Http.Post, jsonCheckin.ToJsonString());
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
+                        retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
+            }
+
+            return retreivedCheckin;
+        }
+
+        internal virtual Booking GetBooking(String bookingId)
+        {
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Booking, bookingId), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonBooking = JsonConvert.DeserializeObject<JsonBooking>(responseMessage.Data);
+                        return Mapper.Map<Booking>(jsonBooking);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Booking)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(EndPointPurposes.Booking)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Booking)));
+            }
+            return null;
+        }
+
+        internal virtual IEnumerable<Booking> GetBookings(DateTime from, DateTime to)
+        {
+            List<Booking> retrievedBookings = new List<Booking>();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Bookings, from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString()), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonBooking>>(responseMessage.Data);
+                        retrievedBookings = Mapper.Map<List<Booking>>(jsonList);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Bookings)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(EndPointPurposes.Bookings)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Bookings)));
+            }
+            return retrievedBookings;
+        }
+        #endregion
 
         #region comms helper methods
 
@@ -2242,6 +2366,19 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         newUrlbuilder.AppendFormat("/{0}", identification);
                     }
+                    break;
+                case EndPointPurposes.Booking:
+                    newUrlbuilder.AppendFormat("/bookings/{0}", identification);
+                    break;
+                case EndPointPurposes.Bookings:
+                    newUrlbuilder.Append("/bookings");
+                    if (!string.IsNullOrWhiteSpace(identification))
+                    {
+                        newUrlbuilder.AppendFormat("?from={0}&to={1}", identification, secondIdentification);
+                    }
+                    break;
+                case EndPointPurposes.BookingsCheckin:
+                    newUrlbuilder.AppendFormat("/bookings/{0}/checkin", identification);
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());
