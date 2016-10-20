@@ -2346,7 +2346,7 @@ namespace DoshiiDotNetIntegration
                 if (order == null)
                 {
                     mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during seating");
-                    throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during seating", new NullOrderReturnedException());
+                    throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during seating", new OrderUpdateException());
                 }
 
                 if (!String.IsNullOrEmpty(order.CheckinId))
