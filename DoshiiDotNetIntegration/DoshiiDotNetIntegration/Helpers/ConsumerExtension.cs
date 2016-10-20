@@ -13,14 +13,14 @@ namespace DoshiiDotNetIntegration.Helpers
         {
             return
                 consumer.Anonymous == other.Anonymous
-                && consumer.AddressLine1 == other.AddressLine1
-                && consumer.AddressLine2 == other.AddressLine2
-                && consumer.City == other.City
-                && consumer.Country == other.Country
+                && consumer.Address.Line1 == other.Address.Line1
+                && consumer.Address.Line2 == other.Address.Line2
+                && consumer.Address.City == other.Address.City
+                && consumer.Address.Country == other.Address.Country
                 && consumer.Name == other.Name
-                && consumer.PhoneNumber == other.PhoneNumber
-                && consumer.PostalCode == other.PostalCode
-                && consumer.State == other.State
+                && consumer.Phone == other.Phone
+                && consumer.Address.PostalCode == other.Address.PostalCode
+                && consumer.Address.State == other.Address.State
                 ? 0 : 1;
         }
     }
