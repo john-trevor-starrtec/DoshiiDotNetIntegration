@@ -92,6 +92,9 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "uri")]
         public string Uri { get; set; }
 
+        [DataMember]
+        [JsonProperty(PropertyName = "tip")]
+        public string Tip { get; set; }
 
         #region serialize methods
 
