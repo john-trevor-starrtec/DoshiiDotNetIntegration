@@ -183,5 +183,10 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// </param>
         /// <returns></returns>
         void ConfirmNewPickupOrder(Order order, Consumer consumer);
+
+
+        void ConfirmNewUnknownTypeOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList);
+        
+        void ConfirmNewUnknownTypeOrder(Order order, Consumer consumer);
 	}
 }

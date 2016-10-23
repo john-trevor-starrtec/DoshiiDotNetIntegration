@@ -16,8 +16,8 @@ namespace DoshiiDotNetIntegration.Models.Json
         /// the DoshiiId for the venue - give this value to partners to allow them to send orders and payments to your venue. 
         /// </summary>
         [DataMember]
-        [JsonProperty(PropertyName = "doshiiId")]
-        public string DoshiiId { get; set; }
+        [JsonProperty(PropertyName = "Id")]
+        public string Id { get; set; }
 
         /// <summary>
         /// the name of the venue

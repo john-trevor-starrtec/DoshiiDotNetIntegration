@@ -546,7 +546,7 @@ namespace DoshiiDotNetIntegration
                 }
                 else
                 {
-                    RejectOrderFromOrderCreateMessage(orderWithoutConsumer, transactionList);
+                    mOrderingManager.ConfirmNewUnknownTypeOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
                 }
                 
             }
@@ -563,7 +563,7 @@ namespace DoshiiDotNetIntegration
                 }
                 else
                 {
-                    RejectOrderFromOrderCreateMessage(orderWithoutConsumer, transactionList);
+                    mOrderingManager.ConfirmNewUnknownTypeOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
                 }
                 
             }
