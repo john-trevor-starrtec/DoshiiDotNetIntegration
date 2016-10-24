@@ -1520,10 +1520,6 @@ namespace DoshiiDotNetIntegration
             {
                 throw new MemberIncompleteException("member name is blank");
             }
-            if (string.IsNullOrEmpty(member.Email))
-            {
-                throw new MemberIncompleteException("member email is blank");
-            }
             try
             {
                 if (string.IsNullOrEmpty(member.Id))

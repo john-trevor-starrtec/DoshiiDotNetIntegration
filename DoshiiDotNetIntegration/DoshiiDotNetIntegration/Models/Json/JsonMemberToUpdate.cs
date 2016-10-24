@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +35,11 @@ namespace DoshiiDotNetIntegration.Models.Json
         public bool ShouldSerializePhone()
         {
             return (!string.IsNullOrEmpty(Phone));
+        }
+
+        public bool ShouldSerializeEmail()
+        {
+            return (!string.IsNullOrEmpty(Email));
         }
     }
 }
