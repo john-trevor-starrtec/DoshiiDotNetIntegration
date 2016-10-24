@@ -36,5 +36,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         {
             return (!string.IsNullOrEmpty(Phone));
         }
+
+        public bool ShouldSerializeEmail()
+        {
+            return (!string.IsNullOrEmpty(Email));
+        }
     }
 }

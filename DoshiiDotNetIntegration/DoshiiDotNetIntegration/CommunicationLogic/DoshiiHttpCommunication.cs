@@ -12,6 +12,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using JWT;
+using DoshiiDotNetIntegration.Helpers;
 
 namespace DoshiiDotNetIntegration.CommunicationLogic
 {
@@ -150,9 +151,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// If an order if found matching the orderId the order is returned,
         /// If on order matching the orderId is not found a new order is returned. 
         /// </returns>
-        internal virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual OrderWithConsumer GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
-            var retreivedOrder = new Order();
+            var retreivedOrder = new OrderWithConsumer();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -169,17 +170,17 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
+                        var jsonOrder = JsonOrderWithConsumer.deseralizeFromJson(responseMessage.Data);
                         try
                         {
-                            retreivedOrder = Mapper.Map<Order>(jsonOrder);
+                            retreivedOrder = Mapper.Map<OrderWithConsumer>(jsonOrder);
                         }
                         catch (Exception ex)
                         {
                             mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Error,
                                 string.Format(
                                     "Doshii: An order received from Doshii could not be processed, A Price value in the order could not be converted into a decimal, the order will be rejected by the SDK: ",
-                                    jsonOrder));
+                                    jsonOrder),ex);
                             //reject the order. 
                             var orderWithNoPricePropertiesToReject = Mapper.Map<OrderWithNoPriceProperties>(jsonOrder);
                             var orderToReject = Mapper.Map<Order>(orderWithNoPricePropertiesToReject);
@@ -272,9 +273,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         /// A list of all currently active unlinked orders from Doshii
         /// If there are no current active unlinked orders an empty list is returned.  
         /// </returns>
-        internal virtual IEnumerable<Order> GetUnlinkedOrders()
+        internal virtual IEnumerable<OrderWithConsumer> GetUnlinkedOrders()
         {
-            var retreivedOrderList = new List<Order>();
+            var retreivedOrderList = new List<OrderWithConsumer>();
             DoshiHttpResponseMessage responseMessage;
             try
             {
@@ -291,8 +292,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 {
                     if (!string.IsNullOrWhiteSpace(responseMessage.Data))
                     {
-                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrder>>(responseMessage.Data);
-                        retreivedOrderList = Mapper.Map<List<Order>>(jsonList);
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonOrderWithConsumer>>(responseMessage.Data);
+                        retreivedOrderList = Mapper.Map<List<OrderWithConsumer>>(jsonList);
                     }
                     else
                     {
@@ -310,16 +311,16 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order)));
             }
 
-            List<Order> fullOrderList = new List<Order>();
+            var fullOrderList = new List<OrderWithConsumer>();
             foreach (var partOrder in retreivedOrderList)
             {
-                Order newOrder = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
+                OrderWithConsumer newOrder = GetOrderFromDoshiiOrderId(partOrder.DoshiiId);
                 if (newOrder != null)
                 {
                     fullOrderList.Add(newOrder);
                 }
             }
-            return (IEnumerable<Order>)fullOrderList;
+            return (IEnumerable<OrderWithConsumer>)fullOrderList;
         }
 
         /// <summary>
@@ -1059,7 +1060,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             DoshiHttpResponseMessage responseMessage;
             try
             {
-                responseMessage = MakeRequest(string.Format("{0}?orderId={1}&orderTotal={2}", GenerateUrl(EndPointPurposes.MemberRewards),orderId,orderTotal), WebRequestMethods.Http.Get);
+                responseMessage = MakeRequest(string.Format("{0}?orderId={1}&orderTotal={2}", GenerateUrl(EndPointPurposes.MemberRewards, memberId),orderId,orderTotal), WebRequestMethods.Http.Get);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -1232,13 +1233,13 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return false;
         }
 
-        internal virtual bool RedeemPointsForMemberConfirm(Member member)
+        internal virtual bool RedeemPointsForMemberConfirm(string memberId)
         {
             DoshiHttpResponseMessage responseMessage;
             //create redeem points object
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, member.Id), WebRequestMethods.Http.Put);
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, memberId), WebRequestMethods.Http.Put);
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -1255,24 +1256,24 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 }
                 else
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, member.Id)));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, memberId)));
                 }
             }
             else
             {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, member.Id)));
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemConfirm, memberId)));
                 throw new NullResponseDataReturnedException();
             }
             return false;
         }
 
-        internal virtual bool RedeemPointsForMemberCancel(Member member, string cancelReason)
+        internal virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
             DoshiHttpResponseMessage responseMessage;
             //create redeem points object
             try
             {
-                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id), WebRequestMethods.Http.Put, "{ \"reason\": \""+cancelReason+"\"}");
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, memberId), WebRequestMethods.Http.Put, "{ \"reason\": \"" + cancelReason + "\"}");
             }
             catch (RestfulApiErrorResponseException rex)
             {
@@ -1289,12 +1290,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 }
                 else
                 {
-                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id)));
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'PUT' request to {0} was not successful", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, memberId)));
                 }
             }
             else
             {
-                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, member.Id)));
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'PUT' and URL '{0}'", GenerateUrl(EndPointPurposes.MemberPointsRedeemCancel, memberId)));
                 throw new NullResponseDataReturnedException();
             }
             return false;
@@ -2121,7 +2122,130 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return retreivedtableList;
         }
 
-#endregion
+        #endregion
+
+        #region Bookings
+
+        internal Checkin SeatBooking(string bookingId, Checkin checkin)
+        {
+            DoshiHttpResponseMessage responseMessage;
+            var retreivedCheckin = new Checkin();
+
+            try
+            {
+                var jsonCheckin = Mapper.Map<JsonCheckin>(checkin);
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.BookingsCheckin, bookingId), WebRequestMethods.Http.Post, jsonCheckin.ToJsonString());
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonCheckin = JsonCheckin.deseralizeFromJson(responseMessage.Data);
+                        retreivedCheckin = Mapper.Map<Checkin>(jsonCheckin);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'POST' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'POST' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.BookingsCheckin)));
+            }
+
+            return retreivedCheckin;
+        }
+
+        internal virtual Booking GetBooking(String bookingId)
+        {
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Booking, bookingId), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonBooking = JsonConvert.DeserializeObject<JsonBooking>(responseMessage.Data);
+                        return Mapper.Map<Booking>(jsonBooking);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Booking)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(EndPointPurposes.Booking)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Booking)));
+            }
+            return null;
+        }
+
+        internal virtual IEnumerable<Booking> GetBookings(DateTime from, DateTime to)
+        {
+            List<Booking> retrievedBookings = new List<Booking>();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(EndPointPurposes.Bookings, from.ToEpochSeconds().ToString(), to.ToEpochSeconds().ToString()), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonBooking>>(responseMessage.Data);
+                        retrievedBookings = Mapper.Map<List<Booking>>(jsonList);
+                    }
+                    else
+                    {
+                        mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(EndPointPurposes.Bookings)));
+                    }
+
+                }
+                else
+                {
+                    mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(EndPointPurposes.Bookings)));
+                }
+            }
+            else
+            {
+                mLog.LogMessage(typeof(DoshiiHttpCommunication), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(EndPointPurposes.Bookings)));
+            }
+            return retrievedBookings;
+        }
+        #endregion
 
         #region comms helper methods
 
@@ -2242,6 +2366,19 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         newUrlbuilder.AppendFormat("/{0}", identification);
                     }
+                    break;
+                case EndPointPurposes.Booking:
+                    newUrlbuilder.AppendFormat("/bookings/{0}", identification);
+                    break;
+                case EndPointPurposes.Bookings:
+                    newUrlbuilder.Append("/bookings");
+                    if (!string.IsNullOrWhiteSpace(identification))
+                    {
+                        newUrlbuilder.AppendFormat("?from={0}&to={1}", identification, secondIdentification);
+                    }
+                    break;
+                case EndPointPurposes.BookingsCheckin:
+                    newUrlbuilder.AppendFormat("/bookings/{0}/checkin", identification);
                     break;
                 default:
                     throw new NotSupportedException(purpose.ToString());

@@ -24,13 +24,8 @@ namespace DoshiiDotNetIntegration.Models
         public void Clear()
         {
             Name = String.Empty;
-            PhoneNumber = String.Empty;
-            AddressLine1 = String.Empty;
-            AddressLine2 = String.Empty;
-            City = String.Empty;
-            State = String.Empty;
-            PostalCode = String.Empty;
-            Country = String.Empty;
+            Phone = String.Empty;
+            Address = null;
             Notes = String.Empty;
             PhotoUrl = string.Empty;
             Anonymous = false;
@@ -54,38 +49,12 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// the consumers phone number
         /// </summary>
-        public string PhoneNumber { get; set; }
+        public string Phone { get; set; }
 
-        /// <summary>
-        /// the consumers address line 1
-        /// </summary>
-        public string AddressLine1 { get; set; }
+        public string Email { get; set; }
 
-        /// <summary>
-        /// the consumers address line 1
-        /// </summary>
-        public string AddressLine2 { get; set; }
-
-        /// <summary>
-        /// the consumers address city
-        /// </summary>
-        public string City { get; set; }
-
-        /// <summary>
-        /// the consumers address state
-        /// </summary>
-        public string State { get; set; }
-
-        /// <summary>
-        /// the consumers address postal code
-        /// </summary>
-        public string PostalCode { get; set; }
-
-        /// <summary>
-        /// the consumers address country
-        /// </summary>
-        public string Country { get; set; }
-
+        public Address Address { get; set; }
+        
         /// <summary>
         /// Notes specific to this order, 
         /// this may include:

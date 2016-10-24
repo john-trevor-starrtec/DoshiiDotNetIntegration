@@ -37,7 +37,10 @@ namespace DoshiiDotNetIntegration.Models
 		    Status = "pending";
             Version = String.Empty;
             Uri = String.Empty;
+		    Tip = 0.0M;
 		}
+
+        public decimal Tip { get; set; }
 
         /// <summary>
         /// Unique number identifying this resource

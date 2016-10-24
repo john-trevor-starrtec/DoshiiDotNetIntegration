@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
+using DoshiiDotNetIntegration.CommunicationLogic.CommunicationEventArgs;
 
 namespace DoshiiDotNetIntegration
 {
@@ -117,6 +118,8 @@ namespace DoshiiDotNetIntegration
 		/// </summary>
 		private IPaymentModuleManager mPaymentManager;
 
+        internal IDoshiiConfiguration mDoshiiConfiguration;
+
         /// <summary>
         /// The basic ordering manager is a core module manager for the Doshii platform.
         /// </summary>
@@ -131,6 +134,11 @@ namespace DoshiiDotNetIntegration
         /// the membership manager
         /// </summary>
         internal IMembershipModuleManager mMemberManager { get; set; }
+
+        /// <summary>
+        /// The reservation manager.
+        /// </summary>
+        private IReservationManager mReservationManager;
 
         /// <summary>
         /// The unique LocationId for the venue -- this can be retrieved from Doshii before enabling the integration.
@@ -166,10 +174,12 @@ namespace DoshiiDotNetIntegration
         /// Constructor.
         /// After the constructor is called it MUST be followed by a call to <see cref="Initialize"/> to start communication with the Doshii API
         /// </summary>
-		/// <param name="paymentManager">The Transaction API callback mechanism.</param>
-		/// <param name="logger">The logging mechanism callback to the POS.</param>
+        /// <param name="paymentManager">The Transaction API callback mechanism.</param>
+        /// <param name="logger">The logging mechanism callback to the POS.</param>
         /// <param name="orderingManager">The Ordering API callback mechanism</param>
-        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager)
+        /// <param name="memberManager">The Member API callback mechanism</param>
+        /// <param name="reservationManager">The Reservation API callback mechanism</param>
+        public DoshiiManager(IPaymentModuleManager paymentManager, IDoshiiLogger logger, IOrderingManager orderingManager, IMembershipModuleManager memberManager, IReservationManager reservationManager, IDoshiiConfiguration configuration)
         {
             if (logger == null)
             {
@@ -181,20 +191,30 @@ namespace DoshiiDotNetIntegration
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IPaymentModuleManager needs to be instantiated as it is a core module");
                 throw new ArgumentNullException("paymentManager", "IPaymentModuleManager needs to be instantiated as it is a core module");
             }
-            
             if (orderingManager == null)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IOrderingManager needs to be instantiated as it is a core module");
                 throw new ArgumentNullException("orderingManager", "IOrderingManager needs to be instantiated as it is a core module");
             }
+            if (configuration == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - IDoshiiConfiguration needs to be instantiated as it is a core module");
+                throw new ArgumentNullException("configuration", "IDoshiiConfiguration needs to be instantiated as it is a core module");
+            }
             if (memberManager == null)
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Membership module not supported - IMembershipModuleManager needs to be instantiated to implement the member functionality");
-            }    
+            }
+            if (reservationManager == null)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Reservation module not supported - IReservationManager needs to be instantiated to implement the reservation functionality");
+            }
+            mDoshiiConfiguration = configuration;
 			mPaymentManager = paymentManager;
             mOrderingManager = orderingManager;
             mMemberManager = memberManager;
-            
+            mReservationManager = reservationManager;
+
 			AutoMapperConfigurator.Configure();
         }
 
@@ -227,35 +247,35 @@ namespace DoshiiDotNetIntegration
         /// <para/>False if the initialize procedure was unsuccessful.
         /// </returns>
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with one of the paramaters.</exception>
-        public virtual bool Initialize(string locationToken, string vendor, string secretKey, string urlBase, bool startWebSocketConnection, int timeOutValueSecs)
+        public virtual bool Initialize(bool startWebSocketConnection)
         {
-            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", locationToken, urlBase, CurrentVersion(), Environment.NewLine, vendor, secretKey));
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", mDoshiiConfiguration.GetLocationTokenFromPos(), mDoshiiConfiguration.GetBaseUrlFromPos(), CurrentVersion(), Environment.NewLine, mDoshiiConfiguration.GetVendorFromPos(), mDoshiiConfiguration.GetSecretKeyFromPos()));
 			
-            if (string.IsNullOrWhiteSpace(urlBase))
+            if (string.IsNullOrWhiteSpace(mDoshiiConfiguration.GetBaseUrlFromPos()))
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required urlBase");
 				throw new ArgumentException("empty urlBase");
             }
 
-            if (string.IsNullOrWhiteSpace(locationToken))
+            if (string.IsNullOrWhiteSpace(mDoshiiConfiguration.GetLocationTokenFromPos()))
             {
 				mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required locationId");
                 throw new ArgumentException("empty locationToken");
             }
 
-            if (string.IsNullOrWhiteSpace(vendor))
+            if (string.IsNullOrWhiteSpace(mDoshiiConfiguration.GetVendorFromPos()))
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required vendor");
                 throw new ArgumentException("empty vendor");
             }
 
-            if (string.IsNullOrWhiteSpace(secretKey))
+            if (string.IsNullOrWhiteSpace(mDoshiiConfiguration.GetSecretKeyFromPos()))
             {
                 mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - required secretKey");
                 throw new ArgumentException("empty secretKey");
             }
 
-			int timeout = timeOutValueSecs;
+			int timeout = mDoshiiConfiguration.GetSocketTimeOutFromPos();
 
 			if (timeout < 0)
             {
@@ -268,12 +288,11 @@ namespace DoshiiDotNetIntegration
 				timeout = DoshiiManager.DefaultTimeout;
 			}
 
-			LocationToken = locationToken;
-            Vendor = vendor;
-            SecretKey = secretKey;
-            urlBase = FormatBaseUrl(urlBase);
-            string socketUrl = BuildSocketUrl(urlBase, LocationToken);
-            m_IsInitalized = InitializeProcess(socketUrl, urlBase, startWebSocketConnection, timeout);
+			LocationToken = mDoshiiConfiguration.GetLocationTokenFromPos();
+            Vendor = mDoshiiConfiguration.GetVendorFromPos();
+            SecretKey = mDoshiiConfiguration.GetSecretKeyFromPos();
+            string socketUrl = BuildSocketUrl(FormatBaseUrl(mDoshiiConfiguration.GetSocketUrlFromPos()), LocationToken);
+            m_IsInitalized = InitializeProcess(socketUrl, FormatBaseUrl(mDoshiiConfiguration.GetBaseUrlFromPos()), startWebSocketConnection, timeout);
             if (startWebSocketConnection)
             {
                 try
@@ -358,31 +377,11 @@ namespace DoshiiDotNetIntegration
 		/// <param name="baseApiUrl">The base URL for the API. This is an HTTP address that points to the Doshii POS API, including version.</param>
 		/// <param name="token">The Doshii authentication token for the POS implementation in the API.</param>
 		/// <returns>The URL for the web socket connection in Doshii.</returns>
-		internal virtual string BuildSocketUrl(string baseApiUrl, string token)
+		internal virtual string BuildSocketUrl(string socketUrl, string token)
 		{
-			// baseApiUrl is for example https://sandbox.doshii.co/pos/v3
-			// require socket url of wss://sandbox.doshii.co/pos/socket?token={token} in this example
-			// so first, replace http with ws (this handles situation where using http/ws instead of https/wss
-			string result = baseApiUrl.Replace("http", "ws");
-
-			// next remove the /api/v2 section of the url
-			int index = result.IndexOf("/v");
-			if (index > 0 && index < result.Length)
-			{
-				result = result.Remove(index);
-			}
-
-		    index = result.IndexOf(".");
-            if (index > 0 && index < result.Length)
-            {
-                result = result.Insert(index,"-socket");
-            }
-
 			// finally append the socket endpoint and token parameter to the url and return the result
-			result = String.Format("{0}/socket?token={1}", result, token);
-
-			return result;
-		}
+            return String.Format("{0}?token={1}", socketUrl, token);
+        }
 
         /// <summary>
         /// Subscribes to the socket communication events 
@@ -405,6 +404,9 @@ namespace DoshiiDotNetIntegration
                 m_SocketComs.SocketCommunicationTimeoutReached += new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
                 m_SocketComs.MemberCreatedEvent += new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
                 m_SocketComs.MemberUpdatedEvent += new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+                m_SocketComs.BookingCreatedEvent += new DoshiiWebSocketsCommunication.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
+                m_SocketComs.BookingUpdatedEvent += new DoshiiWebSocketsCommunication.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
+                m_SocketComs.BookingDeletedEvent += new DoshiiWebSocketsCommunication.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
             }
         }
 
@@ -421,6 +423,9 @@ namespace DoshiiDotNetIntegration
             m_SocketComs.SocketCommunicationTimeoutReached -= new DoshiiWebSocketsCommunication.SocketCommunicationTimeoutReachedEventHandler(SocketComsTimeOutValueReached);
             m_SocketComs.MemberCreatedEvent -= new DoshiiWebSocketsCommunication.MemberCreatedEventHandler(SocketComsMemberCreatedEventHandler);
             m_SocketComs.MemberUpdatedEvent -= new DoshiiWebSocketsCommunication.MemberUpdatedEventHandler(SocketComsMemberUpdatedEventHandler);
+            m_SocketComs.BookingCreatedEvent -= new DoshiiWebSocketsCommunication.BookingCreatedEventHandler(SocketComsBookingCreatedEventHandler);
+            m_SocketComs.BookingUpdatedEvent -= new DoshiiWebSocketsCommunication.BookingUpdatedEventHandler(SocketComsBookingUpdatedEventHandler);
+            m_SocketComs.BookingDeletedEvent -= new DoshiiWebSocketsCommunication.BookingDeletedEventHandler(SocketComsBookingDeletedEventHandler);
         }
         #endregion
 
@@ -459,9 +464,9 @@ namespace DoshiiDotNetIntegration
             {
                 //check unassigned orders
                 mLog.LogMessage(this.GetType(), DoshiiLogLevels.Info, "Refreshing all orders.");
-                IEnumerable<Order> unassignedOrderList;
+                IEnumerable<OrderWithConsumer> unassignedOrderList;
                 unassignedOrderList = GetUnlinkedOrders();
-                foreach (Order order in unassignedOrderList)
+                foreach (OrderWithConsumer order in unassignedOrderList)
                 {
                     if (order.Status == "pending")
                     {
@@ -496,7 +501,7 @@ namespace DoshiiDotNetIntegration
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        internal virtual void SocketComsOrderCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderEventArgs e)
+        internal virtual void SocketComsOrderCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.OrderCreatedEventArgs e)
         {
 			if (!String.IsNullOrEmpty(e.Order.Id))
             {
@@ -515,48 +520,50 @@ namespace DoshiiDotNetIntegration
         /// <param name="transactionList">
         /// The transaction list for the new created order. 
         /// </param>
-        internal virtual void HandleOrderCreated(Order order, List<Transaction> transactionList)
+        internal virtual void HandleOrderCreated(OrderWithConsumer orderWithConsumer, List<Transaction> transactionList)
         {
+            var orderWithoutConsumer = Mapper.Map<Order>(orderWithConsumer);
             if (transactionList == null)
             {
                 transactionList = new List<Transaction>();
             }
-            Consumer consumer = GetConsumerForOrderCreated(order, transactionList);
-            if (consumer == null)
+            if (orderWithConsumer.Consumer == null)
             {
+                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: An order created event was received with DoshiiId - {0} but the order does not have a consumer, the Order has been rejected", orderWithoutConsumer.DoshiiId));
+                RejectOrderFromOrderCreateMessage(orderWithoutConsumer, transactionList);
                 return;
             }
             if (transactionList.Count > 0)
             {
-                
-                if (order.Type == "delivery")
+
+                if (orderWithConsumer.Type == "delivery")
                 {
-                    mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(order, consumer, transactionList);
+                    mOrderingManager.ConfirmNewDeliveryOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
                 }
-                else if (order.Type == "pickup")
+                else if (orderWithConsumer.Type == "pickup")
                 {
-                    mOrderingManager.ConfirmNewPickupOrderWithFullPayment(order, consumer, transactionList);
+                    mOrderingManager.ConfirmNewPickupOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
                 }
                 else
                 {
-                    RejectOrderFromOrderCreateMessage(order, transactionList);
+                    mOrderingManager.ConfirmNewUnknownTypeOrderWithFullPayment(orderWithoutConsumer, orderWithConsumer.Consumer, transactionList);
                 }
                 
             }
             else
             {
-                if (order.Type == "delivery")
+                if (orderWithConsumer.Type == "delivery")
                 {
-                    
-                    mOrderingManager.ConfirmNewDeliveryOrder(order, consumer);
+
+                    mOrderingManager.ConfirmNewDeliveryOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
                 }
-                else if (order.Type == "pickup")
+                else if (orderWithConsumer.Type == "pickup")
                 {
-                    mOrderingManager.ConfirmNewPickupOrder(order, consumer);
+                    mOrderingManager.ConfirmNewPickupOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
                 }
                 else
                 {
-                    RejectOrderFromOrderCreateMessage(order, transactionList);
+                    mOrderingManager.ConfirmNewUnknownTypeOrder(orderWithoutConsumer, orderWithConsumer.Consumer);
                 }
                 
             }
@@ -585,7 +592,7 @@ namespace DoshiiDotNetIntegration
                     "AcceptOrderAheadCreation"));
             }
             
-            Order orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
+            OrderWithConsumer orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
             List<Transaction> transactionList = GetTransactionFromDoshiiOrderId(orderToAccept.DoshiiId).ToList();
 
             //test on doshii has changed. 
@@ -663,7 +670,7 @@ namespace DoshiiDotNetIntegration
             }
             catch (Exception ex)
             {
-                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("There was an exception when retreiving the consumer for a pending order doshiiOrderId - {0}. The order will be rejected", order.Id), ex);
+                mLog.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception when retreiving the consumer for a pending order doshiiOrderId - {0}. The order will be rejected", order.Id), ex);
                 RejectOrderFromOrderCreateMessage(order, transactionList);
                 return null;
             }
@@ -768,6 +775,61 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        internal virtual void SocketComsBookingCreatedEventHandler(object sender, BookingEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking created event for booking id '{0}'", e.BookingId));
+            try
+            {
+                mReservationManager.CreateBookingOnPos(e.Booking);
+            }
+            catch (BookingExistOnPosException bex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed due to booking already existing, now attempting to update existing booking.", e.BookingId));
+                try
+                {
+                    mReservationManager.UpdateBookingOnPos(e.Booking);
+                }
+                catch (BookingDoesNotExistOnPosException nex)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed.", e.BookingId));
+                }
+            }
+        }
+
+        internal virtual void SocketComsBookingUpdatedEventHandler(object sender, BookingEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking updated event for booking id '{0}'", e.BookingId));
+            try
+            {
+                mReservationManager.UpdateBookingOnPos(e.Booking);
+            }
+            catch (BookingDoesNotExistOnPosException bex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to update booking with Id '{0}' on pos failed due to booking already existing, now attempting to create new booking.", e.BookingId));
+                try
+                {
+                    mReservationManager.CreateBookingOnPos(e.Booking);
+                }
+                catch (BookingExistOnPosException nex)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to create booking with Id '{0}' on pos failed.", e.BookingId));
+                }
+            }
+        }
+
+        internal virtual void SocketComsBookingDeletedEventHandler(object sender, BookingEventArgs e)
+        {
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking deleted event for booking id '{0}'", e.BookingId));
+            try
+            {
+                mReservationManager.DeleteBookingOnPos(e.Booking);
+            }
+            catch (BookingDoesNotExistOnPosException bex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: attempt to delete booking with Id '{0}' on pos failed due to booking not existing.", e.BookingId));
+            }
+
+        }
 
         /// <summary>
         /// Handles a SocketComs_TransactionCreatedEvent, 
@@ -1103,7 +1165,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual Order GetOrderFromDoshiiOrderId(string doshiiOrderId)
+        internal virtual OrderWithConsumer GetOrderFromDoshiiOrderId(string doshiiOrderId)
         {
             if (!m_IsInitalized)
             {
@@ -1155,7 +1217,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If there are no unlinkedOrders a blank IEnumerable is returned.
         /// </returns>
         /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual IEnumerable<Order> GetUnlinkedOrders()
+        internal virtual IEnumerable<OrderWithConsumer> GetUnlinkedOrders()
         {
             if (!m_IsInitalized)
             {
@@ -1458,10 +1520,6 @@ namespace DoshiiDotNetIntegration
             {
                 throw new MemberIncompleteException("member name is blank");
             }
-            if (string.IsNullOrEmpty(member.Email))
-            {
-                throw new MemberIncompleteException("member email is blank");
-            }
             try
             {
                 if (string.IsNullOrEmpty(member.Id))
@@ -1681,7 +1739,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual bool RedeemPointsForMemberConfirm(Member member)
+        public virtual bool RedeemPointsForMemberConfirm(string memberId)
         {
             if (!m_IsInitalized)
             {
@@ -1696,7 +1754,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.RedeemPointsForMemberConfirm(member);
+                return m_HttpComs.RedeemPointsForMemberConfirm(memberId);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -1704,7 +1762,7 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual bool RedeemPointsForMemberCancel(Member member, string cancelReason)
+        public virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
             if (!m_IsInitalized)
             {
@@ -1719,7 +1777,7 @@ namespace DoshiiDotNetIntegration
             }
             try
             {
-                return m_HttpComs.RedeemPointsForMemberCancel(member, cancelReason);
+                return m_HttpComs.RedeemPointsForMemberCancel(memberId, cancelReason);
             }
             catch (Exceptions.RestfulApiErrorResponseException rex)
             {
@@ -2202,7 +2260,160 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-#endregion
+        #endregion
+
+        #region Reservations and Bookings
+
+        /// <summary>
+        /// This method is used to get a booking for a specific id.
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <returns></returns>
+        public virtual Booking GetBooking(String bookingId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBooking"));
+            }
+            try
+            {
+                return m_HttpComs.GetBooking(bookingId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        /// <summary>
+        /// This method is used to get all bookings within a specified date range.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
+        public virtual List<Booking> GetBookings(DateTime from, DateTime to)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(), "GetBookings"));
+            }
+            try
+            {
+                return m_HttpComs.GetBookings(from, to).ToList();
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+        }
+
+        /// <summary>
+        /// This method is used by the POS to seat a checkin with a booking.
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <param name="checkin"></param>
+        /// <returns>True if the booking could be seated.</returns>
+        public bool SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "SeatBooking"));
+            }
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: pos Seating Booking '{0}'", bookingId));
+
+            Order order = null;
+            if (posOrderId != null)
+            {
+                try
+                {
+                    order = mOrderingManager.RetrieveOrder(posOrderId);
+                    order.Version = mOrderingManager.RetrieveOrderVersion(posOrderId);
+                    order.CheckinId = mOrderingManager.RetrieveCheckinIdForOrder(posOrderId);
+                    order.Status = "accepted";
+                }
+                catch (OrderDoesNotExistOnPosException dne)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during seating");
+                    throw dne;
+                }
+
+                if (order == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during seating");
+                    throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during seating", new OrderUpdateException());
+                }
+
+                if (!String.IsNullOrEmpty(order.CheckinId))
+                {
+                    try
+                    {
+                        Checkin orderCheckin = m_HttpComs.GetCheckin(order.CheckinId);
+                        if (orderCheckin != null)
+                        {
+                            if (orderCheckin.Id.CompareTo(checkin.Id) != 0)
+                            {
+                                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Order checkin id not equal to booking checkin id");
+                                throw new BookingCheckinException("Doshii: Order checkin id != booking checkin id");
+                            }
+                            if (orderCheckin.Covers != checkin.Covers)
+                            {
+                                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Order covers not equal to booking covers");
+                                throw new BookingCheckinException("Doshii: Order covers != booking covers");
+                            }
+                            if (orderCheckin.Consumer.CompareTo(checkin.Consumer) != 0)
+                            {
+                                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Order consumer not equal to booking consumer");
+                                throw new BookingCheckinException("Doshii: Order consumer != booking consumer");
+                            }
+                            if (orderCheckin.TableNames.All(o => checkin.TableNames.Contains(o)) && orderCheckin.TableNames.Count == checkin.TableNames.Count)
+                            {
+                                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, "Doshii: Order Tables not equal to booking tables");
+                                throw new BookingCheckinException("Doshii: Order tables != booking tables");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Fatal, "Doshii: an exception was thrown getting the checking", ex);
+                        throw ex;
+                    }
+                }
+            }
+
+            Checkin bookingCheckin = null;
+            try
+            {
+                bookingCheckin = m_HttpComs.SeatBooking(bookingId, checkin);
+                if (bookingCheckin == null)
+                {
+                    mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: There was an error generating a new checkin through Doshii, the seat booking could not be completed."));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a seat booking Id{0} : {1}", bookingId, ex));
+                throw new BookingUpdateException(string.Format("Doshii: a exception was thrown during an attempt to seat a booking. Id{0}", bookingId), ex);
+            }
+
+            mLog.LogMessage(typeof(DoshiiManager), DoshiiLogLevels.Debug, string.Format("Doshii: Booking Seated."));
+
+            mReservationManager.RecordCheckinForBooking(bookingId, bookingCheckin.Id);
+
+            if (order != null)
+            {
+                order.CheckinId = bookingCheckin.Id;
+                Order returnedOrder = UpdateOrder(order);
+                if (returnedOrder == null)
+                    return false;
+            }
+
+            return true;
+        }
+
+        #endregion
 
         /// <summary>
         /// This method is used to get the location information from doshii,

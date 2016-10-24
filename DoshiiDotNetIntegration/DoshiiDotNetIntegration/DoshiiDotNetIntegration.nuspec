@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>DoshiiPosDotNetSDK</id>
-    <version>1.2.3</version>
-    <title>DoshiiPosDotNetSDK</title>
+    <id>DoshiiPosDotNetSDKv3</id>
+    <version>3.0-Pre</version>
+    <title>DoshiiPosDotNetSDKv3</title>
     <authors>DoshiiCorp</authors>
     <owners>DoshiiCorp</owners>
-    <projectUrl>https://sandbox.doshii.co/docs/dot-net-sdk</projectUrl>
+    <projectUrl>http://docs.doshii.co/change-log/v3.0.0/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An SDK for pos solutions written in .NET to integration with the Doshii API</description>
-    <releaseNotes>Fixed Socket Connection for sandbox</releaseNotes>
+    <releaseNotes></releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>DoshiiSDK Doshii</tags>
   </metadata>

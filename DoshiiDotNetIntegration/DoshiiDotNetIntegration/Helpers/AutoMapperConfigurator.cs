@@ -62,10 +62,32 @@ namespace DoshiiDotNetIntegration.Helpers
                 AutoMapperConfigurator.MapCheckInObjects();
                 AutoMapperConfigurator.MapTableCriteraObjects();
                 AutoMapperConfigurator.MapTableObjects();
+                AutoMapperConfigurator.MapBookingObjects();
 
-				AutoMapperConfigurator.IsConfigured = true;
+                AutoMapperConfigurator.IsConfigured = true;
 			}
 		}
+
+        /// <summary>
+        /// This function creates a bi-directional object mapping between the Booking model objects and their
+        /// JSON equivalent data transfer objects.
+        /// </summary>
+        private static void MapBookingObjects()
+        {
+            Mapper.CreateMap<Booking, JsonBooking>()
+                .ForMember(dest => dest.TableNames, opt => opt.MapFrom(src => src.TableNames.ToList<string>()))
+                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToUtcTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToUtcTime(src.CreatedAt)))
+                .ForMember(dest => dest.Uri, opt => opt.Ignore());
+
+            Mapper.CreateMap<JsonBooking, Booking>()
+                .ForMember(dest => dest.TableNames, opt => opt.MapFrom(src => src.TableNames.ToList<string>()))
+                .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.UpdatedAt)))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.CreatedAt)))
+                .ForMember(dest => dest.Uri, opt => opt.Ignore());
+        }
 
         private static void MapTableObjects()
         {
@@ -335,10 +357,12 @@ namespace DoshiiDotNetIntegration.Helpers
 		{
 			// src = Transaction, dest = JsonTransaction
 			Mapper.CreateMap<Transaction, JsonTransaction>()
+                .ForMember(dest => dest.Tip, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Tip)))
 				.ForMember(dest => dest.PaymentAmount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.PaymentAmount)));
 
 			// src = JsonTransaction, dest = Transaction
 			Mapper.CreateMap<JsonTransaction, Transaction>()
+                .ForMember(dest => dest.Tip, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Tip)))
 				.ForMember(dest => dest.PaymentAmount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.PaymentAmount)));
 		}
 
@@ -384,7 +408,17 @@ namespace DoshiiDotNetIntegration.Helpers
 		/// </summary>
 		private static void MapOrderObjects()
 		{
-			// src = Order, dest = JsonOrder
+            Mapper.CreateMap<OrderWithConsumer, JsonOrderWithConsumer>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))
+                .ForMember(dest => dest.Surcounts, opt => opt.MapFrom(src => src.Surcounts.ToList<Surcount>()));
+
+            Mapper.CreateMap<JsonOrderWithConsumer, OrderWithConsumer>()
+                .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)));
+            
+            Mapper.CreateMap<OrderWithConsumer, Order>();
+                
+            // src = Order, dest = JsonOrder
 		    Mapper.CreateMap<Order, JsonOrder>()
 		        .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items.ToList<Product>()))
                 .ForMember(dest => dest.RequiredAt, opt => opt.MapFrom(src => AutoMapperConfigurator.ToLocalTime(src.RequiredAt)))

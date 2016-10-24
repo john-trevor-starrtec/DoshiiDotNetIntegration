@@ -14,7 +14,7 @@ namespace DoshiiDotNetIntegration.Models
         /// <summary>
         /// the DoshiiId for the venue - give this value to partners to allow them to send orders and payments to your venue. 
         /// </summary>
-        public string DoshiiId { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// the name of the venue
@@ -66,7 +66,7 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public void Clear()
         {
-            DoshiiId = String.Empty;
+            Id = String.Empty;
             Name = String.Empty;
             AddressLine1 = String.Empty;
             AddressLine2 = String.Empty;
