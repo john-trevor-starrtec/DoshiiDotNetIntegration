@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 namespace SampleDotNetPOS.POSImpl
 {
 	/// <summary>
-	/// This is a sample implementation of the <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager"/>
+	/// This is a sample implementation of the <see cref="ITransactionManager"/>
 	/// interface.
 	/// </summary>
 	/// <remarks>
-	/// As the POS provider, your job will be to implement the <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager"/>
+	/// As the POS provider, your job will be to implement the <see cref="ITransactionManager"/>
 	/// interface in such a way that orders are paid for in the POS via the calls coming from the Doshii SDK.
 	/// This sample doesn't actually do anything except update the order status accordingly.
 	/// </remarks>
-	public class SamplePaymentModuleManager : IPaymentModuleManager, IDisposable
+	public class SampleTransactionManager : ITransactionManager, IDisposable
 	{
 		/// <summary>
 		/// Presenter for the application.
@@ -43,10 +43,10 @@ namespace SampleDotNetPOS.POSImpl
 			mPresenter = null;
 		}
 
-		#region IPaymentModuleManager Members
+		#region ITransactionManager Members
 
 		/// <summary>
-		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.ReadyToPay(Transaction)"/> for details of this call.
+		/// See <see cref="ITransactionManager.ReadyToPay(Transaction)"/> for details of this call.
 		/// </summary>
 		/// <param name="transaction"></param>
 		/// <returns></returns>
@@ -76,7 +76,7 @@ namespace SampleDotNetPOS.POSImpl
 		}
 
 		/// <summary>
-		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager.CancelPayment(Transaction)"/> for details of this call.
+		/// See <see cref="ITransactionManager.CancelPayment(Transaction)"/> for details of this call.
 		/// </summary>
 		/// <param name="transaction"></param>
 		public void CancelPayment(Transaction transaction)
@@ -87,7 +87,7 @@ namespace SampleDotNetPOS.POSImpl
 		}
 
 		/// <summary>
-		/// See <see cref="IPaymentModuleManager.RecordSuccessfulPayment"/> for details of this call.
+		/// See <see cref="ITransactionManager.RecordSuccessfulPayment"/> for details of this call.
 		/// </summary>
 		/// <param name="transaction"></param>
 		public void RecordSuccessfulPayment(Transaction transaction)
@@ -101,7 +101,7 @@ namespace SampleDotNetPOS.POSImpl
 		}
 
 		/// <summary>
-		/// See <see cref="IPaymentModuleManager.RecordTransactionVersion"/> for details of this call.
+		/// See <see cref="ITransactionManager.RecordTransactionVersion"/> for details of this call.
 		/// </summary>
 		/// <param name="transactionId"></param>
 		/// <param name="version"></param>
@@ -121,7 +121,7 @@ namespace SampleDotNetPOS.POSImpl
 	    }
 
 		/// <summary>
-		/// See <see cref="IPaymentModuleManager.RetrieveTransactionVersion"/> for details of this call.
+		/// See <see cref="ITransactionManager.RetrieveTransactionVersion"/> for details of this call.
 		/// </summary>
 		/// <param name="transactionId"></param>
 		/// <param name="version"></param>

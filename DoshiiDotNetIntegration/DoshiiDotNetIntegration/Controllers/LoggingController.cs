@@ -2,25 +2,25 @@
 using DoshiiDotNetIntegration.Interfaces;
 using System;
 
-namespace DoshiiDotNetIntegration
+namespace DoshiiDotNetIntegration.Controllers
 {
 	/// <summary>
 	/// This class is used internally by the SDK to manage the logging of messages back to the POS implementation.
 	/// This should not need to be instantiated by the POS implementation.
 	/// </summary>
-	internal class DoshiiLogManager : IDisposable
+	internal class LoggingController : IDisposable
 	{
 		/// <summary>
 		/// A reference to the callback mechanism for message logging in the application.
 		/// </summary>
-		internal IDoshiiLogger mLog;
+		internal ILoggingManager mLog;
 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="logger">The callback for message logging in the application. Can optionally be <c>null</c> in
 		/// which case messages logged by the SDK will not be returned to the application.</param>
-		internal DoshiiLogManager(IDoshiiLogger logger)
+		internal LoggingController(ILoggingManager logger)
 		{
 			mLog = logger;
 		}

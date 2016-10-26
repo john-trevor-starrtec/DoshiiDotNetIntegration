@@ -48,9 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="POSImpl\SampleDoshiiLogger.cs" />
+    <Compile Include="POSImpl\SampleLoggingManager.cs" />
     <Compile Include="POSImpl\SampleOrderingManager.cs" />
-    <Compile Include="POSImpl\SamplePaymentModuleManager.cs" />
+    <Compile Include="POSImpl\SampleTransactionManager.cs" />
     <Compile Include="SampleConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>

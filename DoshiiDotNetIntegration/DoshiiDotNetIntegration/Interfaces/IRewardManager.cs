@@ -13,12 +13,12 @@ namespace DoshiiDotNetIntegration.Interfaces
     /// <para/>Version control on members is also managed through the POS implementation of this interface.
     /// </summary>
     /// <remarks>
-    /// <para/><see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this interface as a callback mechanism 
+    /// <para/><see cref="DoshiiController"/> uses this interface as a callback mechanism 
     /// to the POS for membership functions. 
     /// <para>
     /// </para>
     /// </remarks>
-    public interface IMembershipModuleManager
+    public interface IRewardManager
     {
         /// <summary>
         /// This method should retreive the doshii member from the pos. 
