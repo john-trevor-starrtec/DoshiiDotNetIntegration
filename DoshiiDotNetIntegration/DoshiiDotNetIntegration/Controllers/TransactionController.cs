@@ -197,7 +197,7 @@ namespace DoshiiDotNetIntegration.Controllers
             {
                 var jsonTransaction = Mapper.Map<JsonTransaction>(transaction);
                 _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: transaction post for payment - '{0}'", jsonTransaction.ToJsonString()));
-
+                returnedTransaction.OrderId = transaction.OrderId;
                 _controllers.TransactionManager.RecordSuccessfulPayment(returnedTransaction);
                 _controllers.TransactionManager.RecordTransactionVersion(returnedTransaction.Id, returnedTransaction.Version);
                 return true;
