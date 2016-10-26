@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -48,23 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="POSImpl\SampleConfigurationManager.cs" />
-    <Compile Include="POSImpl\SampleDoshiiLogger.cs" />
+    <Compile Include="POSImpl\SampleLoggingManager.cs" />
     <Compile Include="POSImpl\SampleOrderingManager.cs" />
-    <Compile Include="POSImpl\SamplePaymentModuleManager.cs" />
-    <Compile Include="POSImpl\SampleReservationManager.cs" />
-    <Compile Include="SampleArriveForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SampleArriveForm.Designer.cs">
-      <DependentUpon>SampleArriveForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SampleBookingListForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SampleBookingListForm.Designer.cs">
-      <DependentUpon>SampleBookingListForm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="POSImpl\SampleTransactionManager.cs" />
     <Compile Include="SampleConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -92,18 +78,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SampleTableForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SampleTableForm.Designer.cs">
-      <DependentUpon>SampleTableForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SampleTableListForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SampleTableListForm.Designer.cs">
-      <DependentUpon>SampleTableListForm.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -114,12 +88,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="SampleArriveForm.resx">
-      <DependentUpon>SampleArriveForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SampleBookingListForm.resx">
-      <DependentUpon>SampleBookingListForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="SampleConfigForm.resx">
       <DependentUpon>SampleConfigForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -131,12 +99,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SamplePOSMainForm.resx">
       <DependentUpon>SamplePOSMainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SampleTableForm.resx">
-      <DependentUpon>SampleTableForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SampleTableListForm.resx">
-      <DependentUpon>SampleTableListForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

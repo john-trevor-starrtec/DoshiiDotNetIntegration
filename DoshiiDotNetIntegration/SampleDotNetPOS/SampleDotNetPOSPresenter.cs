@@ -33,13 +33,18 @@ namespace SampleDotNetPOS
 		/// <summary>
 		/// The logging mechanism for the SampleDotNetPOS application.
 		/// </summary>
-		private SampleDoshiiLogger mLog;
+		private SampleLoggingManager mLog;
 
 		/// <summary>
 		/// The sample payment manager for the SampleDotNetPOS application.
 		/// </summary>
+<<<<<<< 7e61b0f8c2f16f00fdc0c72256076e067ea307fb
 		private SamplePaymentModuleManager mPaymentManager;
 
+=======
+		private SampleTransactionManager mPaymentManager;
+
+>>>>>>> testing is going well
         /// <summary>
         /// The sample payment manager for the SampleDotNetPOS application.
         /// </summary>
@@ -48,7 +53,7 @@ namespace SampleDotNetPOS
 		/// <summary>
 		/// The doshii logic manager.
 		/// </summary>
-		private DoshiiManager mManager;
+		private DoshiiController _mController;
 
         private SampleConfigurationManager mConfigManager;
 
@@ -85,13 +90,17 @@ namespace SampleDotNetPOS
 				throw new ArgumentNullException("view");
 
 			mView = view;
-			mLog = new SampleDoshiiLogger(this);
-			mPaymentManager = new SamplePaymentModuleManager();
+			mLog = new SampleLoggingManager(this);
+			mPaymentManager = new SampleTransactionManager();
             mOrderingManager = new SampleOrderingManager(this);
+<<<<<<< 7e61b0f8c2f16f00fdc0c72256076e067ea307fb
             mConfigManager = new SampleConfigurationManager();
             mReservationManager = new SampleReservationManager();
             mReservationManager.AttachPresenter(this);
 			mManager = new DoshiiManager(mPaymentManager, mLog, mOrderingManager, null, mReservationManager, mConfigManager);
+=======
+			_mController = new DoshiiController(mPaymentManager, mLog, mOrderingManager, null);
+>>>>>>> testing is going well
 			mOrders = new List<Order>();
 			mPayments = new List<Transaction>();
             mBookings = new List<Booking>();
@@ -121,6 +130,7 @@ namespace SampleDotNetPOS
 		/// <param name="locationToken">The entered location token in the view.</param>
 		public void Initialise(string apiAddress, string vendor, string secretKey, string locationToken)
 		{
+<<<<<<< 7e61b0f8c2f16f00fdc0c72256076e067ea307fb
             mConfigManager.Initialise(apiAddress, vendor, secretKey, locationToken);
 
             mManager.Initialize(true);
@@ -128,12 +138,19 @@ namespace SampleDotNetPOS
 			// refresh the order list in memory
 			//mOrders = mManager.GetOrders().ToList<Order>();
 			//mOrders.AddRange(mManager.GetUnlinkedOrders());
+=======
+			_mController.Initialize(SampleDotNetPOSPresenter.AuthToken, vendor, secretKey, apiAddress, true, 0);
+
+			// refresh the order list in memory
+			mOrders = _mController.GetOrders().ToList<Order>();
+			mOrders.AddRange(_mController.GetUnlinkedOrders());
+>>>>>>> testing is going well
 
 			// retrieve any payment transactions for current orders
 			mPayments.Clear();
 			foreach (var order in mOrders)
 			{
-				mPayments.AddRange(mManager.GetTransactionFromDoshiiOrderId(order.DoshiiId));
+				mPayments.AddRange(_mController.GetTransactionFromDoshiiOrderId(order.DoshiiId));
 			}
             // retrieve any bookings.
             mBookings = mManager.GetBookings(DateTime.Today, DateTime.Today.AddDays(2));
@@ -195,7 +212,7 @@ namespace SampleDotNetPOS
 
 			if (order != null)
 			{
-				order = mManager.UpdateOrder(order);
+				order = _mController.UpdateOrder(order);
 				AddOrUpdateOrder(order);
 			}
 
@@ -617,10 +634,10 @@ namespace SampleDotNetPOS
 				mPaymentManager = null;
 			}
 
-			if (mManager != null)
+			if (_mController != null)
 			{
-				mManager.Dispose();
-				mManager = null;
+				_mController.Dispose();
+				_mController = null;
 			}
 
 			if (mOrderingManager != null)
