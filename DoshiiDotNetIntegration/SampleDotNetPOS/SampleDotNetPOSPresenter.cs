@@ -33,12 +33,12 @@ namespace SampleDotNetPOS
 		/// <summary>
 		/// The logging mechanism for the SampleDotNetPOS application.
 		/// </summary>
-		private SampleDoshiiLogger mLog;
+		private SampleLoggingManager mLog;
 
 		/// <summary>
 		/// The sample payment manager for the SampleDotNetPOS application.
 		/// </summary>
-		private SamplePaymentModuleManager mPaymentManager;
+		private SampleTransactionManager mPaymentManager;
 
         /// <summary>
         /// The sample payment manager for the SampleDotNetPOS application.
@@ -48,7 +48,7 @@ namespace SampleDotNetPOS
 		/// <summary>
 		/// The doshii logic manager.
 		/// </summary>
-		private DoshiiManager mManager;
+		private DoshiiController _mController;
 
 		/// <summary>
 		/// Current list of orders in Doshii.
@@ -74,10 +74,10 @@ namespace SampleDotNetPOS
 				throw new ArgumentNullException("view");
 
 			mView = view;
-			mLog = new SampleDoshiiLogger(this);
-			mPaymentManager = new SamplePaymentModuleManager();
+			mLog = new SampleLoggingManager(this);
+			mPaymentManager = new SampleTransactionManager();
             mOrderingManager = new SampleOrderingManager(this);
-			mManager = new DoshiiManager(mPaymentManager, mLog, mOrderingManager, null);
+			_mController = new DoshiiController(mPaymentManager, mLog, mOrderingManager, null);
 			mOrders = new List<Order>();
 			mPayments = new List<Transaction>();
 
@@ -103,17 +103,17 @@ namespace SampleDotNetPOS
 		/// <param name="locationToken">The entered location token in the view.</param>
 		public void Initialise(string apiAddress, string vendor, string secretKey, string locationToken)
 		{
-			mManager.Initialize(SampleDotNetPOSPresenter.AuthToken, vendor, secretKey, apiAddress, true, 0);
+			_mController.Initialize(SampleDotNetPOSPresenter.AuthToken, vendor, secretKey, apiAddress, true, 0);
 
 			// refresh the order list in memory
-			mOrders = mManager.GetOrders().ToList<Order>();
-			mOrders.AddRange(mManager.GetUnlinkedOrders());
+			mOrders = _mController.GetOrders().ToList<Order>();
+			mOrders.AddRange(_mController.GetUnlinkedOrders());
 
 			// retrieve any payment transactions for current orders
 			mPayments.Clear();
 			foreach (var order in mOrders)
 			{
-				mPayments.AddRange(mManager.GetTransactionFromDoshiiOrderId(order.DoshiiId));
+				mPayments.AddRange(_mController.GetTransactionFromDoshiiOrderId(order.DoshiiId));
 			}
 
 			// update the view labels for count of orders and payments
@@ -170,7 +170,7 @@ namespace SampleDotNetPOS
 
 			if (order != null)
 			{
-				order = mManager.UpdateOrder(order);
+				order = _mController.UpdateOrder(order);
 				AddOrUpdateOrder(order);
 			}
 
@@ -407,10 +407,10 @@ namespace SampleDotNetPOS
 				mPaymentManager = null;
 			}
 
-			if (mManager != null)
+			if (_mController != null)
 			{
-				mManager.Dispose();
-				mManager = null;
+				_mController.Dispose();
+				_mController = null;
 			}
 
 			if (mOrderingManager != null)

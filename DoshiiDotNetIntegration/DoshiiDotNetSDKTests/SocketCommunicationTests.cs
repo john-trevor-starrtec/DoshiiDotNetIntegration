@@ -16,31 +16,31 @@ namespace DoshiiDotNetSDKTests
     [TestFixture]
     public class SocketCommunicationTests
     {
-        DoshiiManager _manager;
-		DoshiiDotNetIntegration.Interfaces.IDoshiiLogger _Logger;
-		DoshiiDotNetIntegration.DoshiiLogManager LogManager;
-		DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager PaymentManager;
+        DoshiiController _controller;
+		DoshiiDotNetIntegration.Interfaces.ILoggingManager _Logger;
+		DoshiiDotNetIntegration.LoggingController LogManager;
+		DoshiiDotNetIntegration.Interfaces.ITransactionManager PaymentManager;
         DoshiiDotNetIntegration.Interfaces.IOrderingManager OrderingManager;
-        DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication SocketComs;
-        DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication MockSocketComs;
-        DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication MockHttpComs;
-        IMembershipModuleManager MemberbershipManager;
+        DoshiiDotNetIntegration.CommunicationLogic.SocketsController SocketComs;
+        DoshiiDotNetIntegration.CommunicationLogic.SocketsController MockSocketComs;
+        DoshiiDotNetIntegration.CommunicationLogic.HttpController MockHttpComs;
+        IRewardManager MemberbershipManager;
 
         [SetUp]
         public void Init()
         {
-			_Logger = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IDoshiiLogger>();
-			LogManager = new DoshiiLogManager(_Logger);
-			PaymentManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IPaymentModuleManager>();
+			_Logger = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.ILoggingManager>();
+			LogManager = new LoggingController(_Logger);
+			PaymentManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.ITransactionManager>();
             OrderingManager = MockRepository.GenerateMock<DoshiiDotNetIntegration.Interfaces.IOrderingManager>();
-            MemberbershipManager = MockRepository.GenerateMock<IMembershipModuleManager>();
-            _manager = MockRepository.GeneratePartialMock<DoshiiManager>(PaymentManager, _Logger, OrderingManager, MemberbershipManager);
+            MemberbershipManager = MockRepository.GenerateMock<IRewardManager>();
+            _controller = MockRepository.GeneratePartialMock<DoshiiController>(PaymentManager, _Logger, OrderingManager, MemberbershipManager);
             
-            MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiHttpCommunication>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _manager);
-            MockSocketComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication>(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
-            SocketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
-            _manager.m_HttpComs = MockHttpComs;
-            _manager.SocketComs = MockSocketComs;
+            MockHttpComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, LogManager, _controller);
+            MockSocketComs = MockRepository.GeneratePartialMock<DoshiiDotNetIntegration.CommunicationLogic.SocketsController>(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _controller);
+            SocketComs = new DoshiiDotNetIntegration.CommunicationLogic.SocketsController(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _controller);
+            _controller._httpComs = MockHttpComs;
+            _controller.SocketComs = MockSocketComs;
             
         }
 
@@ -48,39 +48,39 @@ namespace DoshiiDotNetSDKTests
         [ExpectedException(typeof(ArgumentException))]
         public void Constructor_NoUrl()
         {
-            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication("", GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
+            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.SocketsController("", GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _controller);
         }
 
         [Test]
 		[ExpectedException(typeof(ArgumentNullException))]
         public void Constructor_NoOperationLogic()
         {
-            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, null);
+            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.SocketsController(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, null);
         }
 
 		[Test]
 		[ExpectedException(typeof(ArgumentNullException))]
 		public void Constructor_NoLogManager()
 		{
-			var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, null, _manager);
+			var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.SocketsController(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, null, _controller);
 		}
 
         [Test]
 		[ExpectedException(typeof(ArgumentException))]
         public void Constructor_TimeoutLessThan10Secs()
         {
-            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, 0, LogManager, _manager);
+            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.SocketsController(GenerateObjectsAndStringHelper.TestSocketUrl, 0, LogManager, _controller);
         }
 
         [Test]
         public void Constructor_AllParamatersCorrect()
         {
-            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.DoshiiWebSocketsCommunication(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _manager);
-            Assert.AreEqual(socketComs.m_SocketConnectionTimeOutValue, GenerateObjectsAndStringHelper.TestTimeOutValue);
-            Assert.AreEqual(socketComs.m_SocketConnectionTimeOutValue, GenerateObjectsAndStringHelper.TestTimeOutValue);
-            Assert.AreEqual(socketComs.m_DoshiiLogic, _manager);
-			Assert.AreEqual(socketComs.mLog, LogManager);
-            Assert.IsNotNull(socketComs.m_WebSocketsConnection);
+            var socketComs = new DoshiiDotNetIntegration.CommunicationLogic.SocketsController(GenerateObjectsAndStringHelper.TestSocketUrl, GenerateObjectsAndStringHelper.TestTimeOutValue, LogManager, _controller);
+            Assert.AreEqual(socketComs._socketConnectionTimeOutValue, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            Assert.AreEqual(socketComs._socketConnectionTimeOutValue, GenerateObjectsAndStringHelper.TestTimeOutValue);
+            Assert.AreEqual(socketComs.m_DoshiiLogic, _controller);
+			Assert.AreEqual(socketComs._logger, LogManager);
+            Assert.IsNotNull(socketComs._webSocketsConnection);
         }
 
         [Test]
@@ -97,18 +97,18 @@ namespace DoshiiDotNetSDKTests
         public void SetLastConnectionAttemptTime()
         {
             var testDateTime = DateTime.Now;
-            SocketComs.m_LastConnectionAttemptTime = DateTime.MinValue;
+            SocketComs._lastConnectionAttemptTime = DateTime.MinValue;
             SocketComs.SetLastConnectionAttemptTime();
 
-            Assert.GreaterOrEqual(SocketComs.m_LastConnectionAttemptTime, testDateTime);
+            Assert.GreaterOrEqual(SocketComs._lastConnectionAttemptTime, testDateTime);
         }
 
         [Test]
         public void TestLastSocketMessageTime_notReached()
         {
             DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateObjectsAndStringHelper.GenerateSocketMessage_AllData();
-            MockSocketComs.m_LastSuccessfullSocketMessageTime = DateTime.MinValue;
-            MockSocketComs.m_SocketConnectionTimeOutValue = 600;
+            MockSocketComs._lastSuccessfullSocketMessageTime = DateTime.MinValue;
+            MockSocketComs._socketConnectionTimeOutValue = 600;
             bool result = MockSocketComs.TestTimeOutValue();
             Assert.AreEqual(false, result);
         }
@@ -117,8 +117,8 @@ namespace DoshiiDotNetSDKTests
         public void TestLastSocketMessageTime_beenReached()
         {
             DoshiiDotNetIntegration.Models.Json.SocketMessage testSocketMessage = GenerateObjectsAndStringHelper.GenerateSocketMessage_AllData();
-            MockSocketComs.m_LastSuccessfullSocketMessageTime = DateTime.Now;
-            MockSocketComs.m_SocketConnectionTimeOutValue = 600;
+            MockSocketComs._lastSuccessfullSocketMessageTime = DateTime.Now;
+            MockSocketComs._socketConnectionTimeOutValue = 600;
             bool result = MockSocketComs.TestTimeOutValue();
             Assert.AreEqual(true, result);
         }
@@ -128,52 +128,52 @@ namespace DoshiiDotNetSDKTests
         {
             MockSocketComs.Expect(x => x.SetLastSuccessfullSocketCommunicationTime());
             MockSocketComs.Expect(x => x.StartHeartbeatThread());
-            _manager.Expect(
+            _controller.Expect(
                 x =>
-                    x.SocketComsConnectionEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs),
+                    x.SocketComsConnectionEventHandler(Arg<SocketsController>.Is.Equal(MockSocketComs),
                         Arg<EventArgs>.Is.Anything)).IgnoreArguments();
 
             MockSocketComs.WebSocketsConnectionOnOpenEventHandler(this, new EventArgs());
             MockSocketComs.VerifyAllExpectations();
-            _manager.VerifyAllExpectations();
+            _controller.VerifyAllExpectations();
         }
 
         [Test]
         public void LastConnectionSuccessfulTimeGetsSet()
         {
             MockSocketComs.Expect(x => x.StartHeartbeatThread());
-            _manager.Expect(
+            _controller.Expect(
                 x =>
-                    x.SocketComsConnectionEventHandler(Arg<DoshiiWebSocketsCommunication>.Is.Equal(MockSocketComs),
+                    x.SocketComsConnectionEventHandler(Arg<SocketsController>.Is.Equal(MockSocketComs),
                         Arg<EventArgs>.Is.Anything)).IgnoreArguments();
 
-            MockSocketComs.m_LastSuccessfullSocketMessageTime = DateTime.MinValue;
-            Assert.AreEqual(MockSocketComs.m_LastSuccessfullSocketMessageTime, DateTime.MinValue);
+            MockSocketComs._lastSuccessfullSocketMessageTime = DateTime.MinValue;
+            Assert.AreEqual(MockSocketComs._lastSuccessfullSocketMessageTime, DateTime.MinValue);
             MockSocketComs.WebSocketsConnectionOnOpenEventHandler(this, new EventArgs());
-            Assert.AreNotEqual(MockSocketComs.m_LastSuccessfullSocketMessageTime, DateTime.MinValue);
+            Assert.AreNotEqual(MockSocketComs._lastSuccessfullSocketMessageTime, DateTime.MinValue);
             MockSocketComs.VerifyAllExpectations();
-            _manager.VerifyAllExpectations();
+            _controller.VerifyAllExpectations();
         }
 
         [Test]
         public void StartHeartBeatThread()
         {
-            MockSocketComs.m_HeartBeatThread = null;
+            MockSocketComs._heartBeatThread = null;
             MockSocketComs.StartHeartbeatThread();
 
-            Assert.AreEqual(MockSocketComs.m_HeartBeatThread == null, false);
+            Assert.AreEqual(MockSocketComs._heartBeatThread == null, false);
             
         }
 
         [Test]
         public void Connect_WhenWebSocketsConnectionIsNull_ShouldLog()
         {
-            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(typeof(DoshiiWebSocketsCommunication), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the was object")));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(typeof(SocketsController), DoshiiDotNetIntegration.Enums.DoshiiLogLevels.Error, string.Format("Doshii: Attempted to open a web socket connection before initializing the was object")));
             
-            MockSocketComs.m_WebSocketsConnection = null;
+            MockSocketComs._webSocketsConnection = null;
             MockSocketComs.Connect();
 
-            _manager.VerifyAllExpectations();
+            _controller.VerifyAllExpectations();
 
         }
 
@@ -182,12 +182,12 @@ namespace DoshiiDotNetSDKTests
         {
 
             MockSocketComs.Stub(x => x.SetLastConnectionAttemptTime()).Throw(new Exception());
-            _manager.mLog.mLog.Expect(x => x.LogDoshiiMessage(Arg<Type>.Is.Equal(typeof(DoshiiWebSocketsCommunication)),Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Error), Arg<string>.Is.Anything, Arg<Exception>.Is.Anything));
+            _controller._logger.mLog.Expect(x => x.LogDoshiiMessage(Arg<Type>.Is.Equal(typeof(SocketsController)),Arg<DoshiiLogLevels>.Is.Equal(DoshiiLogLevels.Error), Arg<string>.Is.Anything, Arg<Exception>.Is.Anything));
             
-            MockSocketComs.m_WebSocketsConnection = null;
+            MockSocketComs._webSocketsConnection = null;
             MockSocketComs.Connect();
 
-            _manager.VerifyAllExpectations();
+            _controller.VerifyAllExpectations();
 
         }
 
@@ -196,7 +196,7 @@ namespace DoshiiDotNetSDKTests
         public void HeartBeatChecker_SocketReachedTimeOutValue()
         {
             MockSocketComs.Stub(x => x.TestTimeOutValue()).Return(false);
-            _manager.Expect(x => x.SocketComsTimeOutValueReached(Arg<object>.Is.Anything, Arg<EventArgs>.Is.Anything)).Throw(new NotFiniteNumberException());
+            _controller.Expect(x => x.SocketComsTimeOutValueReached(Arg<object>.Is.Anything, Arg<EventArgs>.Is.Anything)).Throw(new NotFiniteNumberException());
             MockSocketComs.HeartBeatChecker();
         }
 

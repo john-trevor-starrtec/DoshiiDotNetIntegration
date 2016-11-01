@@ -6,7 +6,7 @@ using System.Text;
 namespace DoshiiDotNetIntegration.Exceptions
 {
     /// <summary>
-    /// This exception will be thrown when a method is called on <see cref="DoshiiManager"/> and <see cref="DoshiiManager.Initialize"/> has not been successfully called.
+    /// This exception will be thrown when a method is called on <see cref="DoshiiController"/> and <see cref="DoshiiController.Initialize"/> has not been successfully called.
     /// </summary>
     public class DoshiiManagerNotInitializedException : Exception
     {

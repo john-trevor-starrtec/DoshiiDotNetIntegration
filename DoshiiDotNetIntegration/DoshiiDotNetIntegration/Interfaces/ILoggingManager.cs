@@ -7,15 +7,15 @@ using DoshiiDotNetIntegration.Enums;
 namespace DoshiiDotNetIntegration.Interfaces
 {
 	/// <summary>
-	/// Implementations of the <c>IDoshiiLogger</c> interface are responsible for logging messages to the POS logging mechanism.
+	/// Implementations of the <c>ILoggingManager</c> interface are responsible for logging messages to the POS logging mechanism.
 	/// </summary>
 	/// <remarks>
 	/// This interface must be implemented by the POS for trace logging to be enabled in the SDK.
 	/// </remarks>
-	public interface IDoshiiLogger
+	public interface ILoggingManager
 	{
 		/// <summary>
-		/// This method should log Doshii log messages in the POS logger.
+		/// This method should log Doshii log messages in the POS _logger.
 		/// <para/>This is the method that records all doshii logs. 
         /// <para/>There is no separate file created for Doshii logs so they should be logged by the POS implementing the integration. 
         /// <para/>Please check <see cref="DoshiiDotNetIntegration.Enums.DoshiiLogLevels"/> for the different log levels implemented by doshii. 
@@ -26,7 +26,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// <param name="ex">An optional exception to be included in the log message.</param>
 		/// <example>
 		/// This sample shows how a POS might use log4net to implement the logging mechanism for calls made from the Doshii SDK
-		/// via the <see cref="DoshiiDotNetIntegration.Interfaces.IDoshiiLogger.LogDoshiiMessage(Type, DoshiiLogLevels, string, Exception)"/> call.
+		/// via the <see cref="ILoggingManager.LogDoshiiMessage(Type, DoshiiLogLevels, string, Exception)"/> call.
 		/// <code lang="C#">
 		/// public void LogDoshiiMessage(Type callingClass, DoshiiLogLevels logLevel, string message, Exception ex = null)
 		/// {

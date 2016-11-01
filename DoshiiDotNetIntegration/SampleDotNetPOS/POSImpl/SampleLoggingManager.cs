@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 namespace SampleDotNetPOS.POSImpl
 {
 	/// <summary>
-	/// This is a sample implementation of the <see cref="DoshiiDotNetIntegration.Interfaces.IDoshiiLogger"/>
+	/// This is a sample implementation of the <see cref="ILoggingManager"/>
 	/// interface.
 	/// </summary>
 	/// <remarks>
-	/// As the POS provider, your job will be to implement the <see cref="DoshiiDotNetIntegration.Interfaces.IDoshiiLogger"/>
+	/// As the POS provider, your job will be to implement the <see cref="ILoggingManager"/>
 	/// interface in such a way as is consistent with trace logging in your point of sale application.
 	/// This sample simply passes the messages back to the main form of the sample to be displayed on screen.
 	/// </remarks>
-	public class SampleDoshiiLogger : IDoshiiLogger, IDisposable
+	public class SampleLoggingManager : ILoggingManager, IDisposable
 	{
 		/// <summary>
 		/// The presenter that is used during callback.
@@ -28,7 +28,7 @@ namespace SampleDotNetPOS.POSImpl
 		/// Constructor.
 		/// </summary>
 		/// <param name="presenter">The presenter that is used during callback.</param>
-		public SampleDoshiiLogger(SampleDotNetPOSPresenter presenter)
+		public SampleLoggingManager(SampleDotNetPOSPresenter presenter)
 		{
 			if (presenter == null)
 				throw new ArgumentNullException("presenter");
@@ -36,10 +36,10 @@ namespace SampleDotNetPOS.POSImpl
 			mPresenter = presenter;
 		}
 
-		#region IDoshiiLogger Members
+		#region ILoggingManager Members
 
 		/// <summary>
-		/// See <see cref="DoshiiDotNetIntegration.Interfaces.IDoshiiLogger.LogDoshiiMessage(Type, DoshiiLogLevels, string, Exception)"/>
+		/// See <see cref="ILoggingManager.LogDoshiiMessage(Type, DoshiiLogLevels, string, Exception)"/>
 		/// for details of this call.
 		/// </summary>
 		/// <param name="callingClass"></param>
@@ -103,7 +103,7 @@ namespace SampleDotNetPOS.POSImpl
 		/// namespace qualifiers but inclusive of generics.
 		/// </summary>
 		/// <remarks>
-		/// <c>TypeName(SampleDoshiiLogger)</c> returns the string <c>SampleDoshiiLogger</c>.
+		/// <c>TypeName(SampleLoggingManager)</c> returns the string <c>SampleLoggingManager</c>.
 		/// <c>TypeName(Dictionary&lt;int, string&gt;)</c> returns the string <c>Dictionary&lt;int, string&gt;</c>.
 		/// </remarks>
 		/// <param name="type">The type to be converted to a string.</param>
