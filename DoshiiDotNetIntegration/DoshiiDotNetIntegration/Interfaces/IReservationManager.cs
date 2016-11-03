@@ -12,7 +12,7 @@ namespace DoshiiDotNetIntegration.Interfaces
     /// <para/>The POS should implement this interface to enable reservations and table bookings.
     /// </summary>
     /// <remarks>
-    /// <para/><see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this interface as a callback mechanism 
+    /// <para/><see cref="DoshiiController"/> uses this interface as a callback mechanism 
     /// to the POS for reservation functions. 
     /// <para>
     /// </para>
@@ -41,7 +41,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		bool DeleteBookingOnPos(Booking booking);
 
         /// <summary>
-        /// The <see cref="DoshiiDotNetIntegration.DoshiiManager"/> uses this call to inform the pos the checkin 
+        /// The <see cref="DoshiiController"/> uses this call to inform the pos the checkin 
         /// associated with an booking stored on Doshii. The <paramref name="checkinId"/> string must be persisted in
         /// the POS against the booking - the checkinId is the link between booking and orders and tables and also consumers, in the doshii API. 
         /// </summary>
