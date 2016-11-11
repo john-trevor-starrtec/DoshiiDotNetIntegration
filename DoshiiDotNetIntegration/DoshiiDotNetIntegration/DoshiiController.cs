@@ -20,8 +20,8 @@ using DoshiiDotNetIntegration.Controllers;
 namespace DoshiiDotNetIntegration
 {
     /// <summary>
-    /// This class manages network operations (requests and responses) between Doshii and the Point of sale (POS) software.
-    /// This class supports ordering and product operations including the following;
+    /// This class controls requests to Doshii from the Point of sale (POS) software.
+    /// This class supports ordering operations, product operations, table operations, Member operations, and reservation operations including the following;
     /// <list type="bullet">
     ///   <item>Creating orders</item>
     ///   <item>Modifying existing orders</item>
@@ -29,9 +29,13 @@ namespace DoshiiDotNetIntegration
     ///   <item>Creating products</item>re
     ///   <item>Modifying existing products</item>
     ///   <item>Deleting the products</item>
+    ///   <item>Creating tables</item>re
+    ///   <item>Modifying existing tables</item>
+    ///   <item>Deleting tables</item>
     /// </list>
     /// To use this SDK you must;
     /// <list type="bullet">
+    ///     <item>Implement the required interfaces</item>
     ///     <item>Instantiate the DoshiiController</item>
     ///     <item>Call <see cref="Initialize"/> on the instance of the DoshiiController</item>
     /// </list>
@@ -55,11 +59,40 @@ namespace DoshiiDotNetIntegration
     ///     <item><see cref="DeleteSurcount"/></item> 
     ///     <item><see cref="UpdateMenu"/></item>
     /// </list>
+    /// To keep the venue tables up to date with the tables available on Doshii the following methods should be used
+    /// <list type="bullet">
+    ///     <item><see cref="UpdateTable"/></item> 
+    ///     <item><see cref="CreateTable"/></item> 
+    ///     <item><see cref="DeleteTable"/></item> 
+    /// </list>
+    /// to keep the venue members up to date with the members available on Doshii the following methods should be used
+    /// <list type="bullet">
+    ///     <item><see cref="UpdateMember"/></item> 
+    ///     <item><see cref="DeleteMember"/></item> 
+    /// </list>
+    /// to retreive and redeem rewards for members use the following methods. 
+    /// <list type="bullet">
+    ///     <item><see cref="GetMember"/></item> 
+    ///     <item><see cref="GetMembers"/></item> 
+    ///     <item><see cref="GetRewardsForMember"/></item> 
+    ///     <item><see cref="RedeemPointsForMember"/></item> 
+    ///     <item><see cref="RedeemPointsForMemberCancel"/></item>
+    ///     <item><see cref="RedeemPointsForMemberConfirm"/></item>
+    ///     <item><see cref="RedeemRewardForMember"/></item>
+    ///     <item><see cref="RedeemRewardForMemberCancel"/></item>
+    ///     <item><see cref="RedeemRewardForMemberConfirm"/></item>
+    /// </list>
+    /// to retreive and seat bookings use the following methods. 
+    /// <list type="bullet">
+    ///     <item><see cref="GetBooking"/></item> 
+    ///     <item><see cref="GetBookings"/></item> 
+    ///     <item><see cref="SeatBooking"/></item> 
+    /// </list> 
     /// <remarks>
     /// The DoshiiController supports two communication protocols HTTP and Websockets. 
     /// The websockets protocol is used to open a websocket connection with the DoshiiAPI and once it is open, 
-    /// the DoshiiController receives the notification events messages from DoshiiAPI. Events include when a user 
-    /// changes an order event e.t.c. The HTTP protocol is used for all other operations including creating orders, 
+    /// the DoshiiController receives the notification event messages from DoshiiAPI. Events include when a user 
+    /// creates an order event ect.. The HTTP protocol is used for all other operations including creating orders, 
     /// update orders, creating products e.t.c.)
     /// </remarks>
     public class DoshiiController : IDisposable
@@ -75,22 +108,24 @@ namespace DoshiiDotNetIntegration
 
 		#region properties, constructors, Initialize, versionCheck
 
-        /// <summary>
-        /// A field indicating if initialize has been called on the doshii manager. 
-        /// </summary>
+        
         private bool m_IsInitalized = false;
 
+        /// <summary>
+        /// A property indicating if initialize has been called on the doshii manager. 
+        /// </summary>
         internal virtual bool IsInitalized
         {
             get { return m_IsInitalized; }
             set { m_IsInitalized = value; }
         }
 
-		/// <summary>
-        /// Holds an instance of CommunicationLogic.SocketsController class for interacting with the Doshii webSocket connection
-        /// </summary>
+		
         private SocketsController m_SocketComs = null;
 
+        /// <summary>
+        /// Holds an instance of CommunicationLogic.SocketsController class for interacting with the Doshii webSocket connection
+        /// </summary>
         internal virtual SocketsController SocketComs
         {
             get { return m_SocketComs; }
@@ -138,11 +173,7 @@ namespace DoshiiDotNetIntegration
         /// Constructor.
         /// After the constructor is called it MUST be followed by a call to <see cref="Initialize"/> to start communication with the Doshii API
         /// </summary>
-        /// <param name="paymentManager">The Transaction API callback mechanism.</param>
-        /// <param name="logger">The logging mechanism callback to the POS.</param>
-        /// <param name="orderingManager">The Ordering API callback mechanism</param>
-        /// <param name="memberManager">The Member API callback mechanism</param>
-        /// <param name="reservationManager">The Reservation API callback mechanism</param>
+        /// <param name="configurationManager">An instance of IConfigurationManager that provides pos side configuration to the sdk.</param>
         public DoshiiController(IConfigurationManager configurationManager)
         {
             _controllers = new Models.Controllers();
@@ -192,26 +223,9 @@ namespace DoshiiDotNetIntegration
         /// </list>
         /// <para/>If this method returns false the Doshii integration CANNOT be used until this method has been called successfully. 
         /// </summary>
-        /// <param name="token">
-        /// The unique venue authentication token - This can be retrieved from the Doshii before integration, this value is unique for each venue. 
-        /// </param>
-        /// <param name="urlBase">
-        /// The base URL for communication with the Doshii restful API 
-        /// <para/>an example of the format for this URL is 'https://sandbox.doshii.co/pos/api/v2'
-        /// </param>
-        /// <param name="startWebSocketConnection">
-        /// Should this instance of the class start the webSocket connection with doshii
-        /// <para/>There should only be one webSockets connection to Doshii per venue
-        /// <para/>The webSocket connection is only necessary for the ordering functionality of the Doshii integration and is not necessary for updating the Doshii menu. 
-        /// </param>
-        /// <param name="timeOutValueSecs">
-        /// This is the amount of this the web sockets connection can be down before the integration assumes the connection has been lost. 
-        /// </param>
-        /// <returns>
-        /// True if the initialize procedure was successful.
-        /// <para/>False if the initialize procedure was unsuccessful.
-        /// </returns>
-        /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with one of the paramaters.</exception>
+        /// <param name="startWebSocketConnection"></param>
+        /// <returns>true is the initialization was successful false if not. </returns>
+        /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with the interfaces provided in the IConfigurationManager implementation.</exception>
         public virtual bool Initialize(bool startWebSocketConnection)
         {
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: Version {2} with; {3}locationId {0}, {3}BaseUrl: {1}, {3}vendor: {4}, {3}secretKey: {5}", _controllers.ConfigurationManager.GetLocationTokenFromPos(), _controllers.ConfigurationManager.GetBaseUrlFromPos(), CurrentVersion(), Environment.NewLine, _controllers.ConfigurationManager.GetVendorFromPos(), _controllers.ConfigurationManager.GetSecretKeyFromPos()));
@@ -272,6 +286,11 @@ namespace DoshiiDotNetIntegration
             return m_IsInitalized;
         }
 
+        /// <summary>
+        /// formats the base URL for use in the sdk. 
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <returns></returns>
         internal virtual string FormatBaseUrl(string baseUrl)
         {
             char last = baseUrl[baseUrl.Length - 1];
@@ -351,7 +370,7 @@ namespace DoshiiDotNetIntegration
         }
 
 		/// <summary>
-		/// Builds the socket URL from the supplied <paramref name="baseApiUrl"/>, including appending the supplied <paramref name="token"/> as a <c>GET</c> parameter.
+		/// Appends the supplied venue token to the supplied socket URL. 
 		/// </summary>
 		/// <param name="baseApiUrl">The base URL for the API. This is an HTTP address that points to the Doshii POS API, including version.</param>
 		/// <param name="token">The Doshii authentication token for the POS implementation in the API.</param>
@@ -554,7 +573,12 @@ namespace DoshiiDotNetIntegration
             }
 		}
 
-
+        /// <summary>
+        /// Handles a SocketComs.MemberCreatedEvent, 
+        /// Calls the appropriate method on the RewardInterface to create the member on the pos. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         internal virtual void SocketComsMemberCreatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member created event with member Id '{0}'", e.MemberId));
@@ -576,6 +600,12 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// Handles a SocketComs.MemberUpdatedEvent, 
+        /// Calls the appropriate method on the RewardInterface to update the member on the pos. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         internal virtual void SocketComsMemberUpdatedEventHandler(object sender, CommunicationLogic.CommunicationEventArgs.MemberEventArgs e)
         {
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: received a member updated event for member Id '{0}'", e.MemberId));
@@ -597,6 +627,12 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// Handles a SocketComs.BookingCreatedEvent, 
+        /// Calls the appropriate method on the ReservationInterface to create the booking on the pos. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         internal virtual void SocketComsBookingCreatedEventHandler(object sender, BookingEventArgs e)
         {
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking created event for booking id '{0}'", e.BookingId));
@@ -618,6 +654,12 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// Handles a SocketComs.MemberUpdatedEvent, 
+        /// Calls the appropriate method on the ReservationInterface to update the booking on the pos. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         internal virtual void SocketComsBookingUpdatedEventHandler(object sender, BookingEventArgs e)
         {
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking updated event for booking id '{0}'", e.BookingId));
@@ -639,6 +681,12 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// Handles a SocketComs.BookingDeletedEvent, 
+        /// Calls the appropriate method on the ReservationInterface to Delete the booking on the pos. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         internal virtual void SocketComsBookingDeletedEventHandler(object sender, BookingEventArgs e)
         {
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii:: received a booking deleted event for booking id '{0}'", e.BookingId));
