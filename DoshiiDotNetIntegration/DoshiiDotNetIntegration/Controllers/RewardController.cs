@@ -11,11 +11,26 @@ using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
+    /// <summary>
+    /// This class is used internally by the SDK to manage the SDK to manage the business logic handling memberships and rewards.
+    /// </summary>
     internal class RewardController
     {
+        /// <summary>
+        /// prop for the local <see cref="Controllers"/> instance. 
+        /// </summary>
         internal Models.Controllers _controllers;
+
+        /// <summary>
+        /// prop for the local <see cref="HttpController"/> instance.
+        /// </summary>
         internal HttpController _httpComs;
 
+        /// <summary>
+        /// constructor 
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="httpComs"></param>
         internal RewardController(Models.Controllers controller, HttpController httpComs)
         {
             if (controller == null)
@@ -46,6 +61,11 @@ namespace DoshiiDotNetIntegration.Controllers
             
         }
 
+        /// <summary>
+        /// gets a member from doshii represented by the provided memberId. 
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <returns></returns>
         internal virtual Member GetMember(string memberId)
         {
             try
@@ -58,6 +78,10 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// gets all the members from doshii for the orginisation. 
+        /// </summary>
+        /// <returns></returns>
         internal virtual IEnumerable<Member> GetMembers()
         {
             try
@@ -70,6 +94,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// deletes a member from doshii
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns></returns>
         internal virtual bool DeleteMember(Member member)
         {
             try
@@ -82,6 +111,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// updates a member on Doshii
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns></returns>
         internal virtual Member UpdateMember(Member member)
         {
             if (string.IsNullOrEmpty(member.Name))
@@ -106,6 +140,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// syncs the pos members with the Doshii members, 
+        /// NOTE: members that exist on the pos but do not exist on doshii will be deleted from the pos with a call to <see cref="IRewardManager.DeleteMemberOnPos"/>
+        /// </summary>
+        /// <returns></returns>
         internal virtual bool SyncDoshiiMembersWithPosMembers()
         {
             try
@@ -148,6 +187,13 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// get all the rewards for a member existing on Doshii, 
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="orderId"></param>
+        /// <param name="orderTotal"></param>
+        /// <returns></returns>
         internal virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
         {
             try
@@ -160,6 +206,13 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// attempts to redeem a reward from doshii
+        /// </summary>
+        /// <param name="member"></param>
+        /// <param name="reward"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
         internal virtual bool RedeemRewardForMember(Member member, Reward reward, Order order)
         {
             try
@@ -186,6 +239,13 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// cancels the redemption of a reward from Doshii
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="rewardId"></param>
+        /// <param name="cancelReason"></param>
+        /// <returns></returns>
         internal virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
             try
@@ -198,6 +258,12 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// confirms the redemption of a reward from Doshii
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="rewardId"></param>
+        /// <returns></returns>
         internal virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
             try
@@ -210,6 +276,14 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// attempts to redeem points for a member on Doshii
+        /// </summary>
+        /// <param name="member"></param>
+        /// <param name="app"></param>
+        /// <param name="order"></param>
+        /// <param name="points"></param>
+        /// <returns></returns>
         internal virtual bool RedeemPointsForMember(Member member, App app, Order order, int points)
         {
             try
@@ -242,6 +316,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// confirms the redemption of points for a member on Doshii
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <returns></returns>
         internal virtual bool RedeemPointsForMemberConfirm(string memberId)
         {
             try
@@ -254,6 +333,12 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// cancles the redemption of points for a member on Doshii. 
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="cancelReason"></param>
+        /// <returns></returns>
         public virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
             try

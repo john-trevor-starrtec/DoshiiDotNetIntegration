@@ -12,11 +12,26 @@ using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
+    /// <summary>
+    /// This class is used internally by the SDK to manage the SDK to manage the business logic handling reservations.
+    /// </summary>
     internal class ReservationController
     {
+        /// <summary>
+        /// prop for the local <see cref="Controllers"/> instance. 
+        /// </summary>
         internal Models.Controllers _controllers;
+
+        /// <summary>
+        /// prop for the local <see cref="HttpController"/> instance.
+        /// </summary>
         internal HttpController _httpComs;
 
+        /// <summary>
+        /// constructor. 
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="httpComs"></param>
         internal ReservationController(Models.Controllers controller, HttpController httpComs)
         {
             if (controller == null)
@@ -52,6 +67,11 @@ namespace DoshiiDotNetIntegration.Controllers
             _httpComs = httpComs;
         }
 
+        /// <summary>
+        /// gets a booking for the venue from Doshii based on the provided bookingId. 
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <returns></returns>
         internal virtual Booking GetBooking(String bookingId)
         {
             try
@@ -64,6 +84,12 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// get all the bookings from Doshii for a venue within the provided dateTime range. 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
         internal virtual List<Booking> GetBookings(DateTime from, DateTime to)
         {
             try
@@ -76,6 +102,13 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// attempts to seat a booking from Doshii
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <param name="checkin"></param>
+        /// <param name="posOrderId"></param>
+        /// <returns></returns>
         internal bool SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
         {
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos Seating Booking '{0}'", bookingId));

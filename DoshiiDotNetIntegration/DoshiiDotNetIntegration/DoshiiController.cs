@@ -82,7 +82,15 @@ namespace DoshiiDotNetIntegration
     ///     <item><see cref="RedeemRewardForMemberCancel"/></item>
     ///     <item><see cref="RedeemRewardForMemberConfirm"/></item>
     /// </list>
-    /// to retreive and seat bookings use the following methods. 
+    /// The process of redeeming rewards and points for a member follows the same patters,
+    /// <list type="bullet">
+    ///     <item>Get the rewards / Points available for a given member using <see cref="GetRewardsForMember"/> for rewards and <see cref="GetMember"/> for points</item> 
+    ///     <item>Ensure that the rewards / points are still available to be redeemed by the member with <see cref="RedeemRewardForMember"/> for rewards and <see cref="RedeemPointsForMember"/></item> 
+    ///     <item>If the above method returns true you should apply the reward / points to the order on the pos and within 30 - 60 secs call (If the time limit expires the redemption transaction is cancelled by Doshii and the pos user must start the redemption again)</item> 
+    ///     <item><see cref="RedeemPointsForMemberConfirm"/> for points or <see cref="RedeemRewardForMemberConfirm"/> to confirm use of the reward.</item> 
+    ///     <item>When the above step is completed there is no longer a method to give the points or rewards back to a member.</item>
+    /// </list>
+    /// To retreive and seat bookings use the following methods. 
     /// <list type="bullet">
     ///     <item><see cref="GetBooking"/></item> 
     ///     <item><see cref="GetBookings"/></item> 
