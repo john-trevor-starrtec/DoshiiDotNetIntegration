@@ -6,7 +6,6 @@ namespace DoshiiDotNetIntegration.Controllers
 {
 	/// <summary>
 	/// This class is used internally by the SDK to manage the logging of messages back to the POS implementation.
-	/// This should not need to be instantiated by the POS implementation.
 	/// </summary>
 	internal class LoggingController : IDisposable
 	{

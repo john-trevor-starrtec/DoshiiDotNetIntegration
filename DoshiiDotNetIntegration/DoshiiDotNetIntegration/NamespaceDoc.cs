@@ -10,7 +10,7 @@ namespace DoshiiDotNetIntegration
     /// <see cref="DoshiiDotNetIntegration"/> is an SDK developed to assist Point Of Sales software to integration with the Doshii API.
     /// <para/>The SDK targets .NET 4.5
     /// <para/>The SDK manages socket and HTTPs connections to the Doshii API
-    /// <para/><see cref="DoshiiController"/> provides methods for the pos to update orders and transactions on the Doshii API.
+    /// <para/><see cref="DoshiiController"/> provides methods for the pos to update menu, orders, transactions, bookings, members on the Doshii API.
     /// <para/><see cref="DoshiiDotNetIntegration.Interfaces"/> provides call back mechanisms that alert the pos to new and modified orders, transactions, and logging (allowing the pos to implement SDK logging in their preferred method.
     /// <para/> and callback mechanism to update and retrieve order versions, transaction versions, and checkinIds related to orders. 
     /// <para/><see cref="DoshiiDotNetIntegration.Exceptions"/> provides a number of exceptions that are raised by the SDK and exceptions that must be raised by the pos under certain circumstances to correct operation of the SDK.
