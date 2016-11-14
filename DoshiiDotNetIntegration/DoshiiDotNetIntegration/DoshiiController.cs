@@ -216,14 +216,15 @@ namespace DoshiiDotNetIntegration
 
         /// <summary>
         /// This method MUST be called immediately after this class is instantiated to initialize communication with Doshii.
-        /// <para/> It completed the following tasks;
+        /// <para/> It completes the following tasks;
         /// <list type="bullet">
         ///     <item>Initializes the WebSockets communications with Doshii</item>
         ///     <item>Initializes the HTTP communications with Doshii</item>
         /// </list>
         /// <para/>If this method returns false the Doshii integration CANNOT be used until this method has been called successfully. 
         /// </summary>
-        /// <param name="startWebSocketConnection"></param>
+        /// <param name="startWebSocketConnection">should this instance start the web sockets connection.
+        /// NOTE: there should only be One web socket connection per venue.</param>
         /// <returns>true is the initialization was successful false if not. </returns>
         /// <exception cref="System.ArgumentException">An argument Exception will the thrown when there is an issue with the interfaces provided in the IConfigurationManager implementation.</exception>
         public virtual bool Initialize(bool startWebSocketConnection)
@@ -655,7 +656,7 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// Handles a SocketComs.MemberUpdatedEvent, 
+        /// Handles a SocketComs.BookingUpdatedEvent, 
         /// Calls the appropriate method on the ReservationInterface to update the booking on the pos. 
         /// </summary>
         /// <param name="sender"></param>
@@ -702,7 +703,7 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// Handles a SocketComs_TransactionCreatedEvent, 
+        /// Handles a SocketComs.TransactionCreatedEvent, 
         /// Calls the appropriate method on the PaymentInterface to act on the transaction depending on the transaction status. 
         /// <exception cref="NotSupportedException">When a partial payment is attempted during Bistro Mode.</exception>
         /// </summary>
@@ -803,9 +804,7 @@ namespace DoshiiDotNetIntegration
                 throw rex;
             }
         }
-
         
-
 		/// <summary>
 		/// Retrieves the current order list from Doshii.
 		/// <para/>This method will only return orders that are linked to pos ordered in Doshii
@@ -852,7 +851,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>This method should only be called in relation to unlinkedOrders as this method will not return transactions related to linked orders. 
         /// </summary>
         /// <param name="doshiiOrderId">
-        /// The Id of the order that is being requested. 
+        /// The DoshiiId of the order that is being requested. 
         /// </param>
         /// <returns>
         /// <see cref="Transaction"/> that relate to the doshiiOrderId. 
@@ -922,6 +921,14 @@ namespace DoshiiDotNetIntegration
 
         #region Membership
 
+        /// <summary>
+        /// The method retrieves the member from Doshii corresponding to the memberId parameter
+        /// </summary>
+        /// <param name="memberId">The memberId of the member to retrieve</param>
+        /// <returns>The member corrosponding to the memberId parameter, NULL if there is no member associated with the memberId paramater on Doshii</returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
+        /// <exception cref="RestfulApiErrorResponseException">Where there is an exception making the request to Doshii.</exception>
         public virtual Member GetMember(string memberId)
         {
             if (!m_IsInitalized)
@@ -938,6 +945,14 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.GetMember(memberId);
         }
 
+        /// <summary>
+        /// Returns all the Doshii members for the organization 
+        /// </summary>
+        /// <returns>
+        /// IEnumerable of all the members registered in the orginisation. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual IEnumerable<Member> GetMembers()
         {
             if (!m_IsInitalized)
@@ -953,6 +968,16 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.GetMembers();
         }
 
+        /// <summary>
+        /// Deleted the member from Doshii that was provided as the member paramater. 
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns>
+        /// True if the member was deleted, 
+        /// False if there was a problem deleting the member. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual bool DeleteMember(Member member)
         {
             if (!m_IsInitalized)
@@ -969,7 +994,16 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.DeleteMember(member);
         }
 
-
+        /// <summary>
+        /// updates the corresponding member on Doshii with the member provided in the member paramater if the member.Id prop is not empty.
+        /// Creates a member on Doshii with the props provided in the member paramater if the member.Id prop is empty.  
+        /// </summary>
+        /// <param name="member">
+        /// the member that should be created or updated. 
+        /// </param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual Member UpdateMember(Member member)
         {
             if (!m_IsInitalized)
@@ -986,6 +1020,16 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.UpdateMember(member);
         }
 
+        /// <summary>
+        /// The method compares the members on the pos with the members on Doshii, 
+        /// This method will delete members on the pos that do not exist on Doshii, and update members on the pos that differ to the members on Doshii.  
+        /// </summary>
+        /// <returns>
+        /// True if the action was successful, 
+        /// False if the action was unsuccessful. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual bool SyncDoshiiMembersWithPosMembers()
         {
             if (!m_IsInitalized)
@@ -1002,7 +1046,21 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.SyncDoshiiMembersWithPosMembers();
         }
 
-
+        /// <summary>
+        /// This method will return all the rewards available for a member of the orginisation on Doshii.
+        /// The following process is used to retreive the rewards.
+        /// <list type="bullet">
+        ///   <item>Retreives the order from the pos with the orderId and attempts to update the order on Doshii</item>
+        ///   <item>Requests the rewards from Doshii with the provided memberId, and orderTotal.</item>
+        /// </list>
+        /// </summary>
+        /// <param name="memberId">The Id of the member to request rewards for</param>
+        /// <param name="orderId">The Id of the order that the member may use the requested rewards on</param>
+        /// <param name="orderTotal">The current total of the order the member may use the rewards on</param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
+        /// <exception cref="RestfulApiErrorResponseException">Throw if these was an issue communicating with Doshii.</exception>
         public virtual IEnumerable<Reward> GetRewardsForMember(string memberId, string orderId, decimal orderTotal)
         {
             if (!m_IsInitalized)
@@ -1019,14 +1077,22 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the order. 
+        /// This method should be called to confirm that the reward is still available for the member and that the reward can be redeemed against the order.
+        /// after calling this method successfully the pas must 
+        /// <list type="bullet">
+        ///   <item>apply the reward to the order</item>
+        ///   <item>accept payment for the order from the customer.</item>
+        ///   <item>call <see cref="RedeemRewardForMemberConfirm"/> to confirm the use of the redard</item>
+        /// </list>
         /// </summary>
-        /// <param name="member"></param>
-        /// <param name="reward"></param>
-        /// <param name="order"></param>
+        /// <param name="member">The member attempting to redeem the reward.</param>
+        /// <param name="reward">The rewards the member is attempting to redeem.</param>
+        /// <param name="order">The order the reward should be applied to.</param>
         /// <returns>
-        /// true - when the reward can be redeemed - the pos must then apply the reward to the order, accept payment for the order from the customer and then call rewardConfirm to confirm the use of the redard. 
+        /// true - when the reward can be redeemed - the pos must  
         /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual bool RedeemRewardForMember(Member member, Reward reward, Order order)
         {
             if (!m_IsInitalized)
@@ -1043,6 +1109,18 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.RedeemRewardForMember(member, reward, order);
         }
 
+        /// <summary>
+        /// Use this method to cancel the redemption of a reward when the reward redemption process has already progressed passed a call to <see cref="RedeemRewardForMember"/> 
+        /// </summary>
+        /// <param name="memberId">the member Id of the member previously redeeming the reward.</param>
+        /// <param name="rewardId">The reward Id of the reward that needs to be canceled</param>
+        /// <param name="cancelReason">The reason the reward redemption has been canceled.</param>
+        /// <returns>
+        /// True if the redemption was successfully canceled
+        /// False if the redemption was not successfully canceled. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual bool RedeemRewardForMemberCancel(string memberId, string rewardId, string cancelReason)
         {
             if (!m_IsInitalized)
@@ -1059,6 +1137,23 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.RedeemRewardForMemberCancel(memberId, rewardId, cancelReason);
         }
 
+        /// <summary>
+        /// This method is use to confirm the use of a reward by a member.
+        /// This is the last step in redeeming the reward. 
+        /// If this method returns true, you can no longer cancel the redemption of the reward. 
+        /// </summary>
+        /// <param name="memberId">
+        /// the Id of the member redeeming the reward
+        /// </param>
+        /// <param name="rewardId">
+        /// the Id of the reward to be redeemed
+        /// </param>
+        /// <returns>
+        /// True if the reward was successfully redeemed
+        /// False if the reward was not successfully redeemed. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual bool RedeemRewardForMemberConfirm(string memberId, string rewardId)
         {
             if (!m_IsInitalized)
@@ -1075,6 +1170,25 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.RedeemRewardForMemberConfirm(memberId, rewardId);
         }
 
+        /// <summary>
+        /// This method should be called to confirm that the points the member is attempting to redeem are still available. 
+        /// after calling this method successfully the pas must 
+        /// <list type="bullet">
+        ///   <item>apply the points to the order</item>
+        ///   <item>accept payment for the order from the customer.</item>
+        ///   <item>call <see cref="RedeemPointsForMemberConfirm"/> to confirm the use of the points</item>
+        /// </list>
+        /// </summary>
+        /// <param name="member">the member that would like to redeem points.</param>
+        /// <param name="app">The app that has the points that the member wishes to redeem</param>
+        /// <param name="order">The order that the member wishes to redeem the points against.</param>
+        /// <param name="points">The amount of points the member wishes to redeem</param>
+        /// <returns>
+        /// True if the points are still available to redeem
+        /// False if the points are no longer available to redeem. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual bool RedeemPointsForMember(Member member, App app, Order order, int points)
         {
             if (!m_IsInitalized)
@@ -1091,6 +1205,20 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.RedeemPointsForMember(member, app, order, points);
         }
 
+        /// <summary>
+        /// This method is use to confirm the use of a points by a member.
+        /// This is the last step in redeeming the points. 
+        /// If this method returns true, you can no longer cancel the redemption of the points. 
+        /// </summary>
+        /// <param name="memberId">
+        /// The member that is redeeming the points.
+        /// </param>
+        /// <returns>
+        /// True is the points were redeemed,
+        /// False if the points redemption failed. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual bool RedeemPointsForMemberConfirm(string memberId)
         {
             if (!m_IsInitalized)
@@ -1107,6 +1235,14 @@ namespace DoshiiDotNetIntegration
             return _controllers.RewardController.RedeemPointsForMemberConfirm(memberId);
         }
 
+        /// <summary>
+        /// This method is use to cancel the redemption of member points after a call to <see cref="RedeemPointsForMember"/> has been made. 
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <param name="cancelReason"></param>
+        /// <returns></returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="DoshiiMembershipManagerNotInitializedException">Thrown when the <see cref="IRewardManager"/> was not implemented by the pos.</exception>
         public virtual bool RedeemPointsForMemberCancel(string memberId, string cancelReason)
         {
             if (!m_IsInitalized)
@@ -1203,11 +1339,16 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// 
+        /// This method is used to modify the table allocation of a checkin at the venue, 
+        /// If you wish to un-allocate the checkin from a table without allocating it to another table you should pass an empty list to the tableNames parameter.
         /// </summary>
-        /// <param name="checkinId"></param>
-        /// <param name="tableNames">to remove an allocaiton from a checkin add this as an empty list. </param>
-        /// <returns></returns>
+        /// <param name="checkinId">The checkinId to be modified</param>
+        /// <param name="tableNames">The table names to be allocated to the checkin</param>
+        /// <param name="covers">The amount of covers associated with the allocation.</param>
+        /// <returns>
+        /// True if the table allocation was successful
+        /// False if the allocation change was not successful.
+        /// </returns>
         public virtual bool ModifyTableAllocation(string checkinId, List<string> tableNames, int covers)
         {
             if (!m_IsInitalized)
@@ -1251,6 +1392,13 @@ namespace DoshiiDotNetIntegration
             return true;
         }
 
+        /// <summary>
+        /// this method should be called when a checkin has finished at the venue, eg the checkins check has been completly paid. 
+        /// </summary>
+        /// <param name="checkinId">
+        /// The checkinId that represents the checkin at the venue. 
+        /// </param>
+        /// <returns></returns>
         public virtual bool CloseCheckin(string checkinId)
         {
             if (!m_IsInitalized)
@@ -1472,6 +1620,16 @@ namespace DoshiiDotNetIntegration
 
         #region Tables
 
+        /// <summary>
+        /// gets the table registered at the venue in doshii with the provided tableName
+        /// </summary>
+        /// <param name="tableName">
+        /// The name of the table that should be returned from doshii
+        /// </param>
+        /// <returns>
+        /// The table as it is registered in Doshii, 
+        /// Null if there is no table registered in doshii for that name. 
+        /// </returns>
         public virtual Table GetTable(string tableName)
         {
             if (!m_IsInitalized)
@@ -1489,6 +1647,12 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// gets all the tables registered at the venue in Doshii
+        /// </summary>
+        /// <returns>
+        /// All the tables registered at the venue in Doshii. 
+        /// </returns>
         public virtual List<Table> GetTables()
         {
             if (!m_IsInitalized)
@@ -1506,6 +1670,15 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// creates a table on Doshii
+        /// </summary>
+        /// <param name="table">
+        /// The table that should be created in Doshii
+        /// </param>
+        /// <returns>
+        /// The table that was created in Doshii. 
+        /// </returns>
         public virtual Table CreateTable(Table table)
         {
             if (!m_IsInitalized)
@@ -1523,6 +1696,18 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// updates a table for the venue on Doshii
+        /// </summary>
+        /// <param name="table">
+        /// the table that should be updated. 
+        /// </param>
+        /// <param name="oldTableName">
+        /// The table name before the table was updated if the table name was changed, or the current table name if the name was not changed. 
+        /// </param>
+        /// <returns>
+        /// The updated table from Doshii
+        /// </returns>
         public virtual Table UpdateTable(Table table, string oldTableName)
         {
             if (!m_IsInitalized)
@@ -1540,6 +1725,15 @@ namespace DoshiiDotNetIntegration
             }
         }
 
+        /// <summary>
+        /// Deletes a table from Doshii
+        /// </summary>
+        /// <param name="tableName">
+        /// The name of the table that will be deleted. 
+        /// </param>
+        /// <returns>
+        /// The table that was deleted. 
+        /// </returns>
         public virtual Table DeleteTable(string tableName)
         {
             if (!m_IsInitalized)
@@ -1557,7 +1751,14 @@ namespace DoshiiDotNetIntegration
             }
         }
 
-        public virtual Table ReplaceTableListOnDoshii(List<Table> tableList)
+        /// <summary>
+        /// This method will delete all the current tables on Doshii and replace it with the tables provided in the tableList paramater. 
+        /// </summary>
+        /// <param name="tableList">The list of tables that are to be saved on Doshii</param>
+        /// <returns>
+        /// The current list of tables in Doshii
+        /// </returns>
+        public virtual List<Table> ReplaceTableListOnDoshii(List<Table> tableList)
         {
             if (!m_IsInitalized)
             {
@@ -1581,8 +1782,13 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// This method is used to get a booking for a specific id.
         /// </summary>
-        /// <param name="bookingId"></param>
-        /// <returns></returns>
+        /// <param name="bookingId">
+        /// The booking Id for the requested booking
+        /// </param>
+        /// <returns>
+        /// The requested booking from Doshii if it exists. 
+        /// Null if the booking does not exist. 
+        /// </returns>
         public virtual Booking GetBooking(String bookingId)
         {
             if (!m_IsInitalized)
@@ -1595,8 +1801,12 @@ namespace DoshiiDotNetIntegration
         /// <summary>
         /// This method is used to get all bookings within a specified date range.
         /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
+        /// <param name="from">
+        /// The start of the date range
+        /// </param>
+        /// <param name="to">
+        /// The end of the date range. 
+        /// </param>
         /// <returns></returns>
         public virtual List<Booking> GetBookings(DateTime from, DateTime to)
         {
@@ -1607,12 +1817,13 @@ namespace DoshiiDotNetIntegration
             return _controllers.ReservationController.GetBookings(from, to);
         }
 
-        /// <summary>
+          /// <summary>
         /// This method is used by the POS to seat a checkin with a booking.
-        /// </summary>
-        /// <param name="bookingId"></param>
-        /// <param name="checkin"></param>
-        /// <returns>True if the booking could be seated.</returns>
+          /// </summary>
+          /// <param name="bookingId">the id of the booking to be seated</param>
+          /// <param name="checkin">the checkin that should be associated with the booking</param>
+          /// <param name="posOrderId">the posOrderId for the booking that will be seated, this can be NULL if there is no order associated with the table.</param>
+          /// <returns>True if the booking was seated.</returns>
         public bool SeatBooking(String bookingId, Checkin checkin, String posOrderId = null)
         {
             if (!m_IsInitalized)
