@@ -7,25 +7,69 @@ using System.Threading.Tasks;
 
 namespace DoshiiDotNetIntegration.Models
 {
+    /// <summary>
+    /// the class representing a member in Doshii
+    /// </summary>
     public class Member
     {
+        /// <summary>
+        /// constructor. 
+        /// </summary>
         public Member()
         {
             Address = new Address();
         }
         
+        /// <summary>
+        /// the Id of the member
+        /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// the name of the member
+        /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// the email of the member
+        /// </summary>
         public string Email { get; set; }
+
+        /// <summary>
+        /// the phone number of the member
+        /// </summary>
         public string Phone { get; set; }
+
+        /// <summary>
+        /// the <see cref="Address"/> associated with the member
+        /// </summary>
         public Address Address { get; set; }
+
+        /// <summary>
+        /// the last time the member was updated on Doshii
+        /// </summary>
         public DateTime? UpdatedAt { get; set; }
+
+        /// <summary>
+        /// the time the member was created on Doshii
+        /// </summary>
         public DateTime? CreatedAt { get; set; }
+
+        /// <summary>
+        /// the URI to retreive the member details from Doshii
+        /// </summary>
         public Uri Uri { get; set; }
+
+        /// <summary>
+        /// the Pos identifier for the member. 
+        /// </summary>
         public string Ref { get; set; }
 
         private List<App> _Apps;
 
+        /// <summary>
+        /// a list of <see cref="App"/> associated with the member
+        /// </summary>
         public IEnumerable<App> Apps
         {
             get

@@ -14,12 +14,26 @@ using DoshiiDotNetIntegration.Models.Json;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
+    /// <summary>
+    /// This class is used internally by the SDK to manage the SDK to manage the business logic handling partner ordering. 
+    /// </summary>
     internal class OrderingController
     {
-
+        /// <summary>
+        /// prop for the local <see cref="Controllers"/> instance. 
+        /// </summary>
         internal Models.Controllers _controllers;
+
+        /// <summary>
+        /// prop for the local <see cref="HttpController"/> instance.
+        /// </summary>
         internal HttpController _httpComs;
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="httpComs"></param>
         internal OrderingController(Models.Controllers controller, HttpController httpComs)
         {
             if (controller == null)
@@ -124,6 +138,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// This method returns all order for Doshii that have been provided with a PosId, 
+        /// If the order has not yet been processed by the pos and an Id has not been provided you should use <see cref="GetUnlinkedOrders"/> to retreive the order. 
+        /// </summary>
+        /// <returns></returns>
         internal virtual IEnumerable<Order> GetOrders()
         {
             try
@@ -156,6 +175,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// attempt to update an order on Doshii
+        /// </summary>
+        /// <param name="order">The order to update.</param>
+        /// <returns></returns>
         internal virtual Order UpdateOrder(Order order)
         {
             order.Version = _controllers.OrderingManager.RetrieveOrderVersion(order.Id);
@@ -333,6 +357,11 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// Used to accept an Order created for a partner through the orderAhead interface. 
+        /// </summary>
+        /// <param name="orderToAccept"></param>
+        /// <returns></returns>
         internal virtual bool AcceptOrderAheadCreation(Order orderToAccept)
         {
             OrderWithConsumer orderOnDoshii = GetOrderFromDoshiiOrderId(orderToAccept.DoshiiId);
@@ -373,6 +402,10 @@ namespace DoshiiDotNetIntegration.Controllers
             return true;
         }
 
+        /// <summary>
+        /// use to reject an order created by a partner through the orderAhead interface. 
+        /// </summary>
+        /// <param name="orderToReject"></param>
         internal virtual void RejectOrderAheadCreation(Order orderToReject)
         {
             List<Transaction> transactionList = _controllers.TransactionController.GetTransactionFromDoshiiOrderId(orderToReject.DoshiiId).ToList();

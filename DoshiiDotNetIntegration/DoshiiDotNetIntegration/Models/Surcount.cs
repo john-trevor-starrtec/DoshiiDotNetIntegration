@@ -46,6 +46,11 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public decimal Amount { get; set; }
 
+        /// <summary>
+        /// the value of the surcount
+        /// if the <see cref="Type"/> = 'absolute' this value will be equal to the amount that should be applied to the reward. 
+        /// if the <see cref="Type"/> = 'percentage' this is the percent that needs to be used to calculate the value of the report. 
+        /// </summary>
         public decimal Value { get; set; }
 
         /// <summary>
@@ -54,10 +59,13 @@ namespace DoshiiDotNetIntegration.Models
         public string Type { get; set; }
 
         /// <summary>
-        /// The posId for the product
+        /// The posId for the surcount
         /// </summary>
         public string Id { get; set; }
 
+        /// <summary>
+        /// The reward Id if the surcount was applied sue to a reward. 
+        /// </summary>
         public string RewardId { get; set; }
 
 		#region ICloneable Members

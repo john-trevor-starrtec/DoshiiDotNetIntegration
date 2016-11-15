@@ -1932,10 +1932,10 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             return returnedTable;
         }
 
-        internal virtual Table PutTables(List<Table> tables)
+        internal virtual List<Table> PutTables(List<Table> tables)
         {
             DoshiHttpResponseMessage responseMessage;
-            Table returnedTable = null;
+            List<Table> retreivedtableList = null;
             try
             {
                 List<JsonTable> jsonTableList = new List<JsonTable>();
@@ -1961,8 +1961,8 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     {
                         if (responseMessage.Data != "[]")
                         {
-                            var jsonTable = JsonConvert.DeserializeObject<JsonTable>(responseMessage.Data);
-                            returnedTable = Mapper.Map<Table>(jsonTable);
+                            var jsonList = JsonConvert.DeserializeObject<List<JsonTable>>(responseMessage.Data);
+                            retreivedtableList = Mapper.Map<List<Table>>(jsonList);
                         }
 
                         
@@ -1984,7 +1984,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 throw new NullResponseDataReturnedException();
             }
 
-            return returnedTable;
+            return retreivedtableList;
         }
 
         internal virtual Table DeleteTable(string tableName)
