@@ -24,5 +24,9 @@ namespace DoshiiDotNetIntegration.Models
         internal ReservationController ReservationController;
         internal RewardController RewardController;
         internal LoggingController LoggingController;
+        internal MenuController MenuController;
+        internal TableController TableController;
+        internal CheckinController CheckinController;
+        internal ConsumerController ConsumerController;
     }
 }
