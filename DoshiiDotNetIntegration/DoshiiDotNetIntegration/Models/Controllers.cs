@@ -27,5 +27,6 @@ namespace DoshiiDotNetIntegration.Models
         internal MenuController MenuController;
         internal TableController TableController;
         internal CheckinController CheckinController;
+        internal ConsumerController ConsumerController;
     }
 }

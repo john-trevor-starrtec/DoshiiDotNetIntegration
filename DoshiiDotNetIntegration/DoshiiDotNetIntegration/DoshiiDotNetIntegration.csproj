@@ -112,6 +112,7 @@
     <Compile Include="CommunicationLogic\SocketsController.cs" />
     <Compile Include="CommunicationLogic\CommunicationEventArgs\OrderEventArgs.cs" />
     <Compile Include="Controllers\CheckinController.cs" />
+    <Compile Include="Controllers\ConsumerController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
     <Compile Include="Controllers\OrderingController.cs" />
     <Compile Include="Controllers\ReservationController.cs" />
