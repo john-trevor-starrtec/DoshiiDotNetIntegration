@@ -296,24 +296,6 @@ namespace DoshiiDotNetIntegration
         }
 
         /// <summary>
-        /// formats the base URL for use in the sdk. 
-        /// </summary>
-        /// <param name="baseUrl"></param>
-        /// <returns></returns>
-        internal virtual string FormatBaseUrl(string baseUrl)
-        {
-            char last = baseUrl[baseUrl.Length - 1];
-            if (last == '/')
-            {
-                return baseUrl.Substring(0, baseUrl.Length - 1);
-            }
-            else
-            {
-                return baseUrl;
-            }
-        }
-
-        /// <summary>
         /// Completes the Initialize process
         /// </summary>
         /// <param name="socketUrl">
@@ -342,6 +324,7 @@ namespace DoshiiDotNetIntegration
             _controllers.MenuController = new MenuController(_controllers, _httpComs);
             _controllers.TableController = new TableController(_controllers, _httpComs);
             _controllers.CheckinController = new CheckinController(_controllers, _httpComs);
+            _controllers.ConsumerController = new ConsumerController(_controllers, _httpComs);
             if (_controllers.ReservationManager != null)
             {
                 _controllers.ReservationController = new ReservationController(_controllers, _httpComs);
@@ -379,6 +362,24 @@ namespace DoshiiDotNetIntegration
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// formats the base URL for use in the sdk. 
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <returns></returns>
+        internal virtual string FormatBaseUrl(string baseUrl)
+        {
+            char last = baseUrl[baseUrl.Length - 1];
+            if (last == '/')
+            {
+                return baseUrl.Substring(0, baseUrl.Length - 1);
+            }
+            else
+            {
+                return baseUrl;
+            }
         }
 
 		/// <summary>
@@ -459,8 +460,6 @@ namespace DoshiiDotNetIntegration
             }
             
         }
-
-        
         
         /// <summary>
         /// Handles a socket communication timeOut event - this is when there has not been successful communication with doshii within the specified timeout period. 
@@ -492,78 +491,7 @@ namespace DoshiiDotNetIntegration
 
         
 
-        /// <summary>
-        /// call this method to accept an order created by an order ahead partner, 
-        /// <para/>this method will test that the order on doshii has not changed since it was original received by the pos. 
-        /// <para/>It is the responsibility of the pos to ensure that the products on the order were not changed during the confirmation process as this will not 
-        /// <para/>be checked by this method. 
-        /// <para/>If this method is not successful then the order should not be committed on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
-        /// </summary>
-        /// <param name="orderToAccept">
-        /// The order that is being accepted
-        /// </param>
-        /// <returns>
-        /// True if the order was recorded as accepted on Doshii
-        /// <para/>False if the order was not recorded as accepted on Doshii.
-        /// </returns>
-        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual bool AcceptOrderAheadCreation(Order orderToAccept)
-        {
-            if (!m_IsInitalized)
-            {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "AcceptOrderAheadCreation"));
-            }
-
-            return _controllers.OrderingController.AcceptOrderAheadCreation(orderToAccept);
-        }
-
-        /// <summary>
-        /// Call this method to reject an order created by an order ahead partner,
-        /// </summary>
-        /// <param name="orderToReject">
-        /// The pending Doshii order that will be rejected
-        /// </param>
-        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
-        public virtual void RejectOrderAheadCreation(Order orderToReject)
-        {
-            if (!m_IsInitalized)
-            {
-                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
-                    "RejectOrderAheadCreation"));
-            }
-            _controllers.OrderingController.RejectOrderAheadCreation(orderToReject);
-        }
-
-        /// <summary>
-        /// Gets the consumer related to the order,
-        /// If there is a problem getting the consumer from Doshii the order is rejected by the SDK
-        /// </summary>
-        /// <param name="order">
-        /// The order the consumer is needed for
-        /// </param>
-        /// <param name="transactionList">
-        /// The transaction list for the pending order
-        /// </param>
-        /// <returns>
-        /// The consumer related to the order. 
-        /// </returns>
-        internal virtual Consumer GetConsumerForOrderCreated(Order order, List<Transaction> transactionList)
-        {
-            try
-            {
-                return GetConsumerFromCheckinId(order.CheckinId);
-            }
-            catch (Exception ex)
-            {
-                _controllers.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception when retreiving the consumer for a pending order doshiiOrderId - {0}. The order will be rejected", order.Id), ex);
-                _controllers.OrderingController.RejectOrderFromOrderCreateMessage(order, transactionList);
-                return null;
-            }
-        }
-
         
-
         /// <summary>
         /// Handles a SocketComs_TransactionCreatedEvent, 
         /// Calls the appropriate method on the PaymentInterface to act on the transaction depending on the transaction status. 
@@ -745,7 +673,50 @@ namespace DoshiiDotNetIntegration
         #endregion
 
         #region ordering And Transaction
-        
+
+        /// <summary>
+        /// call this method to accept an order created by an order ahead partner, 
+        /// <para/>this method will test that the order on doshii has not changed since it was original received by the pos. 
+        /// <para/>It is the responsibility of the pos to ensure that the products on the order were not changed during the confirmation process as this will not 
+        /// <para/>be checked by this method. 
+        /// <para/>If this method is not successful then the order should not be committed on the pos and <see cref="RejectOrderAheadCreation"/> should be called.
+        /// </summary>
+        /// <param name="orderToAccept">
+        /// The order that is being accepted
+        /// </param>
+        /// <returns>
+        /// True if the order was recorded as accepted on Doshii
+        /// <para/>False if the order was not recorded as accepted on Doshii.
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        public virtual bool AcceptOrderAheadCreation(Order orderToAccept)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "AcceptOrderAheadCreation"));
+            }
+
+            return _controllers.OrderingController.AcceptOrderAheadCreation(orderToAccept);
+        }
+
+        /// <summary>
+        /// Call this method to reject an order created by an order ahead partner,
+        /// </summary>
+        /// <param name="orderToReject">
+        /// The pending Doshii order that will be rejected
+        /// </param>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        public virtual void RejectOrderAheadCreation(Order orderToReject)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "RejectOrderAheadCreation"));
+            }
+            _controllers.OrderingController.RejectOrderAheadCreation(orderToReject);
+        }
+
         /// <summary>
         /// Attempts to add a pos transaction to doshii
         /// </summary>
@@ -806,14 +777,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetConsumerFromCheckinId"));
             }
-            try
-            {
-                return _httpComs.GetConsumerFromCheckinId(checkinId);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+            return _controllers.ConsumerController.GetConsumerFromCheckinId(checkinId);
         }
         
 		/// <summary>
