@@ -8,6 +8,9 @@ using DoshiiDotNetIntegration.Interfaces;
 
 namespace DoshiiDotNetIntegration.Models
 {
+    /// <summary>
+    /// an internal class used to enable easy access to all the implemented interfaces and controllers in the SDK
+    /// </summary>
     internal class Controllers
     {
         internal IOrderingManager OrderingManager;
