@@ -51,8 +51,14 @@ namespace DoshiiDotNetIntegration.Models
         /// </summary>
         public string Phone { get; set; }
 
+        /// <summary>
+        /// the email of the consumer
+        /// </summary>
         public string Email { get; set; }
 
+        /// <summary>
+        /// the <see cref="Address"/> associated with the consumer
+        /// </summary>
         public Address Address { get; set; }
         
         /// <summary>
