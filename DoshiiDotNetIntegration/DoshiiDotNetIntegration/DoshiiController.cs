@@ -337,8 +337,11 @@ namespace DoshiiDotNetIntegration
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Info, "Doshii: Initializing Doshii");
 
             _httpComs = new HttpController(UrlBase, _controllers);
-            _controllers.TransactionController = new TransactionController(_controllers.TransactionManager, _httpComs, _controllers);
+            _controllers.TransactionController = new TransactionController(_controllers, _httpComs);
             _controllers.OrderingController = new OrderingController(_controllers, _httpComs);
+            _controllers.MenuController = new MenuController(_controllers, _httpComs);
+            _controllers.TableController = new TableController(_controllers, _httpComs);
+            _controllers.CheckinController = new CheckinController(_controllers, _httpComs);
             if (_controllers.ReservationManager != null)
             {
                 _controllers.ReservationController = new ReservationController(_controllers, _httpComs);
@@ -1285,66 +1288,8 @@ namespace DoshiiDotNetIntegration
                     "AddTableAllocation"));
             }
 
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos Allocating table '{0}' to order '{1}'", tableNames[0], posOrderId));
-
-            Order order = null;
-			try
-			{
-				order = _controllers.OrderingManager.RetrieveOrder(posOrderId);
-			    order.Version = _controllers.OrderingManager.RetrieveOrderVersion(posOrderId);
-			    order.CheckinId = _controllers.OrderingManager.RetrieveCheckinIdForOrder(posOrderId);
-			    order.Status = "accepted";
-			}
-			catch (OrderDoesNotExistOnPosException dne)
-			{
-				_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: Order does not exist on POS during table allocation");
-			    throw dne;
-			}
-
-            if (order == null)
-            {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Warning, "Doshii: NULL Order returned from POS during table allocation");
-                throw new OrderDoesNotExistOnPosException("Doshii: The pos returned a null order during table allocation", new NullResponseDataReturnedException());
-            }
-
-            if (!string.IsNullOrEmpty(order.CheckinId))
-            {
-                return ModifyTableAllocation(order.CheckinId, tableNames, covers);
-            }
-            
-            //create checkin
-            Checkin checkinCreateResult = null;
-            try
-            {
-                Checkin newCheckin = new Checkin();
-                newCheckin.TableNames = tableNames;
-                newCheckin.Covers = covers;
-                checkinCreateResult = _httpComs.PostCheckin(newCheckin);
-                if (checkinCreateResult == null)
-                {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an error generating a new checkin through Doshii, the table allocation could not be completed."));
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation order.Id{0} : {1}", order.Id, ex));
-                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown during a attempting to create a checkin for order.Id{0}", order.Id), ex);
-            }
-            
-			_controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: Order found, allocating table now"));
-
-            order.CheckinId = checkinCreateResult.Id;
-            Order returnedOrder = UpdateOrder(order);
-            if (returnedOrder != null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+		    return _controllers.TableController.SetTableAllocationWithoutCheckin(posOrderId, tableNames, covers);
+		}
 
         /// <summary>
         /// This method is used to modify the table allocation of a checkin at the venue, 
@@ -1365,39 +1310,7 @@ namespace DoshiiDotNetIntegration
                     "AddTableAllocation"));
             }
 
-            StringBuilder tableNameStringBuilder = new StringBuilder();
-            for (int i = 0; i < tableNames.Count(); i++)
-            {
-                if (i > 0)
-                {
-                    tableNameStringBuilder.Append(", ");
-                }
-                tableNameStringBuilder.Append(tableNames[i]);
-            }
-
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos modifying table allocation table '{0}' to checkin '{1}'", tableNameStringBuilder, checkinId));
-
-            //create checkin
-            Checkin checkinCreateResult = null;
-            try
-            {
-                Checkin newCheckin = new Checkin();
-                newCheckin.TableNames = tableNames;
-                newCheckin.Id = checkinId;
-                newCheckin.Covers = covers;
-                checkinCreateResult = _httpComs.PutCheckin(newCheckin);
-                if (checkinCreateResult == null)
-                {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an error modifying a checkin through Doshii, modifying the table allocation could not be completed."));
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting a table allocation  for checkin {0} : {1}", checkinId, ex));
-                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown during a attempting a table allocaiton for for checkin {0}", checkinId), ex);
-            }
-            return true;
+            return _controllers.TableController.ModifyTableAllocation(checkinId, tableNames, covers);
         }
 
         /// <summary>
@@ -1415,24 +1328,7 @@ namespace DoshiiDotNetIntegration
                     "AddTableAllocation"));
             }
 
-            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos closing checkin '{0}'", checkinId));
-
-            Checkin checkinCreateResult = null;
-            try
-            {
-                checkinCreateResult = _httpComs.DeleteCheckin(checkinId);
-                if (checkinCreateResult == null)
-                {
-                    _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an error attempting to close a checkin."));
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to close checkin {0} - {1}", checkinId, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
-            }
-            return true;
+            return _controllers.CheckinController.CloseCheckin(checkinId);
         }
 
         #endregion
@@ -1462,23 +1358,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateMenu"));
             }
-            Menu returnedMenu = null;
-            try
-            {
-               returnedMenu = _httpComs.PostMenu(menu);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            if (returnedMenu != null)
-            {
-                return returnedMenu;
-            }
-            else
-            {
-                return null;
-            }
+            return _controllers.MenuController.UpdateMenu(menu);
         }
 
         /// <summary>
@@ -1499,27 +1379,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateSurcount"));
             }
-            if (surcount.Id == null || string.IsNullOrEmpty(surcount.Id))
-            {
-                _controllers.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Surcounts must have an Id to be created or updated on Doshii");
-            }
-            Surcount returnedSurcharge = null;
-            try
-            {
-                returnedSurcharge = _httpComs.PutSurcount(surcount);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            if (returnedSurcharge != null)
-            {
-                return returnedSurcharge;
-            }
-            else
-            {
-                return null;
-            }
+            return _controllers.MenuController.UpdateSurcount(surcount);
         }
 
         /// <summary>
@@ -1540,27 +1400,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateProduct"));
             }
-            if (product.PosId == null || string.IsNullOrEmpty(product.PosId))
-            {
-                _controllers.LoggingController.mLog.LogDoshiiMessage(this.GetType(), DoshiiLogLevels.Error, "Products must have an Id to be created or updated on Doshii");
-            }
-            Product returnedProduct = null;
-            try
-            {
-                returnedProduct = _httpComs.PutProduct(product);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            if (returnedProduct != null)
-            {
-                return returnedProduct;
-            }
-            else
-            {
-                return null;
-            }
+            return _controllers.MenuController.UpdateProduct(product);
         }
 
         /// <summary>
@@ -1581,16 +1421,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteSurcount"));
             }
-            bool success;
-            try
-            {
-                success = _httpComs.DeleteSurcount(posId);
-            }
-            catch(Exception ex)
-            {
-                return false;
-            }
-            return success;
+            return _controllers.MenuController.DeleteSurcount(posId);
         }
 
         /// <summary>
@@ -1611,16 +1442,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteProduct"));
             }
-            bool success;
-            try
-            {
-                success = _httpComs.DeleteProduct(posId);
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-            return success;
+            return _controllers.MenuController.DeleteProduct(posId);
         }
 
 
@@ -1645,14 +1467,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetTable"));
             }
-            try
-            {
-                return _httpComs.GetTable(tableName);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+            return _controllers.TableController.GetTable(tableName);
         }
 
         /// <summary>
@@ -1668,14 +1483,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "GetTables"));
             }
-            try
-            {
-                return _httpComs.GetTables().ToList();
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+            return _controllers.TableController.GetTables();
         }
 
         /// <summary>
@@ -1694,14 +1502,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "CreateTable"));
             }
-            try
-            {
-                return _httpComs.PostTable(table);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+            return _controllers.TableController.CreateTable(table);
         }
 
         /// <summary>
@@ -1723,14 +1524,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "UpdateTable"));
             }
-            try
-            {
-                return _httpComs.PutTable(table, oldTableName);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+            return _controllers.TableController.UpdateTable(table, oldTableName);
         }
 
         /// <summary>
@@ -1749,14 +1543,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "DeleteTable"));
             }
-            try
-            {
-                return _httpComs.DeleteTable(tableName);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+            return _controllers.TableController.DeleteTable(tableName);
         }
 
         /// <summary>
@@ -1773,14 +1560,7 @@ namespace DoshiiDotNetIntegration
                 ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
                     "ReplaceTableListOnDoshii"));
             }
-            try
-            {
-                return _httpComs.PutTables(tableList);
-            }
-            catch (Exceptions.RestfulApiErrorResponseException rex)
-            {
-                throw rex;
-            }
+            return _controllers.TableController.ReplaceTableListOnDoshii(tableList);
         }
 
         #endregion
