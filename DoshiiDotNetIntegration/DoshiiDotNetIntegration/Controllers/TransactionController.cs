@@ -35,7 +35,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// <param name="transactionManager"></param>
         /// <param name="httpComs"></param>
         /// <param name="controller"></param>
-        internal TransactionController(ITransactionManager transactionManager, HttpController httpComs, Models.Controllers controller)
+        internal TransactionController(Models.Controllers controller, HttpController httpComs)
         {
             if (controller == null)
             {
@@ -47,7 +47,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 throw new NullReferenceException("doshiiLogger cannot be null");
             }
             _controllers.LoggingController = controller.LoggingController;
-            if (transactionManager == null)
+            if (_controllers.TransactionManager == null)
             {
                 _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - transactionManager cannot be null");
                 throw new NullReferenceException("transactionManager cannot be null");
