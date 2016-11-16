@@ -10,6 +10,11 @@ using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
+    /// <summary>
+    /// This class is used internally by the SDK to handle bl arround checkins
+    /// NOTE: there are a number of operations around checkins that are handled in the <see cref="TableController"/> and the <see cref="ReservationController"/>
+    /// this controller is used for all functions that are not directly related to reservations or tables.
+    /// </summary>
     internal class CheckinController
     {
         /// <summary>
@@ -47,6 +52,14 @@ namespace DoshiiDotNetIntegration.Controllers
 
         }
 
+        /// <summary>
+        /// This method is used to close a checkin. 
+        /// </summary>
+        /// <param name="checkinId">the Id of the checkin that need to be closed.</param>
+        /// <returns>
+        /// True if the close was successful
+        /// False if the close was not successful. 
+        /// </returns>
         internal virtual bool CloseCheckin(string checkinId)
         {
             _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Debug, string.Format("Doshii: pos closing checkin '{0}'", checkinId));

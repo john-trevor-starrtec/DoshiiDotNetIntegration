@@ -10,6 +10,11 @@ using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
+    /// <summary>
+    /// this class is used internally by the SDK to run the bl related to tables. 
+    /// NOTE: there are some methods involving table in the <see cref="ReservationController"/> and the <see cref="CheckinController"/>
+    /// this class is used to hold bl that relates to tables that is not related to reservations or checkins. 
+    /// </summary>
     internal class TableController
     {
         /// <summary>

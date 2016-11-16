@@ -9,6 +9,11 @@ using DoshiiDotNetIntegration.Models;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
+    /// <summary>
+    /// this class is used internally to control the bl for consumers. 
+    /// NOTE: there are many consumer operations that are handled in the <see cref="OrderingController"/>
+    /// this class handles all bl that is not related to ordering. 
+    /// </summary>
     internal class ConsumerController
     {
         /// <summary>
@@ -46,6 +51,11 @@ namespace DoshiiDotNetIntegration.Controllers
 
         }
 
+        /// <summary>
+        /// returns a consumer from the checkinId 
+        /// </summary>
+        /// <param name="checkinId"></param>
+        /// <returns></returns>
         internal virtual Consumer GetConsumerFromCheckinId(string checkinId)
         {
             try
@@ -58,31 +68,6 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
-        /*/// <summary>
-        /// Gets the consumer related to the order,
-        /// If there is a problem getting the consumer from Doshii the order is rejected by the SDK
-        /// </summary>
-        /// <param name="order">
-        /// The order the consumer is needed for
-        /// </param>
-        /// <param name="transactionList">
-        /// The transaction list for the pending order
-        /// </param>
-        /// <returns>
-        /// The consumer related to the order. 
-        /// </returns>
-        internal virtual Consumer GetConsumerForOrderCreated(Order order, List<Transaction> transactionList)
-        {
-            try
-            {
-                return GetConsumerFromCheckinId(order.CheckinId);
-            }
-            catch (Exception ex)
-            {
-                _controllers.LoggingController.LogMessage(this.GetType(), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception when retreiving the consumer for a pending order doshiiOrderId - {0}. The order will be rejected", order.Id), ex);
-                _controllers.OrderingController.RejectOrderFromOrderCreateMessage(order, transactionList);
-                return null;
-            }
-        }*/
+        
     }
 }
