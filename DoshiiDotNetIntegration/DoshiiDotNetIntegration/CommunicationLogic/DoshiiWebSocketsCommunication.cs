@@ -411,7 +411,6 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             messageData.Name = (string)dynamicSocketMessageData.name;
             messageData.Id = (string)dynamicSocketMessageData.id;
             messageData.MemberId = (string)dynamicSocketMessageData.memberId;
-            messageData.BookingId = (string)dynamicSocketMessageData.bookingId;
             messageData.Uri = (Uri)dynamicSocketMessageData.Uri;
             
             switch (messageData.EventName)
@@ -516,12 +515,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingCreatedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingCreatedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.BookingId);
-                        bookingCreatedEventArgs.BookingId = messageData.BookingId;
+                        bookingCreatedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.Id);
+                        bookingCreatedEventArgs.BookingId = messageData.Id;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."));
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."), ex);
                     }
                     if (BookingCreatedEvent != null)
                     {
@@ -536,12 +535,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingUpdatedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingUpdatedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.BookingId);
-                        bookingUpdatedEventArgs.BookingId = messageData.BookingId;
+                        bookingUpdatedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.Id);
+                        bookingUpdatedEventArgs.BookingId = messageData.Id;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."));
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."), ex);
                     }
                     if (BookingUpdatedEvent != null)
                     {
@@ -556,12 +555,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.BookingEventArgs bookingDeletedEventArgs = new BookingEventArgs();
                     try
                     {
-                        bookingDeletedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.BookingId);
-                        bookingDeletedEventArgs.BookingId = messageData.BookingId;
+                        bookingDeletedEventArgs.Booking = m_DoshiiLogic.GetBooking(messageData.Id);
+                        bookingDeletedEventArgs.BookingId = messageData.Id;
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."));
+                        mLog.LogMessage(typeof(DoshiiWebSocketsCommunication), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving booking updates but the Reservation module has not been initialized."), ex);
                     }
                     if (BookingDeletedEvent != null)
                     {

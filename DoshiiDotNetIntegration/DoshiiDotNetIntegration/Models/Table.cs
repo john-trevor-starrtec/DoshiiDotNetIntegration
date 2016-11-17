@@ -10,6 +10,11 @@ namespace DoshiiDotNetIntegration.Models
 {
     public class Table 
     {
+        public Table()
+        {
+            Criteria = new TableCriteria();
+        }
+
         public string Name { get; set; }
 
         public int Covers { get; set; }

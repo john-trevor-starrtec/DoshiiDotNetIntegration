@@ -18,7 +18,7 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "maxCovers")]
-        public int Covers { get; set; }
+        public string Covers { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "isActive")]
@@ -26,7 +26,21 @@ namespace DoshiiDotNetIntegration.Models.Json
 
         [DataMember]
         [JsonProperty(PropertyName = "criteria")]
-        public JsonTableCriteria Criteria { get; set; }
+        public JsonTableCriteria Criteria
+        {
+            get
+            {
+                if (_criteria == null)
+                    _criteria = new JsonTableCriteria();
+                return _criteria;
+            }
+            set
+            {
+                _criteria = value;
+            }
+        }
+
+        private JsonTableCriteria _criteria;
 
     }
 }

@@ -33,8 +33,12 @@ namespace DoshiiDotNetIntegration.Models.Json
         public JsonConsumer Consumer { get; set; }
 
         [DataMember]
+        [JsonProperty(PropertyName = "checkinId")]
+        public String checkinId { get; set; }
+
+        [DataMember]
         [JsonProperty(PropertyName = "app")]
-        public string App { get; set; }
+        public String App { get; set; }
 
         [DataMember]
         [JsonProperty(PropertyName = "updatedAt")]
@@ -48,5 +52,13 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "uri")]
         public string Uri { get; set; }
 
+        #region serializeMembers
+
+        public bool ShouldSerializeApp()
+        {
+            return false;
+        }
+
+        #endregion serializeMembers
     }
 }

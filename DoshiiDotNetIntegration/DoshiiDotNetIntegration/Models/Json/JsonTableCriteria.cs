@@ -28,15 +28,15 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "isOutdoor")]
         public bool IsOutdoor { get; set; }
 
-        public bool ShouldSerializeCanMerge()
-        {
-            return false;
-        }
+        //public bool ShouldSerializeCanMerge()
+        //{
+        //    return false;
+        //}
 
-        public bool ShouldSerializeIsSmoking()
-        {
-            return false;
-        }
+        //public bool ShouldSerializeIsSmoking()
+        //{
+        //    return false;
+        //}
 
     }
 }

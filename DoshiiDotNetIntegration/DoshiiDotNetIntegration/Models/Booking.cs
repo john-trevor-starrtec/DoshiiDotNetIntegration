@@ -13,6 +13,7 @@ namespace DoshiiDotNetIntegration.Models
 		public DateTime Date { get; set; }
 		public int Covers { get; set; }
 		public Consumer Consumer { get; set; }
+        public String CheckinId { get; set; }
 		public String App { get; set; }
 		public DateTime UpdatedAt { get; set; }
 		public DateTime CreatedAt { get; set; }
