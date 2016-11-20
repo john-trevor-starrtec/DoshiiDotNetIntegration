@@ -8,6 +8,7 @@ using DoshiiDotNetIntegration.Models.Json;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -75,6 +76,72 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             
             _doshiiUrlBase = urlBase;
         }
+
+        #region GenericRegion
+
+        /// <summary>
+        /// This method is used to retrieve the order from Doshii matching the provided orderId (the pos identifier for the order),
+        /// </summary>
+        /// <param name="orderId">
+        /// The pos identifier for the order
+        /// </param>
+        /// <returns>
+        /// If an order if found matching the orderId the order is returned,
+        /// If on order matching the orderId is not found a new order is returned. 
+        /// </returns>
+        internal virtual T GenericGet<T>(string orderId)
+        {
+            var retreivedOrder = new Order();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.Order, orderId), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
+                        retreivedOrder = Mapper.Map<Order>(jsonOrder);
+                    }
+                    else
+                    {
+                        _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+                    }
+
+                }
+                else
+                {
+                    _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+                }
+            }
+            else
+            {
+                _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.Order, orderId)));
+            }
+
+            return retreivedOrder;
+        }
+
+        internal virtual T GenericDeserializeResponse<T>(DoshiHttpResponseMessage responseMessage)
+        {
+            if (typeof(T) == typeof(Order))
+            {
+                var jsonOrder = JsonOrder.deseralizeFromJson(responseMessage.Data);
+                return Mapper.Map<T>(jsonOrder);
+            }
+            
+        }
+
+        #endregion
 
         #region order methods
 
