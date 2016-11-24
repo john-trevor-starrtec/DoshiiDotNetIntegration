@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,6 +35,7 @@ namespace DoshiiDotNetIntegration.Models
         /// the <see cref="Consumer"/> associated with the booking. 
         /// </summary>
 		public Consumer Consumer { get; set; }
+        public String CheckinId { get; set; }
 
         /// <summary>
         /// the <see cref="App"/> associated with the booking. 

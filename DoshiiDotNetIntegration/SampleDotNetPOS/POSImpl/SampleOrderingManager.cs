@@ -195,18 +195,29 @@ namespace SampleDotNetPOS.POSImpl
             return;
         }
 
-		#endregion
+        public void ConfirmNewUnknownTypeOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList)
+        {
+            throw new NotImplementedException();
+        }
 
-		#region IDisposable Members
+        public void ConfirmNewUnknownTypeOrder(Order order, Consumer consumer)
+        {
+            throw new NotImplementedException();
+        }
 
-		/// <summary>
-		/// Cleanly disposes of the instance.
-		/// </summary>
-		public void Dispose()
+        #endregion
+
+        #region IDisposable Members
+
+        /// <summary>
+        /// Cleanly disposes of the instance.
+        /// </summary>
+        public void Dispose()
 		{
 			mPresenter = null;
 		}
 
-		#endregion
-	}
+ 
+        #endregion
+    }
 }

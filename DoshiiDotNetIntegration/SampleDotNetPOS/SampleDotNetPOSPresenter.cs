@@ -1,4 +1,4 @@
-﻿using DoshiiDotNetIntegration;
+using DoshiiDotNetIntegration;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Models;
 using SampleDotNetPOS.POSImpl;
@@ -50,6 +50,10 @@ namespace SampleDotNetPOS
 		/// </summary>
 		private DoshiiController _mController;
 
+        private SampleConfigurationManager mConfigManager;
+
+        private SampleReservationManager mReservationManager;
+
 		/// <summary>
 		/// Current list of orders in Doshii.
 		/// </summary>
@@ -60,15 +64,22 @@ namespace SampleDotNetPOS
 		/// </summary>
 		private List<Transaction> mPayments;
 
-		#endregion
+        /// <summary>
+        /// Current list of bookings in Doshii.
+        /// </summary>
+        private List<Booking> mBookings;
 
-		#region Initialisation
+        private List<Table> mTables;
 
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		/// <param name="view">The main view of the application.</param>
-		public SampleDotNetPOSPresenter(SamplePOSMainForm view)
+        #endregion
+
+        #region Initialisation
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="view">The main view of the application.</param>
+        public SampleDotNetPOSPresenter(SamplePOSMainForm view)
 		{
 			if (view == null)
 				throw new ArgumentNullException("view");
@@ -77,19 +88,29 @@ namespace SampleDotNetPOS
 			mLog = new SampleLoggingManager(this);
 			mPaymentManager = new SampleTransactionManager();
             mOrderingManager = new SampleOrderingManager(this);
-			_mController = new DoshiiController(mPaymentManager, mLog, mOrderingManager, null);
+      mConfigManager = new SampleConfigurationManager();
+      mReservationManager = new SampleReservationManager();
+      mConfigManager.TransactionManager = mPaymentManager;
+      mConfigManager.OrderingManager = mOrderingManager;
+      mConfigManager.LoggingManager = mLog;
+      mConfigManager.ReservationManager = mReservationManager;
+      _mController = new DoshiiController(mConfigManager);
 			mOrders = new List<Order>();
 			mPayments = new List<Transaction>();
+            mBookings = new List<Booking>();
+            mTables = new List<Table>();
 
-			mView.UpdateOrderCountLabel(mOrders.Count);
+            mView.UpdateOrderCountLabel(mOrders.Count);
 			mView.UpdatePaymentCountLabel(mPayments.Count);
-		}
+            mView.UpdateBookingsCountLabel(mBookings.Count);
+            mView.UpdateTablesCountLable(mTables.Count);
+        }
 
-		/// <summary>
-		/// Launches the application and returns the main form for the application.
-		/// </summary>
-		/// <returns>The main form of the application.</returns>
-		public Form Launch()
+        /// <summary>
+        /// Launches the application and returns the main form for the application.
+        /// </summary>
+        /// <returns>The main form of the application.</returns>
+        public Form Launch()
 		{
 			mView.AttachPresenter(this);
 			mPaymentManager.AttachPresenter(this);
@@ -103,32 +124,40 @@ namespace SampleDotNetPOS
 		/// <param name="locationToken">The entered location token in the view.</param>
 		public void Initialise(string apiAddress, string vendor, string secretKey, string locationToken)
 		{
-			_mController.Initialize(SampleDotNetPOSPresenter.AuthToken, vendor, secretKey, apiAddress, true, 0);
+      mConfigManager.Initialise(apiAddress, vendor, secretKey, locationToken);
+
+      _mController.Initialize(true);
 
 			// refresh the order list in memory
 			mOrders = _mController.GetOrders().ToList<Order>();
-			mOrders.AddRange(_mController.GetUnlinkedOrders());
+			//mOrders.AddRange(_mController.GetUnlinkedOrders());
 
 			// retrieve any payment transactions for current orders
 			mPayments.Clear();
 			foreach (var order in mOrders)
 			{
-				mPayments.AddRange(_mController.GetTransactionFromDoshiiOrderId(order.DoshiiId));
+        if (!String.IsNullOrEmpty(order.DoshiiId))
+				  mPayments.AddRange(_mController.GetTransactionFromDoshiiOrderId(order.DoshiiId));
 			}
+            // retrieve any bookings.
+            mBookings = _mController.GetBookings(DateTime.Today, DateTime.Today.AddDays(2));
+            mTables = _mController.GetTables();
 
-			// update the view labels for count of orders and payments
-			mView.UpdateOrderCountLabel(mOrders.Count);
+            // update the view labels for count of orders and payments
+            mView.UpdateOrderCountLabel(mOrders.Count);
 			mView.UpdatePaymentCountLabel(mPayments.Count);
-		}
+            mView.UpdateBookingsCountLabel(mBookings.Count);
+            mView.UpdateTablesCountLable(mTables.Count);
+        }
 
-		#endregion
+        #endregion
 
-		#region Ordering
+        #region Ordering
 
-		/// <summary>
-		/// Opens a form that displays the current order list.
-		/// </summary>
-		public void DisplayOrderList()
+        /// <summary>
+        /// Opens a form that displays the current order list.
+        /// </summary>
+        public void DisplayOrderList()
 		{
 			using (var view = new SampleOrderListForm())
 			{
@@ -379,14 +408,198 @@ namespace SampleDotNetPOS
 			public FontStyle Style { get; set; }
 		}
 
-		#endregion
+        #endregion
 
-		#region IDisposable Members
+        #region Bookings
 
-		/// <summary>
-		/// Disposes cleanly of the instance.
-		/// </summary>
-		public void Dispose()
+        public Booking GetBooking(string id)
+        {
+            return _mController.GetBooking(id);
+        }
+
+
+        public void DisplayBookingsList()
+        {
+            using (var view = new SampleBookingListForm())
+            {
+                view.AttachPresenter(this);
+                try
+                {
+                    foreach (var booking in mBookings)
+                        view.AddBooking(booking);
+                    view.ShowDialog();
+                }
+                finally
+                {
+                    view.RemovePresenter();
+                }
+            }
+        }
+
+
+        internal void DisplayTableList()
+        {
+            using (var view = new SampleTableListForm())
+            {
+                view.AttachPresenter(this);
+                try
+                {
+                    foreach (var table in mTables)
+                        view.AddTable(table);
+                    view.ShowDialog();
+                }
+                finally
+                {
+                    view.RemovePresenter();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends a POS-generated update of an table to the Doshii Manager.
+        /// </summary>
+        /// <returns>The updated details for the table.</returns>
+        public Table SendTable()
+        {
+            var table = GenerateTable();
+
+            if (table != null)
+            {
+                table = _mController.CreateTable(table);
+                AddOrUpdateTable(table);
+            }
+
+            return table;
+        }
+
+        public Table UpdateTable(Table table)
+        {
+            table = EditTable(table);
+            if (table != null)
+            {
+                table = _mController.UpdateTable(table, table.Name);
+                AddOrUpdateTable(table);
+            }
+            return table;
+        }
+
+        public Checkin SendBookingCheckin(Booking booking)
+        {
+            var checkin = GenerateBookingCheckin(booking);
+            if (checkin != null)
+            {
+                if (_mController.SeatBooking(booking.Id, checkin))
+                    return checkin;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Adds the table if it doesn't already exist, otherwise updates it.
+        /// </summary>
+        /// <param name="table">The table to be added or updated.</param>
+        private void AddOrUpdateTable(Table table)
+        {
+            int index = mTables.IndexOf(table);
+            if (index < 0)
+            {
+                mTables.Add(table);
+                mView.UpdateTablesCountLable(mTables.Count);
+            }
+            else
+                mTables[index] = table;
+        }
+
+        private Table GenerateTable()
+        {
+            using (var view = new SampleTableForm())
+            {
+                view.AttachPresenter(this);
+                try
+                {
+                    if (view.ShowDialog() == DialogResult.OK)
+                    {
+                        return view.ReadForm();
+                    }
+                }
+                finally
+                {
+                    view.RemovePresenter();
+                }
+            }
+            return null;
+        }
+
+        private Table EditTable(Table table)
+        {
+            using (var view = new SampleTableForm())
+            {
+                view.AttachPresenter(this);
+                try
+                {
+                    view.UpdateView(table);
+                    if (view.ShowDialog() == DialogResult.OK)
+                    {
+                        return view.ReadForm();
+                    }
+                }
+                finally
+                {
+                    view.RemovePresenter();
+                }
+            }
+            return null;
+        }
+
+
+        private Checkin GenerateBookingCheckin(Booking booking)
+        {
+            using (var view = new SampleArriveForm())
+            {
+                view.AttachPresenter(this);
+                view.UpdateView(booking);
+                if (view.ShowDialog() == DialogResult.OK)
+                {
+                    return view.ReadForm();
+                }
+            }
+            return null;
+        }
+
+        internal Booking RetrieveBooking(string bookingId)
+        {
+            return mBookings.FirstOrDefault(b => b.Id == bookingId);
+        }
+
+        internal void UpdateBooking(Booking booking)
+        {
+            int index = mBookings.FindIndex(b => b.Id == booking.Id);
+            if (index >= 0)
+                mBookings[index] = booking;
+            else
+            {
+                mBookings.Add(booking);
+                mView.UpdateBookingsCountLabel(mBookings.Count);
+            }
+        }
+
+        internal void DeleteBooking(string id)
+        {
+            int index = mBookings.FindIndex(b => b.Id == id);
+            if (index >= 0)
+            {
+                mBookings.RemoveAt(index);
+                mView.UpdateBookingsCountLabel(mBookings.Count);
+            }
+        }
+
+        #endregion
+        #region IDisposable Members
+
+        /// <summary>
+        /// Disposes cleanly of the instance.
+        /// </summary>
+        public void Dispose()
 		{
 			if (mView != null)
 			{
@@ -418,6 +631,12 @@ namespace SampleDotNetPOS
 				mOrderingManager.Dispose();
 				mOrderingManager = null;
 			}
+            
+            if (mReservationManager != null)
+            {
+                mReservationManager.Dispose();
+                mReservationManager = null;
+            }
 		}
 
 		#endregion

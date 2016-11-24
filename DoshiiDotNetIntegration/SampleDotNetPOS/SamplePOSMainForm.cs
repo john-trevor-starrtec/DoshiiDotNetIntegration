@@ -35,11 +35,14 @@ namespace SampleDotNetPOS
 		/// live partner applications.
 		/// </remarks>
 		private const string SamplePOSAuthToken = "7B2RDcb7atv8QW6YqDCxqsoHvJc";
+        private const string SampleSecretKey = "kH2sx7GI3N7TyFsmr0906I1Rgg6zQrHl";
+        private const string SampleLocationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkb3NoaWkgc2VydmVyIiwic3ViIjp7ImZvciI6IkxPQ0FUSU9OX1RPS0VOIiwiaWQiOiIxOSJ9LCJleHAiOjE1MDI1OTcyNTB9.Wsy52MzZslAjXoCRLu-8igjMbGS0mfxuonCWcrK7nCs";
+        private const string SamplePosVendorName = "Starrtec";
 
-		/// <summary>
-		/// Presenter controlling the view.
-		/// </summary>
-		private SampleDotNetPOSPresenter mPresenter;
+        /// <summary>
+        /// Presenter controlling the view.
+        /// </summary>
+        private SampleDotNetPOSPresenter mPresenter;
 
 		/// <summary>
 		/// Synchronisation lock object for the logger.
@@ -56,7 +59,9 @@ namespace SampleDotNetPOS
 			lblCopyright.Text = String.Format("\u00a9 Copyright {0:yyyy} Doshii Pty Ltd. All Rights Reserved.", DateTime.Today);
 
 			cbxApiAddress.SelectedIndex = 0;
-            LocationToken = "7B2RDcb7atv8QW6YqDCxqsoHvJc";
+            LocationToken = SampleLocationToken; // "7B2RDcb7atv8QW6YqDCxqsoHvJc";
+            SecretKey = SampleSecretKey;
+            PosVendorName = SamplePosVendorName;
 
 			EnableDisableControls(true);
 		}
@@ -115,6 +120,18 @@ namespace SampleDotNetPOS
 			}
 		}
 
+        public String SecretKey
+        {
+            get { return txbSecretKey.Text; }
+            set { txbSecretKey.Text = value; }
+        }
+
+        public String PosVendorName
+        {
+            get { return txbVendorName.Text; }
+            set { txbVendorName.Text = value; }
+        }
+
 		/// <summary>
 		/// Writes a <paramref name="message"/> to the view in the supplied <paramref name="textColour"/>
 		/// and <paramref name="style"/>. Handles multi-threading by passing off to an invoked delegate method
@@ -165,15 +182,41 @@ namespace SampleDotNetPOS
 				lblPaymentCount.Text = String.Format("{0} Payment{1}", count, count == 1 ? String.Empty : "s");
 			}
 		}
+        public void UpdateBookingsCountLabel(int count)
+        {
+            if (count == 0)
+            {
+                lblBookingsCount.Visible = false;
+            }
+            else
+            {
+                lblBookingsCount.Visible = true;
+                lblBookingsCount.Text = String.Format("{0} Booking{1}", count, count == 1 ? String.Empty : "s");
+            }
+        }
 
-		/// <summary>
-		/// Delegate that performs logging in the view.
-		/// </summary>
-		/// <param name="message">The message to be written to the view.</param>
-		/// <param name="textColour">The colour to write the message in.</param>
-		/// <param name="backColour">The colour to highlight the message in.</param>
-		/// <param name="style">The style to write the message in.</param>
-		private delegate void LogDelegate(string message, Color? textColour, Color? backColour, FontStyle style);
+        public void UpdateTablesCountLable(int count)
+        {
+            if (count == 0)
+            {
+                lblTablesCount.Visible = false;
+            }
+            else
+            {
+                lblTablesCount.Visible = true;
+                lblTablesCount.Text = String.Format("{0} Table{1}", count, count == 1 ? String.Empty : "s");
+            }
+
+        }
+
+        /// <summary>
+        /// Delegate that performs logging in the view.
+        /// </summary>
+        /// <param name="message">The message to be written to the view.</param>
+        /// <param name="textColour">The colour to write the message in.</param>
+        /// <param name="backColour">The colour to highlight the message in.</param>
+        /// <param name="style">The style to write the message in.</param>
+        private delegate void LogDelegate(string message, Color? textColour, Color? backColour, FontStyle style);
 
 		/// <summary>
 		/// Updates the application log.
@@ -305,5 +348,21 @@ namespace SampleDotNetPOS
 				mPresenter.DisplayOrderList();
 			}
 		}
-	}
+
+        private void buttonViewBookings_Click(object sender, EventArgs e)
+        {
+            if (mPresenter != null)
+            {
+                mPresenter.DisplayBookingsList();
+            }
+        }
+
+        private void buttonViewTables_Click(object sender, EventArgs e)
+        {
+            if (mPresenter != null)
+            {
+                mPresenter.DisplayTableList();
+            }
+        }
+    }
 }
