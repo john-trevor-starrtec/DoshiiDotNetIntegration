@@ -413,7 +413,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
             messageData.Name = (string)dynamicSocketMessageData.name;
             messageData.Id = (string)dynamicSocketMessageData.id;
             messageData.MemberId = (string)dynamicSocketMessageData.memberId;
-            messageData.BookingId = (string)dynamicSocketMessageData.bookingId;
+            messageData.BookingId = (string)dynamicSocketMessageData.id;
             messageData.Uri = (Uri)dynamicSocketMessageData.Uri;
             
             switch (messageData.EventName)
