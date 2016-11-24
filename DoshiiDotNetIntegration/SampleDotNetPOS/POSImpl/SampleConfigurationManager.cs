@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SampleDotNetPOS.POSImpl
 {
-    public class SampleConfigurationManager : IDoshiiConfiguration
+    public class SampleConfigurationManager : IConfigurationManager
     {
         private String mBaseUrl;
         private String mVendor;
@@ -51,5 +51,36 @@ namespace SampleDotNetPOS.POSImpl
         {
             return mVendor;
         }
+
+    public IOrderingManager GetOrderingManagerFromPos()
+    {
+      return OrderingManager;
     }
+
+    public ITransactionManager GetTransactionManagerFromPos()
+    {
+      return TransactionManager;
+    }
+
+    public IRewardManager GetRewardManagerFromPos()
+    {
+      return RewardManager;
+    }
+
+    public IReservationManager GetReservationManagerFromPos()
+    {
+      return ReservationManager;
+    }
+
+    public ILoggingManager GetLoggingManagerFromPos()
+    {
+      return LoggingManager;
+    }
+
+    public IOrderingManager OrderingManager { get; set; }
+    public ITransactionManager TransactionManager { get; set; }
+    public IRewardManager RewardManager { get; set; }
+    public ILoggingManager LoggingManager { get; set; }
+    public IReservationManager ReservationManager { get; set; }
+  }
 }

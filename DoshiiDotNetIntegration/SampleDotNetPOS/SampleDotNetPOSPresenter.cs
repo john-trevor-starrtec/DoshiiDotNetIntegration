@@ -88,7 +88,13 @@ namespace SampleDotNetPOS
 			mLog = new SampleLoggingManager(this);
 			mPaymentManager = new SampleTransactionManager();
             mOrderingManager = new SampleOrderingManager(this);
-			_mController = new DoshiiController(mPaymentManager, mLog, mOrderingManager, null);
+      mConfigManager = new SampleConfigurationManager();
+      mReservationManager = new SampleReservationManager();
+      mConfigManager.TransactionManager = mPaymentManager;
+      mConfigManager.OrderingManager = mOrderingManager;
+      mConfigManager.LoggingManager = mLog;
+      mConfigManager.ReservationManager = mReservationManager;
+      _mController = new DoshiiController(mConfigManager);
 			mOrders = new List<Order>();
 			mPayments = new List<Transaction>();
             mBookings = new List<Booking>();
@@ -118,21 +124,24 @@ namespace SampleDotNetPOS
 		/// <param name="locationToken">The entered location token in the view.</param>
 		public void Initialise(string apiAddress, string vendor, string secretKey, string locationToken)
 		{
-			_mController.Initialize(SampleDotNetPOSPresenter.AuthToken, vendor, secretKey, apiAddress, true, 0);
+      mConfigManager.Initialise(apiAddress, vendor, secretKey, locationToken);
+
+      _mController.Initialize(true);
 
 			// refresh the order list in memory
 			mOrders = _mController.GetOrders().ToList<Order>();
-			mOrders.AddRange(_mController.GetUnlinkedOrders());
+			//mOrders.AddRange(_mController.GetUnlinkedOrders());
 
 			// retrieve any payment transactions for current orders
 			mPayments.Clear();
 			foreach (var order in mOrders)
 			{
-				mPayments.AddRange(_mController.GetTransactionFromDoshiiOrderId(order.DoshiiId));
+        if (!String.IsNullOrEmpty(order.DoshiiId))
+				  mPayments.AddRange(_mController.GetTransactionFromDoshiiOrderId(order.DoshiiId));
 			}
             // retrieve any bookings.
-            mBookings = mManager.GetBookings(DateTime.Today, DateTime.Today.AddDays(2));
-            mTables = mManager.GetTables();
+            mBookings = _mController.GetBookings(DateTime.Today, DateTime.Today.AddDays(2));
+            mTables = _mController.GetTables();
 
             // update the view labels for count of orders and payments
             mView.UpdateOrderCountLabel(mOrders.Count);
@@ -405,7 +414,7 @@ namespace SampleDotNetPOS
 
         public Booking GetBooking(string id)
         {
-            return mManager.GetBooking(id);
+            return _mController.GetBooking(id);
         }
 
 
@@ -456,7 +465,7 @@ namespace SampleDotNetPOS
 
             if (table != null)
             {
-                table = mManager.CreateTable(table);
+                table = _mController.CreateTable(table);
                 AddOrUpdateTable(table);
             }
 
@@ -468,7 +477,7 @@ namespace SampleDotNetPOS
             table = EditTable(table);
             if (table != null)
             {
-                table = mManager.UpdateTable(table);
+                table = _mController.UpdateTable(table, table.Name);
                 AddOrUpdateTable(table);
             }
             return table;
@@ -479,7 +488,7 @@ namespace SampleDotNetPOS
             var checkin = GenerateBookingCheckin(booking);
             if (checkin != null)
             {
-                if (mManager.SeatBooking(booking.Id, checkin))
+                if (_mController.SeatBooking(booking.Id, checkin))
                     return checkin;
             }
             return null;
