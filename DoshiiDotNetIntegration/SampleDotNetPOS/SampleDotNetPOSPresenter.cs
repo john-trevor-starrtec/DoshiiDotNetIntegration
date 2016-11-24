@@ -1,4 +1,4 @@
-﻿using DoshiiDotNetIntegration;
+using DoshiiDotNetIntegration;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Models;
 using SampleDotNetPOS.POSImpl;
@@ -21,7 +21,7 @@ namespace SampleDotNetPOS
 		/// <summary>
 		/// Application authorisation token for Sample .NET POS application.
 		/// </summary>
-		private const string AuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkb3NoaWkgc2VydmVyIiwic3ViIjp7ImZvciI6IkxPQ0FUSU9OX1RPS0VOIiwiaWQiOiIxOSJ9LCJleHAiOjE1MDI1OTcyNTB9.Wsy52MzZslAjXoCRLu-8igjMbGS0mfxuonCWcrK7nCs"; //"7B2RDcb7atv8QW6YqDCxqsoHvJc";
+		private const string AuthToken = "7B2RDcb7atv8QW6YqDCxqsoHvJc";
 
 		#region Member variables
 
@@ -38,13 +38,8 @@ namespace SampleDotNetPOS
 		/// <summary>
 		/// The sample payment manager for the SampleDotNetPOS application.
 		/// </summary>
-<<<<<<< 7e61b0f8c2f16f00fdc0c72256076e067ea307fb
-		private SamplePaymentModuleManager mPaymentManager;
-
-=======
 		private SampleTransactionManager mPaymentManager;
 
->>>>>>> testing is going well
         /// <summary>
         /// The sample payment manager for the SampleDotNetPOS application.
         /// </summary>
@@ -93,14 +88,7 @@ namespace SampleDotNetPOS
 			mLog = new SampleLoggingManager(this);
 			mPaymentManager = new SampleTransactionManager();
             mOrderingManager = new SampleOrderingManager(this);
-<<<<<<< 7e61b0f8c2f16f00fdc0c72256076e067ea307fb
-            mConfigManager = new SampleConfigurationManager();
-            mReservationManager = new SampleReservationManager();
-            mReservationManager.AttachPresenter(this);
-			mManager = new DoshiiManager(mPaymentManager, mLog, mOrderingManager, null, mReservationManager, mConfigManager);
-=======
 			_mController = new DoshiiController(mPaymentManager, mLog, mOrderingManager, null);
->>>>>>> testing is going well
 			mOrders = new List<Order>();
 			mPayments = new List<Transaction>();
             mBookings = new List<Booking>();
@@ -130,21 +118,11 @@ namespace SampleDotNetPOS
 		/// <param name="locationToken">The entered location token in the view.</param>
 		public void Initialise(string apiAddress, string vendor, string secretKey, string locationToken)
 		{
-<<<<<<< 7e61b0f8c2f16f00fdc0c72256076e067ea307fb
-            mConfigManager.Initialise(apiAddress, vendor, secretKey, locationToken);
-
-            mManager.Initialize(true);
-
-			// refresh the order list in memory
-			//mOrders = mManager.GetOrders().ToList<Order>();
-			//mOrders.AddRange(mManager.GetUnlinkedOrders());
-=======
 			_mController.Initialize(SampleDotNetPOSPresenter.AuthToken, vendor, secretKey, apiAddress, true, 0);
 
 			// refresh the order list in memory
 			mOrders = _mController.GetOrders().ToList<Order>();
 			mOrders.AddRange(_mController.GetUnlinkedOrders());
->>>>>>> testing is going well
 
 			// retrieve any payment transactions for current orders
 			mPayments.Clear();
@@ -330,19 +308,18 @@ namespace SampleDotNetPOS
 				mPayments[index] = transaction;
 		}
 
+		#endregion
 
-        #endregion
+		#region Logging
 
-        #region Logging
-
-        /// <summary>
-        /// Logs a message to the logging mechanism.
-        /// </summary>
-        /// <param name="callingClass">The calling class type.</param>
-        /// <param name="message">The message to print.</param>
-        /// <param name="level">The level to log at.</param>
-        /// <param name="e">An optional exception.</param>
-        public void LogMessage(Type callingClass, string message, DoshiiLogLevels level, Exception e = null)
+		/// <summary>
+		/// Logs a message to the logging mechanism.
+		/// </summary>
+		/// <param name="callingClass">The calling class type.</param>
+		/// <param name="message">The message to print.</param>
+		/// <param name="level">The level to log at.</param>
+		/// <param name="e">An optional exception.</param>
+		public void LogMessage(Type callingClass, string message, DoshiiLogLevels level, Exception e = null)
 		{
 			mLog.LogDoshiiMessage(callingClass, level, message, e);
 		}
