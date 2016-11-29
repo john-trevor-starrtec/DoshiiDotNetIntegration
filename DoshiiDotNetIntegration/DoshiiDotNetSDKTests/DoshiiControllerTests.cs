@@ -69,33 +69,45 @@ namespace DoshiiDotNetSDKTests
 
 
             _controllers = new Controllers();
+
+            
+
+            _loggingController = MockRepository.GeneratePartialMock<LoggingController>(_logger);
+            _controllers.LoggingController = _loggingController;
+            _controllers.OrderingManager = _orderingManager;
+            _controllers.TransactionManager = _paymentManager;
+            _controllers.RewardManager = _membershipManager;
+            _controllers.ReservationManager = _reservationManager;
+                
+            
             _controllers.ConfigurationManager = _configurationManager;
             _mockHttpController = MockRepository.GeneratePartialMock<HttpController>(GenerateObjectsAndStringHelper.TestBaseUrl, _controllers);
 
             _doshiiController = new DoshiiController(_configurationManager);
-            _mockDoshiiController = MockRepository.GeneratePartialMock<DoshiiController>(_configurationManager);
-
+            //_mockDoshiiController = MockRepository.GeneratePartialMock<DoshiiController>(_configurationManager);
             _doshiiController.Initialize(false);
             
             _doshiiController._controllers = _controllers;
 
             _checkinController = MockRepository.GeneratePartialMock<CheckinController>(_controllers, _mockHttpController);
             _consumerController = MockRepository.GeneratePartialMock<ConsumerController>(_controllers, _mockHttpController);
-            _loggingController = MockRepository.GeneratePartialMock<LoggingController>(_controllers, _mockHttpController);
+            
             _menuController = MockRepository.GeneratePartialMock<MenuController>(_controllers, _mockHttpController);
+            _transactionController = MockRepository.GeneratePartialMock<TransactionController>(_controllers, _mockHttpController);
+            _controllers.TransactionController = _transactionController;
             _orderingController = MockRepository.GeneratePartialMock<OrderingController>(_controllers, _mockHttpController);
+            _controllers.OrderingController = _orderingController;
             _reservationController = MockRepository.GeneratePartialMock<ReservationController>(_controllers, _mockHttpController);
             _rewardController = MockRepository.GeneratePartialMock<RewardController>(_controllers, _mockHttpController);
             _tableController = MockRepository.GeneratePartialMock<TableController>(_controllers, _mockHttpController);
-            _transactionController = MockRepository.GeneratePartialMock<TransactionController>(_controllers, _mockHttpController);
             
-            _doshiiController._controllers.TransactionController = _transactionController;
+            
             _doshiiController._controllers.OrderingController = _orderingController;
             _doshiiController._controllers.MenuController = _menuController;
             _doshiiController._controllers.TableController = _tableController;
             _doshiiController._controllers.CheckinController = _checkinController;
             _doshiiController._controllers.ConsumerController = _consumerController;
-            _doshiiController._controllers.LoggingController = _loggingController;
+            
             _doshiiController._controllers.ReservationController = _reservationController;
             _doshiiController._controllers.RewardController = _rewardController;
         }
@@ -104,10 +116,10 @@ namespace DoshiiDotNetSDKTests
         public void AcceptOrderAheadCreation_success()
         {
             _orderingController.Expect(x => x.AcceptOrderAheadCreation(GenerateObjectsAndStringHelper.GenerateOrderAccepted())).Return(true);
-
+            _doshiiController._controllers.OrderingController = _orderingController;
 
             _doshiiController.AcceptOrderAheadCreation(GenerateObjectsAndStringHelper.GenerateOrderAccepted());
-            _mockDoshiiController.VerifyAllExpectations();
+            _orderingController.VerifyAllExpectations();
             
             /*_mockDoshiiController._logger.mLog.Expect(
                 x =>

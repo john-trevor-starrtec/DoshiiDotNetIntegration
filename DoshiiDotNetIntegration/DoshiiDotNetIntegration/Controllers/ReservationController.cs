@@ -46,7 +46,7 @@ namespace DoshiiDotNetIntegration.Controllers
 
             if (_controllers.ReservationManager == null)
             {
-                _controllers.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - rewardManager cannot be null");
+                _controllers.LoggingController.LogMessage(typeof(OrderingController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - reservationManager cannot be null");
                 throw new NullReferenceException("rewardManager cannot be null");
             }
             if (_controllers.OrderingManager == null)
