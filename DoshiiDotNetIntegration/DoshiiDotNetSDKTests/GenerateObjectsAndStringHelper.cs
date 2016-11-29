@@ -15,12 +15,14 @@ namespace DoshiiDotNetSDKTests
 
         #region test fields
 
+        internal static string TestVendor = "testVendor";
         internal static string TestBaseUrl = "https://Google.com.au";
         internal static string TestSocketUrl = "wss://google.com.au";
         internal static string TestCustomerId = "TestCustomerId";
         internal static string TestMeerkatConsumerId = "TestPaypalCustomerId";
         internal static string TestTableNumber = "TestTableNumber";
         internal static string TestToken = "TestToken";
+        internal static string TestSecretKey = "secretKey";
         internal static string TestCheckinId = "TestCheckinId";
         internal static string TestTableName = "TestName";
         internal static string TestTableAllocationName = "TestAllocationName";
@@ -496,13 +498,12 @@ namespace DoshiiDotNetSDKTests
             var consumer = new Consumer()
             {
                 Name = "testName",
-                PhoneNumber = "0402513654",
-                AddressLine1 = "address line 1",
-                AddressLine2 = "address line 2",
-                City = "Melbourne",
-                State = "vic",
-                PostalCode = "3004",
-                Country = "Au"
+                Phone = "0402513654",
+                Address = GenerateAddress1(),
+                Anonymous = false,
+                Email = "test@test.com.au",
+                Notes = "",
+                PhotoUrl = ""
             };
             return consumer;
         }

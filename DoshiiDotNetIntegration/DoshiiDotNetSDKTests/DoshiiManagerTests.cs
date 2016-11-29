@@ -1,4 +1,5 @@
-﻿using DoshiiDotNetIntegration;
+﻿/*
+using DoshiiDotNetIntegration;
 using DoshiiDotNetIntegration.Interfaces;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -2061,7 +2062,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Expect(x => x.RedeemPointsForMember(Arg<PointsRedeem>.Is.Anything, Arg<Member>.Is.Anything)).Return(true);
 
             _mockController.RedeemPointsForMember(member, app, order, points);
-        }*/
+        }#1#
 
         [Test]
         public void ReddemPointsForMember_Success()
@@ -2167,3 +2168,4 @@ namespace DoshiiDotNetSDKTests
         }
     }
 }
+*/
