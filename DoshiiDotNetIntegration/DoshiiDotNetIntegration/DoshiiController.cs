@@ -185,15 +185,16 @@ namespace DoshiiDotNetIntegration
         public DoshiiController(IConfigurationManager configurationManager)
         {
             _controllers = new Models.Controllers();
+            if (configurationManager == null)
+            {
+                throw new ArgumentNullException("configurationManager", "IConfigurationManager needs to be instantiated as it is a core module");
+            }
             _controllers.ConfigurationManager = configurationManager;
             _controllers.TransactionManager = configurationManager.GetTransactionManagerFromPos();
             _controllers.OrderingManager = configurationManager.GetOrderingManagerFromPos();
             _controllers.RewardManager = configurationManager.GetRewardManagerFromPos();
             _controllers.ReservationManager = configurationManager.GetReservationManagerFromPos();
-            if (configurationManager == null)
-            {
-                throw new ArgumentNullException("configurationManager", "IConfigurationManager needs to be instantiated as it is a core module");
-            }
+
             if (configurationManager.GetLoggingManagerFromPos() == null)
             {
                 throw new ArgumentNullException("logger", "ILoggingManager needs to be instantiated as it is a core module");
