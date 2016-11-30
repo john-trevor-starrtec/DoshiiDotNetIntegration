@@ -55,5 +55,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "rewardId")]
         public string RewardId { get; set; }
+
+        public bool ShouldSerializeId()
+        {
+            return (!string.IsNullOrEmpty(Id));
+        }
     }
 }

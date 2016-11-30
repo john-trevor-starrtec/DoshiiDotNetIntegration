@@ -223,7 +223,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
             // src = JsonOrderVariants, dest = Variants
             Mapper.CreateMap<JsonMenuVariants, Variants>()
-                .ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
+                //.ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
                 .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
 
