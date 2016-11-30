@@ -100,7 +100,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// The order with the corresponding Id
         /// <para/>If there is no order corresponding to the Id, a blank order may be returned. 
         /// </returns>
-        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
         internal virtual Order GetOrder(string orderId)
         {
             try
