@@ -33,7 +33,7 @@ namespace DoshiiDotNetIntegration.Models
 			Name = String.Empty;
 			Price = 0.0M;
 			PosId = String.Empty;
-			SelectedOptionalVariant = false;
+			//SelectedOptionalVariant = false;
 		}
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace DoshiiDotNetIntegration.Models
 		/// <summary>
 		/// This field will be true if the variant has been selected.
 		/// </summary>
-		public bool SelectedOptionalVariant { get; set; }
+		//public bool SelectedOptionalVariant { get; set; }
 
 		#region ICloneable Members
 
