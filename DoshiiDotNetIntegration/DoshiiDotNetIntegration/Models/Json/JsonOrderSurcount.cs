@@ -60,5 +60,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         {
             return (!string.IsNullOrEmpty(Id));
         }
+
+        public bool ShouldSerializeRewardId()
+        {
+            return (!string.IsNullOrEmpty(RewardId));
+        }
     }
 }
