@@ -143,5 +143,10 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(PosId));
         }
 
+        public bool ShouldSerializeDescription()
+        {
+            return (!string.IsNullOrEmpty(Description));
+        }
+
    }
 }

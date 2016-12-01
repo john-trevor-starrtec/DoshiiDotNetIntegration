@@ -57,7 +57,7 @@ namespace DoshiiDotNetIntegration.Controllers
         /// The full venue menu to overwrite the current menu in Doshii
         /// </param>
         /// <returns>
-        /// The Doshii menu
+        /// The Doshii menu is successful and null if not successful. 
         /// </returns>
         public virtual Menu UpdateMenu(Menu menu)
         {
