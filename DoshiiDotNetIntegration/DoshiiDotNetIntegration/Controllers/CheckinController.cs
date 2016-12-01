@@ -77,7 +77,7 @@ namespace DoshiiDotNetIntegration.Controllers
             catch (Exception ex)
             {
                 _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: a exception was thrown while attempting to close checkin {0} - {1}", checkinId, ex));
-                throw new OrderUpdateException(string.Format("Doshii: a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
+                throw new CheckinUpdateException(string.Format("Doshii: a exception was thrown while attempting to close a checkin {0}", checkinId), ex);
             }
             return true;
         }

@@ -968,8 +968,6 @@ namespace DoshiiDotNetSDKTests
             Assert.AreEqual(false, result);
         }
 
-        ///////////////////////////////////////////////////////
-         
         [Test]
         public void RedeemPointsForMember_success()
         {
@@ -1093,7 +1091,159 @@ namespace DoshiiDotNetSDKTests
             bool result = _doshiiController.RedeemPointsForMemberConfirm("1");
             Assert.AreEqual(false, result);
         }
-#endregion
+        
+        #endregion
+
+        #region TableAllocation and consumers
+
+        [Test]
+        public void SetTableAllocationWithoutCheckin_success()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _tableController.Expect(x => x.SetTableAllocationWithoutCheckin("1", tableList,2)).Return(true);
+
+            Boolean result = _doshiiController.SetTableAllocationWithoutCheckin("1", tableList, 2);
+            _tableController.VerifyAllExpectations();
+            Assert.AreEqual(true, result);
+
+        }
+
+        [Test]
+        public void SetTableAllocationWithoutCheckin_failed()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _tableController.Expect(x => x.SetTableAllocationWithoutCheckin("1", tableList, 2)).Return(false);
+
+            Boolean result = _doshiiController.SetTableAllocationWithoutCheckin("1", tableList, 2);
+            _tableController.VerifyAllExpectations();
+            Assert.AreEqual(false, result);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void SetTableAllocationWithoutCheckin_initilizationFailed_exceptionThrown()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.SetTableAllocationWithoutCheckin("1", tableList, 2);
+        }
+
+        [Test]
+        [ExpectedException(typeof(OrderDoesNotExistOnPosException))]
+        public void SetTableAllocationWithoutCheckin_OrderNotOnPosException()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _tableController.Expect(x => x.SetTableAllocationWithoutCheckin("1", tableList, 2)).Throw(new OrderDoesNotExistOnPosException());
+
+            _doshiiController.SetTableAllocationWithoutCheckin("1", tableList, 2);
+        }
+
+        [Test]
+        [ExpectedException(typeof(CheckinUpdateException))]
+        public void SetTableAllocationWithoutCheckin_CheckinUpdateException()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _tableController.Expect(x => x.SetTableAllocationWithoutCheckin("1", tableList, 2)).Throw(new CheckinUpdateException());
+
+            _doshiiController.SetTableAllocationWithoutCheckin("1", tableList, 2);
+        }
+
+        [Test]
+        public void ModifyTableAllocation_success()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _tableController.Expect(x => x.ModifyTableAllocation("1", tableList, 2)).Return(true);
+
+            Boolean result = _doshiiController.ModifyTableAllocation("1", tableList, 2);
+            _tableController.VerifyAllExpectations();
+            Assert.AreEqual(true, result);
+
+        }
+
+        [Test]
+        public void ModifyTableAllocation_failed()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _tableController.Expect(x => x.ModifyTableAllocation("1", tableList, 2)).Return(false);
+
+            Boolean result = _doshiiController.ModifyTableAllocation("1", tableList, 2);
+            _tableController.VerifyAllExpectations();
+            Assert.AreEqual(false, result);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void ModifyTableAllocation_initilizationFailed_exceptionThrown()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.ModifyTableAllocation("1", tableList, 2);
+        }
+
+        [Test]
+        [ExpectedException(typeof(CheckinUpdateException))]
+        public void ModifyTableAllocation_CheckinUpdateException()
+        {
+            List<string> tableList = new List<string>();
+            tableList.Add("table1");
+            _tableController.Expect(x => x.ModifyTableAllocation("1", tableList, 2)).Throw(new CheckinUpdateException());
+
+            _doshiiController.ModifyTableAllocation("1", tableList, 2);
+        }
+
+        [Test]
+        public void CloseCheckin_success()
+        {
+            _checkinController.Expect(x => x.CloseCheckin("1")).Return(true);
+
+            Boolean result = _doshiiController.CloseCheckin("1");
+            _tableController.VerifyAllExpectations();
+            Assert.AreEqual(true, result);
+
+        }
+
+        [Test]
+        public void CloseCheckin_failed()
+        {
+            _checkinController.Expect(x => x.CloseCheckin("1")).Return(false);
+
+            Boolean result = _doshiiController.CloseCheckin("1");
+            _tableController.VerifyAllExpectations();
+            Assert.AreEqual(false, result);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void CloseCheckin_initilizationFailed_exceptionThrown()
+        {
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.CloseCheckin("1");
+        }
+
+        [Test]
+        [ExpectedException(typeof(CheckinUpdateException))]
+        public void CloseCheckin_CheckinUpdateException()
+        {
+            _checkinController.Expect(x => x.CloseCheckin("1")).Throw(new CheckinUpdateException());
+
+            _doshiiController.CloseCheckin("1");
+        }
+
+        #endregion
 
     }
 }
