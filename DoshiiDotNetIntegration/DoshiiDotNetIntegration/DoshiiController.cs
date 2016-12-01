@@ -1341,7 +1341,7 @@ namespace DoshiiDotNetIntegration
         /// <para/>If you wish to update or create single order level surcharges you should use the <see cref="UpdateSurcount"/> method
         /// <para/>if you wish to delete a single product you should use the <see cref="DeleteProduct "/> method
         /// <para/>if you wish to delete a single order level surcharge you should use the <see cref="DeleteSurcount "/> method
-         /// </summary>
+        /// </summary>
         /// <param name="menu">
         /// The full pos menu to be updated to doshii
         /// </param>

@@ -1245,5 +1245,216 @@ namespace DoshiiDotNetSDKTests
 
         #endregion
 
+        #region products
+
+        [Test]
+        public void UpdateMenu_success()
+        {
+            Menu menuToSend = new Menu();
+            _menuController.Expect(x => x.UpdateMenu(menuToSend)).Return(menuToSend);
+
+            Menu result = _doshiiController.UpdateMenu(menuToSend);
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result != null);
+
+        }
+
+        [Test]
+        public void UpdateMenu_failed()
+        {
+            Menu menuToSend = new Menu();
+            _menuController.Expect(x => x.UpdateMenu(menuToSend)).Return(null);
+
+            Menu result = _doshiiController.UpdateMenu(menuToSend);
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result == null);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void UpdateMenu_initilizationFailed_exceptionThrown()
+        {
+            Menu menuToSend = new Menu();
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.UpdateMenu(menuToSend);
+        }
+
+        [Test]
+        public void UpdateSurcount_success()
+        {
+            Surcount surcountToSend = new Surcount();
+            _menuController.Expect(x => x.UpdateSurcount(surcountToSend)).Return(surcountToSend);
+
+            Surcount result = _doshiiController.UpdateSurcount(surcountToSend);
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result != null);
+
+        }
+
+        [Test]
+        public void UpdateSurcount_failed()
+        {
+            Surcount surcountToSend = new Surcount();
+            _menuController.Expect(x => x.UpdateSurcount(surcountToSend)).Return(null);
+
+            Surcount result = _doshiiController.UpdateSurcount(surcountToSend);
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result == null);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void UpdateSurcount_initilizationFailed_exceptionThrown()
+        {
+            Surcount surcountToSend = new Surcount();
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.UpdateSurcount(surcountToSend);
+        }
+
+        [Test]
+        public void UpdateProduct_success()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _menuController.Expect(x => x.UpdateProduct(productToSend)).Return(productToSend);
+
+            Product result = _doshiiController.UpdateProduct(productToSend);
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result != null);
+
+        }
+
+        [Test]
+        public void UpdateProduct_failed()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _menuController.Expect(x => x.UpdateProduct(productToSend)).Return(null);
+
+            Product result = _doshiiController.UpdateProduct(productToSend);
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result == null);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void UpdateProduct_initilizationFailed_exceptionThrown()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.UpdateProduct(productToSend);
+        }
+
+        [Test]
+        public void DeleteProduct_success()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _menuController.Expect(x => x.DeleteProduct("1")).Return(true);
+
+            bool result = _doshiiController.DeleteProduct("1");
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result);
+
+        }
+
+        [Test]
+        public void DeleteProduct_failed()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _menuController.Expect(x => x.DeleteProduct("1")).Return(false);
+
+            bool result = _doshiiController.DeleteProduct("1");
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(false, result);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void DeleteProduct_initilizationFailed_exceptionThrown()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.DeleteProduct("1");
+        }
+
+
+        [Test]
+        public void DeleteSurcount_success()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _menuController.Expect(x => x.DeleteSurcount("1")).Return(true);
+
+            bool result = _doshiiController.DeleteSurcount("1");
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result);
+
+        }
+
+        [Test]
+        public void DeleteSurcharge_failed()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _menuController.Expect(x => x.DeleteSurcount("1")).Return(false);
+
+            bool result = _doshiiController.DeleteSurcount("1");
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(false, result);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void DeleteSurcharge_initilizationFailed_exceptionThrown()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.DeleteSurcount("1");
+        }
+        #endregion
+
+        #region tables
+
+        /*[Test]
+        public void DeleteSurcount_success()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _menuController.Expect(x => x.DeleteSurcount("1")).Return(true);
+
+            bool result = _doshiiController.DeleteSurcount("1");
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(true, result);
+
+        }
+
+        [Test]
+        public void DeleteSurcharge_failed()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _menuController.Expect(x => x.DeleteSurcount("1")).Return(false);
+
+            bool result = _doshiiController.DeleteSurcount("1");
+            _menuController.VerifyAllExpectations();
+            Assert.AreEqual(false, result);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void DeleteSurcharge_initilizationFailed_exceptionThrown()
+        {
+            Product productToSend = GenerateObjectsAndStringHelper.GenerateProduct1WithOptions();
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.DeleteSurcount("1");
+        }*/
+
+        #endregion
     }
 }
