@@ -812,7 +812,287 @@ namespace DoshiiDotNetSDKTests
             _doshiiController.SyncDoshiiMembersWithPosMembers();
         }
 
-        
+        [Test]
+        public void GetRewardsForMember_success()
+        {
+            _rewardController.Expect(x => x.GetRewardsForMember("1","2",3)).Return(new List<Reward>());
+
+            _doshiiController.GetRewardsForMember("1", "2", 3);
+            _rewardController.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void GetRewardsForMember_initilizationFailed_exceptionThrown()
+        {
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.GetRewardsForMember("1", "2", 3);
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void GetRewardsForMember_RewardInitilizationFailed_exceptionThrown()
+        {
+            _doshiiController._controllers.RewardManager = null;
+
+            _doshiiController.GetRewardsForMember("1", "2", 3);
+        }
+
+        [Test]
+        [ExpectedException(typeof(RestfulApiErrorResponseException))]
+        public void GetRewardsForMember_throwsException()
+        {
+            _rewardController.Expect(x => x.GetRewardsForMember("1", "2", 3)).Throw(new RestfulApiErrorResponseException());
+
+            _doshiiController.GetRewardsForMember("1", "2", 3);
+        }
+
+        [Test]
+        public void RedeemRewardForMember_success()
+        {
+            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
+            Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            _rewardController.Expect(x => x.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn)).Return(true);
+
+            _doshiiController.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn);
+            _rewardController.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void RedeemRewardForMember_initilizationFailed_exceptionThrown()
+        {
+            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
+            Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn);
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void RedeemRewardForMember_RewardInitilizationFailed_exceptionThrown()
+        {
+            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
+            Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            _doshiiController._controllers.RewardManager = null;
+
+            _doshiiController.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn);
+        }
+
+        [Test]
+        public void RedeemRewardForMember_fail()
+        {
+            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            Reward rewardToRedeem = GenerateObjectsAndStringHelper.GenerateRewardAbsolute();
+            Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            _rewardController.Expect(x => x.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn)).Return(false);
+
+            bool result =  _doshiiController.RedeemRewardForMember(memberToUpdate, rewardToRedeem, orderToREdeemOn);
+            Assert.AreEqual(false,result);
+        }
+
+        [Test]
+        public void RedeemRewardForMemberCancel_success()
+        {
+            _rewardController.Expect(x => x.RedeemRewardForMemberCancel("1", "2", "test")).Return(true);
+
+            _doshiiController.RedeemRewardForMemberCancel("1", "2", "test");
+            _rewardController.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void RedeemRewardForMemberCancel_initilizationFailed_exceptionThrown()
+        {
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.RedeemRewardForMemberCancel("1", "2", "test");
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void RedeemRewardForMemberCancel_RewardInitilizationFailed_exceptionThrown()
+        {
+            _doshiiController._controllers.RewardManager = null;
+
+            _doshiiController.RedeemRewardForMemberCancel("1", "2", "test");
+        }
+
+        [Test]
+        public void RedeemRewardForMemberCancel_fail()
+        {
+            _rewardController.Expect(x => x.RedeemRewardForMemberCancel("1", "2", "test")).Return(false);
+
+           bool result = _doshiiController.RedeemRewardForMemberCancel("1", "2", "test");
+            Assert.AreEqual(false, result);
+        }
+
+        [Test]
+        public void RedeemRewardForMemberConfirm_success()
+        {
+            _rewardController.Expect(x => x.RedeemRewardForMemberConfirm("1", "2")).Return(true);
+
+            _doshiiController.RedeemRewardForMemberConfirm("1", "2");
+            _rewardController.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void RedeemRewardForMemberConfirm_initilizationFailed_exceptionThrown()
+        {
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.RedeemRewardForMemberConfirm("1", "2");
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void RedeemRewardForMemberConfirm_RewardInitilizationFailed_exceptionThrown()
+        {
+            _doshiiController._controllers.RewardManager = null;
+
+            _doshiiController.RedeemRewardForMemberConfirm("1", "2");
+        }
+
+        [Test]
+        public void RedeemRewardForMemberConfirm_fail()
+        {
+            _rewardController.Expect(x => x.RedeemRewardForMemberConfirm("1", "2")).Return(false);
+
+            bool result = _doshiiController.RedeemRewardForMemberConfirm("1", "2");
+            Assert.AreEqual(false, result);
+        }
+
+        ///////////////////////////////////////////////////////
+         
+        [Test]
+        public void RedeemPointsForMember_success()
+        {
+            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            int PointsToRedeem = 200;
+            App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
+            Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            _rewardController.Expect(x => x.RedeemPointsForMember(memberToUpdate, pointsApp, orderToREdeemOn, PointsToRedeem)).Return(true);
+
+            _doshiiController.RedeemPointsForMember(memberToUpdate, pointsApp, orderToREdeemOn, PointsToRedeem);
+            _rewardController.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void RedeemPointsForMember_initilizationFailed_exceptionThrown()
+        {
+            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            int PointsToRedeem = 200;
+            App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
+            Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.RedeemPointsForMember(memberToUpdate, pointsApp, orderToREdeemOn, PointsToRedeem);
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void RedeemPointsForMember_PointsInitilizationFailed_exceptionThrown()
+        {
+            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            int PointsToRedeem = 200;
+            App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
+            Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            _doshiiController._controllers.RewardManager = null;
+
+            _doshiiController.RedeemPointsForMember(memberToUpdate, pointsApp, orderToREdeemOn, PointsToRedeem);
+        }
+
+        [Test]
+        public void RedeemPointsForMember_fail()
+        {
+            Member memberToUpdate = GenerateObjectsAndStringHelper.GenerateMember1();
+            int PointsToRedeem = 200;
+            App pointsApp = GenerateObjectsAndStringHelper.GenerateApp2();
+            Order orderToREdeemOn = GenerateObjectsAndStringHelper.GenerateOrderAccepted();
+            _rewardController.Expect(x => x.RedeemPointsForMember(memberToUpdate, pointsApp, orderToREdeemOn, PointsToRedeem)).Return(false);
+
+            bool result = _doshiiController.RedeemPointsForMember(memberToUpdate, pointsApp, orderToREdeemOn, PointsToRedeem);
+            Assert.AreEqual(false, result);
+        }
+
+        [Test]
+        public void RedeemPointsForMemberCancel_success()
+        {
+            _rewardController.Expect(x => x.RedeemPointsForMemberCancel("1", "test")).Return(true);
+
+            _doshiiController.RedeemPointsForMemberCancel("1", "test");
+            _rewardController.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void RedeemPointsForMemberCancel_initilizationFailed_exceptionThrown()
+        {
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.RedeemPointsForMemberCancel("1", "test");
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void RedeemPointsForMemberCancel_PointsInitilizationFailed_exceptionThrown()
+        {
+            _doshiiController._controllers.RewardManager = null;
+
+            _doshiiController.RedeemPointsForMemberCancel("1", "test");
+        }
+
+        [Test]
+        public void RedeemPointsForMemberCancel_fail()
+        {
+            _rewardController.Expect(x => x.RedeemPointsForMemberCancel("1", "test")).Return(false);
+
+            bool result = _doshiiController.RedeemPointsForMemberCancel("1", "test");
+            Assert.AreEqual(false, result);
+        }
+
+        [Test]
+        public void RedeemPointsForMemberConfirm_success()
+        {
+            _rewardController.Expect(x => x.RedeemPointsForMemberConfirm("1")).Return(true);
+
+            _doshiiController.RedeemPointsForMemberConfirm("1");
+            _rewardController.VerifyAllExpectations();
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiManagerNotInitializedException))]
+        public void RedeemPointsForMemberConfirm_initilizationFailed_exceptionThrown()
+        {
+            _doshiiController.IsInitalized = false;
+
+            _doshiiController.RedeemPointsForMemberConfirm("1");
+        }
+
+        [Test]
+        [ExpectedException(typeof(DoshiiMembershipManagerNotInitializedException))]
+        public void RedeemPointsForMemberConfirm_PointsInitilizationFailed_exceptionThrown()
+        {
+            _doshiiController._controllers.RewardManager = null;
+
+            _doshiiController.RedeemPointsForMemberConfirm("1");
+        }
+
+        [Test]
+        public void RedeemPointsForMemberConfirm_fail()
+        {
+            _rewardController.Expect(x => x.RedeemPointsForMemberConfirm("1")).Return(false);
+
+            bool result = _doshiiController.RedeemPointsForMemberConfirm("1");
+            Assert.AreEqual(false, result);
+        }
 #endregion
 
     }
