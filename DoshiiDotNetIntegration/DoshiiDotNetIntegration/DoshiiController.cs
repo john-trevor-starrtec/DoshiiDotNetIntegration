@@ -875,7 +875,7 @@ namespace DoshiiDotNetIntegration
 
         /// <summary>
         /// This method will update the Order on the Doshii API
-        /// <para/>This method should only be used to update orders that have been modified on the pos.
+        /// <para/>This can be used to update / create orders on Doshii that have been modified / created on the pos.
         /// <para/>This method should not be used to accept or reject pending orders from doshii.
         /// <para/>To accept a pending order ahead order from Doshii use <see cref="AcceptOrderAheadCreation"/>
         /// <para/>To reject a pending order ahead order from Doshii use <see cref="RejectOrderAheadCreation"/>
@@ -1468,7 +1468,7 @@ namespace DoshiiDotNetIntegration
             }
             return _controllers.TableController.GetTable(tableName);
         }
-
+        
         /// <summary>
         /// gets all the tables registered at the venue in Doshii
         /// </summary>

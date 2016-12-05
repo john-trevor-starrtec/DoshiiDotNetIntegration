@@ -49,6 +49,11 @@ namespace DoshiiDotNetIntegration.Models.Json
             {
 				_Variants = value;
             }
-        } 
+        }
+
+        public bool ShouldSerializePosId()
+        {
+            return (!string.IsNullOrEmpty(PosId));
+        }
     }
 }

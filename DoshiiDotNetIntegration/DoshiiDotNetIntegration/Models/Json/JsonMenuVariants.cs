@@ -39,5 +39,10 @@ namespace DoshiiDotNetIntegration.Models.Json
         [DataMember]
         [JsonProperty(PropertyName = "price")]
         public string Price { get; set; }
+
+        public bool ShouldSerializePosId()
+        {
+            return (!string.IsNullOrEmpty(PosId));
+        }
     }
 }
