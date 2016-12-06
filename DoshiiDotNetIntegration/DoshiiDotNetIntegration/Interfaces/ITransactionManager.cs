@@ -47,6 +47,7 @@ namespace DoshiiDotNetIntegration.Interfaces
 		/// The Doshii SDK will call this function after payment has been successfully captured for an order. 
 		/// At this point the POS cannot reject the payment and must record the payment received. If the POS did not want to receive the payment the POS needed to reject the 
 		/// <see cref="ReadyToPay"/> message, or reject the order when the order was received with a full payment if <see cref="IOrderingManager"/> has been implemented. 
+		/// If This payment finalizes the order the pos Must Call <see cref="DoshiiController.UpdateOrder"/> with the status of complete on the order. 
 		/// </summary>
 		/// <param name="transaction">The details of the payment to be applied.</param>
 		void RecordSuccessfulPayment(Transaction transaction);
