@@ -609,6 +609,58 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         }
 
         /// <summary>
+        /// This method is used to retrieve a list of transaction related to an order with the posOrderId
+        /// </summary>
+        /// <param name="posOrderId">
+        /// the posOrderId for the order. 
+        /// </param>
+        /// <returns>
+        /// A list of transactions associated with the order,
+        /// If there are no transaction associated with the order an empty list is returned. 
+        /// </returns>
+        /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an error during the Request to doshii</exception>
+        internal virtual IEnumerable<Transaction> GetTransactionsFromPosOrderId(string posOrderId)
+        {
+            var retreivedTransactionList = new List<Transaction>();
+            DoshiHttpResponseMessage responseMessage;
+            try
+            {
+                responseMessage = MakeRequest(GenerateUrl(Enums.EndPointPurposes.TransactionFromPosOrderId, posOrderId), WebRequestMethods.Http.Get);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                throw rex;
+            }
+
+            if (responseMessage != null)
+            {
+                if (responseMessage.Status == HttpStatusCode.OK)
+                {
+                    if (!string.IsNullOrWhiteSpace(responseMessage.Data))
+                    {
+                        var jsonList = JsonConvert.DeserializeObject<List<JsonTransaction>>(responseMessage.Data);
+                        retreivedTransactionList = Mapper.Map<List<Transaction>>(jsonList);
+                    }
+                    else
+                    {
+                        _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} returned a successful response but there was not data contained in the response", GenerateUrl(Enums.EndPointPurposes.TransactionFromPosOrderId, posOrderId)));
+                    }
+
+                }
+                else
+                {
+                    _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: A 'GET' request to {0} was not successful", GenerateUrl(Enums.EndPointPurposes.TransactionFromPosOrderId, posOrderId)));
+                }
+            }
+            else
+            {
+                _controllers.LoggingController.LogMessage(typeof(HttpController), DoshiiLogLevels.Warning, string.Format("Doshii: The return property from DoshiiHttpCommuication.MakeRequest was null for method - 'GET' and URL '{0}'", GenerateUrl(Enums.EndPointPurposes.TransactionFromPosOrderId, posOrderId)));
+            }
+
+            return retreivedTransactionList;
+        }
+
+        /// <summary>
         /// This method is used to get a transaction from Doshii with the matching transacitonId
         /// </summary>
         /// <param name="transactionId">
@@ -2290,6 +2342,9 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     break;
                 case EndPointPurposes.TransactionFromDoshiiOrderId:
                     newUrlbuilder.AppendFormat("/unlinked_orders/{0}/transactions", identification);
+                    break;
+                case EndPointPurposes.TransactionFromPosOrderId:
+                    newUrlbuilder.AppendFormat("/orders/{0}/transactions", identification);
                     break;
                 case EndPointPurposes.UnlinkedOrders:
                     newUrlbuilder.Append("/unlinked_orders");
