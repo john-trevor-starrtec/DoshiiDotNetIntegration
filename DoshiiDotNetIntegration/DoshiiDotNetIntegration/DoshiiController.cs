@@ -392,7 +392,7 @@ namespace DoshiiDotNetIntegration
 		internal virtual string BuildSocketUrl(string socketUrl, string token)
 		{
 			// finally append the socket endpoint and token parameter to the url and return the result
-            return String.Format("{0}?token={1}", socketUrl, token);
+            return String.Format("{0}?token={1}", socketUrl.Trim(), token.Trim());
         }
 
         /// <summary>
@@ -855,6 +855,28 @@ namespace DoshiiDotNetIntegration
             }
             return _controllers.TransactionController.GetTransactionFromDoshiiOrderId(doshiiOrderId);
             
+        }
+
+        /// <summary>
+        /// This method returns a transaction from Doshii corresponding to the order with the posOrderId
+        /// </summary>
+        /// <param name="doshiiOrderId">
+        /// The DoshiiId of the order that is being requested. 
+        /// </param>
+        /// <returns>
+        /// <see cref="Transaction"/> that relate to the doshiiOrderId. 
+        /// </returns>
+        /// <exception cref="DoshiiManagerNotInitializedException">Thrown when Initialize has not been successfully called before this method was called.</exception>
+        /// <exception cref="RestfulApiErrorResponseException">Thrown when there is an exception while making the request to doshii.</exception>
+        public virtual IEnumerable<Transaction> GetTransactionFromOrderId(string posOrderId)
+        {
+            if (!m_IsInitalized)
+            {
+                ThrowDoshiiManagerNotInitializedException(string.Format("{0}.{1}", this.GetType(),
+                    "GetTransactionFromDoshiiOrderId"));
+            }
+            return _controllers.TransactionController.GetTransactionFromPosOrderId(posOrderId);
+
         }
 
 		/// <summary>

@@ -154,6 +154,32 @@ namespace DoshiiDotNetIntegration.Controllers
         }
 
         /// <summary>
+        /// get a list of transactions from Doshii related to the posOrderId provided, 
+        /// </summary>
+        /// <param name="doshiiOrderId"></param>
+        /// <returns></returns>
+        internal virtual IEnumerable<Transaction> GetTransactionFromPosOrderId(string posOrderId)
+        {
+            try
+            {
+                return _httpComs.GetTransactionsFromPosOrderId(posOrderId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                //this means there were no transactions for the unlinked order. 
+                if (rex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    List<Transaction> emplyTransactionList = new List<Transaction>();
+                    return emplyTransactionList;
+                }
+                else
+                {
+                    throw rex;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets all the open transactions from Doshii. 
         /// </summary>
         /// <returns></returns>
