@@ -36,6 +36,11 @@ namespace DoshiiDotNetIntegration.Enums
         TransactionFromDoshiiOrderId = 5,
 
         /// <summary>
+        /// Requests for transactions where the order already linked to the pos. 
+        /// </summary>
+        TransactionFromPosOrderId = 25,
+
+        /// <summary>
         /// Requests for orders where the order is currently unlinked to the pos.
         /// </summary>
         UnlinkedOrders = 6,
@@ -71,40 +76,64 @@ namespace DoshiiDotNetIntegration.Enums
         Members = 12,
 
         /// <summary>
-        /// requests for member reqard data
+        /// requests for member rewards
         /// </summary>
         MemberRewards = 13,
 
         /// <summary>
-        /// requests for member reqard data
+        /// requests to redeem member rewards
         /// </summary>
         MemberRewardsRedeem = 14,
 
         /// <summary>
-        /// requests for member reqard data
+        /// requests to confirm a member reward redemption
         /// </summary>
         MemberRewardsRedeemConfirm = 15,
 
         /// <summary>
-        /// requests for member reqard data
+        /// requests to cancel a member reward cancel
         /// </summary>
         MemberRewardsRedeemCancel = 16,
 
+        /// <summary>
+        /// requests to redeem member rewards. 
+        /// </summary>
         MemberPointsRedeem = 17,
 
+        /// <summary>
+        /// requests to confirm the redemption of member points
+        /// </summary>
         MemberPointsRedeemConfirm = 18,
 
+        /// <summary>
+        /// request to cancel the redemption of member points
+        /// </summary>
         MemberPointsRedeemCancel = 19,
 
+        /// <summary>
+        /// requests for checkin Data
+        /// </summary>
         Checkins = 20,
 
+        /// <summary>
+        /// request for table data
+        /// </summary>
         Tables = 21,
 
+        /// <summary>
+        /// request for single booking data
+        /// </summary>
         Booking = 22,
 
+        /// <summary>
+        /// request for multiple booking data
+        /// </summary>
         Bookings = 23,
 
-        BookingsCheckin = 24,
+        /// <summary>
+        /// requests for booking checkins. 
+        /// </summary>
+        BookingsCheckin = 24
 
     }
 }

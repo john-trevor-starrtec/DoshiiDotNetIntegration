@@ -32,7 +32,12 @@
             this.lblCopyright = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblOrderCount = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblPaymentCount = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblBookingsCount = new System.Windows.Forms.ToolStripStatusLabel();
             this.pnlTop = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txbVendorName = new System.Windows.Forms.TextBox();
+            this.txbSecretKey = new System.Windows.Forms.TextBox();
             this.btnInitialise = new System.Windows.Forms.Button();
             this.tbxLocationToken = new System.Windows.Forms.TextBox();
             this.lblLocationToken = new System.Windows.Forms.Label();
@@ -40,12 +45,11 @@
             this.lblApiAddress = new System.Windows.Forms.Label();
             this.rtbLog = new System.Windows.Forms.RichTextBox();
             this.pnlCommands = new System.Windows.Forms.Panel();
+            this.buttonViewBookings = new System.Windows.Forms.Button();
             this.btnViewOrders = new System.Windows.Forms.Button();
             this.btnTestLogging = new System.Windows.Forms.Button();
-            this.txbSecretKey = new System.Windows.Forms.TextBox();
-            this.txbVendorName = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.buttonViewTables = new System.Windows.Forms.Button();
+            this.lblTablesCount = new System.Windows.Forms.ToolStripStatusLabel();
             this.ssStatusBar.SuspendLayout();
             this.pnlTop.SuspendLayout();
             this.pnlCommands.SuspendLayout();
@@ -56,7 +60,9 @@
             this.ssStatusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblCopyright,
             this.lblOrderCount,
-            this.lblPaymentCount});
+            this.lblPaymentCount,
+            this.lblBookingsCount,
+            this.lblTablesCount});
             this.ssStatusBar.Location = new System.Drawing.Point(0, 538);
             this.ssStatusBar.Name = "ssStatusBar";
             this.ssStatusBar.Size = new System.Drawing.Size(784, 24);
@@ -83,6 +89,12 @@
             this.lblPaymentCount.Size = new System.Drawing.Size(72, 19);
             this.lblPaymentCount.Text = "0 Payments";
             // 
+            // lblBookingsCount
+            // 
+            this.lblBookingsCount.Name = "lblBookingsCount";
+            this.lblBookingsCount.Size = new System.Drawing.Size(65, 19);
+            this.lblBookingsCount.Text = "0 Bookings";
+            // 
             // pnlTop
             // 
             this.pnlTop.Controls.Add(this.label2);
@@ -99,6 +111,38 @@
             this.pnlTop.Name = "pnlTop";
             this.pnlTop.Size = new System.Drawing.Size(784, 80);
             this.pnlTop.TabIndex = 1;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(295, 47);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(62, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Secret Key:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(13, 46);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(97, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "POS vendor name:";
+            // 
+            // txbVendorName
+            // 
+            this.txbVendorName.Location = new System.Drawing.Point(116, 44);
+            this.txbVendorName.Name = "txbVendorName";
+            this.txbVendorName.Size = new System.Drawing.Size(150, 20);
+            this.txbVendorName.TabIndex = 6;
+            // 
+            // txbSecretKey
+            // 
+            this.txbSecretKey.Location = new System.Drawing.Point(363, 43);
+            this.txbSecretKey.Name = "txbSecretKey";
+            this.txbSecretKey.Size = new System.Drawing.Size(328, 20);
+            this.txbSecretKey.TabIndex = 5;
             // 
             // btnInitialise
             // 
@@ -130,6 +174,7 @@
             // 
             this.cbxApiAddress.FormattingEnabled = true;
             this.cbxApiAddress.Items.AddRange(new object[] {
+            "https://sandbox.doshii.co/pos/v3",
             "http://sandbox.doshii.co/pos/api/v2",
             "http://sandbox.corp.doshii.co/pos/api/v2",
             "http://localhost:3000/pos/api/v2",
@@ -161,6 +206,8 @@
             // 
             // pnlCommands
             // 
+            this.pnlCommands.Controls.Add(this.buttonViewTables);
+            this.pnlCommands.Controls.Add(this.buttonViewBookings);
             this.pnlCommands.Controls.Add(this.btnViewOrders);
             this.pnlCommands.Controls.Add(this.btnTestLogging);
             this.pnlCommands.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -168,6 +215,16 @@
             this.pnlCommands.Name = "pnlCommands";
             this.pnlCommands.Size = new System.Drawing.Size(784, 166);
             this.pnlCommands.TabIndex = 3;
+            // 
+            // buttonViewBookings
+            // 
+            this.buttonViewBookings.Location = new System.Drawing.Point(12, 64);
+            this.buttonViewBookings.Name = "buttonViewBookings";
+            this.buttonViewBookings.Size = new System.Drawing.Size(106, 23);
+            this.buttonViewBookings.TabIndex = 2;
+            this.buttonViewBookings.Text = "VIEW BOOKINGS";
+            this.buttonViewBookings.UseVisualStyleBackColor = true;
+            this.buttonViewBookings.Click += new System.EventHandler(this.buttonViewBookings_Click);
             // 
             // btnViewOrders
             // 
@@ -189,37 +246,21 @@
             this.btnTestLogging.UseVisualStyleBackColor = true;
             this.btnTestLogging.Click += new System.EventHandler(this.btnTestLogging_Click);
             // 
-            // txbSecretKey
+            // buttonViewTables
             // 
-            this.txbSecretKey.Location = new System.Drawing.Point(363, 43);
-            this.txbSecretKey.Name = "txbSecretKey";
-            this.txbSecretKey.Size = new System.Drawing.Size(328, 20);
-            this.txbSecretKey.TabIndex = 5;
+            this.buttonViewTables.Location = new System.Drawing.Point(12, 93);
+            this.buttonViewTables.Name = "buttonViewTables";
+            this.buttonViewTables.Size = new System.Drawing.Size(106, 23);
+            this.buttonViewTables.TabIndex = 3;
+            this.buttonViewTables.Text = "VIEW TABLES";
+            this.buttonViewTables.UseVisualStyleBackColor = true;
+            this.buttonViewTables.Click += new System.EventHandler(this.buttonViewTables_Click);
             // 
-            // txbVendorName
+            // lblTablesCount
             // 
-            this.txbVendorName.Location = new System.Drawing.Point(116, 44);
-            this.txbVendorName.Name = "txbVendorName";
-            this.txbVendorName.Size = new System.Drawing.Size(150, 20);
-            this.txbVendorName.TabIndex = 6;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 46);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(97, 13);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "POS vendor name:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(295, 47);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(62, 13);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "Secret Key:";
+            this.lblTablesCount.Name = "lblTablesCount";
+            this.lblTablesCount.Size = new System.Drawing.Size(49, 19);
+            this.lblTablesCount.Text = "0 Tables";
             // 
             // SamplePOSMainForm
             // 
@@ -263,6 +304,10 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txbVendorName;
         private System.Windows.Forms.TextBox txbSecretKey;
-	}
+        private System.Windows.Forms.Button buttonViewBookings;
+        private System.Windows.Forms.ToolStripStatusLabel lblBookingsCount;
+        private System.Windows.Forms.Button buttonViewTables;
+        private System.Windows.Forms.ToolStripStatusLabel lblTablesCount;
+    }
 }
 

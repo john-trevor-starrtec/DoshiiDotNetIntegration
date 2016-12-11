@@ -184,9 +184,52 @@ namespace DoshiiDotNetIntegration.Interfaces
         /// <returns></returns>
         void ConfirmNewPickupOrder(Order order, Consumer consumer);
 
-
+        /// <summary>
+        /// The <see cref="DoshiiController"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
+        /// The pos must check that the order can be made on the pos, and that the transactions total the correct amount for payment of the order in full
+        /// The pos cannot modify the <see cref="Transaction"/> objects in the transaction list, during this process as the amount has already been confirmed with the consumer.
+        /// If the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and and call <see cref="DoshiiController.AcceptOrderAheadCreation"/> with the order, and the
+        /// order should be made on the pos if the response from <see cref="DoshiiController.AcceptOrderAheadCreation"/> is successful - if the response is false this could indicate that the order has been canceled or changed on doshii and the pos will receive another create notification if necessary. 
+        /// The transaction should not be recorded on the POS during this method. The
+        /// he Pos will receive a call to <see cref="ITransactionManager.RecordSuccessfulPayment"/> to record the transaction
+        /// If the <see cref="Order"/> or the <see cref="Transaction"/> is rejected the pos should call <see cref="DoshiiController.RejectOrderAheadCreation"/> with the order.
+        /// </summary>
+        /// <param name="order">
+        /// The <see cref="Order"/> to be approved
+        /// </param>
+        /// <param name="transactionList">
+        /// A List of <see cref="Transaction"/> to be approved
+        /// </param>
+        /// <param name="consumer">
+        /// The <see cref="Consumer"/> associated with the order
+        /// <para/> The consumer object contains data including;
+        /// <item>The consumer address</item>
+        /// <item>The consumer phone number</item>
+        /// <item>The consumer name</item>
+        /// <item>Special notes relating to the order</item>
+        /// </param>
+        /// <returns></returns>
         void ConfirmNewUnknownTypeOrderWithFullPayment(Order order, Consumer consumer, IEnumerable<Transaction> transactionList);
-        
+
+        /// <summary>
+        /// The <see cref="DoshiiController"/> calls this method on the pos so the pos can confirm the acceptance of the order. 
+        /// The pos must check that the order can be made on the pos.
+        /// if the <see cref="Order"/> is accepted the POS must update the <see cref="Order.Id"/> property with the pos reference to the order and call <see cref="DoshiiController.AcceptOrderAheadCreation"/> with the order, and the 
+        /// order should be made on the pos if the response from <see cref="DoshiiController.AcceptOrderAheadCreation"/> is successful - if the response is false this could indicate that the order has been canceled or changed on doshii and the pos will receive another create notification if necessary.. 
+        /// If the <see cref="Order"/> is rejected the pos should call <see cref="DoshiiController.RejectOrderAheadCreation"/> with the order.
+        /// </summary>
+        /// <param name="order">
+        /// the <see cref="Order"/> to be approved
+        /// </param>
+        /// <param name="consumer">
+        /// The <see cref="Consumer"/> associated with the order
+        /// <para/> The consumer object contains data including;
+        /// <item>The consumer address</item>
+        /// <item>The consumer phone number</item>
+        /// <item>The consumer name</item>
+        /// <item>Special notes relating to the order</item>
+        /// </param>
+        /// <returns></returns>
         void ConfirmNewUnknownTypeOrder(Order order, Consumer consumer);
 	}
 }

@@ -91,13 +91,13 @@ namespace DoshiiDotNetIntegration.Helpers
 
         private static void MapTableObjects()
         {
-            // src = Order, dest = JsonOrder
-            Mapper.CreateMap<Table, JsonTable>();
-                //.ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)));
+            // src = Table, dest = JsonTable
+            Mapper.CreateMap<Table, JsonTable>()
+            .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapIntegerToString(src.Covers)));
 
-            // src = JsonOrder, dest = Order
-            Mapper.CreateMap<JsonTable, Table>();
-            //.ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)));
+            // src = JsonTable, dest = Table
+            Mapper.CreateMap<JsonTable, Table>()
+            .ForMember(dest => dest.Covers, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapStringToInteger(src.Covers)));
 
         }
         
@@ -223,7 +223,7 @@ namespace DoshiiDotNetIntegration.Helpers
 
             // src = JsonOrderVariants, dest = Variants
             Mapper.CreateMap<JsonMenuVariants, Variants>()
-                .ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
+                //.ForMember(dest => dest.SelectedOptionalVariant, opt => opt.Ignore())
                 .ForMember(dest => dest.Price, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Price)));
 		}
 
@@ -332,12 +332,12 @@ namespace DoshiiDotNetIntegration.Helpers
 			// src = Surcount, dest = JsonOrderSurcount
 			Mapper.CreateMap<Surcount, JsonOrderSurcount>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Value)))
-				.ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapCurrencyToString(src.Amount)));
+                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => AutoMapperConfigurator.MapSurchargeAmountToString(src.Amount, src.Type)));
 
 			// src = JsonOrderSurcount, dest = Surcount
 			Mapper.CreateMap<JsonOrderSurcount, Surcount>()
                 .ForMember(dest => dest.Value, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Value)))
-                .ForMember(dest => dest.Amount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapCurrency(src.Amount)));
+                .ForMember(dest => dest.Amount, opt => opt.ResolveUsing(src => AutoMapperConfigurator.MapSurchargeAmountToDouble(src.Amount, src.Type)));
 
             // src = Surcount, dest = JsonOrderSurcount
 		    Mapper.CreateMap<Surcount, JsonMenuSurcount>();

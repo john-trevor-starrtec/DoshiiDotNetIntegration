@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,6 +32,8 @@ namespace DoshiiDotNetIntegration.Models.Json
         [JsonProperty(PropertyName = "ref")]
         public string Ref { get; set; }
 
+        #region serializeMembers
+
         public bool ShouldSerializePhone()
         {
             return (!string.IsNullOrEmpty(Phone));
@@ -41,5 +43,12 @@ namespace DoshiiDotNetIntegration.Models.Json
         {
             return (!string.IsNullOrEmpty(Email));
         }
+        
+        public bool ShouldSerializeRef()
+        {
+            return (!string.IsNullOrEmpty(Ref));
+        }
+
+        #endregion
     }
 }

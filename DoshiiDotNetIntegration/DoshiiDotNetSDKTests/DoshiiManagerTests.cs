@@ -1,4 +1,5 @@
-﻿using DoshiiDotNetIntegration;
+﻿/*
+using DoshiiDotNetIntegration;
 using DoshiiDotNetIntegration.Interfaces;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using AutoMapper;
+using DoshiiDotNetIntegration.Controllers;
 using DoshiiDotNetIntegration.Enums;
 using DoshiiDotNetIntegration.Exceptions;
 using DoshiiDotNetIntegration.Models;
@@ -2060,7 +2062,7 @@ namespace DoshiiDotNetSDKTests
             MockHttpComs.Expect(x => x.RedeemPointsForMember(Arg<PointsRedeem>.Is.Anything, Arg<Member>.Is.Anything)).Return(true);
 
             _mockController.RedeemPointsForMember(member, app, order, points);
-        }*/
+        }#1#
 
         [Test]
         public void ReddemPointsForMember_Success()
@@ -2166,3 +2168,4 @@ namespace DoshiiDotNetSDKTests
         }
     }
 }
+*/

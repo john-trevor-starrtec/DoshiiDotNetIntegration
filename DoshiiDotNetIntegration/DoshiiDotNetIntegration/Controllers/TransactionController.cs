@@ -14,12 +14,28 @@ using DoshiiDotNetIntegration.Models.Json;
 
 namespace DoshiiDotNetIntegration.Controllers
 {
+    /// <summary>
+    /// This class is used internally by the SDK to manage the SDK to manage the business logic handling transactions.
+    /// </summary>
     internal class TransactionController
     {
+        /// <summary>
+        /// prop for the local <see cref="Controllers"/> instance. 
+        /// </summary>
         internal Models.Controllers _controllers;
+
+        /// <summary>
+        /// prop for the local <see cref="HttpController"/> instance.
+        /// </summary>
         internal HttpController _httpComs;
 
-        internal TransactionController(ITransactionManager transactionManager, HttpController httpComs, Models.Controllers controller)
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="transactionManager"></param>
+        /// <param name="httpComs"></param>
+        /// <param name="controller"></param>
+        internal TransactionController(Models.Controllers controller, HttpController httpComs)
         {
             if (controller == null)
             {
@@ -31,7 +47,7 @@ namespace DoshiiDotNetIntegration.Controllers
                 throw new NullReferenceException("doshiiLogger cannot be null");
             }
             _controllers.LoggingController = controller.LoggingController;
-            if (transactionManager == null)
+            if (_controllers.TransactionManager == null)
             {
                 _controllers.LoggingController.LogMessage(typeof(TransactionController), DoshiiLogLevels.Fatal, "Doshii: Initialization failed - transactionManager cannot be null");
                 throw new NullReferenceException("transactionManager cannot be null");
@@ -93,6 +109,11 @@ namespace DoshiiDotNetIntegration.Controllers
             return returnedTransaction;
         }
 
+        /// <summary>
+        /// gets a transaction from Doshii from the provided transactionId
+        /// </summary>
+        /// <param name="transactionId"></param>
+        /// <returns></returns>
         internal virtual Transaction GetTransaction(string transactionId)
         {
             try
@@ -105,6 +126,12 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// get a list of transactions from Doshii related to the DoshiiOrderId provided, 
+        /// This method is primarily used to get the transactions for unlinked orders before the pos is alerted to the creation of the order. 
+        /// </summary>
+        /// <param name="doshiiOrderId"></param>
+        /// <returns></returns>
         internal virtual IEnumerable<Transaction> GetTransactionFromDoshiiOrderId(string doshiiOrderId)
         {
             try
@@ -126,6 +153,36 @@ namespace DoshiiDotNetIntegration.Controllers
             }
         }
 
+        /// <summary>
+        /// get a list of transactions from Doshii related to the posOrderId provided, 
+        /// </summary>
+        /// <param name="doshiiOrderId"></param>
+        /// <returns></returns>
+        internal virtual IEnumerable<Transaction> GetTransactionFromPosOrderId(string posOrderId)
+        {
+            try
+            {
+                return _httpComs.GetTransactionsFromPosOrderId(posOrderId);
+            }
+            catch (Exceptions.RestfulApiErrorResponseException rex)
+            {
+                //this means there were no transactions for the unlinked order. 
+                if (rex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    List<Transaction> emplyTransactionList = new List<Transaction>();
+                    return emplyTransactionList;
+                }
+                else
+                {
+                    throw rex;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets all the open transactions from Doshii. 
+        /// </summary>
+        /// <returns></returns>
         internal virtual IEnumerable<Transaction> GetTransactions()
         {
             try

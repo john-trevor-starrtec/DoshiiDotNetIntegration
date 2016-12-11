@@ -36,15 +36,20 @@ namespace DoshiiDotNetIntegration.Models.Json
 		/// <summary>
 		/// This field will be true if the variant has been selected.
 		/// </summary>
-		[DataMember]
+		/*[DataMember]
 		[JsonProperty(PropertyName = "selectedOptionalVariant")]
 		public bool SelectedOptionalVariant { get; set; }
-
+*/
         /// <summary>
         /// The price of the variant in cents
         /// </summary>
         [DataMember]
         [JsonProperty(PropertyName = "price")]
         public string Price { get; set; }
+
+        public bool ShouldSerializePosId()
+        {
+            return (!string.IsNullOrEmpty(PosId));
+        }
     }
 }

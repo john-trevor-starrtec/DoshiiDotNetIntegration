@@ -1,4 +1,5 @@
-﻿using DoshiiDotNetIntegration;
+﻿/*
+using DoshiiDotNetIntegration;
 using NUnit.Framework;
 using Rhino.Mocks;
 using System;
@@ -203,3 +204,4 @@ namespace DoshiiDotNetSDKTests
         
     }
 }
+*/

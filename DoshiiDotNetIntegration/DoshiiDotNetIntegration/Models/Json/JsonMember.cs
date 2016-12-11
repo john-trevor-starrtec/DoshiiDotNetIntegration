@@ -64,5 +64,14 @@ namespace DoshiiDotNetIntegration.Models.Json
             }
             set { _Apps = value; }
         }
+
+#region serializeMembers
+
+        public bool ShouldSerializeRef()
+        {
+            return (!string.IsNullOrEmpty(Ref));
+        }
+
+#endregion
     }
 }

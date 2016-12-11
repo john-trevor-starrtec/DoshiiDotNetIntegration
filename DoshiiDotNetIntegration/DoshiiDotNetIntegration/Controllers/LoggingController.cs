@@ -6,7 +6,6 @@ namespace DoshiiDotNetIntegration.Controllers
 {
 	/// <summary>
 	/// This class is used internally by the SDK to manage the logging of messages back to the POS implementation.
-	/// This should not need to be instantiated by the POS implementation.
 	/// </summary>
 	internal class LoggingController : IDisposable
 	{
@@ -44,7 +43,7 @@ namespace DoshiiDotNetIntegration.Controllers
 		/// <param name="level">The logging level.</param>
 		/// <param name="message">The raw string message to be logged.</param>
 		/// <param name="ex">An optional exception associated with the log message.</param>
-		internal void LogMessage(Type type, DoshiiLogLevels level, string message, Exception ex = null)
+		internal virtual void LogMessage(Type type, DoshiiLogLevels level, string message, Exception ex = null)
 		{
 			if (mLog != null)
 				mLog.LogDoshiiMessage(type, level, message, ex);
