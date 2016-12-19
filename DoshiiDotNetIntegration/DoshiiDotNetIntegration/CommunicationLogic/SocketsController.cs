@@ -358,6 +358,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
         internal virtual void WebSocketsConnectionOnMessageEventHandler(object sender, MessageEventArgs e)
         {
             SetLastSuccessfullSocketCommunicationTime();
+            _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Received WebScoket message"));
             SocketMessage theMessage = new SocketMessage();
             if (e.Type == Opcode.Text)
             {
@@ -365,7 +366,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 // drop heart beat response
                 if (messageString.Contains(String.Format("{0}", SocketsController.PongMessage)))
                 {
-					_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: Received web-sockets message '{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
+					_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: web-sockets message data'{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
                     return;
                 }
                 else
@@ -381,6 +382,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 // drop heartbeat message
                 if (messageString.Contains(String.Format("{0}", SocketsController.PongMessage)))
                 {
+                    _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: web-sockets message data'{0}' from {1}", messageString, _webSocketsConnection.Url.ToString()));
                     return;
                 }
                 else
@@ -389,7 +391,7 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                 }
                 
             }
-			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("WebScoket message received - '{0}'", theMessage.ToString()));
+			_logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Debug, string.Format("Doshii: De-serialized WebScoket message - '{0}'", theMessage.ToString()));
             ProcessSocketMessage(theMessage);
 
         }
