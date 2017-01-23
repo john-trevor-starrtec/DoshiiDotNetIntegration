@@ -475,12 +475,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.MemberEventArgs memberCreatedEventArgs = new MemberEventArgs();
                     try
                     {
-                        memberCreatedEventArgs.Member = _controllers.RewardController.GetMember(messageData.MemberId);
-                        memberCreatedEventArgs.MemberId = messageData.MemberId;
+                        memberCreatedEventArgs.Member = _controllers.RewardController.GetMember(messageData.Id);
+                        memberCreatedEventArgs.MemberId = messageData.Id;
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving member updates but the Member module has not been initialized."));
+                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("Exception calling get member."), ex);
                     }
                     
 
@@ -498,12 +498,12 @@ namespace DoshiiDotNetIntegration.CommunicationLogic
                     CommunicationEventArgs.MemberEventArgs memberUpdatedEventArgs = new MemberEventArgs();
                     try
                     {
-                        memberUpdatedEventArgs.Member = _controllers.RewardController.GetMember(messageData.MemberId);
-                        memberUpdatedEventArgs.MemberId = messageData.MemberId;
+                        memberUpdatedEventArgs.Member = _controllers.RewardController.GetMember(messageData.Id);
+                        memberUpdatedEventArgs.MemberId = messageData.Id;
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("The Pos is receiving member updates but the Member module has not been initialized."));
+                        _logger.LogMessage(typeof(SocketsController), Enums.DoshiiLogLevels.Error, string.Format("Exception calling get member."), ex);
                     }
 
                     if (MemberUpdatedEvent != null)

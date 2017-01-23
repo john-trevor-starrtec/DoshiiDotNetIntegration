@@ -158,7 +158,15 @@ namespace DoshiiDotNetIntegration.Controllers
                 var membersNotInDoshii = PosMembersList.Where(p => !doshiiMembersHashSet.Contains(p.Id));
                 foreach (var mem in membersNotInDoshii)
                 {
-                    _controllers.RewardManager.DeleteMemberOnPos(mem);
+                    try
+                    {
+                        _controllers.RewardManager.DeleteMemberOnPos(mem);
+                    }
+                    catch (Exception ex)
+                    {
+                        _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception deleting a member on the pos with doshii memberId {0}", mem.Id), ex);
+                    }
+                   
                 }
 
                 var membersInPos = DoshiiMembersList.Where(p => posMembersHashSet.Contains(p.Id));
@@ -167,14 +175,30 @@ namespace DoshiiDotNetIntegration.Controllers
                     Member posMember = PosMembersList.FirstOrDefault(p => p.Id == mem.Id);
                     if (!mem.Equals(posMember))
                     {
-                        _controllers.RewardManager.UpdateMemberOnPos(mem);
+                        try
+                        {
+                            _controllers.RewardManager.UpdateMemberOnPos(mem);
+                        }
+                        catch (Exception ex)
+                        {
+                            _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception updating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                        }
+                        
                     }
                 }
 
                 var membersNotInPos = DoshiiMembersList.Where(p => !posMembersHashSet.Contains(p.Id));
                 foreach (var mem in membersNotInPos)
                 {
-                    _controllers.RewardManager.CreateMemberOnPos(mem);
+                    try
+                    {
+                        _controllers.RewardManager.CreateMemberOnPos(mem);
+                    }
+                    catch(Exception ex)
+                    {
+                        _controllers.LoggingController.LogMessage(typeof(DoshiiController), DoshiiLogLevels.Error, string.Format("Doshii: There was an exception creating a member on the pos with doshii memberId {0}", mem.Id), ex);
+                    }
+
                 }
 
 
