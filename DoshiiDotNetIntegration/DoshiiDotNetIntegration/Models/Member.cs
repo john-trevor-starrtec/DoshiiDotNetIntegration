@@ -119,12 +119,20 @@ namespace DoshiiDotNetIntegration.Models
             {
                 return false;
             }
-             
-            if (!this.Address.Equals(Address))
+
+            if (this.Address != null && memberToTest.Address != null)
+            {
+                if (!this.Address.Equals(memberToTest.Address))
+                {
+                    return false;
+                }
+            }
+            else if ((this.Address == null && memberToTest.Address != null) ||
+                (this.Address != null && memberToTest.Address == null))
             {
                 return false;
-            }
-             
+            } 
+            
             if (this.Uri != memberToTest.Uri)
             {
                 return false;
