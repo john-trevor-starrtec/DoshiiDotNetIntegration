@@ -25,5 +25,7 @@ namespace DoshiiDotNetIntegration.Models
         /// the amount of points available for the member on this app
         /// </summary>
         public decimal Points { get; set; }
+
+        public decimal Ref { get; set; }
     }
 }
