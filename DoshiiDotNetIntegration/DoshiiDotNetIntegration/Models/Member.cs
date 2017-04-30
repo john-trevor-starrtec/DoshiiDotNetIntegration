@@ -143,7 +143,23 @@ namespace DoshiiDotNetIntegration.Models
                 return false;
             }
 
+            if (memberToTest.Apps.Count() != this.Apps.Count())
+            {
+                return false;
+            }
+
+            if (this.Apps.Where(i => !memberToTest.Apps.Contains(i)).ToList().Count > 0)
+            {
+                return false;
+            }
+            if (memberToTest.Apps.Where(i => !this.Apps.Contains(i)).ToList().Count > 0)
+            {
+                return false;
+            }
+            
+            
             return true;
         }
     }
 }
+
