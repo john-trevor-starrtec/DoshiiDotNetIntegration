@@ -2,15 +2,15 @@
 <package >
   <metadata>
     <id>DoshiiPosDotNetSDKv3</id>
-    <version>3.4.1</version>
+    <version>3.5</version>
     <title>DoshiiPosDotNetSDKv3</title>
     <authors>DoshiiCorp</authors>
     <owners>DoshiiCorp</owners>
     <projectUrl>http://docs.doshii.co/change-log/v3.0.0/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An SDK for pos solutions written in .NET to integration with the Doshii API</description>
-    <releaseNotes>Fix null reference exception in member model</releaseNotes>
-    <copyright>Copyright 2016</copyright>
+    <releaseNotes>SDK now handles the ref </releaseNotes>
+    <copyright>Copyright 2017</copyright>
     <tags>DoshiiSDK Doshii</tags>
   </metadata>
   <files>
