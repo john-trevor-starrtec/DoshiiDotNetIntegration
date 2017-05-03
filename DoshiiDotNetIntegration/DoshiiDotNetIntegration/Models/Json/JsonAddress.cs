@@ -80,7 +80,7 @@ namespace DoshiiDotNetIntegration.Models.Json
             return (!string.IsNullOrEmpty(PostalCode));
         }
 
-        public bool ShouldSerializePostalCountry()
+        public bool ShouldSerializeCountry()
         {
             return (!string.IsNullOrEmpty(Country));
         }
